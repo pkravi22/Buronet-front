@@ -9,9 +9,9 @@ import { formatDistanceToNow, parseISO } from 'date-fns';
 import Image from 'next/image';
 import { useNews } from '@/hooks/useNews';
 
-const CurrentAffairsPage: React.FC = () => {
+const ExamUpdatesPage: React.FC = () => {
   // Use the new hook with a specific query for "india exams"
-  const { articles, isLoading, error, refetch } = useNews('government jobs india');
+  const { articles, isLoading, error, refetch } = useNews('india exams');
 
   const formatTimeAgo = (dateString: string) => {
     try {
@@ -59,7 +59,7 @@ const CurrentAffairsPage: React.FC = () => {
       <div className="min-h-screen bg-[#EEF0F4] mt-8 py-8">
         <div className="max-w-7xl mx-auto px-4 lg:px-8">
           <h1 className="text-3xl font-bold mb-8">
-            Latest News from India
+            Latest Exam News
           </h1>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {articles.map((item) => (
@@ -108,4 +108,4 @@ const CurrentAffairsPage: React.FC = () => {
   );
 };
 
-export default withAuthRequired(CurrentAffairsPage);
+export default withAuthRequired(ExamUpdatesPage);
