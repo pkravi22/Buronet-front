@@ -167,16 +167,10 @@ const MainContent = () => {
 
           <div className="mt-8">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-[#1F2937] text-lg font-medium">People You May Know</h2>
+              <h2 className="text-[#1F2937] text-lg font-medium">People With Similar Profile</h2>
               <button className="text-[#2563EB] text-sm font-medium">See More</button>
             </div>
             {/* The People You May Know section can also be made dynamic with a different hook/data set */}
-            {/* Using a placeholder for now */}
-            {/* <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              <div className="bg-white rounded-xl shadow-sm p-4 h-[260px] flex flex-col">
-                <p>Implement this with a new hook that suggests users based on connections, groups, etc.</p>
-              </div>
-            </div> */}
             <div
               ref={scrollContainerRef}
               className="flex gap-4 overflow-x-auto snap-x snap-proximity scrollbar-hide sm:scroll-p-4 sm:px-4 sm:-mx-4"
@@ -187,7 +181,56 @@ const MainContent = () => {
               ) : error ? (
                 <p className="text-red-500">{error}</p>
               ) : (
-                suggestedConnections.map((user, index) => (
+                suggestedConnections[0].map((user, index) => (
+                  <div key={user.id || index} className="w-full sm:w-[46%] lg:w-[32%] shrink-0 snap-start sm:snap-center">
+                    <NetworkCard user={user} onConnectClick={sendRequest} isConnected={false} />
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+
+          <div className="mt-8">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-[#1F2937] text-lg font-medium">People With Similar Title</h2>
+              <button className="text-[#2563EB] text-sm font-medium">See More</button>
+            </div>
+            {/* The People You May Know section can also be made dynamic with a different hook/data set */}
+            <div
+              ref={scrollContainerRef}
+              className="flex gap-4 overflow-x-auto snap-x snap-proximity scrollbar-hide sm:scroll-p-4 sm:px-4 sm:-mx-4"
+            >
+              {/* Use dynamic suggestedConnections from the hook */}
+              {isLoading ? (
+                <LoadingSpinner />
+              ) : error ? (
+                <p className="text-red-500">{error}</p>
+              ) : (
+                suggestedConnections[1].map((user, index) => (
+                  <div key={user.id || index} className="w-full sm:w-[46%] lg:w-[32%] shrink-0 snap-start sm:snap-center">
+                    <NetworkCard user={user} onConnectClick={sendRequest} isConnected={false} />
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+          <div className="mt-8">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-[#1F2937] text-lg font-medium">People With Similar Education</h2>
+              <button className="text-[#2563EB] text-sm font-medium">See More</button>
+            </div>
+            {/* The People You May Know section can also be made dynamic with a different hook/data set */}
+            <div
+              ref={scrollContainerRef}
+              className="flex gap-4 overflow-x-auto snap-x snap-proximity scrollbar-hide sm:scroll-p-4 sm:px-4 sm:-mx-4"
+            >
+              {/* Use dynamic suggestedConnections from the hook */}
+              {isLoading ? (
+                <LoadingSpinner />
+              ) : error ? (
+                <p className="text-red-500">{error}</p>
+              ) : (
+                suggestedConnections[2].map((user, index) => (
                   <div key={user.id || index} className="w-full sm:w-[46%] lg:w-[32%] shrink-0 snap-start sm:snap-center">
                     <NetworkCard user={user} onConnectClick={sendRequest} isConnected={false} />
                   </div>

@@ -10,7 +10,7 @@ import { log } from 'console';
 interface UseConnectionsResult {
   connections: ConnectionDto[];
   pendingRequests: ConnectionRequestDto[];
-  suggestedConnections: SuggestedUserDto[];
+  suggestedConnections: SuggestedUserDto[][];
   popularConnections: PopularUserDto[];
   isLoading: boolean;
   error: string | null;
@@ -24,7 +24,7 @@ export const useConnections = (): UseConnectionsResult => {
   const { user, isLoading: isAuthLoading } = useAuth();
   const [connections, setConnections] = useState<ConnectionDto[]>([]);
   const [pendingRequests, setPendingRequests] = useState<ConnectionRequestDto[]>([]);
-  const [suggestedConnections, setSuggestedConnections] = useState<SuggestedUserDto[]>([]);
+  const [suggestedConnections, setSuggestedConnections] = useState<SuggestedUserDto[][]>([[]]);
   const [popularConnections, setPopularConnections] = useState<PopularUserDto[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -49,7 +49,7 @@ export const useConnections = (): UseConnectionsResult => {
       setPendingRequests(fetchedRequests);
 
       // Assuming a GET /api/connections/suggestions endpoint
-      const fetchedSuggestions = await get<SuggestedUserDto[]>('/connections/suggestions');
+      const fetchedSuggestions = await get<SuggestedUserDto[][]>('/connections/suggestions');
       // const fetchedSuggestions: SuggestedUserDto = {
       //   id: '',
       //   username: '',
