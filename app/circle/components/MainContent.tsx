@@ -41,7 +41,7 @@ const NetworkCard: React.FC<NetworkCardProps> = ({ user, onConnectClick, isConne
         onClick={() => onConnectClick(user.id)}
         className={`mt-auto w-full h-10 rounded flex items-center justify-center gap-2 ${
           isConnected ? 'bg-[#F3F4F6] text-[#374151]' : 'bg-[#2563EB] text-white'
-        }`}
+          }`}
       >
         <Users size={16} />
         {isConnected ? 'Message' : 'Connect'} {user.id}
@@ -61,7 +61,7 @@ const MainContent = () => {
     if (container) {
       const isAtStart = container.scrollLeft < 1;
       const isAtEnd = Math.abs(container.scrollWidth - container.clientWidth - container.scrollLeft) < 1;
-      
+
       setShowLeftButton(!isAtStart);
       setShowRightButton(!isAtEnd);
     }
@@ -81,11 +81,11 @@ const MainContent = () => {
       });
     }
   };
-  
+
   useEffect(() => {
     const container = scrollContainerRef.current;
     if (!container) return;
-    
+
     handleScroll();
     container.addEventListener('scroll', handleScroll);
 
@@ -99,7 +99,7 @@ const MainContent = () => {
   }, [handleScroll]);
 
   // Use the new useConnections hook to get data
-  const { suggestedConnections, isLoading, error, sendRequest } = useConnections();
+  const { suggestedConnections, popularConnections, isLoading, error, sendRequest } = useConnections();
 
   const dashboardCards = [
     { title: 'Total Connections', value: '248', trend: '12% from last month', icon: <Users size={16} />, iconColor: 'text-[#EF4444]', trendIcon: <TrendingUp size={12} />, trendColor: 'text-[#16A34A]' },
@@ -127,27 +127,27 @@ const MainContent = () => {
             </div>
             <div className="relative">
               <div className="relative">
-                  <div className={`absolute inset-y-0 left-0 w-8 bg-gradient-to-r from-[#EEF0F4] to-transparent z-10 pointer-events-none transition-opacity duration-300 ${showLeftButton ? 'opacity-100' : 'opacity-0'}`} />
-                  
-                  <div
-                    ref={scrollContainerRef}
-                    className="flex gap-4 overflow-x-auto snap-x snap-proximity scrollbar-hide sm:scroll-p-4 sm:px-4 sm:-mx-4"
-                  >
-                    {/* Use dynamic suggestedConnections from the hook */}
-                    {isLoading ? (
-                      <LoadingSpinner />
-                    ) : error ? (
-                      <p className="text-red-500">{error}</p>
-                    ) : (
-                      suggestedConnections.map((user, index) => (
-                        <div key={user.id || index} className="w-full sm:w-[46%] lg:w-[32%] shrink-0 snap-start sm:snap-center">
-                          <NetworkCard user={user} onConnectClick={sendRequest} isConnected={false} />
-                        </div>
-                      ))
-                    )}
-                  </div>
+                <div className={`absolute inset-y-0 left-0 w-8 bg-gradient-to-r from-[#EEF0F4] to-transparent z-10 pointer-events-none transition-opacity duration-300 ${showLeftButton ? 'opacity-100' : 'opacity-0'}`} />
 
-                  <div className={`absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-[#EEF0F4] to-transparent z-10 pointer-events-none transition-opacity duration-300 ${showRightButton ? 'opacity-100' : 'opacity-0'}`} />
+                <div
+                  ref={scrollContainerRef}
+                  className="flex gap-4 overflow-x-auto snap-x snap-proximity scrollbar-hide sm:scroll-p-4 sm:px-4 sm:-mx-4"
+                >
+                  {/* Use dynamic suggestedConnections from the hook */}
+                  {isLoading ? (
+                    <LoadingSpinner />
+                  ) : error ? (
+                    <p className="text-red-500">{error}</p>
+                  ) : (
+                    popularConnections.map((user, index) => (
+                      <div key={user.id || index} className="w-full sm:w-[46%] lg:w-[32%] shrink-0 snap-start sm:snap-center">
+                        <NetworkCard user={user} onConnectClick={sendRequest} isConnected={false} />
+                      </div>
+                    ))
+                  )}
+                </div>
+
+                <div className={`absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-[#EEF0F4] to-transparent z-10 pointer-events-none transition-opacity duration-300 ${showRightButton ? 'opacity-100' : 'opacity-0'}`} />
               </div>
 
               <button
@@ -172,10 +172,27 @@ const MainContent = () => {
             </div>
             {/* The People You May Know section can also be made dynamic with a different hook/data set */}
             {/* Using a placeholder for now */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {/* <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <div className="bg-white rounded-xl shadow-sm p-4 h-[260px] flex flex-col">
                 <p>Implement this with a new hook that suggests users based on connections, groups, etc.</p>
               </div>
+            </div> */}
+            <div
+              ref={scrollContainerRef}
+              className="flex gap-4 overflow-x-auto snap-x snap-proximity scrollbar-hide sm:scroll-p-4 sm:px-4 sm:-mx-4"
+            >
+              {/* Use dynamic suggestedConnections from the hook */}
+              {isLoading ? (
+                <LoadingSpinner />
+              ) : error ? (
+                <p className="text-red-500">{error}</p>
+              ) : (
+                suggestedConnections.map((user, index) => (
+                  <div key={user.id || index} className="w-full sm:w-[46%] lg:w-[32%] shrink-0 snap-start sm:snap-center">
+                    <NetworkCard user={user} onConnectClick={sendRequest} isConnected={false} />
+                  </div>
+                ))
+              )}
             </div>
           </div>
 

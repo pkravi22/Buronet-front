@@ -4,13 +4,14 @@
 import { useState, useEffect, useCallback } from 'react';
 import { get, postApi, remove } from '../lib/api'; // Import get, postApi, and remove from your API utility
 import { useAuth } from '../context/AuthContext'; // To get the current user ID
-import { ConnectionDto, ConnectionRequestDto, SuggestedUserDto, SendRequestDto } from '../lib/types/connections';
+import { ConnectionDto, ConnectionRequestDto, SuggestedUserDto, SendRequestDto, PopularUserDto } from '../lib/types/connections';
 import { log } from 'console';
 
 interface UseConnectionsResult {
   connections: ConnectionDto[];
   pendingRequests: ConnectionRequestDto[];
   suggestedConnections: SuggestedUserDto[];
+  popularConnections: PopularUserDto[];
   isLoading: boolean;
   error: string | null;
   acceptRequest: (requestId: number) => Promise<void>;
@@ -24,6 +25,7 @@ export const useConnections = (): UseConnectionsResult => {
   const [connections, setConnections] = useState<ConnectionDto[]>([]);
   const [pendingRequests, setPendingRequests] = useState<ConnectionRequestDto[]>([]);
   const [suggestedConnections, setSuggestedConnections] = useState<SuggestedUserDto[]>([]);
+  const [popularConnections, setPopularConnections] = useState<PopularUserDto[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [refetchTrigger, setRefetchTrigger] = useState(0);
@@ -58,6 +60,10 @@ export const useConnections = (): UseConnectionsResult => {
       //   mutualConnections: 0
       // };
       setSuggestedConnections(fetchedSuggestions);
+
+      const fetchedPopular = await get<PopularUserDto[]>('/connections/popular');
+      console.log('Fetched popular connections:', fetchedPopular);
+      setPopularConnections(fetchedPopular);
     } catch (err: any) {
       setError(err.message || "Failed to load connection data.");
     } finally {
@@ -103,6 +109,7 @@ export const useConnections = (): UseConnectionsResult => {
   return {
     connections,
     pendingRequests,
+    popularConnections,
     suggestedConnections,
     isLoading,
     error,
