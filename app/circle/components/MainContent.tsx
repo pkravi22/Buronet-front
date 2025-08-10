@@ -102,10 +102,10 @@ const MainContent = () => {
   const { suggestedConnections, popularConnections, isLoading, error, sendRequest } = useConnections();
 
   const dashboardCards = [
-    { title: 'Total Connections', value: '248', trend: '12% from last month', icon: <Users size={16} />, iconColor: 'text-[#EF4444]', trendIcon: <TrendingUp size={12} />, trendColor: 'text-[#16A34A]' },
-    { title: 'Joined Groups', value: '16', trend: '3 new this month', icon: <Users size={16} />, iconColor: 'text-[#3B82F6]', trendIcon: <TrendingUp size={12} />, trendColor: 'text-[#16A34A]' },
-    { title: 'Pending Requests', value: '24', trend: '5 new this week', icon: <UserPlus size={16} />, iconColor: 'text-[#22C55E]', trendIcon: <Clock size={12} />, trendColor: 'text-[#F59E0B]' },
-    { title: 'Network Growth', value: '2.4K', trend: '5.7% this month', icon: <TrendingUp size={16} />, iconColor: 'text-[#A855F7]', trendIcon: <TrendingUp size={12} />, trendColor: 'text-[#16A34A]' }
+    { title: 'Total Connections', value: '248', trend: '12% from last month', icon: <Users size={16} />, iconColor: 'text-[#EF4444]', trendIcon: <TrendingUp size={12} />, trendColor: 'text-[#16A34A]', refLink: "" },
+    { title: 'Joined Groups', value: '16', trend: '3 new this month', icon: <Users size={16} />, iconColor: 'text-[#3B82F6]', trendIcon: <TrendingUp size={12} />, trendColor: 'text-[#16A34A]', refLink: "" },
+    { title: 'Pending Requests', value: '24', trend: '5 new this week', icon: <UserPlus size={16} />, iconColor: 'text-[#22C55E]', trendIcon: <Clock size={12} />, trendColor: 'text-[#F59E0B]', refLink: "" },
+    { title: 'Network Growth', value: '2.4K', trend: '5.7% this month', icon: <TrendingUp size={16} />, iconColor: 'text-[#A855F7]', trendIcon: <TrendingUp size={12} />, trendColor: 'text-[#16A34A]', refLink: "" }
   ];
 
   return (
