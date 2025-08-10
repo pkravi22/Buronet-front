@@ -2,6 +2,8 @@
 
 import { TrendingUp, Users, UserPlus, Clock, User, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useRef, useState, useEffect, useCallback } from 'react';
+import {useRouter} from 'next/navigation';
+
 
 // --- INTERFACES ---
 interface DashboardCardProps {
@@ -12,11 +14,22 @@ interface DashboardCardProps {
   iconColor: string;
   trendIcon?: React.ReactNode;
   trendColor?: string;
+  refLink?: string;
 }
 
+
 // --- CHILD COMPONENTS ---
-const DashboardCard = ({ title, value, trend, icon, iconColor, trendIcon, trendColor = "text-[#16A34A]" }: DashboardCardProps) => (
-  <div className="w-full h-32 bg-gradient-to-br from-[#DDECFF] to-[#E3EAFF] rounded-xl">
+const DashboardCard = ({ title, value, trend, icon, iconColor, trendIcon, trendColor = "text-[#16A34A]", refLink }: DashboardCardProps) => {
+  const router = useRouter();
+
+  const handleOpenClick = (refLink: string | undefined) => {
+    if (refLink) {
+      router.push(`/${refLink}`);
+    }
+  };
+
+  return (
+  <div className="w-full h-32 bg-gradient-to-br from-[#DDECFF] to-[#E3EAFF] rounded-xl" onClick={() => handleOpenClick(refLink)}>
     <div className="h-full px-4 py-4 flex flex-col justify-between">
       <div className="flex items-center">
         <div className="w-8 h-8 bg-white rounded-lg shadow-sm flex items-center justify-center">
@@ -40,8 +53,8 @@ const DashboardCard = ({ title, value, trend, icon, iconColor, trendIcon, trendC
         </div>
       </div>
     </div>
-  </div>
-);
+  </div>)
+};
 
 // Note: This file also contains other components like NetworkCard and the main MainContent component.
 // I have provided only the requested DashboardCard component and its props here.
