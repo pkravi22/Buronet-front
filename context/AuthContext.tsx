@@ -1,0 +1,256 @@
+// context/AuthContext.tsx
+'use client';
+
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { apiFetch, get, postApi } from '../lib/api';
+import { User, LoginData, RegisterData, UserProfile } from '../lib/types/user';
+import { useRouter } from 'next/navigation';
+import { jwtDecode } from 'jwt-decode'; // Ensure jwt-decode is installed: npm install jwt-decode
+import LoadingSpinner from '../components/UI/LoadingSpinner'; // Adjust path based on your project structure
+
+// Define your User type based on what your backend returns after successful login/token verification
+// Ensure 'id' is string if your backend returns it as string GUID, or Guid if you convert it.
+// Based on your backend's User model, 'id' is Guid, so it will be a string GUID on frontend.
+// (User interface is imported from '../lib/types/user')
+
+interface AuthContextType {
+  user: User | null;
+  isLoading: boolean;
+  login: (data: LoginData) => Promise<boolean>;
+  logout: () => Promise<void>;
+  register: (data: RegisterData) => Promise<boolean>;
+  error: string | null;
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true); // Start as true, becomes false after initial session check
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+
+  // --- Debugging: Log state changes ---
+  useEffect(() => {
+    console.log('AuthContext State Update: user =', user, 'isLoading =', isLoading, 'error =', error);
+  }, [user, isLoading, error]);
+
+
+  // Function to fetch the current user's basic info from /Users/user (backend token verification)
+  const fetchCurrentUser = async () => {
+    console.log('fetchCurrentUser: Starting initial session check.');
+    setIsLoading(true); // Indicate loading
+    setError(null); // Clear any previous errors
+
+    const token = localStorage.getItem('token');
+    if (!token) {
+      console.log('fetchCurrentUser: No token found in localStorage. User is not authenticated.');
+      setUser(null);
+      setIsLoading(false);
+      return; // No token, so no need to fetch
+    }
+
+    // Optional client-side token expiration check (for UX, not security)
+    try {
+      const decoded: any = jwtDecode(token);
+      const expirationTime = decoded.exp * 1000;
+      if (expirationTime < Date.now()) {
+        console.warn('fetchCurrentUser: Client-side token expired. Clearing token.');
+        localStorage.removeItem('token');
+        setUser(null);
+        setIsLoading(false);
+        setError('Your session has expired. Please log in again.');
+        return;
+      }
+    } catch (decodeError) {
+      console.error('fetchCurrentUser: Error decoding token client-side. Clearing token.', decodeError);
+      localStorage.removeItem('token');
+      setUser(null);
+      setIsLoading(false);
+      setError('Invalid session token. Please log in again.');
+      return;
+    }
+
+
+    try {
+      // Call the /Users/user endpoint to verify token and get basic user info
+      // This request will automatically include the Authorization header via lib/api.ts
+      console.log('fetchCurrentUser: Attempting backend token verification via GET /Users/user');
+      const currentUser = await get<User>('/auth/profile'); // Call the /Users/user endpoint for basic user info
+      console.log("fetchCurrentUser: Backend verification successful. Current user fetched: ", currentUser);
+      setUser(currentUser); // Set user if fetch is successful
+    } catch (err: any) {
+      // If 401, the token is invalid or expired. Clear it.
+      if (err.message.includes("401") || err.message.includes("Unauthorized")) {
+        console.error('fetchCurrentUser: Backend token verification failed (401/Unauthorized). Clearing token.', err);
+        localStorage.removeItem('token');
+        setUser(null);
+        setError('Session expired or invalid. Please log in again.');
+      } else {
+        // Clear token on other errors too, just in case
+        console.error('fetchCurrentUser: Error fetching user status from backend. Clearing token.', err);
+        setError(err.message || "Failed to fetch user status.");
+        localStorage.removeItem('token');
+        setUser(null);
+      }
+    } finally {
+      console.log('fetchCurrentUser: Initial session check complete.');
+      setIsLoading(false); // Authentication check is complete
+    }
+  };
+
+  useEffect(() => {
+    fetchCurrentUser();
+  }, []); // Run once on mount to check initial session status
+
+  // --- Login Function ---
+  const login = async (data: LoginData): Promise<boolean> => {
+    console.log('login: Attempting login for username:', data.username);
+    setIsLoading(true); // Indicate login process is active
+    setError(null); // Clear previous errors
+    console.log('login: Sending login request to backend with data:', data);
+    
+    try {
+      // POST to backend login, expecting a { token: "...", userId: "...", username: "...", email: "..." } response
+      const response: { token: string; userId: string; username: string; email: string; } = await postApi('/auth/login', data);
+
+      if (response && response.token) {
+        console.log('login: Login successful. Token received.');
+        localStorage.setItem('token', response.token); // Save JWT to localStorage
+        // Set user context directly with basic info from login response
+        // IMPORTANT: Ensure response.userId is a string GUID if User.id is string
+        setUser({ id: response.userId, username: response.username, email: response.email, createdAt: '', updatedAt: '' }); // Simplified
+        router.push('/profile'); // Redirect after login
+        return true;
+      } else {
+        throw new Error("Login successful but no token received.");
+      }
+    } catch (err: any) {
+      console.error('login: Login failed:', err);
+      setError(err.message || "Login failed. Please check your credentials.");
+      localStorage.removeItem('token'); // Clear any invalid token
+      setUser(null);
+      return false;
+    } finally {
+      console.log('login: Login process complete.');
+      setIsLoading(false); // Login process complete
+    }
+  };
+
+  // --- Logout Function ---
+  const logout = async () => {
+    console.log('logout: Initiating logout process.');
+    setIsLoading(true);
+    setError(null);
+    try {
+      localStorage.removeItem('token'); // Clear token from storage
+      setUser(null); // Clear user from context
+
+      try {
+        // Call backend logout endpoint (optional, for refresh token invalidation/blacklisting)
+        console.log('logout: Attempting backend logout call.');
+        await postApi('/auth/logout', {});
+        console.log("logout: Backend logout endpoint hit successfully.");
+      } catch (backendLogoutError: any) {
+        console.warn("logout: Backend logout endpoint failed (might be expected if token already cleared or endpoint doesn't exist/is unreachable):", backendLogoutError);
+      }
+
+      router.push('/'); // Redirect to homepage after logout
+    } catch (err: any) {
+      console.error('logout: Error during client-side logout process:', err);
+      setError(err.message || "Logout failed.");
+    } finally {
+      console.log('logout: Logout process complete.');
+      setIsLoading(false);
+    }
+  };
+
+  // --- Register Function ---
+  const register = async (data: RegisterData): Promise<boolean> => {
+    console.log('register: Attempting registration for username:', data.username);
+    setIsLoading(true);
+    setError(null);
+    try {
+      // Assuming register endpoint returns token and user info upon success
+      const registerResponse: { token: string; userId: string; username: string; email: string; } = await postApi('/auth/register', data);
+
+      if (registerResponse && registerResponse.token) {
+        console.log('register: Registration successful. Token received.');
+        localStorage.setItem('token', registerResponse.token);
+        // Set user context directly with basic info from registration response
+        setUser({ id: registerResponse.userId, username: registerResponse.username, email: registerResponse.email, createdAt: '', updatedAt: '' });
+        router.push('/complete-profile'); // Redirect to complete profile page after successful registration
+        return true;
+      } else {
+        throw new Error("Registration successful but no token received.");
+      }
+    } catch (err: any) {
+      console.error('register: Registration failed:', err);
+      setError(err.message || "Registration failed. Username or email might be taken.");
+      localStorage.removeItem('token'); // Clear any potential token/state from failed attempt
+      setUser(null);
+      return false;
+    } finally {
+      console.log('register: Registration process complete.');
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <AuthContext.Provider value={{ user, isLoading, login, logout, register, error }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};
+
+// --- HOC for protecting pages ---
+export const withAuthRequired = (Component: React.ComponentType<any>) => {
+  const Wrapper: React.FC = (props) => {
+    const { user, isLoading } = useAuth();
+    const router = useRouter();
+
+   
+
+    useEffect(() => {
+       setTimeout(() => {
+      console.log("withAuthRequired: Checking user authentication status...");
+      if (typeof window !== 'undefined') { // Ensure running in browser
+        if (!isLoading && !user) {
+          const currentPath = window.location.pathname + window.location.search; // Use window.location for full path
+          router.push(`/login?returnTo=${encodeURIComponent(currentPath)}`);
+          console.log("This is being called/redirected to login page");
+        }
+      }
+    }, 3000);
+      // if (typeof window !== 'undefined') { // Ensure running in browser
+      //   if (!isLoading && !user) {
+      //     const currentPath = window.location.pathname + window.location.search; // Use window.location for full path
+      //     router.push(`/login?returnTo=${encodeURIComponent(currentPath)}`);
+      //     console.log("This is being called/redirected to login page");
+      //   }
+      // }
+    }, [user]);
+
+    if (isLoading || !user) {
+      return (
+        <React.Fragment>
+          <div className="flex justify-center items-center h-[calc(100vh-64px)]">
+            <LoadingSpinner /> <span className="ml-2 text-gray-700">Checking authentication...</span>
+          </div>
+        </React.Fragment>
+      );
+    }
+
+    return <Component {...props} />;
+  };
+  Wrapper.displayName = `withAuthRequired(${Component.displayName || Component.name || 'Component'})`;
+  return Wrapper;
+};
