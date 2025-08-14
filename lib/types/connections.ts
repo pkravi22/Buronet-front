@@ -50,3 +50,12 @@ export interface SuggestedUserDto {
   headline?: string;
   mutualConnections?: number;
 }
+export interface PopularUserDto {
+  id: string; // User ID
+  username: string;
+  firstName?: string;
+  lastName?: string;
+  profilePictureUrl?: string;
+  headline?: string;
+  mutualConnections?: number;
+}
