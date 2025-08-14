@@ -25,6 +25,21 @@ export interface LikeDto {
   userEmail: string; // Added
 }
 
+// DTO for a poll option
+export interface PollOptionDto {
+  id: number;
+  text: string;
+  votes: number;
+  hasVoted: boolean;
+}
+
+// DTO for a poll
+export interface PollDto {
+  id: number;
+  options: PollOptionDto[];
+  totalVotes: number;
+}
+
 export interface PostDto {
   id: number;
   userId: string;
@@ -44,10 +59,21 @@ export interface PostDto {
   likes: LikeDto[];
   tagsJson?: string;
   tags?: string[];
+  isPoll: boolean;
+  poll?: PollDto;
   // If you want profilePictureUrl and headline, you'd need to add them here
   // profilePictureUrl?: string;
   // headline?: string;
 }
+
+// DTO for creating a poll
+export interface CreatePollDto {
+  title: string;
+  content: string;
+  imageUrl: string | null;
+  tags: string[];
+  options: string[]; // Poll options
+}  
 
 export interface CreatePostDto {
   title: string;

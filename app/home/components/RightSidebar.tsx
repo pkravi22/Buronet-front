@@ -2,7 +2,29 @@ import { FiTrendingUp, FiMoreHorizontal } from 'react-icons/fi';
 import { FaFire } from 'react-icons/fa';
 import TrendingNowSection from '@/components/TrendingNowSection';
 
+interface SuggestedUserProps {
+  name: string;
+  role: string;
+  imageUrl: string;
+}
+
 // ... (TrendingItem and SuggestedUser components remain the same) ...
+const SuggestedUser: React.FC<SuggestedUserProps> = ({ name, role, imageUrl }) => {
+  return (
+    <div className="flex items-center justify-between py-3">
+      <div className="flex items-center">
+        <img src={imageUrl} alt="U" className="w-10 h-10 rounded-full" />
+        <div className="ml-3">
+          <h3 className="text-[#1F2937] text-base font-medium">{name}</h3>
+          <p className="text-[#6B728B] text-sm">{role}</p>
+        </div>
+      </div>
+      <button className="text-[#2563EB] text-sm font-medium px-4 py-1 rounded hover:bg-[#EEF2FF]">
+        Connect
+      </button>
+    </div>
+  );
+};
 
 const RightSidebar = () => {
   return (
@@ -24,6 +46,23 @@ const RightSidebar = () => {
           </div>
           <div>
             {/* SuggestedUser components go here... */}
+            <div>
+            <SuggestedUser
+              name="David Wilson"
+              role="UX Designer at DesignLab"
+              imageUrl="/placeholder-avatar.jpg"
+            />
+            <SuggestedUser
+              name="Sarah Chen"
+              role="Product Designer at TechCo"
+              imageUrl="/placeholder-avatar.jpg"
+            />
+            <SuggestedUser
+              name="Michael Brown"
+              role="UI Developer at WebStudio"
+              imageUrl="/placeholder-avatar.jpg"
+            />
+          </div>
           </div>
         </div>
 
