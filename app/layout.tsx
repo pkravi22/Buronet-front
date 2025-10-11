@@ -8,10 +8,10 @@ import Providers from '../components/providers'; // Import the Providers compone
 
 const inter = Inter({ subsets: ['latin'] });
 
-// export const metadata: Metadata = {
-//   title: 'Buronet - Professional Social Network',
-//   description: 'Connect with professionals, share knowledge, and grow your network',
-// };
+export const metadata: Metadata = {
+  title: 'Buronet - Professional Social Network',
+  description: 'Connect with professionals, share knowledge, and grow your network',
+};
 
 export default function RootLayout({
   children,
@@ -20,7 +20,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>
+      <body className={`${inter.className} antialiased`}>
         <Providers>
           {children}
         </Providers>

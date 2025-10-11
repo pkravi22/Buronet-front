@@ -44,7 +44,7 @@ const NetworkCard: React.FC<NetworkCardProps> = ({ user, onConnectClick, isConne
           }`}
       >
         <Users size={16} />
-        {isConnected ? 'Message' : 'Connect'} {user.id}
+        {isConnected ? 'Message' : 'Connect'}
       </button>
     </div>
   </div>
@@ -99,13 +99,15 @@ const MainContent = () => {
   }, [handleScroll]);
 
   // Use the new useConnections hook to get data
-  const { suggestedConnections, popularConnections, isLoading, error, sendRequest } = useConnections();
+  const { suggestedConnections, networkMetrics, popularConnections, isLoading, error, sendRequest } = useConnections();
+
+  console.log('Suggested Connections:', suggestedConnections);
 
   const dashboardCards = [
-    { title: 'Total Connections', value: '248', trend: '12% from last month', icon: <Users size={16} />, iconColor: 'text-[#EF4444]', trendIcon: <TrendingUp size={12} />, trendColor: 'text-[#16A34A]', refLink: "" },
-    { title: 'Joined Groups', value: '16', trend: '3 new this month', icon: <Users size={16} />, iconColor: 'text-[#3B82F6]', trendIcon: <TrendingUp size={12} />, trendColor: 'text-[#16A34A]', refLink: "" },
-    { title: 'Pending Requests', value: '24', trend: '5 new this week', icon: <UserPlus size={16} />, iconColor: 'text-[#22C55E]', trendIcon: <Clock size={12} />, trendColor: 'text-[#F59E0B]', refLink: "" },
-    { title: 'Network Growth', value: '2.4K', trend: '5.7% this month', icon: <TrendingUp size={16} />, iconColor: 'text-[#A855F7]', trendIcon: <TrendingUp size={12} />, trendColor: 'text-[#16A34A]', refLink: "" }
+    { title: 'Total Connections', value: `${networkMetrics?.totalConnections}`, trend: `${networkMetrics?.totalConnectionsTrend}% this month`, icon: <Users size={16} />, iconColor: 'text-[#EF4444]', trendIcon: <TrendingUp size={12} />, trendColor: 'text-[#16A34A]', refLink: "" },
+    { title: 'Joined Groups', value: `${networkMetrics?.joinedGroups}`, trend: `${networkMetrics?.joinedGroupsTrend} new this month`, icon: <Users size={16} />, iconColor: 'text-[#3B82F6]', trendIcon: <TrendingUp size={12} />, trendColor: 'text-[#16A34A]', refLink: "" },
+    { title: 'Pending Requests', value: `${networkMetrics?.pendingRequests}`, trend: `${networkMetrics?.pendingRequestsTrend} new this week`, icon: <UserPlus size={16} />, iconColor: 'text-[#22C55E]', trendIcon: <Clock size={12} />, trendColor: 'text-[#F59E0B]', refLink: "" },
+    { title: 'Network Growth', value: `${networkMetrics?.networkGrowth}`, trend: `${networkMetrics?.networkGrowthPercentage}% this month`, icon: <TrendingUp size={16} />, iconColor: 'text-[#A855F7]', trendIcon: <TrendingUp size={12} />, trendColor: 'text-[#16A34A]', refLink: "" }
   ];
 
   return (
@@ -180,12 +182,12 @@ const MainContent = () => {
                 <LoadingSpinner />
               ) : error ? (
                 <p className="text-red-500">{error}</p>
-              ) : (
-                suggestedConnections[0].map((user, index) => (
+              ) : ( suggestedConnections["People With Similar Headline"] && suggestedConnections["People With Similar Headline"].length > 0 ?
+                suggestedConnections["People With Similar Headline"].map((user, index) => (
                   <div key={user.id || index} className="w-full sm:w-[46%] lg:w-[32%] shrink-0 snap-start sm:snap-center">
                     <NetworkCard user={user} onConnectClick={sendRequest} isConnected={false} />
                   </div>
-                ))
+                )) : "No profiles found"
               )}
             </div>
           </div>
@@ -205,12 +207,12 @@ const MainContent = () => {
                 <LoadingSpinner />
               ) : error ? (
                 <p className="text-red-500">{error}</p>
-              ) : (
-                suggestedConnections[1].map((user, index) => (
+              ) : (suggestedConnections["People With Similar Title"] && suggestedConnections["People With Similar Title"].length > 0 ?
+                suggestedConnections["People With Similar Title"].map((user, index) => (
                   <div key={user.id || index} className="w-full sm:w-[46%] lg:w-[32%] shrink-0 snap-start sm:snap-center">
                     <NetworkCard user={user} onConnectClick={sendRequest} isConnected={false} />
                   </div>
-                ))
+                )) : "No profiles found"
               )}
             </div>
           </div>
@@ -229,12 +231,12 @@ const MainContent = () => {
                 <LoadingSpinner />
               ) : error ? (
                 <p className="text-red-500">{error}</p>
-              ) : (
-                suggestedConnections[2].map((user, index) => (
+              ) : (suggestedConnections["People With Similar Education"] && suggestedConnections["People With Similar Education"].length > 0 ?
+                suggestedConnections["People With Similar Education"].map((user, index) => (
                   <div key={user.id || index} className="w-full sm:w-[46%] lg:w-[32%] shrink-0 snap-start sm:snap-center">
                     <NetworkCard user={user} onConnectClick={sendRequest} isConnected={false} />
                   </div>
-                ))
+                )) : "No profiles found"
               )}
             </div>
           </div>

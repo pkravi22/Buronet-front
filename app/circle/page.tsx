@@ -5,7 +5,7 @@ import RightBar from './components/RightBar';
 
 export default function CirclePage() {
   return (
-    <div className="min-h-screen flex flex-col bg-[#EEF0F4]">
+    <div className="min-h-screen flex flex-col bg-[#EEF0F4] pb-6">
       <TopBar />
       <div className="flex flex-1 pt-[61px]">
         {/* Placeholder correctly collapses on smaller screens */}

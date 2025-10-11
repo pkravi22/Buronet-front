@@ -3,6 +3,7 @@
 
 import React, { useState, useEffect } from 'react';
 import AppLayout from '../../components/AppLayout';
+import SiteLayout from '../../components/SiteLayout';
 import LoadingSpinner from '../../components/UI/LoadingSpinner';
 import { useAuth, withAuthRequired } from '../../context/AuthContext';
 import { formatDistanceToNow, parseISO } from 'date-fns';
@@ -56,8 +57,8 @@ const CurrentAffairsPage: React.FC = () => {
 
   return (
     <AppLayout>
-      <div className="min-h-screen bg-[#EEF0F4] mt-8 py-8">
-        <div className="max-w-7xl mx-auto px-4 lg:px-8">
+      {/* <div className="min-h-screen bg-[#EEF0F4] mt-8 py-8">
+        <div className="max-w-7xl mx-auto px-4 lg:px-8"> */}
           <h1 className="text-3xl font-bold mb-8">
             Latest News from India
           </h1>
@@ -102,8 +103,8 @@ const CurrentAffairsPage: React.FC = () => {
               </div>
             ))}
           </div>
-        </div>
-      </div>
+        {/* </div>
+      </div> */}
     </AppLayout>
   );
 };

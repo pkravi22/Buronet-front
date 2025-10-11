@@ -104,7 +104,7 @@ interface UpdateCardProps {
 
 // Data for the cards
 const updateData: UpdateCardProps[] = [
-  { icon: <FaFire size={16} />, title: "Trending Topics", updates: 111, iconColor: "text-[#EF4444]", refLink: "" },
+  { icon: <FaFire size={16} />, title: "Trending Topics", updates: 0, iconColor: "text-[#EF4444]", refLink: "/trending" },
   { icon: <FaNewspaper size={16} />, title: "Current Affairs", updates: 49, iconColor: "text-[#3B82F6]", refLink: "/current-affairs" },
   { icon: <FaLaptopCode size={16} />, title: "Exam Updates", updates: 74, iconColor: "text-[#22C55E]", refLink: "/exam-updates" },
   { icon: <FaGraduationCap size={16} />, title: "Popular Profiles", updates: 62, iconColor: "text-[#A855F7]", refLink: "" },
@@ -125,7 +125,7 @@ const UpdateCard: React.FC<UpdateCardProps> = ({ icon, title, updates, iconColor
             <h3 className="text-[#1F2937] font-medium text-sm">{title}</h3>
           </div>
         </div>
-        <p className="text-sm text-[#6B7280]">{updates} new updates</p>
+        <p className="text-sm text-[#6B7280]">{updates != 0 ? `${updates} new updates` : `All ${title}`}</p>
       </div>
     </div>
   );

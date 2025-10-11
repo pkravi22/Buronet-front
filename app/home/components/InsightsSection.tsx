@@ -114,7 +114,7 @@ const actionButtonsData = [
     description: "Share with your connections",
     iconBgColor: "bg-[#FAF5FF]",
     iconColor: "text-[#A855F7]",
-    actionType: "hostEvent",
+    actionType: "shareByte",
   },
 ];
 
@@ -169,12 +169,18 @@ const MobileActionButton: React.FC<MobileActionButtonProps> = ({ icon, title, ic
 
 interface InsightsSectionProps {
   onShareArticleClick: () => void; // New prop for the click handler
+  onCreatePollClick: () => void; // New prop for the click handler
+  onShareByteClick: () => void; // New prop for the click handler
 }
 
-const InsightsSection: React.FC<InsightsSectionProps> = ({ onShareArticleClick }) => {
+const InsightsSection: React.FC<InsightsSectionProps> = ({ onShareArticleClick, onCreatePollClick, onShareByteClick }) => {
   const handleActionButtonClick = (actionType: string) => {
     if (actionType === "shareArticle") {
       onShareArticleClick();
+    } else if (actionType === "createPoll") {
+      onCreatePollClick();
+    } else if (actionType === "shareByte") {
+      onShareByteClick();
     }
     // Add logic for other action types (Create Poll, Host Event) here if needed
     // else if (actionType === "createPoll") { ... }

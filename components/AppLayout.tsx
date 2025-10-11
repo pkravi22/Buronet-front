@@ -7,6 +7,7 @@ import { AuthProvider } from '../context/AuthContext'; // Our custom AuthProvide
 import type { Metadata } from 'next'; // Import Metadata type for better type-checking
 import Navbar from './Navbar';
 import TopBar from './TopBar';
+import { useState } from 'react';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -22,12 +23,33 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const [isNavOpen, setIsNavOpen] = useState(false);
   return (
-        <AuthProvider>
-          <TopBar />
-          <main className="flex-grow pt-8"> {/* <--- Add padding-top equal to TopBar's height */}
-        {children}
-      </main>
-        </AuthProvider>
+    <AuthProvider>
+      <div className="flex bg-gray-100"> {/* Set background here */}
+
+        {/* 1. Sidebar */}
+        {/* <Navbar
+        isNavOpen={isNavOpen} 
+        closeNav={() => setIsNavOpen(false)} 
+        />
+        <div className="hidden lg:block w-[260px] shrink-0" /> */}
+
+        {/* 2. Main Content Area (Header + Scrollable Page) */}
+        <div className="flex-1 flex flex-col overflow-hidden">
+
+          {/* TopBar - Fixed at the top of the content area */}
+          <TopBar
+          // onMenuClick={() => setIsNavOpen(true)} 
+          />
+
+          {/* Scrollable container for the page content */}
+          <main className="flex-1 overflow-y-auto p-8 lg:px-16 lg:mt-16DoneI"> {/* Set padding here */}
+            {children}
+          </main>
+
+        </div>
+      </div>
+    </AuthProvider>
   );
 }
