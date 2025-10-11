@@ -1,12 +1,18 @@
 import { FiTrendingUp, FiMoreHorizontal } from 'react-icons/fi';
 import { FaFire } from 'react-icons/fa';
 import TrendingNowSection from '@/components/TrendingNowSection';
+import { useEffect, useState } from 'react';
+import { get } from '@/lib/api';
+import { SuggestedUserDto } from '@/lib/types/connections';
+import { useConnections } from '@/hooks/useConnections';
 
 interface SuggestedUserProps {
   name: string;
   role: string;
   imageUrl: string;
 }
+
+
 
 // ... (TrendingItem and SuggestedUser components remain the same) ...
 const SuggestedUser: React.FC<SuggestedUserProps> = ({ name, role, imageUrl }) => {
@@ -27,6 +33,15 @@ const SuggestedUser: React.FC<SuggestedUserProps> = ({ name, role, imageUrl }) =
 };
 
 const RightSidebar = () => {
+  // const [suggestedConnections, setSuggestedConnections] = useState<SuggestedUserDto[]>([]);
+  const { suggestedGeneralConnections } = useConnections();
+  // useEffect(() => {
+  //   // This effect runs once when the component mounts
+  //   const suggestedConnectionsResponse = get<SuggestedUserDto[]>('/connections/general-suggestions');
+  //   console.log('Suggested Connections Response:', suggestedConnectionsResponse);
+  //   setSuggestedConnections(suggestedConnectionsResponse);
+  // }, []);
+
   return (
     // Hide on small/medium screens, show on large screens with a fixed width.
     // The parent container should be a grid on `lg` screens. e.g. lg:grid-cols-[1fr_287px]
@@ -47,12 +62,16 @@ const RightSidebar = () => {
           <div>
             {/* SuggestedUser components go here... */}
             <div>
-            <SuggestedUser
-              name="David Wilson"
-              role="UX Designer at DesignLab"
-              imageUrl="/placeholder-avatar.jpg"
-            />
-            <SuggestedUser
+              {suggestedGeneralConnections.map(user => (
+                <SuggestedUser
+                  key={user.id}
+                  name={user.firstName + ' ' + user.lastName}
+                  role={user.headline || 'New Member'}
+                  imageUrl="/placeholder-avatar.jpg"
+                />
+              ))}
+           
+            {/* <SuggestedUser
               name="Sarah Chen"
               role="Product Designer at TechCo"
               imageUrl="/placeholder-avatar.jpg"
@@ -61,7 +80,7 @@ const RightSidebar = () => {
               name="Michael Brown"
               role="UI Developer at WebStudio"
               imageUrl="/placeholder-avatar.jpg"
-            />
+            />*/}
           </div>
           </div>
         </div>

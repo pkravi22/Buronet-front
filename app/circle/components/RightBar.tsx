@@ -74,7 +74,8 @@ const ConnectionCard = ({ connection, onMessageClick, currentUserId }: Connectio
       <div className="flex">
         <Image
           src={connection.connectedUserProfilePictureUrl || "/default-profile.png"}
-          alt={connection.connectedUserName}
+          // alt={connection.connectedUserName}
+          alt="U"
           width={40}
           height={40}
           className="rounded-full"

@@ -63,9 +63,9 @@ const TopBar = ({ onMenuClick }: { onMenuClick: () => void; }) => {
         <div className={`flex w-full items-center justify-between ${isMobileSearchOpen ? 'hidden' : 'flex'}`}>
             {/* Left Section (Menu Button and Logo) */}
             <div className="flex items-center gap-2">
-                <button onClick={onMenuClick} className="lg:hidden p-2 -ml-2 text-gray-600 hover:text-gray-800">
+                {/* <button onClick={onMenuClick} className="lg:hidden p-2 -ml-2 text-gray-600 hover:text-gray-800">
                     <FiMenu size={24} />
-                </button>
+                </button> */}
                 <div className="flex items-center gap-2 cursor-pointer" onClick={() => router.push('/home')}>
                     <div className="flex items-center justify-center w-9 h-9">
                         <img src="/Logo.png" alt="Buronet Logo" className="w-7 h-7" />

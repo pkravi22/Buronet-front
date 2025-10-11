@@ -9,8 +9,10 @@ import { log } from 'console';
 
 interface UseConnectionsResult {
   connections: ConnectionDto[];
+  networkMetrics: NetworkMetrics | null;
   pendingRequests: ConnectionRequestDto[];
   suggestedConnections: SuggestedUserDto[][];
+  suggestedGeneralConnections: SuggestedUserDto[];
   popularConnections: PopularUserDto[];
   isLoading: boolean;
   error: string | null;
@@ -23,8 +25,10 @@ interface UseConnectionsResult {
 export const useConnections = (): UseConnectionsResult => {
   const { user, isLoading: isAuthLoading } = useAuth();
   const [connections, setConnections] = useState<ConnectionDto[]>([]);
+  const [networkMetrics, setNetworkMetrics] = useState<any>(null);
   const [pendingRequests, setPendingRequests] = useState<ConnectionRequestDto[]>([]);
   const [suggestedConnections, setSuggestedConnections] = useState<SuggestedUserDto[][]>([[]]);
+  const [suggestedGeneralConnections, setSuggestedGeneralConnections] = useState<SuggestedUserDto[]>([]);
   const [popularConnections, setPopularConnections] = useState<PopularUserDto[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -40,6 +44,8 @@ export const useConnections = (): UseConnectionsResult => {
     setError(null);
     try {
       // Assuming a GET /api/connections/me endpoint
+      const fetchedNetworkMetrics = await get<any>('/connections/metrics');
+      setNetworkMetrics(fetchedNetworkMetrics);
       const fetchedConnections = await get<ConnectionDto[]>('/connections');
       setConnections(fetchedConnections);
 
@@ -60,6 +66,9 @@ export const useConnections = (): UseConnectionsResult => {
       //   mutualConnections: 0
       // };
       setSuggestedConnections(fetchedSuggestions);
+
+      const suggestedConnectionsResponse = await get<SuggestedUserDto[]>('/connections/general-suggestions');
+      setSuggestedGeneralConnections(suggestedConnectionsResponse);
 
       const fetchedPopular = await get<PopularUserDto[]>('/connections/popular');
       console.log('Fetched popular connections:', fetchedPopular);
@@ -108,9 +117,11 @@ export const useConnections = (): UseConnectionsResult => {
 
   return {
     connections,
+    networkMetrics,
     pendingRequests,
     popularConnections,
     suggestedConnections,
+    suggestedGeneralConnections,
     isLoading,
     error,
     acceptRequest,

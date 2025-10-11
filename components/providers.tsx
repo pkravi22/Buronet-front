@@ -12,10 +12,12 @@ export default function Providers({
 }) {
   return (
     // You can nest other client-side providers here if you add them later (e.g., ThemeProvider, ReduxProvider)
-    <AuthProvider>
+    <div className="h-full flex flex-col">
+      <AuthProvider>
       <AuthRedirectHandler>
       {children}
       </AuthRedirectHandler>
      </AuthProvider>
+    </div>
   );
 }

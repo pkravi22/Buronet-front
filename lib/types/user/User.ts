@@ -4,6 +4,7 @@ export interface User { // Your core User type
   email: string;
   createdAt: string;
   updatedAt: string;
+  isAdmin: boolean;
   // PasswordHash and PasswordSalt are NOT here for security
 }
 

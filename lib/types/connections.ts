@@ -2,6 +2,18 @@
 
 import { UserProfile } from "./user";
 
+
+export interface NetworkMetrics {
+  totalConnections: number;
+  pendingRequests: number;
+  acceptedRequests: number;
+  networkGrowth: number;
+  totalConnectionsTrend: number,
+  joinedGroups: number,
+  joinedGroupsTrend: number,
+  pendingRequestsTrend: number,
+  networkGrowthPercentage: number
+}
 // Basic user info for display
 export interface UserForConnection {
   id: string; // Guid as string

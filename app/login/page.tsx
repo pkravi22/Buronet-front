@@ -185,7 +185,7 @@ export default function LoginPage() {
   useEffect(() => {
     // Only redirect if authentication status has been determined (not loading) AND user is present
     if (!isLoading && user) {
-      const returnTo = new URLSearchParams(window.location.search).get('returnTo') || '/profile';
+      const returnTo = new URLSearchParams(window.location.search).get('returnTo') || '/home';
       router.replace(returnTo); // Redirect to profile or the page user was trying to access
     }
   }, [user, isLoading, router]); // Dependencies: user and isLoading from useAuth

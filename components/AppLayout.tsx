@@ -26,7 +26,7 @@ export default function RootLayout({
   const [isNavOpen, setIsNavOpen] = useState(false);
   return (
     <AuthProvider>
-      <div className="flex h-screen bg-gray-100"> {/* Set background here */}
+      <div className="flex bg-gray-100"> {/* Set background here */}
 
         {/* 1. Sidebar */}
         {/* <Navbar

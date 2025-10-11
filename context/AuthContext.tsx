@@ -155,7 +155,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         console.warn("logout: Backend logout endpoint failed (might be expected if token already cleared or endpoint doesn't exist/is unreachable):", backendLogoutError);
       }
 
-      router.push('/'); // Redirect to homepage after logout
+      router.push('/login'); // Redirect to login after logout
     } catch (err: any) {
       console.error('logout: Error during client-side logout process:', err);
       setError(err.message || "Logout failed.");

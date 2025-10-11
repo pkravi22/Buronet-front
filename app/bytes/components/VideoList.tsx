@@ -1,0 +1,194 @@
+"use client";
+
+import { useEffect, useState, useCallback } from "react";
+import Video from "./Video";
+import type { Byte, SuggestionType, Comment } from "@/lib/types/Byte";
+import { styled } from "styled-components";
+import { toast } from "react-hot-toast";
+import CommentModal from "./CommentModal"; // Assuming CommentModal is in the same folder or path is correct
+import { Loader2 } from "lucide-react";
+import { get, postApi as post } from "@/lib/api"; // Assuming api has get and post methods
+import { useAuth } from "@/context/AuthContext";
+import InfiniteScroll from "react-infinite-scroll-component";
+
+const VideoListStyled = styled.div`
+  display: grid;
+  place-items: center;
+  min-height: 80vh;
+  max-height: 80vh;
+  .video-list {
+    display: grid;
+    place-items: center;
+    gap: 1rem;
+    scroll-snap-type: y mandatory;
+    max-height: calc(100vh - 4rem);
+    @media (min-width: 768px) {
+      & {
+        gap: 2rem;
+      }
+    }
+    & > div:first-child {
+      margin-top: 1rem;
+    }
+    & .video {
+      scroll-snap-align: center;
+    }
+  }
+`;
+
+const VideoList = () => {
+  const [bytes, setBytes] = useState<Byte[]>([]);
+  const [playingVideoId, setPlayingVideoId] = useState<string | null>(null);
+  const [mute, setMute] = useState<boolean>(true);
+  const [activeFilter, setActiveFilter] = useState<SuggestionType>('For You');
+  const [isLoading, setIsLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const { user } = useAuth();
+  const MOCK_CURRENT_USER_ID = user?.id || "mock-current-user-id"; // Replace with actual user ID from auth context
+  
+  const [commentModalState, setCommentModalState] = useState<{isOpen: boolean; byte: Byte | null}>({ isOpen: false, byte: null });
+
+  const fetchBytes = useCallback(async (pageNum: number, filter: SuggestionType) => {
+    try {
+      const fetchedBytes = await get<Byte[]>(`/bytes/feed?filter=${filter}&page=${pageNum}`);
+      if (fetchedBytes.length === 0) {
+        setHasMore(false);
+      } else {
+        setBytes(prevBytes => {
+          const newBytes = fetchedBytes.filter(fb => !prevBytes.some(pb => pb.id === fb.id));
+          return [...prevBytes, ...newBytes];
+        });
+        setPage(pageNum);
+      }
+    } catch (err: unknown) {
+      console.error(err);
+      toast.error("Non potuerunt Bytes adduci.");
+      setHasMore(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    // Hic effectus tractat reset et adductionem cum colum mutatur.
+    setIsLoading(true);
+    setBytes([]);
+    setPage(1);
+    setHasMore(true);
+    fetchBytes(1, activeFilter).finally(() => setIsLoading(false));
+  }, [activeFilter, fetchBytes]);
+
+  const loadMoreBytes = () => {
+    fetchBytes(page + 1, activeFilter);
+  };
+  
+  const handleLike = async (byteId: string) => {
+    setBytes(prevBytes =>
+      prevBytes.map(byte => {
+        if (byte.id === byteId) {
+          const isLiked = byte.likes.includes(MOCK_CURRENT_USER_ID);
+          const newLikes = isLiked
+            ? byte.likes.filter(id => id !== MOCK_CURRENT_USER_ID)
+            : [...byte.likes, MOCK_CURRENT_USER_ID];
+          return { ...byte, likes: newLikes };
+        }
+        return byte;
+      })
+    );
+    try {
+      await post(`/bytes/${byteId}/Like`);
+    } catch (error) {
+      toast.error("Status 'placuit' non potuit renovari.");
+       // Reverte in casu erroris
+       setBytes(prevBytes =>
+        prevBytes.map(byte => {
+          if (byte.id === byteId) {
+            return { ...byte, likes: byte.likes.includes(MOCK_CURRENT_USER_ID) ? byte.likes.filter(id => id !== MOCK_CURRENT_USER_ID) : [...byte.likes, MOCK_CURRENT_USER_ID] };
+          }
+          return byte;
+        })
+      );
+    }
+  };
+
+  const handleCommentClick = (byteId: string) => {
+    const byteToComment = bytes.find(b => b.id === byteId);
+    if (byteToComment) setCommentModalState({ isOpen: true, byte: byteToComment });
+  };
+  
+  const handleCloseCommentModal = (refresh: boolean) => {
+    setCommentModalState({ isOpen: false, byte: null });
+    if(refresh) {
+      // Refresh
+    }
+  }
+
+  const filters: SuggestionType[] = ['For You', 'Connections', 'Popular'];
+
+  return (
+    <>
+       <style jsx global>{`
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      `}</style>
+      <div className="h-screen w-full relative flex justify-center items-center">
+        <div className="absolute top-4 left-0 right-0 z-10 flex justify-center">
+            <div className="flex items-center space-x-4 bg-black/20 backdrop-blur-md p-1 rounded-full">
+                {filters.map(filter => (
+                    <button 
+                        key={filter}
+                        onClick={() => setActiveFilter(filter)}
+                        className={`font-semibold px-4 py-1.5 rounded-full text-sm transition-colors duration-200 ${activeFilter === filter ? 'text-white bg-black' : 'text-black/80'}`}
+                    >
+                        {filter}
+                    </button>
+                ))}
+            </div>
+        </div>
+        
+        {isLoading ? (
+          <Loader2 className="w-10 h-10 text-white animate-spin" />
+        ) : (
+          <InfiniteScroll
+              dataLength={bytes.length}
+              next={loadMoreBytes}
+              hasMore={hasMore}
+              loader={<div className="h-24 flex justify-center items-center"><Loader2 className="w-8 h-8 text-white animate-spin" /></div>}
+              height="100vh"
+              className="w-full min-w-md snap-y snap-mandatory no-scrollbar"
+              endMessage={
+                  <p style={{ textAlign: 'center', color: 'white', padding: '20px' }}>
+                    <b>Omnia vidisti!</b>
+                  </p>
+              }
+            >
+            {bytes.map((byte) => (
+                <div key={byte.id} className="h-screen w-full snap-center flex justify-center items-center">
+                  <Video
+                    byte={byte}
+                    mute={mute}
+                    setMute={setMute}
+                    playingVideo={playingVideoId}
+                    setPlayingVideo={setPlayingVideoId}
+                    onLike={handleLike}
+                    onCommentClick={handleCommentClick}
+                    currentUserId={MOCK_CURRENT_USER_ID}
+                  />
+                </div>
+            ))}
+          </InfiniteScroll>
+        )}
+        
+        {commentModalState.isOpen && commentModalState.byte && (
+            <CommentModal 
+                byteId={commentModalState.byte.id}
+                authorName={commentModalState.byte.creator.name}
+                onClose={() => handleCloseCommentModal(true)}
+            />
+        )}
+      </div>
+    </>
+  );
+};
+
+export default VideoList;
+

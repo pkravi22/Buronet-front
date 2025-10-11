@@ -8,6 +8,7 @@ export interface UserProfile {
   // Core user details (flattened from User entity for frontend convenience)
   username: string;
   email: string;
+  isAdmin: boolean;
 
   // Rich Profile Fields
   firstName?: string | null;

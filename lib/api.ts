@@ -2,7 +2,7 @@
 
 // Define your backend API base URL from environment variables.
 // NEXT_PUBLIC_BACKEND_API_URL should be set in your .env.local file (e.g., https://localhost:44349/api)
-const API_BASE = process.env.NEXT_PUBLIC_DOTNET_BACKEND_BASE || "http://localhost:3000/api";
+var API_BASE = process.env.NEXT_PUBLIC_DOTNET_BACKEND_BASE || "http://localhost:3000/api";
 // const API_BASE = "http://localhost:3000/api";
 
 // Interface for configuring API requests
@@ -23,6 +23,7 @@ export async function apiFetch<T>(
   url: string,
   config: FetchConfig = {}
 ): Promise<T> {
+  console.log("apiFetch called with URL:", url, "and body", config.body);
   // Prepare headers, including Content-Type and Authorization if a token exists
   const headers: HeadersInit = {
     // Set Content-Type unless body is FormData (which sets its own Content-Type)
@@ -44,6 +45,12 @@ export async function apiFetch<T>(
   };
 
   try {
+    if (url.toLowerCase().includes("bytes")) {
+      API_BASE = process.env.NEXT_PUBLIC_BYTES_BACKEND_BASE || "http://localhost:3000/api";
+    } 
+    else if ((url.toLowerCase().includes("jobs")) || (url.toLowerCase().includes("exams"))) {
+      API_BASE = process.env.NEXT_PUBLIC_JOBS_BACKEND_BASE || "http://localhost:3000/api";
+    }
     console.log("API call URL: ", `${API_BASE}${url}`); // Log the full URL being called
     const response = await fetch(`${API_BASE}${url}`, requestConfig);
 

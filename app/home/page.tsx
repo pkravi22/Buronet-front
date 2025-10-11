@@ -10,11 +10,13 @@ import SiteLayout from '@/components/SiteLayout';
 import CreatePostModal from './components/CreatePostModal';
 import { useState } from 'react';
 import CreatePollModal from './components/CreatePollModal';
+import CreateByteModal from './components/CreateBytePostModal';
 
 const HomePage: React.FC = () => {
 
   const [isCreatePostModalOpen, setIsCreatePostModalOpen] = useState(false);
   const [isCreatePollModalOpen, setIsCreatePollModalOpen] = useState(false);
+  const [isCreateByteModalOpen, setIsCreateByteModalOpen] = useState(false);
 
   // State to trigger refetching of posts after a new post is created
   // This is passed as a key to PostSection to force it to re-render and refetch
@@ -28,7 +30,7 @@ const HomePage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#EEF0F4]">
+    <div className="flex flex-col bg-[#EEF0F4]">
       {/* <TopBar /> */}
       <SiteLayout>
       <div className="flex flex-1">
@@ -38,7 +40,7 @@ const HomePage: React.FC = () => {
         <main className="flex-1 px-4 sm:px-6 lg:mx-1"> {/* Margin is now responsive */}
           <div className="mt-6">
             <DashboardCards />
-            <InsightsSection onShareArticleClick={() => setIsCreatePostModalOpen(true)} onCreatePollClick={() => setIsCreatePollModalOpen(true)} />
+            <InsightsSection onShareArticleClick={() => setIsCreatePostModalOpen(true)} onCreatePollClick={() => setIsCreatePollModalOpen(true)} onShareByteClick={() => setIsCreateByteModalOpen(true)} />
             <PostSection key={postsRefetchKey}/>
             {/* Using the new PostSection component */}
             <PostSectionOld />
@@ -55,6 +57,10 @@ const HomePage: React.FC = () => {
         isOpen={isCreatePollModalOpen} // Controls modal visibility
         onClose={() => setIsCreatePollModalOpen(false)} // Function to close the modal
         onPostCreated={handlePostCreated} // Callback for when a poll is successfully created
+      />
+      <CreateByteModal
+        isOpen={isCreateByteModalOpen} // Controls modal visibility
+        onClose={() => setIsCreateByteModalOpen(false)} // Function to close the modal
       />
       </SiteLayout>
     </div>

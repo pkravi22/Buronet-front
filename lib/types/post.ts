@@ -61,6 +61,7 @@ export interface PostDto {
   tags?: string[];
   isPoll: boolean;
   poll?: PollDto;
+
   // If you want profilePictureUrl and headline, you'd need to add them here
   // profilePictureUrl?: string;
   // headline?: string;
@@ -71,7 +72,8 @@ export interface CreatePollDto {
   title: string;
   content: string;
   imageUrl: string | null;
-  tags: string[];
+  tagsJson: string;
+  isPoll: boolean;
   options: string[]; // Poll options
 }  
 
@@ -97,4 +99,10 @@ export interface TagWithTotalCountDto {
   totalPosts: number;
   postsLastWeek: number;
   mostRecentPost: PostDto;
+}
+
+export interface PollVoteDto {
+  pollId: number;
+  pollOptionId: number;
+  userId: string;
 }
