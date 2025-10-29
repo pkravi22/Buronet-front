@@ -38,6 +38,10 @@ interface DepartmentStats {
   jobCount: number;
 }
 
+interface DepartmentStatArray {
+  data: DepartmentStats[]
+}
+
 // Reusable Components defined within the file
 const DashboardCard = ({ title, value, trend, icon, iconColor, trendIcon, trendColor = "text-[#16A34A]" }: DashboardCardProps) => (
   // RESPONSIVE CHANGE: Changed w-[148px] to w-full. The grid container will now control the width.
@@ -118,7 +122,7 @@ const MainContent = () => {
         const response = await get<Job[]>('/jobs/job-home');
         const bookmarksResponse = await get<bookmarksResponseType[]>(`/bookmarks/${user?.id}/jobs`);
         const dashboardStatsResponse = await get<DashboardStats>(`/dashboard/job/stats/${user?.id}`);
-        const departmentStatsResponse = await get<DepartmentStats[]>(`/dashboard/jobs/departments`);
+        const departmentStatsResponse = await get<DepartmentStatArray>(`/dashboard/jobs/departments`);
         console.log("Jobs response:", response);
         // if (response.success) {
         setJobs(response);

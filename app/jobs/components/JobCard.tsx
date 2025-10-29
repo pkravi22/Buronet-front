@@ -24,7 +24,7 @@ const JobCard = ({ job, isInitiallyBookmarked }: JobCardProps) => {
      setIsBookmarked(isInitiallyBookmarked);
   }, []);
 
-  const logoSrc = job.logoUrl || 'https://readdy.ai/api/search-image?query=official%20government%20logo%20of%20Union%20Public%20Service%20Commission%20of%20India%20with%20emblem%20and%20blue%20and%20gold%20colors%20professional%20clean%20design%20on%20white%20background&width=120&height=120&seq=201&orientation=squarish';
+  const logoSrc = 'https://readdy.ai/api/search-image?query=official%20government%20logo%20of%20Union%20Public%20Service%20Commission%20of%20India%20with%20emblem%20and%20blue%20and%20gold%20colors%20professional%20clean%20design%20on%20white%20background&width=120&height=120&seq=201&orientation=squarish';
 
   const handleBookmarkClick = async (e: MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
@@ -38,11 +38,11 @@ const JobCard = ({ job, isInitiallyBookmarked }: JobCardProps) => {
       if (newState) {
         // Your API call to ADD a bookmark would go here
         console.log(`Bookmarking job ${job.id}`);
-        await postApi(`/bookmarks/${user.id}/job`, { Id: job.id });
+        await postApi(`/bookmarks/${user?.id}/job`, { Id: job.id });
       } else {
         // Your API call to REMOVE a bookmark would go here
         console.log(`Removing bookmark for job ${job.id}`);
-        await remove(`/bookmarks/${user.id}/job/${job.id}`);
+        await remove(`/bookmarks/${user?.id}/job/${job.id}`);
       }
     } catch (error) {
       console.error("Failed to update bookmark status:", error);

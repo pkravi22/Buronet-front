@@ -1,6 +1,19 @@
 // lib/types/post.ts (Frontend - Modified)
 // No PostUser interface needed if user data is flattened
 // export interface PostUser { ... }
+interface User { // Your core User type
+  id: string; // CHAR(36) GUID
+  username: string;
+  email: string;
+  createdAt: string;
+  updatedAt: string;
+  isAdmin: boolean;
+  firstName: string;
+  lastName: string;
+  headline: string;
+  profilePictureUrl: string;
+  // PasswordHash and PasswordSalt are NOT here for security
+}
 
 export interface CommentDto {
   id: number;
@@ -9,7 +22,7 @@ export interface CommentDto {
   content: string;
   createdAt: string;
   updatedAt: string;
-  // user: PostUser; // Removed
+  user: User; // Removed
   userName: string; // Added
   userEmail: string; // Added
 }
@@ -20,7 +33,7 @@ export interface LikeDto {
   userId: string;
   createdAt: string;
   updatedAt: string;
-  // user: PostUser; // Removed
+  // user: User; // Removed
   userName: string; // Added
   userEmail: string; // Added
 }
@@ -61,6 +74,7 @@ export interface PostDto {
   tags?: string[];
   isPoll: boolean;
   poll?: PollDto;
+  user?: User;
 
   // If you want profilePictureUrl and headline, you'd need to add them here
   // profilePictureUrl?: string;
@@ -81,7 +95,7 @@ export interface CreatePostDto {
   title: string;
   content: string;
   imageUrl: string | null; // Can be null if not provided
-  tagsJson: string;
+  tagsJson: string[];
 }
 
 export interface CommentRequestDto {

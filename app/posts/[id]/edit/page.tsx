@@ -11,15 +11,20 @@ import { UpdatePostDto } from '@/lib/types/post';
 import React from 'react';
 
 interface EditPostPageProps {
-  id: string
+  params: {
+    id: string; // id is INSIDE params
+  };
+  // Keep searchParams optional, as recommended before
+  searchParams?: { [key: string]: string | string[] | undefined }; 
 }
 
 // Make the component function 'async' to use 'await' or React.use()
-const EditPostPage:React.FC<EditPostPageProps> = ({ id }) => {
+const EditPostPage:React.FC<EditPostPageProps> = ({ params, searchParams }) => { // <-- Destructure params
+  // ...
   // Use React.use() directly on params, as suggested by Next.js warning.
   // This satisfies the warning.
   // const resolvedParams = React.use(params);
-  const postId = parseInt(id, 10); // Access id from the unwrapped object
+  const postId = parseInt(params.id, 10); // Access id from the unwrapped object
 
   const router = useRouter();
   const { user, isLoading: isAuthLoading } = useAuth(); // Get current user profile from AuthContext

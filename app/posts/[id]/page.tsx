@@ -9,18 +9,21 @@ import { useAuth } from '@/context/AuthContext';
 import { usePosts } from '@/hooks/usePosts';
 import React from 'react';
 
-interface PostPageProps {
-  // onConnectClick: (receiverId: string) => Promise<void>;
-  id: string
+interface PostPageProps { // Or whatever your interface is named
+  params: {
+    id: string; 
+  };
+  searchParams?: { [key: string]: string | string[] | undefined }; 
 }
 
 // const NetworkCard: React.FC<NetworkCardProps> = ({ user, onConnectClick, isConnected }) => (
 // Make the component function 'async' to use 'await' or React.use()
-const PostPage:React.FC<PostPageProps> = ({ id }) => {
+// const PostPage:React.FC<PostPageProps> = ({ id }) => {
+const PostPage: React.FC<PostPageProps> = ({ params, searchParams }) => {
   // Use React.use() directly on params, as suggested by Next.js warning.
   // This satisfies the warning.
   // const resolvedParams = React.use(params);
-  const postId = parseInt(id, 10); // Access id from the unwrapped object
+  const postId = parseInt(params.id, 10); // Access id from the unwrapped object
 
   const router = useRouter();
   const { user, isLoading: isAuthLoading } = useAuth(); // Get current user profile from AuthContext

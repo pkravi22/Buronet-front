@@ -9,6 +9,12 @@ import TopBar from '@/components/TopBar';
 import { useAuth } from '@/context/AuthContext'; // Assuming you have a useAuth hook to get the current user
 import Navbar from '@/components/Navbar';
 
+interface BookmarkType {
+  userId: string,
+  examId: string,
+  savedDate: string
+}
+
 const ExamDashboard = () => {
   const [bookmarkedExams, setBookmarkedExams] = useState<Exam[]>([]);
   const { user } = useAuth(); // Assuming you have a useAuth hook to get the current user
@@ -20,10 +26,10 @@ const ExamDashboard = () => {
     const fetchBookmarkedExams = async () => {
       setIsLoading(true);
       try {
-        const bookmarksResponse = await get<any>(`/bookmarks/${userId}/exams`);
+        const bookmarksResponse = await get<BookmarkType[]>(`/bookmarks/${userId}/exams`);
         if (bookmarksResponse.length > 0) {
           const examIds = bookmarksResponse.map(b => b.examId);
-          const examPromises = examIds.map(id => get<ApiResponse<Exam>>(`/exams/${id}`));
+          const examPromises = examIds.map(id => get<Exam>(`/exams/${id}`));
           const examResults = await Promise.all(examPromises);
           const successfulExams = examResults;
           setBookmarkedExams(successfulExams);

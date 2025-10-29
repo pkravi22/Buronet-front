@@ -41,7 +41,7 @@ const HomePage: React.FC = () => {
           <div className="mt-6">
             <DashboardCards />
             <InsightsSection onShareArticleClick={() => setIsCreatePostModalOpen(true)} onCreatePollClick={() => setIsCreatePollModalOpen(true)} onShareByteClick={() => setIsCreateByteModalOpen(true)} />
-            <PostSection key={postsRefetchKey}/>
+            <PostSection postsRefetchKey={postsRefetchKey}/>
             {/* Using the new PostSection component */}
             <PostSectionOld />
           </div>

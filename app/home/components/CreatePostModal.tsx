@@ -196,6 +196,7 @@ import { CreatePostDto } from '@/lib/types/post';
 import LoadingSpinner from '@/components/UI/LoadingSpinner';
 import { useAuth } from '@/context/AuthContext';
 import { Rss, Image as ImageIcon, Briefcase, ChevronDown } from 'lucide-react'; // Import icons
+import { useUserProfile } from '@/hooks/useUserProfile';
 
 interface CreatePostModalProps {
   isOpen: boolean;
@@ -206,6 +207,7 @@ interface CreatePostModalProps {
 
 const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onPostCreated, onOpenCreatePoll }) => {
   const { user, isLoading: authLoading } = useAuth();
+  const { userProfile, isLoading: isProfileLoading, isError: profileError } = useUserProfile();
   const [content, setContent] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const [tagsInput, setTagsInput] = useState('');
@@ -241,9 +243,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onPo
       title: "",
       content,
       imageUrl: imageUrl || null,
-      tags: tagsArray,
-      isPoll: false,
-      options: []
+      tagsJson: tagsArray,
     };
 
     try {
@@ -285,10 +285,10 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onPo
         {/* User Info Section */}
         <div className="flex items-center p-6 pb-2">
           <div className="w-12 h-12 shrink-0">
-            {user?.profilePictureUrl ? (
+            {userProfile?.profilePictureUrl ? (
               <Image
-                src={user.profilePictureUrl}
-                alt={user.username}
+                src={userProfile?.profilePictureUrl}
+                alt={userProfile?.username}
                 width={48}
                 height={48}
                 className="rounded-full object-cover"
@@ -300,9 +300,9 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onPo
             )}
           </div>
           <div className="ml-3">
-            <h3 className="text-lg font-semibold text-gray-900">{user?.firstName} {user?.lastName}</h3>
+            <h3 className="text-lg font-semibold text-gray-900">{userProfile?.firstName} {userProfile?.lastName}</h3>
             <div className="flex items-center text-sm text-gray-500">
-              <span className="font-medium">{user?.headline}</span>
+              <span className="font-medium">{userProfile?.headline}</span>
               <ChevronDown size={16} className="ml-1" />
             </div>
           </div>

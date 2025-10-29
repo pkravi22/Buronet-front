@@ -3,11 +3,12 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
-import { PostDto, CommentDto, CommentRequestDto, PollOptionDto } from '@/lib/types/post';
+import { PostDto, CommentDto, CommentRequestDto, PollOptionDto, LikeDto } from '@/lib/types/post';
 import { formatDistanceToNow } from 'date-fns';
 import { postApi } from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
+import { useUserProfile } from '@/hooks/useUserProfile';
 
 // --- NEW COMPONENT FOR POLLS ---
 interface PollCardProps {
@@ -16,16 +17,17 @@ interface PollCardProps {
   onVote: (optionId: number) => Promise<void>;
   isVoting: boolean;
   userHasVoted: boolean;
+  content: string;
   user: any; // User object from AuthContext
 }
 
-const PollCard: React.FC<PollCardProps> = ({ poll, isPostOwner, onVote, isVoting, userHasVoted }) => {
+const PollCard: React.FC<PollCardProps> = ({ poll, isPostOwner, onVote, isVoting, userHasVoted, content }) => {
   if (!poll) return null;
 
   return (
     <div className="mt-4 space-y-3">
       <p className="text-[#4B5563] text-base leading-6">
-        {poll.content}
+        {content}
       </p>
       <div className="space-y-2 mt-4">
         {poll.options.map((option) => {
@@ -77,6 +79,7 @@ interface PostCardProps {
 
 const PostCard: React.FC<PostCardProps> = ({ post: initialPost, onPostUpdated, currentUserId, onDelete }) => {
   const { user } = useAuth();
+  const { userProfile } = useUserProfile();
   const [post, setPost] = useState<PostDto>(initialPost);
   const [commentInput, setCommentInput] = useState('');
   const [showCommentInput, setShowCommentInput] = useState(false);
@@ -106,10 +109,20 @@ const PostCard: React.FC<PostCardProps> = ({ post: initialPost, onPostUpdated, c
     try {
       const res: { isLiked: boolean } = await postApi(`/posts/${post.id}/toggle-like`, {});
 
-      setPost(prevPost => {
+      setPost((prevPost): PostDto => {
         const newLikesCount = res.isLiked ? prevPost.likesCount + 1 : prevPost.likesCount - 1;
-        const updatedLikes = res.isLiked
-          ? [...prevPost.likes, { id: 0, postId: prevPost.id, userId: user.id, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), user: { id: user.id, username: user.username, email: user.email } }]
+        const newLike: LikeDto = {
+          id: 0,
+          postId: prevPost.id,
+          userId: user.id,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          userEmail: user.email,
+          userName: user.username
+          // user: { id: user.id, username: user.username, email: user.email }
+        };
+        const updatedLikes: LikeDto[] = res.isLiked
+          ? [...prevPost.likes, newLike]
           : prevPost.likes.filter(like => like.userId !== user.id);
 
         return {
@@ -232,6 +245,8 @@ const PostCard: React.FC<PostCardProps> = ({ post: initialPost, onPostUpdated, c
   const isPostOwner = currentUserId === post.userId;
   const userHasVoted = post.isPoll && post.poll?.options.some(opt => opt.hasVoted);
 
+  console.log("post on post card:", post);
+
   return (
     <div className="bg-white rounded-xl shadow-sm relative">
       <div className="px-4 py-6 sm:px-6">
@@ -240,7 +255,7 @@ const PostCard: React.FC<PostCardProps> = ({ post: initialPost, onPostUpdated, c
           <div className="flex">
             <div className="w-12 h-12 shrink-0">
               <Image
-                src={post.user?.profilePictureUrl || "/default-profile.png"}
+                src={"/default-profile.png"}
                 alt={post.user?.username || "User"}
                 width={48}
                 height={48}
@@ -450,7 +465,7 @@ const PostCard: React.FC<PostCardProps> = ({ post: initialPost, onPostUpdated, c
                   <div key={comment.id} className="bg-gray-50 p-3 rounded-lg text-sm">
                     <div className="flex items-center mb-1">
                       <img
-                        src={comment.user?.avatar || "/default-profile.png"}
+                        src={comment.user?.profilePictureUrl || "/default-profile.png"}
                         alt={comment.user?.username || "Commenter"}
                         width={24}
                         height={24}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, use } from 'react';
+import React, { useEffect, useState, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { get, put } from '@/lib/api';
 import { Exam, ApiResponse } from '@/lib/types/exams';
@@ -8,8 +8,19 @@ import { Exam, ApiResponse } from '@/lib/types/exams';
 import { ArrowLeft, Save } from 'lucide-react';
 import TopBar from '@/components/TopBar'; // Assuming a shared top bar
 
+interface FormFieldProps {
+  label: string;
+  id: string;
+  value: string | number; // Use string | number if value could be numeric
+  onChange: React.ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement>;
+  type?: string; // You could be more specific: 'text' | 'number' | 'email' | 'password' | 'textarea' etc.
+  required?: boolean;
+  rows?: number;
+}
+
 // A reusable form field component to reduce boilerplate
-const FormField = ({ label, id, value, onChange, type = 'text', required = false, rows = 3 }) => (
+// const FormField = ({ label, id, value, onChange, type = 'text', required = false, rows = 3 }) => (
+const FormField: React.FC<FormFieldProps> = ({ label, id, value, onChange, type = 'text', required = false, rows = 3 }) => (
   <div>
     <label htmlFor={id} className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
     {type === 'textarea' ? (

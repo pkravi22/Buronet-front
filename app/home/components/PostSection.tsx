@@ -14,7 +14,9 @@ interface PostSectionProps {
 }
 
 const PostSection: React.FC<PostSectionProps> = ({ tag, postsRefetchKey }) => {
-  const { posts, isLoading, isError, refetchPosts } = usePosts(tag);
+  // const { posts, isLoading, isError, refetchPosts } = usePosts(tag);
+  const { posts, isLoading, error } = usePosts();
+  const isError = error;
   const { user } = useAuth(); // Get the current user for delete permission checks
 
   const handleDeletePost = async (postId: number) => {
@@ -27,7 +29,7 @@ const PostSection: React.FC<PostSectionProps> = ({ tag, postsRefetchKey }) => {
     try {
       await remove(`/posts/${postId}`); // Call the backend DELETE endpoint
       console.log(`Post ${postId} deleted successfully.`);
-      refetchPosts(); // Refetch posts to update the list
+      // refetchPosts(); // Refetch posts to update the list
     } catch (err: any) {
       console.error(`Failed to delete post ${postId}:`, err);
     }
@@ -50,9 +52,9 @@ const PostSection: React.FC<PostSectionProps> = ({ tag, postsRefetchKey }) => {
     return (
       <div className="text-red-600 text-center py-8">
         <p>Error loading posts: {isError}</p>
-        <button onClick={refetchPosts} className="mt-4 px-4 py-2 bg-blue-500 text-white rounded">
+        {/* <button onClick={refetchPosts} className="mt-4 px-4 py-2 bg-blue-500 text-white rounded">
           Retry
-        </button>
+        </button> */}
       </div>
     );
   }
@@ -72,8 +74,9 @@ const PostSection: React.FC<PostSectionProps> = ({ tag, postsRefetchKey }) => {
           <PostCard
             key={post.id}
             post={post}
-            currentUserId={user?.id || null} // Pass current user ID for owner check
-            // onDelete={handleDeletePost} // <--- FIX: Pass the handleDeletePost function here
+            currentUserId={user?.id || null}
+            // Pass current user ID for owner check
+            onDelete={handleDeletePost} // <--- FIX: Pass the handleDeletePost function here
             // onPostUpdated={handlePostUpdated} // If you implement this callback for optimistic updates
           />
         ))}

@@ -1,484 +1,484 @@
-"use client";
+// "use client";
 
 
-import { TrendingUp, Clock, Briefcase, FileText, Bookmark, Bell, ChevronRight, Building2, Banknote, Shield, GraduationCap, Stethoscope, Landmark, ChevronLeft } from 'lucide-react';
+// import { TrendingUp, Clock, Briefcase, FileText, Bookmark, Bell, ChevronRight, Building2, Banknote, Shield, GraduationCap, Stethoscope, Landmark, ChevronLeft } from 'lucide-react';
 
-import { useRef, useState, useEffect } from 'react';
+// import { useRef, useState, useEffect } from 'react';
 
-import { get } from '@/lib/api'; // Make sure this path is correct for your API helper
+// import { get } from '@/lib/api'; // Make sure this path is correct for your API helper
 
-import { Job, ApiResponse } from '@/lib/types/jobs'; // Make sure this path is correct for your types
+// import { Job, ApiResponse } from '@/lib/types/jobs'; // Make sure this path is correct for your types
 
-import JobCard from '../components/JobCard'; // Make sure this path is correct for your JobCard component
+// import JobCard from '../components/JobCard'; // Make sure this path is correct for your JobCard component
 
-import { useAuth } from '@/context/AuthContext';
+// import { useAuth } from '@/context/AuthContext';
 
 
-interface bookmarksResponseType {
+// interface bookmarksResponseType {
 
-  id: String,
+//   id: String,
 
-  jobId: String,
+//   jobId: String,
 
-  userId: String,
+//   userId: String,
 
-  savedDate: String,
+//   savedDate: String,
 
-}
+// }
 
 
-// TypeScript Interfaces
+// // TypeScript Interfaces
 
-interface DashboardCardProps {
+// interface DashboardCardProps {
 
-  title: string;
+//   title: string;
 
-  value: string;
+//   value: string;
 
-  trend: string;
+//   trend: string;
 
-  icon: React.ReactNode;
+//   icon: React.ReactNode;
 
-  iconColor: string;
+//   iconColor: string;
 
-  trendIcon?: React.ReactNode;
+//   trendIcon?: React.ReactNode;
 
-  trendColor?: string;
+//   trendColor?: string;
 
-}
+// }
 
 
-interface DashboardStats {
+// interface DashboardStats {
 
-  totalActiveJobs: number;
+//   totalActiveJobs: number;
 
-  newJobsToday: number;
+//   newJobsToday: number;
 
-  totalBookmarkedJobs: number;
+//   totalBookmarkedJobs: number;
 
-}
+// }
 
 
-interface DepartmentStats {
+// interface DepartmentStats {
 
-  departmentName: string;
+//   departmentName: string;
 
-  jobCount: number;
+//   jobCount: number;
 
-}
+// }
 
 
-// Reusable Components defined within the file
+// // Reusable Components defined within the file
 
-const DashboardCard = ({ title, value, trend, icon, iconColor, trendIcon, trendColor = "text-[#16A34A]" }: DashboardCardProps) => (
+// const DashboardCard = ({ title, value, trend, icon, iconColor, trendIcon, trendColor = "text-[#16A34A]" }: DashboardCardProps) => (
 
-  <div className="w-[148px] h-32 bg-gradient-to-br from-[#DDECFF] to-[#E3EAFF] rounded-xl">
+//   <div className="w-[148px] h-32 bg-gradient-to-br from-[#DDECFF] to-[#E3EAFF] rounded-xl">
 
-    <div className="h-full px-4 py-4 flex flex-col justify-between">
+//     <div className="h-full px-4 py-4 flex flex-col justify-between">
 
-      <div className="flex items-center">
+//       <div className="flex items-center">
 
-        <div className="w-8 h-8 bg-white rounded-lg shadow-sm flex items-center justify-center p-2">
+//         <div className="w-8 h-8 bg-white rounded-lg shadow-sm flex items-center justify-center p-2">
 
-          <span className={`${iconColor}`}>
+//           <span className={`${iconColor}`}>
 
-            {icon}
+//             {icon}
 
-          </span>
+//           </span>
 
-        </div>
+//         </div>
 
-        <div className="ml-3">
+//         <div className="ml-3">
 
-          <h3 className="text-[#1F2937] font-medium text-sm">{title}</h3>
+//           <h3 className="text-[#1F2937] font-medium text-sm">{title}</h3>
 
-        </div>
+//         </div>
 
-      </div>
+//       </div>
 
-      <div>
+//       <div>
 
-        <p className="text-[#1F2937] text-2xl font-semibold">{value}</p>
+//         <p className="text-[#1F2937] text-2xl font-semibold">{value}</p>
 
-        <div className="flex items-center gap-1 mt-1">
+//         <div className="flex items-center gap-1 mt-1">
 
-          {trendIcon && (
+//           {trendIcon && (
 
-            <span className={`${trendColor}`}>
+//             <span className={`${trendColor}`}>
 
-              {trendIcon}
+//               {trendIcon}
 
-            </span>
+//             </span>
 
-          )}
+//           )}
 
-          <p className="text-xs text-[#6B7280]">{trend}</p>
+//           <p className="text-xs text-[#6B7280]">{trend}</p>
 
-        </div>
+//         </div>
 
-      </div>
+//       </div>
 
-    </div>
+//     </div>
 
-  </div>
+//   </div>
 
-);
+// );
 
 
-const DepartmentCard = ({ title, jobs, icon }: { title: string; jobs: number; icon: React.ReactNode }) => {
+// const DepartmentCard = ({ title, jobs, icon }: { title: string; jobs: number; icon: React.ReactNode }) => {
 
-  const getGradient = (title: string) => {
+//   const getGradient = (title: string) => {
 
-    switch (title.toLowerCase()) {
+//     switch (title.toLowerCase()) {
 
-      case 'railway': return 'from-blue-500 to-indigo-600';
+//       case 'railway': return 'from-blue-500 to-indigo-600';
 
-      case 'banking': return 'from-indigo-500 to-purple-600';
+//       case 'banking': return 'from-indigo-500 to-purple-600';
 
-      case 'defense': return 'from-purple-500 to-pink-600';
+//       case 'defense': return 'from-purple-500 to-pink-600';
 
-      case 'education': return 'from-pink-500 to-red-600';
+//       case 'education': return 'from-pink-500 to-red-600';
 
-      case 'healthcare': return 'from-red-500 to-orange-600';
+//       case 'healthcare': return 'from-red-500 to-orange-600';
 
-      case 'civil services': return 'from-orange-500 to-yellow-600';
+//       case 'civil services': return 'from-orange-500 to-yellow-600';
 
-      default: return 'from-blue-500 to-indigo-600';
+//       default: return 'from-blue-500 to-indigo-600';
 
-    }
+//     }
 
-  };
+//   };
 
 
-  return (
+//   return (
 
-    <div className={`w-[180px] h-32 bg-gradient-to-br ${getGradient(title)} rounded-xl`}>
+//     <div className={`w-[180px] h-32 bg-gradient-to-br ${getGradient(title)} rounded-xl`}>
 
-      <div className="h-full px-4 py-4 flex flex-col justify-between">
+//       <div className="h-full px-4 py-4 flex flex-col justify-between">
 
-        <div className="flex items-center justify-between">
+//         <div className="flex items-center justify-between">
 
-          <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
+//           <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
 
-            <span className="text-white">{icon}</span>
+//             <span className="text-white">{icon}</span>
 
-          </div>
+//           </div>
 
-          <span className="bg-white/20 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-full">{jobs} jobs</span>
+//           <span className="bg-white/20 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-full">{jobs} jobs</span>
 
-        </div>
+//         </div>
 
-        <div>
+//         <div>
 
-          <h3 className="text-white text-lg font-medium">{title}</h3>
+//           <h3 className="text-white text-lg font-medium">{title}</h3>
 
-          <p className="text-white/80 text-sm">Ministry of India</p>
+//           <p className="text-white/80 text-sm">Ministry of India</p>
 
-        </div>
+//         </div>
 
-      </div>
+//       </div>
 
-    </div>
+//     </div>
 
-  );
+//   );
 
-};
+// };
 
 
-// Main Component
+// // Main Component
 
-const MainContent = () => {
+// const MainContent = () => {
 
-  // State for dynamic job data
+//   // State for dynamic job data
 
-  const [jobs, setJobs] = useState<Job[]>([]);
+//   const [jobs, setJobs] = useState<Job[]>([]);
 
-  const [bookmarkedJobs, setBookmarkedJobs] = useState<bookmarksResponseType[]>([]);
+//   const [bookmarkedJobs, setBookmarkedJobs] = useState<bookmarksResponseType[]>([]);
 
-  const [isLoading, setIsLoading] = useState(true);
+//   const [isLoading, setIsLoading] = useState(true);
 
-  const [dashboardStats, setDashboardStats] = useState<DashboardStats | null>(null);
+//   const [dashboardStats, setDashboardStats] = useState<DashboardStats | null>(null);
 
-  const [departmentStats, setDepartmentStats] = useState<DepartmentStats[]>([]);
+//   const [departmentStats, setDepartmentStats] = useState<DepartmentStats[]>([]);
 
-  const { user } = useAuth(); // Assuming you have a useAuth hook to get the current user
+//   const { user } = useAuth(); // Assuming you have a useAuth hook to get the current user
 
 
-  // Data fetching effect for jobs
+//   // Data fetching effect for jobs
 
-  useEffect(() => {
+//   useEffect(() => {
 
-    const fetchJobs = async () => {
+//     const fetchJobs = async () => {
 
-      setIsLoading(true);
+//       setIsLoading(true);
 
-      try {
+//       try {
 
-        const response = await get<Job[]>('/jobs/job-home');
+//         const response = await get<Job[]>('/jobs/job-home');
 
-        const bookmarksResponse = await get<bookmarksResponseType[]>(`/jobs/${user.id}/bookmarks`);
+//         const bookmarksResponse = await get<bookmarksResponseType[]>(`/jobs/${user.id}/bookmarks`);
 
-        const dashboardStatsResponse = await get<DashboardStats>(`/jobs/dashboard/stats/${user.id}`);
+//         const dashboardStatsResponse = await get<DashboardStats>(`/jobs/dashboard/stats/${user.id}`);
 
-        const departmentStatsResponse = await get<DepartmentStats[]>(`/jobs/dashboard/departments`);
+//         const departmentStatsResponse = await get<DepartmentStats[]>(`/jobs/dashboard/departments`);
 
-        // console.log("Jobs response:", response);
+//         // console.log("Jobs response:", response);
 
-        // if (response.success) {
+//         // if (response.success) {
 
-        setJobs(response);
+//         setJobs(response);
 
-        setBookmarkedJobs(bookmarksResponse);
+//         setBookmarkedJobs(bookmarksResponse);
 
-        setDashboardStats(dashboardStatsResponse);
+//         setDashboardStats(dashboardStatsResponse);
 
-        setDepartmentStats(departmentStatsResponse.data);
+//         setDepartmentStats(departmentStatsResponse.data);
 
-        // console.log("Bookmarks response:", bookmarksResponse);
+//         // console.log("Bookmarks response:", bookmarksResponse);
 
-        console.log("Dashboard Stats response:", departmentStatsResponse);
+//         console.log("Dashboard Stats response:", departmentStatsResponse);
 
 
 
-        // } else {
+//         // } else {
 
-        //   console.error(response.message);
+//         //   console.error(response.message);
 
-        //   setJobs([]);
+//         //   setJobs([]);
 
-        // }
+//         // }
 
 
 
-      } catch (error) {
+//       } catch (error) {
 
-        console.error("Failed to fetch jobs:", error);
+//         console.error("Failed to fetch jobs:", error);
 
-      } finally {
+//       } finally {
 
-        setIsLoading(false);
+//         setIsLoading(false);
 
-      }
+//       }
 
-    };
+//     };
 
-    fetchJobs();
+//     fetchJobs();
 
-  }, []);
+//   }, []);
 
 
-  // Static data for dashboard and departments
+//   // Static data for dashboard and departments
 
-  const dashboardCards: DashboardCardProps[] = [
+//   const dashboardCards: DashboardCardProps[] = [
 
-    { title: 'Total Active Jobs', value: dashboardStats?.totalActiveJobs.toString() || '0', trend: '10 new today', icon: <Briefcase size={16} />, iconColor: 'text-[#EF4444]', trendIcon: <TrendingUp size={12} />, trendColor: 'text-[#16A34A]' },
+//     { title: 'Total Active Jobs', value: dashboardStats?.totalActiveJobs.toString() || '0', trend: '10 new today', icon: <Briefcase size={16} />, iconColor: 'text-[#EF4444]', trendIcon: <TrendingUp size={12} />, trendColor: 'text-[#16A34A]' },
 
-    { title: 'Total Applications', value: '0', trend: '5 in progress', icon: <FileText size={16} />, iconColor: 'text-[#3B82F6]', trendIcon: <Clock size={12} />, trendColor: 'text-[#F59E0B]' },
+//     { title: 'Total Applications', value: '0', trend: '5 in progress', icon: <FileText size={16} />, iconColor: 'text-[#3B82F6]', trendIcon: <Clock size={12} />, trendColor: 'text-[#F59E0B]' },
 
-    { title: 'Saved Jobs', value: dashboardStats?.totalBookmarkedJobs.toString() || '0', trend: 'updated Just now', icon: <Bookmark size={16} />, iconColor: 'text-[#22C55E]', trendIcon: <Clock size={12} />, trendColor: 'text-[#F59E0B]' },
+//     { title: 'Saved Jobs', value: dashboardStats?.totalBookmarkedJobs.toString() || '0', trend: 'updated Just now', icon: <Bookmark size={16} />, iconColor: 'text-[#22C55E]', trendIcon: <Clock size={12} />, trendColor: 'text-[#F59E0B]' },
 
-    { title: 'New Notifications', value: dashboardStats?.newJobsToday.toString() || '0', trend: '4 new alerts', icon: <Bell size={16} />, iconColor: 'text-[#A855F7]', trendIcon: <TrendingUp size={12} />, trendColor: 'text-[#16A34A]' }
+//     { title: 'New Notifications', value: dashboardStats?.newJobsToday.toString() || '0', trend: '4 new alerts', icon: <Bell size={16} />, iconColor: 'text-[#A855F7]', trendIcon: <TrendingUp size={12} />, trendColor: 'text-[#16A34A]' }
 
-  ];
+//   ];
 
 
-  const departments = [
+//   const departments = [
 
-    { title: "Railway", jobs: departmentStats.find(d => d.departmentName === "Railway")?.jobCount || 0, icon: <Building2 size={16} /> },
+//     { title: "Railway", jobs: departmentStats.find(d => d.departmentName === "Railway")?.jobCount || 0, icon: <Building2 size={16} /> },
 
-    { title: "Banking", jobs: departmentStats.find(d => d.departmentName === "Banking")?.jobCount || 0, icon: <Banknote size={16} /> },
+//     { title: "Banking", jobs: departmentStats.find(d => d.departmentName === "Banking")?.jobCount || 0, icon: <Banknote size={16} /> },
 
-    { title: "Defense", jobs: departmentStats.find(d => d.departmentName === "Defense")?.jobCount || 0, icon: <Shield size={16} /> },
+//     { title: "Defense", jobs: departmentStats.find(d => d.departmentName === "Defense")?.jobCount || 0, icon: <Shield size={16} /> },
 
-    { title: "Education", jobs: departmentStats.find(d => d.departmentName === "Education")?.jobCount || 0, icon: <GraduationCap size={16} /> },
+//     { title: "Education", jobs: departmentStats.find(d => d.departmentName === "Education")?.jobCount || 0, icon: <GraduationCap size={16} /> },
 
-    { title: "Healthcare", jobs: departmentStats.find(d => d.departmentName === "Healthcare")?.jobCount || 0, icon: <Stethoscope size={16} /> },
+//     { title: "Healthcare", jobs: departmentStats.find(d => d.departmentName === "Healthcare")?.jobCount || 0, icon: <Stethoscope size={16} /> },
 
-    { title: "Civil Services", jobs: departmentStats.find(d => d.departmentName === "Civil Services")?.jobCount || 0, icon: <Landmark size={16} /> }
+//     { title: "Civil Services", jobs: departmentStats.find(d => d.departmentName === "Civil Services")?.jobCount || 0, icon: <Landmark size={16} /> }
 
-  ];
+//   ];
 
 
-  // Logic for horizontal scrolling sections
+//   // Logic for horizontal scrolling sections
 
-  const departmentsScrollRef = useRef<HTMLDivElement>(null);
+//   const departmentsScrollRef = useRef<HTMLDivElement>(null);
 
-  const filtersScrollRef = useRef<HTMLDivElement>(null);
+//   const filtersScrollRef = useRef<HTMLDivElement>(null);
 
-  const [showDeptLeftButton, setShowDeptLeftButton] = useState(false);
+//   const [showDeptLeftButton, setShowDeptLeftButton] = useState(false);
 
-  const [showDeptRightButton, setShowDeptRightButton] = useState(true);
+//   const [showDeptRightButton, setShowDeptRightButton] = useState(true);
 
-  const [showFiltersLeftButton, setShowFiltersLeftButton] = useState(false);
+//   const [showFiltersLeftButton, setShowFiltersLeftButton] = useState(false);
 
-  const [showFiltersRightButton, setShowFiltersRightButton] = useState(true);
+//   const [showFiltersRightButton, setShowFiltersRightButton] = useState(true);
 
 
-  const handleDeptScroll = () => {
+//   const handleDeptScroll = () => {
 
-    if (departmentsScrollRef.current) {
+//     if (departmentsScrollRef.current) {
 
-      const { scrollLeft, scrollWidth, clientWidth } = departmentsScrollRef.current;
+//       const { scrollLeft, scrollWidth, clientWidth } = departmentsScrollRef.current;
 
-      setShowDeptLeftButton(scrollLeft > 0);
+//       setShowDeptLeftButton(scrollLeft > 0);
 
-      setShowDeptRightButton(scrollLeft < scrollWidth - clientWidth - 1);
+//       setShowDeptRightButton(scrollLeft < scrollWidth - clientWidth - 1);
 
-    }
+//     }
 
-  };
+//   };
 
 
-  const handleFiltersScroll = () => {
+//   const handleFiltersScroll = () => {
 
-    if (filtersScrollRef.current) {
+//     if (filtersScrollRef.current) {
 
-      const { scrollLeft, scrollWidth, clientWidth } = filtersScrollRef.current;
+//       const { scrollLeft, scrollWidth, clientWidth } = filtersScrollRef.current;
 
-      setShowFiltersLeftButton(scrollLeft > 0);
+//       setShowFiltersLeftButton(scrollLeft > 0);
 
-      setShowFiltersRightButton(scrollLeft < scrollWidth - clientWidth - 1);
+//       setShowFiltersRightButton(scrollLeft < scrollWidth - clientWidth - 1);
 
-    }
+//     }
 
-  };
+//   };
 
 
-  const scroll = (ref: React.RefObject<HTMLDivElement | null>, direction: 'left' | 'right') => {
+//   const scroll = (ref: React.RefObject<HTMLDivElement | null>, direction: 'left' | 'right') => {
 
-    const element = ref.current;
+//     const element = ref.current;
 
-    if (element) {
+//     if (element) {
 
-      element.scrollBy({ left: direction === 'left' ? -200 : 200, behavior: 'smooth' });
+//       element.scrollBy({ left: direction === 'left' ? -200 : 200, behavior: 'smooth' });
 
-    }
+//     }
 
-  };
+//   };
 
 
-  return (
+//   return (
 
-    <div className="flex-1">
+//     <div className="flex-1">
 
-      <div className="flex justify-center w-full">
+//       <div className="flex justify-center w-full">
 
-        <div className="w-[640px] mt-6">
+//         <div className="w-[640px] mt-6">
 
-          {/* Dashboard Cards Section */}
+//           {/* Dashboard Cards Section */}
 
-          <div className="flex flex-wrap gap-4 mb-8">
+//           <div className="flex flex-wrap gap-4 mb-8">
 
-            {dashboardCards.map((card, index) => (
+//             {dashboardCards.map((card, index) => (
 
-              <div key={index} className="w-[148px]"><DashboardCard {...card} /></div>
+//               <div key={index} className="w-[148px]"><DashboardCard {...card} /></div>
 
-            ))}
+//             ))}
 
-          </div>
+//           </div>
 
 
-          {/* Popular Departments Section */}
+//           {/* Popular Departments Section */}
 
-          <div className="mb-8">
+//           <div className="mb-8">
 
-            <div className="flex items-center justify-between mb-4">
+//             <div className="flex items-center justify-between mb-4">
 
-              <h2 className="text-[#1F2937] font-semibold text-lg">Popular Departments</h2>
+//               <h2 className="text-[#1F2937] font-semibold text-lg">Popular Departments</h2>
 
-              <button className="text-[#3B82F6] text-sm flex items-center gap-1 hover:text-[#2563EB]">View All<ChevronRight size={16} /></button>
+//               <button className="text-[#3B82F6] text-sm flex items-center gap-1 hover:text-[#2563EB]">View All<ChevronRight size={16} /></button>
 
-            </div>
+//             </div>
 
-            <div className="relative">
+//             <div className="relative">
 
-              {showDeptLeftButton && <button onClick={() => scroll(departmentsScrollRef, 'left')} className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center z-10 hover:bg-gray-50"><ChevronLeft size={20} className="text-[#6B7280]" /></button>}
+//               {showDeptLeftButton && <button onClick={() => scroll(departmentsScrollRef, 'left')} className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center z-10 hover:bg-gray-50"><ChevronLeft size={20} className="text-[#6B7280]" /></button>}
 
-              <div className="relative">
+//               <div className="relative">
 
-                <div ref={departmentsScrollRef} onScroll={handleDeptScroll} className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth">
+//                 <div ref={departmentsScrollRef} onScroll={handleDeptScroll} className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth">
 
-                  {departments.map((dept, index) => <div key={index} className="w-[180px] shrink-0"><DepartmentCard {...dept} /></div>)}
+//                   {departments.map((dept, index) => <div key={index} className="w-[180px] shrink-0"><DepartmentCard {...dept} /></div>)}
 
-                </div>
+//                 </div>
 
-              </div>
+//               </div>
 
-              {showDeptRightButton && <button onClick={() => scroll(departmentsScrollRef, 'right')} className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center z-10 hover:bg-gray-50"><ChevronRight size={20} className="text-[#6B7280]" /></button>}
+//               {showDeptRightButton && <button onClick={() => scroll(departmentsScrollRef, 'right')} className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center z-10 hover:bg-gray-50"><ChevronRight size={20} className="text-[#6B7280]" /></button>}
 
-            </div>
+//             </div>
 
-          </div>
+//           </div>
 
 
-          {/* Latest Job Openings Section */}
+//           {/* Latest Job Openings Section */}
 
-          <div className="mb-8">
+//           <div className="mb-8">
 
-            <div className="flex items-center justify-between mb-4">
+//             <div className="flex items-center justify-between mb-4">
 
-              <h2 className="text-[#1F2937] font-semibold text-lg">Latest Job Openings</h2>
+//               <h2 className="text-[#1F2937] font-semibold text-lg">Latest Job Openings</h2>
 
-              <button className="text-[#3B82F6] text-sm flex items-center gap-1 hover:text-[#2563EB]">View All<ChevronRight size={16} /></button>
+//               <button className="text-[#3B82F6] text-sm flex items-center gap-1 hover:text-[#2563EB]">View All<ChevronRight size={16} /></button>
 
-            </div>
+//             </div>
 
-            <div className="relative">
+//             <div className="relative">
 
-              <div className="flex items-center gap-2 border-b border-[#E5E7EB] pb-4">
+//               <div className="flex items-center gap-2 border-b border-[#E5E7EB] pb-4">
 
-                <button className="h-9 px-4 bg-[#3B82F6] text-white rounded-md text-sm whitespace-nowrap">All Jobs</button>
+//                 <button className="h-9 px-4 bg-[#3B82F6] text-white rounded-md text-sm whitespace-nowrap">All Jobs</button>
 
-                <button className="h-9 px-4 bg-[#F3F4F6] text-[#374151] rounded-md text-sm whitespace-nowrap">Recommended</button>
+//                 <button className="h-9 px-4 bg-[#F3F4F6] text-[#374151] rounded-md text-sm whitespace-nowrap">Recommended</button>
 
-                <button className="h-9 px-4 bg-[#F3F4F6] text-[#374151] rounded-md text-sm whitespace-nowrap flex items-center gap-2"><Bookmark size={14} />Saved Jobs</button>
+//                 <button className="h-9 px-4 bg-[#F3F4F6] text-[#374151] rounded-md text-sm whitespace-nowrap flex items-center gap-2"><Bookmark size={14} />Saved Jobs</button>
 
-              </div>
+//               </div>
 
-            </div>
+//             </div>
 
-          </div>
+//           </div>
 
 
-          {/* Latest Job Cards Section - DYNAMIC */}
+//           {/* Latest Job Cards Section - DYNAMIC */}
 
-          <div className="w-full max-w-[640px] mx-auto mb-8 flex flex-col gap-4">
+//           <div className="w-full max-w-[640px] mx-auto mb-8 flex flex-col gap-4">
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+//             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-              {isLoading ? (
+//               {isLoading ? (
 
-                <p className="col-span-2 text-center text-gray-500">Loading latest jobs...</p>
+//                 <p className="col-span-2 text-center text-gray-500">Loading latest jobs...</p>
 
-              ) : jobs.length > 0 ? (
+//               ) : jobs.length > 0 ? (
 
-                jobs.map(job => (
+//                 jobs.map(job => (
 
-                  <JobCard key={job.id} job={job} isInitiallyBookmarked={bookmarkedJobs.some(b => b.jobId == job.id)} />
+//                   <JobCard key={job.id} job={job} isInitiallyBookmarked={bookmarkedJobs.some(b => b.jobId == job.id)} />
 
-                  // <JobCardOld key={job.id} job={job}/>
+//                   // <JobCardOld key={job.id} job={job}/>
 
-                ))
+//                 ))
 
-              ) : (
+//               ) : (
 
-                <p className="col-span-2 text-center text-gray-500">No job openings found.</p>
+//                 <p className="col-span-2 text-center text-gray-500">No job openings found.</p>
 
-              )}
+//               )}
 
-            </div>
+//             </div>
 
-          </div>
+//           </div>
 
-        </div>
+//         </div>
 
-      </div>
+//       </div>
 
-    </div>
+//     </div>
 
-  );
+//   );
 
-};
+// };
 
 
-export default MainContent; 
+// export default MainContent; 

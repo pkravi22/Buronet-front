@@ -38,11 +38,11 @@ const ExamCard = ({ exam, isInitiallyBookmarked }: ExamCardProps) => {
       if (newState) {
         // Your API call to ADD a bookmark would go here
         console.log(`Bookmarking exam ${exam.id}`);
-        await postApi(`/bookmarks/${user.id}/exam`, { Id: exam.id });
+        await postApi(`/bookmarks/${user?.id}/exam`, { Id: exam.id });
       } else {
         // Your API call to REMOVE a bookmark would go here
         console.log(`Removing bookmark for exam ${exam.id}`);
-        await remove(`/bookmarks/${user.id}/exam/${exam.id}`);
+        await remove(`/bookmarks/${user?.id}/exam/${exam.id}`);
       }
     } catch (error) {
       console.error("Failed to update bookmark status:", error);
