@@ -1,0 +1,57 @@
+# Name of your workflow
+name: Deploy Next.js to Elastic Beanstalk
+
+# Controls when the action will run. 
+on:
+  # Triggers the workflow on push events but only for the "main" branch
+  push:
+    branches: [ "main", "feature/tweaks" ]
+
+jobs:
+  build-and-deploy:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    steps:
+      # --- 1. Set up your environment ---
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' # Use the same Node.js version as your EB platform
+          cache: 'npm'
+
+      # --- 2. Build your Next.js App ---
+      # This runs npm install and then npm run build (from your postinstall)
+      - name: Install Dependencies
+        run: npm install
+
+      # --- 3. Create the ZIP file for EB ---
+      # This zips all the files EB needs to run your app
+      # It INCLUDES .next, public, Procfile, .platform, package.json
+      # It EXCLUDES node_modules (they are installed on the server)
+      - name: Generate Deployment ZIP
+        run: zip -r deploy.zip . -x "node_modules/*" ".git/*" ".github/*"
+
+      # --- 4. Configure AWS Credentials ---
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-north-1  # <-- IMPORTANT: Change to your EB region
+
+      # --- 5. Deploy to Elastic Beanstalk ---
+      - name: Deploy to Elastic Beanstalk
+        uses: einaregilsson/beanstalk-deploy@v21
+        with:
+          aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          region: eu-north-1                 # <-- IMPORTANT: Change to your EB region
+          application_name: buronet-app   # <-- IMPORTANT: Change to your EB app name
+          environment_name: buronet-user-website # <-- IMPORTANT: Change to your EB env name
+          zip_file: deploy.zip              # The file we created in step 3
+          version_label: "v${{ github.sha }}-${{ github.run_attempt }}" # A unique version label
+          deployment_timeout: "5"        # Waits 10 minutes for deploy to finish
