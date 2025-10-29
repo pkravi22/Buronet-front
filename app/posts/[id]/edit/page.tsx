@@ -11,15 +11,15 @@ import { UpdatePostDto } from '@/lib/types/post';
 import React from 'react';
 
 interface EditPostPageProps {
-  params: { id: string }; // App Router passes dynamic route segments via 'params'
+  id: string
 }
 
 // Make the component function 'async' to use 'await' or React.use()
-const EditPostPage: React.FC<EditPostPageProps> = ({ params }) => {
+const EditPostPage:React.FC<EditPostPageProps> = ({ id }) => {
   // Use React.use() directly on params, as suggested by Next.js warning.
   // This satisfies the warning.
-  const resolvedParams = React.use(params);
-  const postId = parseInt(resolvedParams.id, 10); // Access id from the unwrapped object
+  // const resolvedParams = React.use(params);
+  const postId = parseInt(id, 10); // Access id from the unwrapped object
 
   const router = useRouter();
   const { user, isLoading: isAuthLoading } = useAuth(); // Get current user profile from AuthContext

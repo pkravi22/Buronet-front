@@ -72,7 +72,7 @@ export interface CreatePollDto {
   title: string;
   content: string;
   imageUrl: string | null;
-  tagsJson: string;
+  tags: string[];
   isPoll: boolean;
   options: string[]; // Poll options
 }  

@@ -5,11 +5,17 @@ import Navbar from '@/components/Navbar';
 import { CalendarDays, Building2, Clock, BadgeIndianRupee, Edit, Download, UserCheck, ListChecks, FileText, LucideLink, FileArchive, Globe, Bookmark, Gift } from 'lucide-react';
 import { useEffect, useState, use } from 'react';
 import { get, postApi, remove } from '@/lib/api';
-import { Job, ApiResponse, UserJobBookmark } from '@/lib/types/jobs';
+import { Job, ApiResponse } from '@/lib/types/jobs';
 import { useAuth } from '@/context/AuthContext'; // Assuming you have a useAuth hook to get the current user
 import { formatDate as formatDateHelper } from '@/lib/helpers/DateHelper'; // Assuming you have a date helper
 
-const JobDetailsPage = ({ params }: { params: { id: string } }) => {
+interface JobDetailsPageProps {
+  params: {
+    id: string
+  }
+}
+
+const JobDetailsPage = ({ params }: JobDetailsPageProps) => {
   const [job, setJob] = useState<Job | null>(null);
   const { user } = useAuth(); // Assuming you have a useAuth hook to get the current user
   const [isLoading, setIsLoading] = useState(true);
@@ -18,13 +24,9 @@ const JobDetailsPage = ({ params }: { params: { id: string } }) => {
   
   // In a real app, you'd get the userId from an auth context
   const userId = user?.id;
-
-  const resolvedParams = use(params);
-
-  console.log("Resolved Params:", resolvedParams);
+  const jobId = params.id;
 
   useEffect(() => {
-    const jobId = resolvedParams.id;
     if (!jobId) return;
 
     const fetchJobDetails = async () => {
@@ -39,7 +41,7 @@ const JobDetailsPage = ({ params }: { params: { id: string } }) => {
         // }
 
         // Fetch user's bookmarks to see if this job is saved
-        const bookmarksResponse = await get<any[]>(`/jobs/${userId}/bookmarks`);
+        const bookmarksResponse = await get<any[]>(`/bookmarks/${userId}/jobs`);
         if (bookmarksResponse.some(b => b.jobId === jobId)) {
           setIsBookmarked(true);
         }
@@ -53,7 +55,7 @@ const JobDetailsPage = ({ params }: { params: { id: string } }) => {
     };
 
     fetchJobDetails();
-  }, [resolvedParams.id, userId]);
+  }, [params.id, userId]);
 
   const handleToggleBookmark = async () => {
       setIsBookmarking(true);
@@ -64,10 +66,10 @@ const JobDetailsPage = ({ params }: { params: { id: string } }) => {
       try {
         if (originalState) {
           // Un-bookmark the job
-          await remove(`/jobs/${userId}/bookmarks/${job?.id}`);
+          await remove(`/bookmarks/${userId}/job/${job?.id}`);
         } else {
           // Bookmark the job
-          await postApi(`/jobs/${userId}/bookmarks`, { jobId: job?.id });
+          await postApi(`/bookmarks/${userId}/job`, { jobId: job?.id });
         }
       } catch (error) {
         console.error("Failed to update bookmark:", error);

@@ -182,7 +182,7 @@ const MainContent = () => {
                 <LoadingSpinner />
               ) : error ? (
                 <p className="text-red-500">{error}</p>
-              ) : ( suggestedConnections["People With Similar Headline"] && suggestedConnections["People With Similar Headline"].length > 0 ?
+              ) : ( suggestedConnections['People With Similar Headline'] && suggestedConnections["People With Similar Headline"].length > 0 ?
                 suggestedConnections["People With Similar Headline"].map((user, index) => (
                   <div key={user.id || index} className="w-full sm:w-[46%] lg:w-[32%] shrink-0 snap-start sm:snap-center">
                     <NetworkCard user={user} onConnectClick={sendRequest} isConnected={false} />

@@ -40,7 +40,8 @@ interface DepartmentStats {
 
 // Reusable Components defined within the file
 const DashboardCard = ({ title, value, trend, icon, iconColor, trendIcon, trendColor = "text-[#16A34A]" }: DashboardCardProps) => (
-  <div className="w-[148px] h-32 bg-gradient-to-br from-[#DDECFF] to-[#E3EAFF] rounded-xl">
+  // RESPONSIVE CHANGE: Changed w-[148px] to w-full. The grid container will now control the width.
+  <div className="w-full h-32 bg-gradient-to-br from-[#DDECFF] to-[#E3EAFF] rounded-xl">
     <div className="h-full px-4 py-4 flex flex-col justify-between">
       <div className="flex items-center">
         <div className="w-8 h-8 bg-white rounded-lg shadow-sm flex items-center justify-center p-2">
@@ -115,9 +116,9 @@ const MainContent = () => {
       setIsLoading(true);
       try {
         const response = await get<Job[]>('/jobs/job-home');
-        const bookmarksResponse = await get<bookmarksResponseType[]>(`/bookmarks/${user.id}/jobs`);
-        const dashboardStatsResponse = await get<DashboardStats>(`/dashboard/job/stats/${user.id}`);
-        const departmentStatsResponse = await get<DepartmentStats[]>(`/jobs/dashboard/departments`);
+        const bookmarksResponse = await get<bookmarksResponseType[]>(`/bookmarks/${user?.id}/jobs`);
+        const dashboardStatsResponse = await get<DashboardStats>(`/dashboard/job/stats/${user?.id}`);
+        const departmentStatsResponse = await get<DepartmentStats[]>(`/dashboard/jobs/departments`);
         console.log("Jobs response:", response);
         // if (response.success) {
         setJobs(response);
@@ -213,11 +214,13 @@ const MainContent = () => {
   return (
     <div className="flex-1">
       <div className="flex justify-center w-full">
-        <div className="w-[640px] mt-6">
+        {/* RESPONSIVE CHANGE: Replaced fixed w-[640px] with w-full max-w-[640px] and added responsive padding */}
+        <div className="w-full max-w-[640px] mt-6 px-4 md:px-0">
           {/* Dashboard Cards Section */}
-          <div className="flex flex-wrap gap-4 mb-8">
+          {/* RESPONSIVE CHANGE: Replaced flex-wrap with a responsive grid. Removed fixed-width wrapper from loop. */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
             {dashboardCards.map((card, index) => (
-              <div key={index} className="w-[148px]"><DashboardCard {...card} /></div>
+              <DashboardCard key={index} {...card} />
             ))}
           </div>
 
@@ -228,13 +231,15 @@ const MainContent = () => {
               <button className="text-[#3B82F6] text-sm flex items-center gap-1 hover:text-[#2563EB]">View All<ChevronRight size={16} /></button>
             </div>
             <div className="relative">
-              {showDeptLeftButton && <button onClick={() => scroll(departmentsScrollRef, 'left')} className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center z-10 hover:bg-gray-50"><ChevronLeft size={20} className="text-[#6B7280]" /></button>}
+              {/* RESPONSIVE CHANGE: Hide scroll buttons on mobile (md:flex) */}
+              {showDeptLeftButton && <button onClick={() => scroll(departmentsScrollRef, 'left')} className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 w-8 h-8 bg-white rounded-full shadow-md items-center justify-center z-10 hover:bg-gray-50 hidden md:flex"><ChevronLeft size={20} className="text-[#6B7280]" /></button>}
               <div className="relative">
                 <div ref={departmentsScrollRef} onScroll={handleDeptScroll} className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth">
                   {departments.map((dept, index) => <div key={index} className="w-[180px] shrink-0"><DepartmentCard {...dept} /></div>)}
                 </div>
               </div>
-              {showDeptRightButton && <button onClick={() => scroll(departmentsScrollRef, 'right')} className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center z-10 hover:bg-gray-50"><ChevronRight size={20} className="text-[#6B7280]" /></button>}
+              {/* RESPONSIVE CHANGE: Hide scroll buttons on mobile (md:flex) */}
+              {showDeptRightButton && <button onClick={() => scroll(departmentsScrollRef, 'right')} className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 w-8 h-8 bg-white rounded-full shadow-md items-center justify-center z-10 hover:bg-gray-50 hidden md:flex"><ChevronRight size={20} className="text-[#6B7280]" /></button>}
             </div>
           </div>
 
@@ -244,8 +249,8 @@ const MainContent = () => {
               <h2 className="text-[#1F2937] font-semibold text-lg">Latest Job Openings</h2>
               <button className="text-[#3B82F6] text-sm flex items-center gap-1 hover:text-[#2563EB]">View All<ChevronRight size={16} /></button>
             </div>
-            {/* KEY CHANGE 4: Functional Tabs */}
-            <div className="flex items-center gap-2 border-b border-[#E5E7EB] pb-4">
+            {/* RESPONSIVE CHANGE: Added overflow-x-auto and scrollbar-hide to make tabs scroll on mobile */}
+            <div className="flex items-center gap-2 border-b border-[#E5E7EB] pb-4 overflow-x-auto scrollbar-hide">
               {jobTabs.map(tab => (
                 <button
                   key={tab.id}
@@ -263,7 +268,7 @@ const MainContent = () => {
             </div>
           </div>
 
-          {/* Latest Job Cards Section - DYNAMIC & FILTERED */}
+          {/* Latest Job Cards Section - This was already responsive! */}
           <div className="w-full max-w-[640px] mx-auto mb-8 flex flex-col gap-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {isLoading ? (

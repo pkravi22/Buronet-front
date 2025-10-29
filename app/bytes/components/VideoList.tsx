@@ -95,7 +95,7 @@ const VideoList = () => {
       })
     );
     try {
-      await post(`/bytes/${byteId}/Like`);
+      await post(`/bytes/${byteId}/Like`, {});
     } catch (error) {
       toast.error("Status 'placuit' non potuit renovari.");
        // Reverte in casu erroris

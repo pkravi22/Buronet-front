@@ -23,7 +23,7 @@ const ExamDashboard = () => {
         const bookmarksResponse = await get<any>(`/bookmarks/${userId}/exams`);
         if (bookmarksResponse.length > 0) {
           const examIds = bookmarksResponse.map(b => b.examId);
-          const examPromises = examIds.map(id => get<ApiResponse<Exam>>(`/Exams/${id}`));
+          const examPromises = examIds.map(id => get<ApiResponse<Exam>>(`/exams/${id}`));
           const examResults = await Promise.all(examPromises);
           const successfulExams = examResults;
           setBookmarkedExams(successfulExams);

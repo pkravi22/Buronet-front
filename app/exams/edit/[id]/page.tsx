@@ -3,7 +3,8 @@
 import { useEffect, useState, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { get, put } from '@/lib/api';
-import { Job, ApiResponse } from '@/lib/types/jobs';
+import { Exam, ApiResponse } from '@/lib/types/exams';
+// import { Exam } from '@/lib/types/exams';
 import { ArrowLeft, Save } from 'lucide-react';
 import TopBar from '@/components/TopBar'; // Assuming a shared top bar
 
@@ -50,28 +51,34 @@ const fromInputFormat = (dateStr: string | undefined): string => {
     return `${day}-${month}-${year}`;
 };
 
-const JobEditPage = ({ params }: { params: { id: string } }) => {
-  const [job, setJob] = useState<Partial<Job>>({});
+interface ExamEditPageProps {
+  params: {
+    id: string
+  }
+}
+
+const ExamEditPage = ({ params } : ExamEditPageProps) => {
+  const [exam, setExam] = useState<Partial<Exam>>();
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   
   const router = useRouter();
-  const resolvedParams = use(params);
-  const jobId = resolvedParams.id;
+  // const resolvedParams = use(params);
+  const examId = params.id;
 
   useEffect(() => {
-    if (!jobId) return;
+    if (!examId) return;
 
-    const fetchJob = async () => {
+    const fetchExam = async () => {
       setIsLoading(true);
       try {
-        const response = await get<ApiResponse<Job>>(`/Jobs/${jobId}`);
+        const response = await get<Exam>(`/exams/${examId}`);
         // if (response.success) {
-          setJob(response);
+          setExam(response);
         // } else {
-        //   setError(response.message || "Failed to fetch job data.");
+        //   setError(response.message || "Failed to fetch exam data.");
         // }
       } catch (err) {
         setError("An unexpected error occurred.");
@@ -79,24 +86,24 @@ const JobEditPage = ({ params }: { params: { id: string } }) => {
         setIsLoading(false);
       }
     };
-    fetchJob();
-  }, [jobId]);
+    fetchExam();
+  }, [examId]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setJob(prev => ({ ...prev, [name]: value }));
+    setExam(prev => ({ ...prev, [name]: value } as Exam));
   };
 
   // NEW: A dedicated handler for the date input to manage format conversion
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target; // value is in 'yyyy-mm-dd'
-    setJob(prev => ({ ...prev, [name]: fromInputFormat(value) })); // Convert back and save to state
+    setExam(prev => ({ ...prev, [name]: fromInputFormat(value) } as Exam)); // Convert back and save to state
   };
 
   // Special handler for textareas that represent string arrays
   const handleArrayChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setJob(prev => ({ ...prev, [name]: value.split('\n') }));
+    setExam(prev => ({ ...prev, [name]: value.split('\n') } as Exam));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -105,21 +112,24 @@ const JobEditPage = ({ params }: { params: { id: string } }) => {
     setError(null);
     setSuccess(null);
     try {
-      const response = await put<ApiResponse<null>>(`/Jobs/${jobId}`, job);
+      const response = await put<ApiResponse<null>>(`/Exams/${examId}`, exam);
       // The backend returns NoContent (204), so we don't expect a body.
       // We can check the status code on the API helper if needed.
-      setSuccess("Job updated successfully!");
+      setSuccess("Exam updated successfully!");
       // Optionally, redirect after a short delay
-      setTimeout(() => router.push(`/jobs/${jobId}`), 1500);
+      setTimeout(() => router.push(`/exams/${examId}`), 1500);
     } catch (err) {
-      setError("Failed to update job. Please try again.");
+      setError("Failed to update exam. Please try again.");
     } finally {
       setIsSaving(false);
     }
   };
 
-  if (isLoading) return <p className="text-center p-8">Loading job details...</p>;
-  if (error && !job?.id) return <p className="text-center p-8 text-red-600">{error}</p>;
+  if (isLoading) return <p className="text-center p-8">Loading exam details...</p>;
+  if (!exam) {
+    return <p className="text-center p-8 text-red-600">{error || "Exam data could not be loaded."}</p>;
+  }
+  if (error && !exam?.id) return <p className="text-center p-8 text-red-600">{error}</p>;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -127,74 +137,53 @@ const JobEditPage = ({ params }: { params: { id: string } }) => {
       <div className="max-w-4xl mx-auto py-8 px-4">
         <button onClick={() => router.back()} className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6">
           <ArrowLeft size={18} />
-          Back to Job Details
+          Back to Exam Details
         </button>
 
-        <h1 className="text-3xl font-bold text-gray-900 mb-6">Edit Job Posting</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-6">Edit Exam Posting</h1>
 
         <form onSubmit={handleSubmit} className="bg-white p-8 rounded-lg shadow-md space-y-6">
+          
+          {/* Main Details */}
+          <h2 className="text-xl font-semibold border-b pb-2">Main Details</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <FormField label="Job Title" id="jobTitle" value={job.jobTitle || ''} onChange={handleChange} required />
-            <FormField label="Company Name" id="companyName" value={job.companyName || ''} onChange={handleChange} required />
-            <FormField label="Organization Name" id="organizationName" value={job.organizationName || ''} onChange={handleChange} />
-            <FormField label="Sector" id="sector" value={job.sector || ''} onChange={handleChange} />
-            <FormField label="Location" id="location" value={job.location || ''} onChange={handleChange} />
-            <FormField label="Compensation" id="compensation" value={job.compensation || ''} onChange={handleChange} />
-            <FormField label="Employment Type" id="employmentType" value={job.employmentType || ''} onChange={handleChange} />
-            <FormField label="Contact Information" id="contactInformation" value={job.contactInformation || ''} onChange={handleChange} />
-            <FormField 
-              label="Last Date To Apply" 
-              id="lastDateToApply" 
-              type="date" 
-              value={toInputFormat(job.lastDateToApply)} 
-              onChange={handleDateChange} 
-            />
-            <FormField label="Apply Link URL" id="applyLink" value={job.applyLink?.link || ''} onChange={handleChange} />
-            <FormField label="Apply File" id="applyFile" value={job.applyLink?.fileName || ''} onChange={handleChange} />
+            <FormField label="Exam Title" id="examTitle" value={exam.examTitle || ''} onChange={handleChange} required />
+            <FormField label="Conducting Body" id="conductingBody" value={exam.conductingBody || ''} onChange={handleChange} />
+            <FormField label="Reference Number" id="referenceNumber" value={exam.referenceNumber || ''} onChange={handleChange} />
           </div>
+          <FormField label="Posts Included (one per line)" id="postsIncluded" type="textarea" value={Array.isArray(exam.postsIncluded) ? exam.postsIncluded.join('\n') : ''} onChange={handleArrayChange} />
+          <FormField label="Exam Summary" id="examSummary" type="textarea" value={exam.examSummary || ''} onChange={handleChange} rows={5}/>
 
-          <FormField label="Job Description" id="jobDescription" type="textarea" value={job.jobDescription || ''} onChange={handleChange} rows={8}/>
+          {/* Eligibility Criteria */}
+          <h2 className="text-xl font-semibold border-b pb-2 pt-4">Eligibility Criteria</h2>
+          <FormField label="Educational Qualification" id="educationalQualification" type="textarea" value={exam.eligibilityCriteria?.educationalQualification || ''} onChange={handleChange} />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <FormField label="Minimum Age" id="minimumAge" type="number" value={exam.eligibilityCriteria?.ageLimit?.minimum || ''} onChange={handleChange} />
+            <FormField label="Maximum Age" id="maximumAge" type="number" value={exam.eligibilityCriteria?.ageLimit?.maximum || ''} onChange={handleChange} />
+          </div>
+          <FormField label="Age Relaxation Notes (one per line)" id="relaxationNotes" type="textarea" value={Array.isArray(exam.eligibilityCriteria?.ageLimit?.relaxationNotes) ? exam.eligibilityCriteria.ageLimit.relaxationNotes.join('\n') : ''} onChange={handleArrayChange} />
+          <FormField label="Nationality" id="nationality" value={exam.eligibilityCriteria?.nationality || ''} onChange={handleChange} />
+          <FormField label="Other Requirements (one per line)" id="otherRequirements" type="textarea" value={Array.isArray(exam.eligibilityCriteria?.otherRequirements) ? exam.eligibilityCriteria.otherRequirements.join('\n') : ''} onChange={handleArrayChange} />
           
-          <FormField 
-            label="Qualifications (one per line)" 
-            id="qualifications" 
-            type="textarea" 
-            value={Array.isArray(job.qualifications) ? job.qualifications.join('\n') : ''} 
-            onChange={handleArrayChange}
-          />
+          {/* Application Details */}
+          <h2 className="text-xl font-semibold border-b pb-2 pt-4">Application Details</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <FormField label="Application Start Date" id="applicationStartDate" type="date" value={toInputFormat(exam.applicationDetails?.applicationStartDate)} onChange={handleDateChange} />
+            <FormField label="Application End Date" id="applicationEndDate" type="date" value={toInputFormat(exam.applicationDetails?.applicationEndDate)} onChange={handleDateChange} />
+          </div>
+          <FormField label="How to Apply (one step per line)" id="howToApply" type="textarea" value={Array.isArray(exam.applicationDetails?.howToApply) ? exam.applicationDetails.howToApply.join('\n') : ''} onChange={handleArrayChange} />
 
-          <FormField 
-            label="Benefits (one per line)" 
-            id="benefits" 
-            type="textarea" 
-            value={Array.isArray(job.benefits) ? job.benefits.join('\n') : ''} 
-            onChange={handleArrayChange}
-          />
-
-          <FormField 
-            label="Application Process (one per line)" 
-            id="applicationProcess" 
-            type="textarea" 
-            value={Array.isArray(job.applicationProcess) ? job.applicationProcess.join('\n') : ''} 
-            onChange={handleArrayChange}
-          />
-          
-          <FormField 
-            label="Eligibility Notes (one per line)" 
-            id="eligibilityNotes" 
-            type="textarea" 
-            value={Array.isArray(job.eligibilityNotes) ? job.eligibilityNotes.join('\n') : ''} 
-            onChange={handleArrayChange}
-          />
+          {/* Important Links */}
+          <h2 className="text-xl font-semibold border-b pb-2 pt-4">Important Links</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+             <FormField label="Official Website URL" id="officialWebsite" value={exam.importantLinks?.officialWebsite || ''} onChange={handleChange} />
+             <FormField label="Notification PDF URL" id="notificationPdf" value={exam.importantLinks?.notificationPdf || ''} onChange={handleChange} />
+          </div>
 
           <div className="flex items-center justify-end gap-4 pt-4 border-t">
             {error && <p className="text-sm text-red-600">{error}</p>}
             {success && <p className="text-sm text-green-600">{success}</p>}
-            <button
-              type="submit"
-              disabled={isSaving}
-              className="px-6 py-2 bg-blue-600 text-white font-semibold rounded-md shadow-sm hover:bg-blue-700 disabled:bg-blue-300 disabled:cursor-not-allowed flex items-center gap-2"
-            >
+            <button type="submit" disabled={isSaving} className="px-6 py-2 bg-blue-600 text-white font-semibold rounded-md shadow-sm hover:bg-blue-700 disabled:bg-blue-300 flex items-center gap-2">
               <Save size={16} />
               {isSaving ? 'Saving...' : 'Save Changes'}
             </button>
@@ -205,4 +194,4 @@ const JobEditPage = ({ params }: { params: { id: string } }) => {
   );
 };
 
-export default JobEditPage;
+export default ExamEditPage;

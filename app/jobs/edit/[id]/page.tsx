@@ -50,7 +50,13 @@ const fromInputFormat = (dateStr: string | undefined): string => {
     return `${day}-${month}-${year}`;
 };
 
-const JobEditPage = ({ params }: { params: { id: string } }) => {
+interface JobEditPageProps {
+  params: {
+    id: string
+  }
+}
+
+const JobEditPage = ({ params }: JobEditPageProps) => {
   const [job, setJob] = useState<Partial<Job>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -58,8 +64,8 @@ const JobEditPage = ({ params }: { params: { id: string } }) => {
   const [success, setSuccess] = useState<string | null>(null);
   
   const router = useRouter();
-  const resolvedParams = use(params);
-  const jobId = resolvedParams.id;
+  // const resolvedParams = use(params);
+  const jobId = params.id;
 
   useEffect(() => {
     if (!jobId) return;
@@ -67,7 +73,7 @@ const JobEditPage = ({ params }: { params: { id: string } }) => {
     const fetchJob = async () => {
       setIsLoading(true);
       try {
-        const response = await get<ApiResponse<Job>>(`/Jobs/${jobId}`);
+        const response = await get<Job>(`/Jobs/${jobId}`);
         // if (response.success) {
           setJob(response);
         // } else {

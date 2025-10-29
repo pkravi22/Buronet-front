@@ -10,15 +10,17 @@ import { usePosts } from '@/hooks/usePosts';
 import React from 'react';
 
 interface PostPageProps {
-  params: { id: string }; // App Router passes dynamic route segments via 'params'
+  // onConnectClick: (receiverId: string) => Promise<void>;
+  id: string
 }
 
+// const NetworkCard: React.FC<NetworkCardProps> = ({ user, onConnectClick, isConnected }) => (
 // Make the component function 'async' to use 'await' or React.use()
-const PostPage: React.FC<PostPageProps> = ({ params }) => {
+const PostPage:React.FC<PostPageProps> = ({ id }) => {
   // Use React.use() directly on params, as suggested by Next.js warning.
   // This satisfies the warning.
-  const resolvedParams = React.use(params);
-  const postId = parseInt(resolvedParams.id, 10); // Access id from the unwrapped object
+  // const resolvedParams = React.use(params);
+  const postId = parseInt(id, 10); // Access id from the unwrapped object
 
   const router = useRouter();
   const { user, isLoading: isAuthLoading } = useAuth(); // Get current user profile from AuthContext

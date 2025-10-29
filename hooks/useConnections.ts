@@ -4,14 +4,16 @@
 import { useState, useEffect, useCallback } from 'react';
 import { get, postApi, remove } from '../lib/api'; // Import get, postApi, and remove from your API utility
 import { useAuth } from '../context/AuthContext'; // To get the current user ID
-import { ConnectionDto, ConnectionRequestDto, SuggestedUserDto, SendRequestDto, PopularUserDto } from '../lib/types/connections';
+import { ConnectionDto, ConnectionRequestDto, SuggestedUserDto, SendRequestDto, PopularUserDto, NetworkMetrics } from '../lib/types/connections';
 import { log } from 'console';
+
+type SuggestedConnectionsMap = Record<string, SuggestedUserDto[]>;
 
 interface UseConnectionsResult {
   connections: ConnectionDto[];
   networkMetrics: NetworkMetrics | null;
   pendingRequests: ConnectionRequestDto[];
-  suggestedConnections: SuggestedUserDto[][];
+  suggestedConnections: SuggestedConnectionsMap;
   suggestedGeneralConnections: SuggestedUserDto[];
   popularConnections: PopularUserDto[];
   isLoading: boolean;
@@ -27,7 +29,7 @@ export const useConnections = (): UseConnectionsResult => {
   const [connections, setConnections] = useState<ConnectionDto[]>([]);
   const [networkMetrics, setNetworkMetrics] = useState<any>(null);
   const [pendingRequests, setPendingRequests] = useState<ConnectionRequestDto[]>([]);
-  const [suggestedConnections, setSuggestedConnections] = useState<SuggestedUserDto[][]>([[]]);
+  const [suggestedConnections, setSuggestedConnections] = useState<SuggestedConnectionsMap>({});
   const [suggestedGeneralConnections, setSuggestedGeneralConnections] = useState<SuggestedUserDto[]>([]);
   const [popularConnections, setPopularConnections] = useState<PopularUserDto[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -55,7 +57,7 @@ export const useConnections = (): UseConnectionsResult => {
       setPendingRequests(fetchedRequests);
 
       // Assuming a GET /api/connections/suggestions endpoint
-      const fetchedSuggestions = await get<SuggestedUserDto[][]>('/connections/suggestions');
+      const fetchedSuggestions = await get<SuggestedConnectionsMap>('/connections/suggestions');
       // const fetchedSuggestions: SuggestedUserDto = {
       //   id: '',
       //   username: '',

@@ -118,7 +118,7 @@ const RightSidebar = () => {
       <div className="bg-white rounded-lg shadow-sm border border-[#E5E7EB] p-6">
         <h2 className="text-[#1F2937] font-semibold text-lg mb-4">Recent Exam Updates</h2>
         
-        <div className="relative">
+        {/* <div className="relative">
           {showLeftButton && (
             <button 
               onClick={() => scroll('left')}
@@ -162,7 +162,7 @@ const RightSidebar = () => {
               <ChevronRight size={20} className="text-[#6B7280]" />
             </button>
           )}
-        </div>
+        </div> */}
 
         <div className="mt-6 space-y-4">
           {updates.map((update, index) => (

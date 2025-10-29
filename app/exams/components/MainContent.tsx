@@ -115,15 +115,13 @@ const MainContent = () => {
       setIsLoading(true);
       try {
         const response = await get<Exam[]>('/exams');
-        const bookmarksResponse = await get<bookmarksResponseType[]>(`/bookmarks/${user.id}/exams`);
-        const dashboardStatsResponse = await get<DashboardStats>(`/dashboard/exam/stats/${user.id}`);
-        const departmentStatsResponse = await get<DepartmentStats[]>(`/dashboard/departments`);
-        console.log("Exams response:", response);
+        const bookmarksResponse = await get<bookmarksResponseType[]>(`/bookmarks/${user?.id}/exams`);
+        const dashboardStatsResponse = await get<DashboardStats>(`/dashboard/exam/stats/${user?.id}`);
+        console.log("Exams bookmark response:", bookmarksResponse);
         // if (response.success) {
         setExams(response);
         setBookmarkedExams(bookmarksResponse);
         setDashboardStats(dashboardStatsResponse);
-        setDepartmentStats(departmentStatsResponse.data);
         // console.log("Bookmarks response:", bookmarksResponse);
         // console.log("bookmarked Exams response:", );
         

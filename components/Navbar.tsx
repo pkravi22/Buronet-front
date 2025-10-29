@@ -73,7 +73,7 @@ const Navbar = ({ activeItem }: NavbarProps) => {
     { icon: <FiVideo size={20} />, text: 'Bytes', href: '/bytes' },
     { icon: <FiBriefcase size={20} />, text: 'Jobs', href: '/jobs' },
     { icon: <FiBriefcase size={20} />, text: 'Exams', href: '/exams' },
-    { icon: <FiMessageSquare size={20} />, text: 'Messaging', href: '/messaging', badge: 3 }
+    { icon: <FiMessageSquare size={20} />, text: 'Messaging', href: '/messaging'}
   ];
 
   return (
