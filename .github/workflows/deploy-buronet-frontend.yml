@@ -1,9 +1,9 @@
 # Name of your workflow
 name: Deploy Next.js to Elastic Beanstalk
 
-# Controls when the action will run. 
+# Controls when the action will run.
 on:
-  # Triggers the workflow on push events but only for the "main" branch
+  # Triggers the workflow on push events
   push:
     branches: [ "main", "feature/tweaks" ]
 
@@ -11,6 +11,13 @@ jobs:
   build-and-deploy:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
+
+    # ⭐️ FIX 1: Set a default working directory for all 'run' commands
+    # This assumes your code (package.json, .next) is in a 'buronet-frontend' subdirectory.
+    # If your project root is the repo root, remove this 'defaults' block.
+    # defaults:
+    #   run:
+    #     working-directory: ./buronet-frontend 
 
     steps:
       # --- 1. Set up your environment ---
@@ -20,20 +27,22 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20' # Use the same Node.js version as your EB platform
+          node-version: '20'
           cache: 'npm'
+          # ⭐️ FIX 2: Tell the cache action where to find the lock file
+          cache-dependency-path: buronet-frontend/package-lock.json
 
       # --- 2. Build your Next.js App ---
-      # This runs npm install and then npm run build (from your postinstall)
+      # This 'run' command will now execute inside the 'working-directory'
       - name: Install Dependencies
         run: npm install
 
       # --- 3. Create the ZIP file for EB ---
-      # This zips all the files EB needs to run your app
-      # It INCLUDES .next, public, Procfile, .platform, package.json
-      # It EXCLUDES node_modules (they are installed on the server)
+      # ⭐️ FIX 3: This command runs inside the 'working-directory'
+      # It zips the contents of the *current* directory (.)
+      # It places the final zip file one level up (../) in the root.
       - name: Generate Deployment ZIP
-        run: zip -r deploy.zip . -x "node_modules/*" ".git/*" ".github/*"
+        run: zip -r ../deploy.zip . -x "node_modules/*" ".git/*" ".github/*"
 
       # --- 4. Configure AWS Credentials ---
       - name: Configure AWS Credentials
@@ -41,7 +50,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: eu-north-1  # <-- IMPORTANT: Change to your EB region
+          aws-region: eu-north-1
 
       # --- 5. Deploy to Elastic Beanstalk ---
       - name: Deploy to Elastic Beanstalk
@@ -49,9 +58,10 @@ jobs:
         with:
           aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          region: eu-north-1                 # <-- IMPORTANT: Change to your EB region
-          application_name: buronet-app   # <-- IMPORTANT: Change to your EB app name
-          environment_name: buronet-user-website # <-- IMPORTANT: Change to your EB env name
-          zip_file: deploy.zip              # The file we created in step 3
-          version_label: "v${{ github.sha }}-${{ github.run_attempt }}" # A unique version label
-          deployment_timeout: "5"        # Waits 10 minutes for deploy to finish
+          region: eu-north-1
+          application_name: buronet-app
+          environment_name: buronet-user-website
+          # ⭐️ FIX 4: The zip_file is now correctly found at the root
+          zip_file: deploy.zip
+          version_label: "v${{ github.sha }}-${{ github.run_attempt }}"
+          deployment_timeout: "5"
