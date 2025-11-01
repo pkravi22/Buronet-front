@@ -11,9 +11,13 @@ interface EditProfileModalProps {
   onClose: () => void;
 }
 
+type UserProfileFormData = Omit<UpdateUserProfileDto, 'dateOfBirth'> & {
+  dateOfBirth: string; 
+};
+
 const EditProfileModal: React.FC<EditProfileModalProps> = ({ userProfile, onClose }) => {
   const { updateProfile } = useUserProfile();
-  const [formData, setFormData] = useState<UpdateUserProfileDto>({
+  const [formData, setFormData] = useState<UserProfileFormData>({
     firstName: userProfile.firstName || '',
     lastName: userProfile.lastName || '',
     headline: userProfile.headline || '',

@@ -9,6 +9,12 @@ import TopBar from '@/components/TopBar';
 import { useAuth } from '@/context/AuthContext'; // Assuming you have a useAuth hook to get the current user
 import Navbar from '@/components/Navbar';
 
+interface BookmarkType {
+  userId: string,
+  jobId: string,
+  savedDate: string
+}
+
 const JobDashboard = () => {
   const [bookmarkedJobs, setBookmarkedJobs] = useState<Job[]>([]);
   const { user } = useAuth(); // Assuming you have a useAuth hook to get the current user
@@ -20,10 +26,10 @@ const JobDashboard = () => {
     const fetchBookmarkedJobs = async () => {
       setIsLoading(true);
       try {
-        const bookmarksResponse = await get<any>(`/jobs/${userId}/bookmarks`);
+        const bookmarksResponse = await get<BookmarkType[]>(`/jobs/${userId}/bookmarks`);
         if (bookmarksResponse.length > 0) {
           const jobIds = bookmarksResponse.map(b => b.jobId);
-          const jobPromises = jobIds.map(id => get<ApiResponse<Job>>(`/Jobs/${id}`));
+          const jobPromises = jobIds.map(id => get<Job>(`/Jobs/${id}`));
           const jobResults = await Promise.all(jobPromises);
           const successfulJobs = jobResults;
           setBookmarkedJobs(successfulJobs);

@@ -108,11 +108,11 @@ const Navbar = ({ activeItem }: NavbarProps) => {
                     item.text === activeItem ? 'text-[#5E98FF]' : 'text-gray-500'
                   }`}>
                   {React.cloneElement(item.icon as React.ReactElement, { size: 24 })}
-                  {item.badge && (
+                  {/* {item.badge && (
                     <span className="absolute top-[-4px] right-[-8px] bg-red-500 text-white text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center">
                       {item.badge}
                     </span>
-                  )}
+                  )} */}
                  </div>
               </Link>
             </li>

@@ -119,7 +119,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         localStorage.setItem('token', response.token); // Save JWT to localStorage
         // Set user context directly with basic info from login response
         // IMPORTANT: Ensure response.userId is a string GUID if User.id is string
-        setUser({ id: response.userId, username: response.username, email: response.email, createdAt: '', updatedAt: '' }); // Simplified
+        setUser({ id: response.userId, username: response.username, email: response.email, createdAt: '', updatedAt: '', isAdmin: user?.isAdmin }); // Simplified
         router.push('/profile'); // Redirect after login
         return true;
       } else {
@@ -178,7 +178,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         console.log('register: Registration successful. Token received.');
         localStorage.setItem('token', registerResponse.token);
         // Set user context directly with basic info from registration response
-        setUser({ id: registerResponse.userId, username: registerResponse.username, email: registerResponse.email, createdAt: '', updatedAt: '' });
+        setUser({ id: registerResponse.userId, username: registerResponse.username, email: registerResponse.email, createdAt: '', updatedAt: '', isAdmin: false });
         router.push('/complete-profile'); // Redirect to complete profile page after successful registration
         return true;
       } else {

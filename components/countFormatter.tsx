@@ -1,14 +1,19 @@
 import React from 'react';
 
-// This is the reusable component that formats and displays the number.
-// It takes a 'count' prop and applies the formatting logic.
-const CountFormatter = ({ count }) => {
+// 1. Define an interface for your component's props
+interface CountFormatterProps {
+  count: number;
+}
+
+// 2. Apply the interface to your component using React.FC
+//    and destructure 'count' from the props object
+const CountFormatter: React.FC<CountFormatterProps> = ({ count }) => {
   /**
    * Formats a number into a more readable string (e.g., 1000 becomes "1k", 1500000 becomes "1.5M").
    * @param {number} num The number to format.
    * @returns {string} The formatted number string.
    */
-  const formatNumber = (num) => {
+  const formatNumber = (num: number): string => { // <-- Also good practice to type your function
     // Check if the number is greater than or equal to one million.
     if (num >= 1000000) {
       // Return the number divided by 1 million, with one decimal place, followed by 'M'.

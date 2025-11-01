@@ -42,8 +42,8 @@ export const useChat = (): UseChatResult => {
   const [error, setError] = useState<string | null>(null);
   const [refetchConversationsTrigger, setRefetchConversationsTrigger] = useState(0);
 
-  const getAuthToken = useCallback(() => {
-    return localStorage.getItem('token');
+  const getAuthToken = useCallback(() : string => {
+    return localStorage.getItem('token') || "";
   }, []);
 
   // 💡 NEW EFFECT: Keeps the ref value updated with the latest selectedConversation ID
@@ -275,7 +275,8 @@ export const useChat = (): UseChatResult => {
               sender: {
                 id: user?.id || 'unknown',
                 username: user?.username || 'You',
-                avatar: user?.avatar || 'https://placehold.co/32x32/CCCCCC/FFFFFF?text=U',
+//                 avatar: user?.avatar || 'https://placehold.co/32x32/CCCCCC/FFFFFF?text=U',
+                avatar: 'https://placehold.co/32x32/CCCCCC/FFFFFF?text=U',
               },
           };
           setMessages(prevMessages => [...prevMessages, tempMessage]);
