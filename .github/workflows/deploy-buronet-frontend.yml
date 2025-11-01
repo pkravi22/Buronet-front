@@ -15,9 +15,9 @@ jobs:
     # ⭐️ FIX 1: Set a default working directory for all 'run' commands
     # This assumes your code (package.json, .next) is in a 'buronet-frontend' subdirectory.
     # If your project root is the repo root, remove this 'defaults' block.
-    defaults:
-      run:
-        working-directory: ./buronet-frontend 
+    # defaults:
+    #   run:
+    #     working-directory: /buronet-frontend 
 
     steps:
       # --- 1. Set up your environment ---
@@ -65,6 +65,6 @@ jobs:
           application_name: buronet-app
           environment_name: buronet-user-website
           # ⭐️ FIX 4: The zip_file is now correctly found at the root
-          zip_file: deploy.zip
+          deployment_package: deploy.zip
           version_label: "v${{ github.sha }}-${{ github.run_attempt }}"
           deployment_timeout: "5"
