@@ -15,9 +15,9 @@ jobs:
     # ⭐️ FIX 1: Set a default working directory for all 'run' commands
     # This assumes your code (package.json, .next) is in a 'buronet-frontend' subdirectory.
     # If your project root is the repo root, remove this 'defaults' block.
-    # defaults:
-    #   run:
-    #     working-directory: ./buronet-frontend 
+    defaults:
+      run:
+        working-directory: ./buronet-frontend 
 
     steps:
       # --- 1. Set up your environment ---
