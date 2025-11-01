@@ -44,6 +44,9 @@ jobs:
       - name: Generate Deployment ZIP
         run: zip -r deploy.zip . -x "node_modules/*" ".git/*" ".github/*"
 
+      - name: Show directory tree
+        run: ls
+
       # --- 4. Configure AWS Credentials ---
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
