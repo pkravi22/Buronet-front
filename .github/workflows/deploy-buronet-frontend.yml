@@ -30,7 +30,7 @@ jobs:
           node-version: '20'
           cache: 'npm'
           # ⭐️ FIX 2: Tell the cache action where to find the lock file
-          cache-dependency-path: buronet-frontend/package-lock.json
+          cache-dependency-path: package-lock.json
 
       # --- 2. Build your Next.js App ---
       # This 'run' command will now execute inside the 'working-directory'
