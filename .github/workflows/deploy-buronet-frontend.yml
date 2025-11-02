@@ -42,8 +42,8 @@ jobs:
       # It zips the contents of the *current* directory (.)
       # It places the final zip file one level up (../) in the root.
       - name: Generate Deployment ZIP
-        # run: zip -r deploy.zip . -x "node_modules/*" ".git/*" ".github/*"
-        run: zip -r deploy.zip package.json package-lock.json Procfile .next public .platform
+        run: zip -r deploy.zip . -x "node_modules/*" ".git/*" ".github/*"
+        # run: zip -r deploy.zip package.json package-lock.json Procfile app public .platform
 
       - name: Show directory tree
         run: ls
