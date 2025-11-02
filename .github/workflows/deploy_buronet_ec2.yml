@@ -1,0 +1,59 @@
+# This workflow runs npm install and npm build before deploying to the EC2 server via SSH.
+
+name: EC2 Deployment Workflow
+
+on:
+  push:
+    branches:
+      - main
+      - feature/tweaks
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # 1. Setup Node.js Environment
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' # EC2 Node version se match karna chahiye
+
+      # 2. Install Dependencies (Runner par)
+      - name: Install Dependencies
+        run: npm ci
+
+      # 3. Build the Application (Runner par)
+      - name: Build Application
+        run: npm run build
+
+      # 4. Secure Copy (SCP) Built Files to EC2 Server
+      # Yeh action saari files ko EC2 par transfer karega.
+      - name: Transfer Files to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "./*"  # All files from the root of the runner's workspace
+          target: "/var/www/buronet-app" # EC2 par jahan files copy karni hain
+          strip_components: 1 # Root directory files ko सीधे target mein daal dega
+
+      # 5. Connect via SSH and Restart Application Process (PM2)
+      # Files copy hone ke baad, PM2 process ko restart karte hain.
+      - name: Restart App via PM2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            # Navigate to the app directory
+            cd /var/www/buronet-app/
+            
+            # Application ko restart karein
+            # 'buronet-app' woh naam hai jo aapne PM2 start ke time diya hoga
+            pm2 restart buronet-app
+            pm2 save
