@@ -48,6 +48,15 @@ jobs:
       - name: Show directory tree
         run: ls
 
+      - name: Show Deployment ZIP Contents
+        run: |
+          # Create a temporary directory and unzip the package into it
+          mkdir zip_contents
+          unzip deploy.zip -d zip_contents
+          echo "--- Contents of deploy.zip (Recursive List) ---"
+          # List the contents recursively to see the structure
+          ls -R zip_contents
+
       # --- 4. Configure AWS Credentials ---
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
