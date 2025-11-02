@@ -37,6 +37,9 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
+      - name: Run Next.js Build
+        run: npm run build
+
       # --- 3. Create the ZIP file for EB ---
       # ⭐️ FIX 3: This command runs inside the 'working-directory'
       # It zips the contents of the *current* directory (.)
@@ -77,4 +80,4 @@ jobs:
           # ⭐️ FIX 4: The zip_file is now correctly found at the root
           deployment_package: deploy.zip
           version_label: "v${{ github.sha }}-${{ github.run_attempt }}"
-          deployment_timeout: "5"
+          # deployment_timeout: "5"
