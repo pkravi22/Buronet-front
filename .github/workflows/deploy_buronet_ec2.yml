@@ -38,7 +38,7 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: "./*"  # All files from the root of the runner's workspace
-          target: "/var/www/buronet-app" # EC2 par jahan files copy karni hain
+          target: "/var/www/buronet-app/buronet-frontend" # EC2 par jahan files copy karni hain
           strip_components: 1 # Root directory files ko सीधे target mein daal dega
 
       # 5. Connect via SSH and Restart Application Process (PM2)
