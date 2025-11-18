@@ -20,7 +20,7 @@ interface NetworkCardProps {
 }
 
 const NetworkCard: React.FC<NetworkCardProps> = ({ user, onConnectClick, isConnected }) => (
-  <div className="bg-white rounded-xl shadow-sm h-[260px] w-full">
+  <div className="bg-white rounded-xl shadow-sm h-[260px]">
     <div className="p-4 h-full flex flex-col">
       <div className="flex flex-col items-center">
         <div className="w-16 h-16 mb-2 bg-[#F3F4F6] rounded-full flex items-center justify-center">

@@ -82,7 +82,7 @@ const Navbar = ({ activeItem }: NavbarProps) => {
       <nav
         className={`
           hidden lg:block
-          fixed top-[61px] left-6 w-[260px] rounded-lg
+          fixed top-[61px] left-6 xl:w-[260px] lg-laptop:w-[20%] rounded-lg
           shadow-sm border border-[#E5E7EB] my-6
           min-h-[calc(100vh-61px-3rem)] bg-white
         `}

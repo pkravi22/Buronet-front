@@ -37,7 +37,7 @@ const HomePage: React.FC = () => {
         {/* Placeholder is now hidden on small screens and visible on large screens */}
         {/* <div className="hidden lg:block lg:w-[239px] shrink-0" /> */}
         {/* <Navbar activeItem="Home" /> */}
-        <main className="flex-1 px-4 sm:px-6 lg:mx-1"> {/* Margin is now responsive */}
+        <main className="flex-1 px-4 sm:px-6 lg:mx-1 laptop:w-[80%]"> {/* Margin is now responsive */}
           <div className="mt-6">
             <DashboardCards />
             <InsightsSection onShareArticleClick={() => setIsCreatePostModalOpen(true)} onCreatePollClick={() => setIsCreatePollModalOpen(true)} onShareByteClick={() => setIsCreateByteModalOpen(true)} />
