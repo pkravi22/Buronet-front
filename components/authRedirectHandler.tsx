@@ -5,6 +5,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import React, { useEffect } from 'react';
 import {withAuthRequired, useAuth } from '../context/AuthContext'; // Adjust path as needed
 import LoadingSpinner from './UI/LoadingSpinner'; // Assuming you have a LoadingSpinner component
+import { authExclusions } from './authExclusions'; // Import the authExclusions array
 
 export const AuthRedirectHandler: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const router = useRouter();
@@ -27,7 +28,7 @@ export const AuthRedirectHandler: React.FC<{ children: React.ReactNode }> = ({ c
       console.log(`AuthRedirectHandler: Not authenticated. Redirecting from ${pathname} to /login.`);
     //   router.push(`/login?returnTo=${encodeURIComponent(pathname + window.location.search)}`);
         const token = localStorage.getItem('token');
-        if (!token) {
+        if (!authExclusions.includes(pathname) && !token) {
         console.log('fetchCurrentUser: No token found in localStorage. User is not authenticated.');
         router.push(`/login`); // Redirect to login with returnTo query param
         }
@@ -36,9 +37,15 @@ export const AuthRedirectHandler: React.FC<{ children: React.ReactNode }> = ({ c
     }
 
     // --- Redirect if IS authenticated AND trying to access a login/register page ---
-    if (user && isPublicRoute && (pathname === '/login' || pathname === '/register')) {
+    if (user && isPublicRoute && (pathname === '/login')) {
       // console.log(`AuthRedirectHandler: Authenticated. Redirecting from ${pathname} to /profile.`);
       router.push('/profile'); // Or dashboard
+      return; // Stop further execution
+    }
+
+    if (user && isPublicRoute && (pathname === '/register')) {
+      // console.log(`AuthRedirectHandler: Authenticated. Redirecting from ${pathname} to /profile.`);
+      router.push('/complete-profile'); // Or dashboard
       return; // Stop further execution
     }
 

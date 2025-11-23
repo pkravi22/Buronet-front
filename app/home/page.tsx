@@ -11,12 +11,15 @@ import CreatePostModal from './components/CreatePostModal';
 import { useState } from 'react';
 import CreatePollModal from './components/CreatePollModal';
 import CreateByteModal from './components/CreateBytePostModal';
+import { useAuth } from '@/context/AuthContext';
+import Home from './components/hero-page/page';
 
 const HomePage: React.FC = () => {
 
   const [isCreatePostModalOpen, setIsCreatePostModalOpen] = useState(false);
   const [isCreatePollModalOpen, setIsCreatePollModalOpen] = useState(false);
   const [isCreateByteModalOpen, setIsCreateByteModalOpen] = useState(false);
+  const { user, isLoading=false } = useAuth();
 
   // State to trigger refetching of posts after a new post is created
   // This is passed as a key to PostSection to force it to re-render and refetch
@@ -28,6 +31,15 @@ const HomePage: React.FC = () => {
     setPostsRefetchKey(prev => prev + 1);
     // The modal will call onClose itself, so no need to explicitly close here
   };
+
+  if(!user){
+    // isLoading = false;
+    return (
+      <div>
+        <Home/>
+      </div>
+    )
+  }
 
   return (
     <div className="flex flex-col bg-[#EEF0F4]">

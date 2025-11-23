@@ -20,7 +20,7 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
         {/* <div className="hidden lg:block lg:w-[260px] shrink-0" /> */}
 
         {/* The state and close function are passed to the Navbar */}
-        <Navbar />
+        <Navbar activeItem="Home"/>
         {/* isNavOpen={isNavOpen} closeNav={() => setIsNavOpen(false)} */}
 
         {/* The rest of the page (including the page-specific RightBar) will be rendered here */}
