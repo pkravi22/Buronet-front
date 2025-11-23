@@ -9,9 +9,10 @@ import Link from 'next/link';
 // unless it's specifically designed for unauthenticated pages too.
 // Removed AppLayout as per typical auth page design.
 // import AppLayout from '../../components/AppLayout';
+// import { postApi } from '../../lib/api'; // Assuming this is a helper for API calls
 import LoadingSpinner from '../../components/UI/LoadingSpinner'; // Assuming this component exists
 import { useAuth } from '../../context/AuthContext'; // Assuming this context exists
-import { RegisterData } from '../../lib/types/user'; // Assuming this type exists
+import { RegisterData, RegisterResponse } from '../../lib/types/user'; // Assuming this type exists
 
 const RegisterPage: React.FC = () => {
   const [username, setUsername] = useState('');
@@ -43,18 +44,15 @@ const RegisterPage: React.FC = () => {
    const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await fetch('https://localhost:44349/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, email, password }),
-        credentials: 'include', // Include cookies if needed
-      });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || 'Registration failed');
-
-      // Save token to localStorage or cookies
-      localStorage.setItem('token', data.token);
+      // const res = await register('/auth/register', {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify({ username, email, password }),
+      //   credentials: 'include', // Include cookies if needed
+      // });
+      const res = await register({username, email, password} as RegisterData);
+      
+      if (!res.success) throw new Error(res.message || 'Registration failed');
       router.push('/complete-profile');
     } catch (err: any) {
       setError(err.message);

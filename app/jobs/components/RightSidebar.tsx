@@ -114,7 +114,7 @@ const RightSidebar = () => {
   ];
 
   return (
-    <div className="w-[287px] mr-6 mt-6 mb-6">
+    <div className="hidden lg:block w-[287px] mr-6 mt-6 mb-6">
       <div className="bg-white rounded-lg shadow-sm border border-[#E5E7EB] p-6">
         <h2 className="text-[#1F2937] font-semibold text-lg mb-4">Recent Exam Updates</h2>
         

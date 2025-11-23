@@ -216,7 +216,7 @@ const MainContent = () => {
       <div className="flex justify-center w-full">
         <div className="w-[640px] mt-6">
           {/* Dashboard Cards Section */}
-          <div className="flex flex-wrap gap-4 mb-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
             {dashboardCards.map((card, index) => (
               <div key={index} className="w-[148px]"><DashboardCard {...card} /></div>
             ))}
