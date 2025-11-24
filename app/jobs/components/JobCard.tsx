@@ -22,7 +22,7 @@ const JobCard = ({ job, isInitiallyBookmarked }: JobCardProps) => {
 
   useEffect(() => {
      setIsBookmarked(isInitiallyBookmarked);
-  }, []);
+  }, [isBookmarked, isInitiallyBookmarked]);
 
   const logoSrc = 'https://readdy.ai/api/search-image?query=official%20government%20logo%20of%20Union%20Public%20Service%20Commission%20of%20India%20with%20emblem%20and%20blue%20and%20gold%20colors%20professional%20clean%20design%20on%20white%20background&width=120&height=120&seq=201&orientation=squarish';
 
@@ -31,7 +31,8 @@ const JobCard = ({ job, isInitiallyBookmarked }: JobCardProps) => {
     e.preventDefault();
     
     // Optimistic UI update: toggle the state immediately
-    const newState = !isBookmarked;    
+    const newState = !isBookmarked;
+
     setIsBookmarked(newState);
 
     try {

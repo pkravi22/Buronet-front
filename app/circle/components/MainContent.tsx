@@ -7,6 +7,7 @@ import { useAuth } from '@/context/AuthContext';
 import { SuggestedUserDto } from '@/lib/types/connections'; // Import the new DTO
 import DashboardCards from '@/app/circle/components/DashboardCards';
 import LoadingSpinner from '@/components/UI/LoadingSpinner';
+import { AlertModal } from '@/components/AlertModal';
 
 // --- INTERFACES & CHILD COMPONENTS --- (DashboardCard, NetworkCard remain the same)
 // Assuming DashboardCardProps and NetworkCardProps are defined elsewhere
@@ -154,6 +155,9 @@ const MainContent = () => {
 
   return (
     <div className="flex-1">
+      {
+        error && <AlertModal key={Date.now()} duration={4000} message={error} type="error" />
+      }
       <div className="flex justify-center w-full">
         <div className="w-full max-w-[640px] mt-6">
 
@@ -180,8 +184,6 @@ const MainContent = () => {
                   {/* Use dynamic suggestedConnections from the hook */}
                   {isLoading ? (
                     <LoadingSpinner />
-                  ) : error ? (
-                    <p className="text-red-500">{error}</p>
                   ) : (
                     popularConnections.map((user, index) => (
                       <div key={user.id || index} className="w-[50%] sm:w-[50%] lg:w-[32%] shrink-0 snap-start sm:snap-center">
@@ -222,8 +224,6 @@ const MainContent = () => {
               {/* Use dynamic suggestedConnections from the hook */}
               {isLoading ? (
                 <LoadingSpinner />
-              ) : error ? (
-                <p className="text-red-500">{error}</p>
               ) : ( suggestedConnections['People With Similar Headline'] && suggestedConnections["People With Similar Headline"].length > 0 ?
                 suggestedConnections["People With Similar Headline"].map((user, index) => (
                   <div key={user.id || index} className="w-[50%] sm:w-[46%] lg:w-[32%] shrink-0 snap-start sm:snap-center">
@@ -247,8 +247,6 @@ const MainContent = () => {
               {/* Use dynamic suggestedConnections from the hook */}
               {isLoading ? (
                 <LoadingSpinner />
-              ) : error ? (
-                <p className="text-red-500">{error}</p>
               ) : (suggestedConnections["People With Similar Title"] && suggestedConnections["People With Similar Title"].length > 0 ?
                 suggestedConnections["People With Similar Title"].map((user, index) => (
                   <div key={user.id || index} className="w-[50%] sm:w-[46%] lg:w-[32%] shrink-0 snap-start sm:snap-center">
@@ -271,9 +269,8 @@ const MainContent = () => {
               {/* Use dynamic suggestedConnections from the hook */}
               {isLoading ? (
                 <LoadingSpinner />
-              ) : error ? (
-                <p className="text-red-500">{error}</p>
-              ) : (suggestedConnections["People With Similar Education"] && suggestedConnections["People With Similar Education"].length > 0 ?
+              ) :
+              (suggestedConnections["People With Similar Education"] && suggestedConnections["People With Similar Education"].length > 0 ?
                 suggestedConnections["People With Similar Education"].map((user, index) => (
                   <div key={user.id || index} className="w-[50%] sm:w-[46%] lg:w-[32%] shrink-0 snap-start sm:snap-center">
                     <NetworkCard user={user} onConnectClick={sendRequest} isConnected={false} />
