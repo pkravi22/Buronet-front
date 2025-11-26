@@ -98,7 +98,8 @@ const MainContent = () => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [showLeftButton, setShowLeftButton] = useState(false);
   const [showRightButton, setShowRightButton] = useState(true);
-
+    // Use the new useConnections hook to get data
+  const { suggestedConnections, networkMetrics, popularConnections, isLoading, error, sendRequest, clearError } = useConnections();
   const handleScroll = useCallback(() => {
     const container = scrollContainerRef.current;
     if (container) {
@@ -139,10 +140,9 @@ const MainContent = () => {
       container.removeEventListener('scroll', handleScroll);
       resizeObserver.unobserve(container);
     };
-  }, [handleScroll]);
+  }, [handleScroll, error]);
 
-  // Use the new useConnections hook to get data
-  const { suggestedConnections, networkMetrics, popularConnections, isLoading, error, sendRequest } = useConnections();
+  console.log('Error: ', error);
 
   console.log('Suggested Connections:', suggestedConnections);
 
@@ -155,8 +155,11 @@ const MainContent = () => {
 
   return (
     <div className="flex-1">
-      {
+      {/* {
         error && <AlertModal key={Date.now()} duration={4000} message={error} type="error" />
+      } */}
+      {
+        error && <AlertModal duration={4000} message={error} type="error" onClose={clearError} />
       }
       <div className="flex justify-center w-full">
         <div className="w-full max-w-[640px] mt-6">

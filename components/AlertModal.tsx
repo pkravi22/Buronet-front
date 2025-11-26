@@ -9,6 +9,7 @@ interface BottomRightAlertProps {
   message: string;
   type?: 'success' | 'error' | 'warning';
   duration?: number; // Time in milliseconds before auto-closing (default: 5000)
+  onClose?: () => void; // Optional callback when the alert is closed
 }
 
 const iconMap = {
@@ -39,13 +40,17 @@ export const AlertModal: React.FC<BottomRightAlertProps> = ({
   message,
   type = 'success',
   duration = 5000,
+  onClose = () => {},
 }) => {
   const [isVisible, setIsVisible] = useState(true);
   const colors = colorMap[type];
 
   // Auto-close functionality
   useEffect(() => {
-    if (!isVisible) return;
+    if (!isVisible) {
+      onClose(); 
+      return;
+    }
     
     const timer = setTimeout(() => {
       setIsVisible(false);
@@ -53,7 +58,7 @@ export const AlertModal: React.FC<BottomRightAlertProps> = ({
 
     // Cleanup function to clear the timer
     return () => clearTimeout(timer);
-  }, [duration, isVisible]);
+  }, [duration, isVisible, onClose]);
 
   if (!isVisible) {
     return null;
