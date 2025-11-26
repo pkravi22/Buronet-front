@@ -18,6 +18,7 @@ interface UseConnectionsResult {
   popularConnections: PopularUserDto[];
   isLoading: boolean;
   error: string | null;
+  clearError: () => void;
   acceptRequest: (requestId: number) => Promise<void>;
   declineRequest: (requestId: number) => Promise<void>;
   sendRequest: (receiverId: string) => Promise<void>;
@@ -45,28 +46,16 @@ export const useConnections = (): UseConnectionsResult => {
     setIsLoading(true);
     setError(null);
     try {
-      // Assuming a GET /api/connections/me endpoint
       const fetchedNetworkMetrics = await get<any>('/connections/metrics');
       setNetworkMetrics(fetchedNetworkMetrics);
       const fetchedConnections = await get<ConnectionDto[]>('/connections');
       setConnections(fetchedConnections);
 
-      // Assuming a GET /api/connections/requests/pending endpoint
       const fetchedRequests = await get<ConnectionRequestDto[]>('/connections/requests/pending');
       console.log('Fetched pending requests:', fetchedRequests);
       setPendingRequests(fetchedRequests);
 
-      // Assuming a GET /api/connections/suggestions endpoint
       const fetchedSuggestions = await get<SuggestedConnectionsMap>('/connections/suggestions');
-      // const fetchedSuggestions: SuggestedUserDto = {
-      //   id: '',
-      //   username: '',
-      //   firstName: '',
-      //   lastName: '',
-      //   profilePictureUrl: '',
-      //   headline: '',
-      //   mutualConnections: 0
-      // };
       setSuggestedConnections(fetchedSuggestions);
 
       const suggestedConnectionsResponse = await get<SuggestedUserDto[]>('/connections/general-suggestions');
@@ -76,6 +65,7 @@ export const useConnections = (): UseConnectionsResult => {
       console.log('Fetched popular connections:', fetchedPopular);
       setPopularConnections(fetchedPopular);
     } catch (err: any) {
+      clearError();
       setError(err.message || "Failed to load connection data.");
     } finally {
       setIsLoading(false);
@@ -93,6 +83,7 @@ export const useConnections = (): UseConnectionsResult => {
       await postApi(`/connections/requests/${requestId}/accept`, {});
       refetchAll(); // Refetch all data to update the lists
     } catch (err: any) {
+      clearError();
       setError(err.message || "Failed to accept connection request.");
     }
   };
@@ -102,20 +93,26 @@ export const useConnections = (): UseConnectionsResult => {
       await postApi(`/connections/requests/${requestId}/decline`, {});
       refetchAll(); // Refetch all data to update the lists
     } catch (err: any) {
+      clearError();
       setError(err.message || "Failed to decline connection request.");
     }
   };
 
   const sendRequest = async (receiverId: string) => {
     try {
-      // console.log('Sending connection request to:', receiverId);
+      console.log('Sending connection request to:', receiverId);
       const sendRequest : SendRequestDto = {ReceiverId: receiverId}
-      await postApi('/connections/send-request', receiverId);
+      const res = await postApi('/connections/send-request', receiverId);
+      console.log('Connection request sent successfully:', res);
       refetchAll(); // Refetch all data to update the lists
     } catch (err: any) {
+      clearError();
       setError(err.message || "Failed to send connection request.");
+      // refetchAll();
     }
   };
+
+  const clearError = () => setError(null);
 
   return {
     connections,
@@ -126,6 +123,7 @@ export const useConnections = (): UseConnectionsResult => {
     suggestedGeneralConnections,
     isLoading,
     error,
+    clearError,
     acceptRequest,
     declineRequest,
     sendRequest,
