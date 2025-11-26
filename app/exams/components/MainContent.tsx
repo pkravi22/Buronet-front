@@ -40,7 +40,7 @@ interface DepartmentStats {
 
 // Reusable Components defined within the file
 const DashboardCard = ({ title, value, trend, icon, iconColor, trendIcon, trendColor = "text-[#16A34A]" }: DashboardCardProps) => (
-  <div className="w-[148px] h-32 bg-gradient-to-br from-[#DDECFF] to-[#E3EAFF] rounded-xl">
+  <div className="w-full h-32 bg-gradient-to-br from-[#DDECFF] to-[#E3EAFF] rounded-xl">
     <div className="h-full px-4 py-4 flex flex-col justify-between">
       <div className="flex items-center">
         <div className="w-8 h-8 bg-white rounded-lg shadow-sm flex items-center justify-center p-2">
@@ -216,9 +216,9 @@ const MainContent = () => {
       <div className="flex justify-center w-full">
         <div className="w-[640px] mt-6">
           {/* Dashboard Cards Section */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <div className="grid grid-cols-2 desktop:grid-cols-4 gap-4 mb-8">
             {dashboardCards.map((card, index) => (
-              <div key={index} className="w-[148px]"><DashboardCard {...card} /></div>
+              <div key={index} className="w-full desktop:w-[148px]"><DashboardCard {...card} /></div>
             ))}
           </div>
 

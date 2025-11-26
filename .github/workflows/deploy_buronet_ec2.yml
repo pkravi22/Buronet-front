@@ -29,6 +29,8 @@ jobs:
           # Yahaan aapke saare NEXT_PUBLIC_ variables aayenge.
           NEXT_PUBLIC_DOTNET_BACKEND_BASE: "http://buronet-service-env.eba-btarxmsr.eu-north-1.elasticbeanstalk.com/api"
           NEXT_PUBLIC_JOBS_BACKEND_BASE: 'http://buronet-jobs-env.eba-btarxmsr.eu-north-1.elasticbeanstalk.com/api'
+          NEXT_PUBLIC_BYTES_BACKEND_BASE: 'http://buronet-bytes-service.eba-btarxmsr.eu-north-1.elasticbeanstalk.com/api'
+
         run: npm run build
 
       # 4. FIX: Create Deployment Archive (Tarball)
