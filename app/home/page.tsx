@@ -42,15 +42,15 @@ const HomePage: React.FC = () => {
   }
 
   return (
-    <div className="flex flex-col bg-[#EEF0F4]">
-      {/* <TopBar /> */}
-      <SiteLayout>
-        <div className="h-16"></div>
-      <div className="flex flex-1">
+    <div className="min-h-screen flex flex-col bg-[#EEF0F4] pb-6 mb-12 sm:mb-0">
+      <TopBar />
+      <div className="flex flex-1 pt-[61px]">
+        <div className="hidden lg:block w-[20%] ml-6 xl:w-[270px] desktop:w-[260px] left-6 shrink-0" />
+        <Navbar activeItem="Home" />
         {/* Placeholder is now hidden on small screens and visible on large screens */}
         {/* <div className="hidden lg:block lg:w-[239px] shrink-0" /> */}
         {/* <Navbar activeItem="Home" /> */}
-        <main className="flex-1 px-4 sm:px-6 lg:mx-1 laptop:w-[80%]"> {/* Margin is now responsive */}
+        <main className="flex-1 px-4 sm:px-6 lg:mx-1"> {/* Margin is now responsive */}
           <div className="mt-6">
             <DashboardCards />
             <InsightsSection onShareArticleClick={() => setIsCreatePostModalOpen(true)} onCreatePollClick={() => setIsCreatePollModalOpen(true)} onShareByteClick={() => setIsCreateByteModalOpen(true)} />
@@ -75,7 +75,7 @@ const HomePage: React.FC = () => {
         isOpen={isCreateByteModalOpen} // Controls modal visibility
         onClose={() => setIsCreateByteModalOpen(false)} // Function to close the modal
       />
-      </SiteLayout>
+      {/* </SiteLayout> */}
     </div>
   );
 }

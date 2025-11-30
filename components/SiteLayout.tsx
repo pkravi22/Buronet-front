@@ -18,13 +18,13 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
       {/* <div className="flex flex-1 pt-[61px]"> */}
         {/* Placeholder for the left navbar */}
         {/* <div className="hidden lg:block lg:w-[260px] shrink-0" /> */}
-
+        <div className="hidden lg:block w-[20%] ml-6 xl:w-[270px] desktop:w-[260px] left-6 shrink-0" />
         {/* The state and close function are passed to the Navbar */}
         <Navbar activeItem="Home"/>
         {/* isNavOpen={isNavOpen} closeNav={() => setIsNavOpen(false)} */}
 
         {/* The rest of the page (including the page-specific RightBar) will be rendered here */}
-        <main className="h-full lg:pl-[284px] overflow-y-scroll">
+        <main className="h-full lg:pl-[270px] desktop:pl-[260px] overflow-y-scroll">
         {/* The actual page content {children} is rendered inside this scrollable container. */}
         {children}
       </main>

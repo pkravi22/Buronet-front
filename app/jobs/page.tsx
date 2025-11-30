@@ -40,7 +40,7 @@ const JobsPage = () => {
       */}
       <div className="flex flex-1 pt-[61px]">
         {/* Placeholder correctly collapses on smaller screens */}
-        <div className="hidden lg:block w-[20%] ml-4 xl:w-[270px] desktop:ml-0 desktop:w-[245px] left-6 shrink-0" />
+        <div className="hidden lg:block w-[20%] ml-6 xl:w-[270px] desktop:w-[260px] left-6 shrink-0" />
         {/* Navbar: Fixed width on large screens, hidden on small screens (e.g., up to md) */}
         <Navbar activeItem="Jobs" /> {/* Navbar should handle its own responsive hiding/showing */}
 
@@ -49,7 +49,7 @@ const JobsPage = () => {
           to account for the fixed-position Navbar. 
           On small screens, MainContent will take up the full width. 
         */}
-        <main className="w-[100%] flex-1 px-4 sm:px-6 xl:w-full laptop:w-[50%] desktop:ml-3">
+        <main className="w-[100%] flex-1 px-4 sm:px-6 xl:w-full laptop:w-[50%]">
           <MainContent />
         </main>
 

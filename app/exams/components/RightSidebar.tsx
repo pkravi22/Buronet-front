@@ -114,7 +114,7 @@ const RightSidebar = () => {
   ];
 
   return (
-    <div className="block xl:w-[260px] laptop:w-[20%] mr-6 ml-6 laptop:ml-0 shrink-0">
+    <div className="block xl:w-[260px] laptop:w-[20%] mr-6 ml-6 mt-6 laptop:ml-0 shrink-0">
       <div className="bg-white rounded-lg shadow-sm border border-[#E5E7EB] p-6">
         <h2 className="text-[#1F2937] font-semibold text-lg mb-4">Recent Exam Updates</h2>
         

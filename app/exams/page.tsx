@@ -11,10 +11,10 @@ const JobsPage = () => {
       <TopBar />
       <div className="flex flex-col lg:flex-row flex-1 pt-[61px]">
          {/* Placeholder correctly collapses on smaller screens */}
-         <div className="hidden lg:block w-[20%] ml-4 xl:w-[270px] desktop:ml-0 desktop:w-[245px] left-6 shrink-0" />
+         <div className="hidden lg:block w-[20%] ml-6 xl:w-[270px] desktop:w-[260px] left-6 shrink-0" />
         <Navbar activeItem="Exams" />
         {/* FIX: Remove width constraints for mobile flow, let it be full width */}
-        <main className="w-full flex-1 px-4 sm:px-6 lg:w-[50%] desktop:ml-3">
+        <main className="w-full flex-1 px-4 sm:px-6 lg:w-[50%]">
           <MainContent />
         </main>
         

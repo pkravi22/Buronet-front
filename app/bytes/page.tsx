@@ -82,7 +82,8 @@ const BytesPage = () => {
     <div className="min-h-screen max-h-screen flex flex-col bg-[#EEF0F4]">
       <TopBar />
       <div className="flex flex-1 pt-[61px]">
-        <div className="hidden w-[239px]" /> {/* Placeholder for fixed navbar */}
+        <div className="hidden lg:block w-[20%] ml-4 xl:w-[270px] desktop:ml-0 desktop:w-[245px] left-6 shrink-0" />
+        
         <Navbar activeItem="Bytes" />
         <main className="flex-1 tablet:px-6 tablet:ml-6 h-[80vh] laptop:w-full">
           <GlobalStyle />
