@@ -9,6 +9,9 @@ html, body {
 
 html {
   font-size: 14px !important;
+  @media screen and (max-width: 1200px) {
+    font-size: 12px !important;
+  }
 }
 
 @tailwind base;
