@@ -9,14 +9,18 @@ const JobsPage = () => {
   return (
     <div className="min-h-screen flex flex-col bg-[#EEF0F4] pb-6 mb-12 sm:mb-0">
       <TopBar />
-      <div className="flex flex-1 pt-[61px]">
+      <div className="flex flex-col lg:flex-row flex-1 pt-[61px]">
          {/* Placeholder correctly collapses on smaller screens */}
          <div className="hidden lg:block w-[20%] ml-4 xl:w-[270px] desktop:ml-0 desktop:w-[245px] left-6 shrink-0" />
         <Navbar activeItem="Exams" />
-        <main className="w-[100%] flex-1 px-4 sm:px-6 xl:w-full laptop:w-[50%] desktop:ml-3">
+        {/* FIX: Remove width constraints for mobile flow, let it be full width */}
+        <main className="w-full flex-1 px-4 sm:px-6 lg:w-[50%] desktop:ml-3">
           <MainContent />
         </main>
-        <div className="hidden fixed h-[21px]"></div>
+        
+        <div className="fixed h-[21px] lg:hidden"></div> {/* Hide fixed height div on desktop */}
+        
+        {/* RightBar is rendered last in the JSX, so in flex-col mode, it flows naturally below MainContent. */}
         <RightSidebar />
       </div>
     </div>

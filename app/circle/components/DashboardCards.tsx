@@ -46,7 +46,7 @@ const DashboardCard = ({ title, value, trend, icon, iconColor, trendIcon, trendC
           </span>
         </div>
         {/* Title Below */}
-        <h3 className="text-[#1F2937] font-medium text-xs text-center px-1 max-w-[80px] leading-tight">{title}</h3>
+        <h3 className="text-[#1F2937] font-medium text-xs text-center px-1 max-w-[80px] leading-tight h-8 line-clamp-2">{title}</h3>
       </div>
 
       {/* MEDIUM SCREEN (Desktop/Tablet) Design: Original Card Layout 

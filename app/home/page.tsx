@@ -45,6 +45,7 @@ const HomePage: React.FC = () => {
     <div className="flex flex-col bg-[#EEF0F4]">
       {/* <TopBar /> */}
       <SiteLayout>
+        <div className="h-16"></div>
       <div className="flex flex-1">
         {/* Placeholder is now hidden on small screens and visible on large screens */}
         {/* <div className="hidden lg:block lg:w-[239px] shrink-0" /> */}

@@ -8,6 +8,7 @@ import { SuggestedUserDto } from '@/lib/types/connections'; // Import the new DT
 import DashboardCards from '@/app/circle/components/DashboardCards';
 import LoadingSpinner from '@/components/UI/LoadingSpinner';
 import { AlertModal } from '@/components/AlertModal';
+import SeeMoreModal from './SeeMoreModal';
 
 // --- INTERFACES & CHILD COMPONENTS --- (DashboardCard, NetworkCard remain the same)
 // Assuming DashboardCardProps and NetworkCardProps are defined elsewhere
@@ -100,6 +101,21 @@ const MainContent = () => {
   const [showRightButton, setShowRightButton] = useState(true);
     // Use the new useConnections hook to get data
   const { suggestedConnections, networkMetrics, popularConnections, isLoading, error, sendRequest, clearError } = useConnections();
+
+  const [modalState, setModalState] = useState<{ isOpen: boolean; title: string; users: SuggestedUserDto[] }>({
+    isOpen: false,
+    title: '',
+    users: [],
+  });
+
+  const openModal = (title: string, users: SuggestedUserDto[]) => {
+    setModalState({ isOpen: true, title, users });
+  };
+
+  const closeModal = () => {
+    setModalState({ isOpen: false, title: '', users: [] });
+  };
+
   const handleScroll = useCallback(() => {
     const container = scrollContainerRef.current;
     if (container) {
@@ -171,10 +187,14 @@ const MainContent = () => {
             ))}
           </div>
 
-          <div className="mt-8">
-            <div className="flex justify-between items-center mb-4 px-4 sm:px-0">
+          <div className="mt-8 px-4 sm:px-0">
+            <div className="flex justify-between items-center mb-4">
               <h2 className="text-[#1F2937] text-lg font-medium">Popular in Your Network</h2>
-              <button className="text-[#2563EB] text-sm font-medium">View All</button>
+              <button 
+                onClick={() => openModal('Popular in Your Network', popularConnections)}
+                className="text-[#2563EB] text-sm font-medium">
+                See More
+              </button>
             </div>
             <div className="relative">
               <div className="relative">
@@ -214,10 +234,14 @@ const MainContent = () => {
             </div>
           </div>
 
-          <div className="mt-8">
+          <div className="mt-8 px-4 sm:px-0">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-[#1F2937] text-lg font-medium">People With Similar Profile</h2>
-              <button className="text-[#2563EB] text-sm font-medium">See More</button>
+              <button 
+                onClick={() => openModal('People With Similar Profile', suggestedConnections["People With Similar Headline"] || [])}
+                className="text-[#2563EB] text-sm font-medium">
+                See More
+              </button>
             </div>
             {/* The People You May Know section can also be made dynamic with a different hook/data set */}
             <div
@@ -237,10 +261,14 @@ const MainContent = () => {
             </div>
           </div>
 
-          <div className="mt-8">
+          <div className="mt-8 px-4 sm:px-0">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-[#1F2937] text-lg font-medium">People With Similar Title</h2>
-              <button className="text-[#2563EB] text-sm font-medium">See More</button>
+              <button 
+                onClick={() => openModal('People With Similar Title', suggestedConnections["People With Similar Title"] || [])}
+                className="text-[#2563EB] text-sm font-medium">
+                See More
+              </button>
             </div>
             {/* The People You May Know section can also be made dynamic with a different hook/data set */}
             <div
@@ -259,10 +287,14 @@ const MainContent = () => {
               )}
             </div>
           </div>
-          <div className="mt-8">
+          <div className="mt-8 px-4 sm:px-0">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-[#1F2937] text-lg font-medium">People With Similar Education</h2>
-              <button className="text-[#2563EB] text-sm font-medium">See More</button>
+              <button 
+                onClick={() => openModal('People With Similar Education', suggestedConnections["People With Similar Education"] || [])}
+                className="text-[#2563EB] text-sm font-medium">
+                See More
+              </button>
             </div>
             {/* The People You May Know section can also be made dynamic with a different hook/data set */}
             <div
@@ -285,6 +317,13 @@ const MainContent = () => {
 
         </div>
       </div>
+      <SeeMoreModal
+        isOpen={modalState.isOpen}
+        onClose={closeModal}
+        title={modalState.title}
+        users={modalState.users}
+        onConnectClick={sendRequest}
+      />
     </div>
   );
 };

@@ -143,7 +143,7 @@ const RightBar = () => {
   }
 
   return (
-    <div className="hidden lg:block xl:w-[260px] laptop:w-[20%] mr-6 shrink-0 sticky top-6">
+    <div className="block xl:w-[260px] laptop:w-[20%] mr-6 ml-6 laptop:ml-0 shrink-0">
       <div className="bg-white rounded-lg shadow-sm border border-[#E5E7EB] p-6 mt-6">
         <div className="mb-10">
           <div className="flex justify-between items-center mb-4">

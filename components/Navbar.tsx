@@ -120,7 +120,7 @@ const Navbar = ({ activeItem }: NavbarProps) => {
         </ul>
       </nav>
       {/* Add padding to the bottom of the body on mobile to prevent content from being hidden behind the nav bar */}
-      <div className="h-16"></div>
+      {/* <div className="h-16"></div> */}
     </>
   );
 };

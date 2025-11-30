@@ -196,7 +196,7 @@ const TopBar = () => {
     <div className="fixed top-0 left-0 right-0 z-50 flex items-center h-[61px] bg-white border-b border-[#E5E7EB] px-4">
         
         {/* --- DEFAULT VIEW (Not searching on mobile) --- */}
-        <div className={`flex w-full items-center justify-between ${isSearchModalOpen ? 'hidden' : 'flex'}`}>
+        <div className={`flex w-full items-center justify-between ${isMobileSearchOpen ? 'hidden' : 'flex'}`}>
             {/* Left Section (Menu Button and Logo) */}
             <div className="flex items-center gap-2">
                 {/* <button onClick={onMenuClick} className="lg:hidden p-2 -ml-2 text-gray-600 hover:text-gray-800">
@@ -243,9 +243,9 @@ const TopBar = () => {
               </div>
 
             {/* Right Section */}
-            <div className="flex items-center gap-2 md:gap-4">
+            <div className="flex items-center gap-4">
                 {/* Mobile-only Search Icon */}
-                <button onClick={() => setIsSearchModalOpen(true)} className="md:hidden p-2 text-gray-600 hover:text-gray-800">
+                <button onClick={() => setIsMobileSearchOpen(true)} className="md:hidden p-2 text-gray-600 hover:text-gray-800">
                     <FiSearch size={18} />
                 </button>
 
