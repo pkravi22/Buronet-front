@@ -7,8 +7,18 @@ import { Job, ApiResponse } from '@/lib/types/jobs';
 import { ArrowLeft, Save } from 'lucide-react';
 import TopBar from '@/components/TopBar'; // Assuming a shared top bar
 
+interface FormFieldProps {
+  label: string;
+  id: string;
+  value: string | number; // Use string | number if value could be numeric
+  onChange: React.ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement>;
+  type?: string; // You could be more specific: 'text' | 'number' | 'email' | 'password' | 'textarea' etc.
+  required?: boolean;
+  rows?: number;
+}
+
 // A reusable form field component to reduce boilerplate
-const FormField = ({ label, id, value, onChange, type = 'text', required = false, rows = 3 }) => (
+const FormField: React.FC<FormFieldProps> = ({ label, id, value, onChange, type = 'text', required = false, rows = 3 }) => (
   <div>
     <label htmlFor={id} className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
     {type === 'textarea' ? (
@@ -50,7 +60,13 @@ const fromInputFormat = (dateStr: string | undefined): string => {
     return `${day}-${month}-${year}`;
 };
 
-const JobEditPage = ({ params }: { params: { id: string } }) => {
+interface JobEditPageProps {
+  params: {
+    id: string
+  }
+}
+
+const JobEditPage = ({ params }: JobEditPageProps) => {
   const [job, setJob] = useState<Partial<Job>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -58,8 +74,8 @@ const JobEditPage = ({ params }: { params: { id: string } }) => {
   const [success, setSuccess] = useState<string | null>(null);
   
   const router = useRouter();
-  const resolvedParams = use(params);
-  const jobId = resolvedParams.id;
+  // const resolvedParams = use(params);
+  const jobId = params.id;
 
   useEffect(() => {
     if (!jobId) return;
@@ -67,7 +83,7 @@ const JobEditPage = ({ params }: { params: { id: string } }) => {
     const fetchJob = async () => {
       setIsLoading(true);
       try {
-        const response = await get<ApiResponse<Job>>(`/Jobs/${jobId}`);
+        const response = await get<Job>(`/Jobs/${jobId}`);
         // if (response.success) {
           setJob(response);
         // } else {

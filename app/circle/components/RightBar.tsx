@@ -143,8 +143,8 @@ const RightBar = () => {
   }
 
   return (
-    <div className="hidden lg:block w-[260px] mr-6 mt-6 mb-6 shrink-0">
-      <div className="bg-white rounded-lg shadow-sm border border-[#E5E7EB] p-6">
+    <div className="hidden lg:block xl:w-[260px] laptop:w-[20%] mr-6 shrink-0 sticky top-6">
+      <div className="bg-white rounded-lg shadow-sm border border-[#E5E7EB] p-6 mt-6">
         <div className="mb-10">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-[#1F2937] font-medium">Pending Requests</h2>

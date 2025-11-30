@@ -11,7 +11,7 @@ import { get, put } from '../../lib/api'; // Import 'get' and 'put' from your AP
 
 const CompleteProfilePage: React.FC = () => {
   // Destructure values from AuthContext
-  const { user, isLoading: authLoading, error: authError, updateProfile } = useAuth();
+  const { user, isLoading: authLoading, error: authError } = useAuth();
   const router = useRouter();
 
   // State for form data, initialized with empty strings or undefined
@@ -184,7 +184,7 @@ const CompleteProfilePage: React.FC = () => {
                 type="text"
                 name="firstName"
                 id="firstName"
-                value={profileData.firstName}
+                value={profileData.firstName || ""}
                 onChange={handleChange}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               />
@@ -196,7 +196,7 @@ const CompleteProfilePage: React.FC = () => {
                 type="text"
                 name="lastName"
                 id="lastName"
-                value={profileData.lastName}
+                value={profileData.lastName || ""}
                 onChange={handleChange}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               />
@@ -221,7 +221,7 @@ const CompleteProfilePage: React.FC = () => {
                 type="tel"
                 name="phoneNumber"
                 id="phoneNumber"
-                value={profileData.phoneNumber}
+                value={profileData.phoneNumber || ""}
                 onChange={handleChange}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               />
@@ -233,7 +233,7 @@ const CompleteProfilePage: React.FC = () => {
                 type="text"
                 name="addressLine1"
                 id="addressLine1"
-                value={profileData.addressLine1}
+                value={profileData.addressLine1 || ""}
                 onChange={handleChange}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               />
@@ -245,7 +245,7 @@ const CompleteProfilePage: React.FC = () => {
                 type="text"
                 name="addressLine2"
                 id="addressLine2"
-                value={profileData.addressLine2}
+                value={profileData.addressLine2 || ""}
                 onChange={handleChange}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               />
@@ -257,7 +257,7 @@ const CompleteProfilePage: React.FC = () => {
                 type="text"
                 name="city"
                 id="city"
-                value={profileData.city}
+                value={profileData.city || ""}
                 onChange={handleChange}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               />
@@ -269,7 +269,7 @@ const CompleteProfilePage: React.FC = () => {
                 type="text"
                 name="stateProvince"
                 id="stateProvince"
-                value={profileData.stateProvince}
+                value={profileData.stateProvince || ""}
                 onChange={handleChange}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               />
@@ -281,7 +281,7 @@ const CompleteProfilePage: React.FC = () => {
                 type="text"
                 name="zipCode"
                 id="zipCode"
-                value={profileData.zipCode}
+                value={profileData.zipCode || ""}
                 onChange={handleChange}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               />
@@ -293,7 +293,7 @@ const CompleteProfilePage: React.FC = () => {
                 type="text"
                 name="country"
                 id="country"
-                value={profileData.country}
+                value={profileData.country || ""}
                 onChange={handleChange}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               />
@@ -305,7 +305,7 @@ const CompleteProfilePage: React.FC = () => {
                 name="bio"
                 id="bio"
                 rows={3}
-                value={profileData.bio}
+                value={profileData.bio || ""}
                 onChange={handleChange}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               ></textarea>
@@ -317,7 +317,7 @@ const CompleteProfilePage: React.FC = () => {
                 type="text"
                 name="headline"
                 id="headline"
-                value={profileData.headline}
+                value={profileData.headline || ""}
                 onChange={handleChange}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               />
@@ -329,7 +329,7 @@ const CompleteProfilePage: React.FC = () => {
                 type="url"
                 name="profilePictureUrl"
                 id="profilePictureUrl"
-                value={profileData.profilePictureUrl}
+                value={profileData.profilePictureUrl || ""}
                 onChange={handleChange}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               />

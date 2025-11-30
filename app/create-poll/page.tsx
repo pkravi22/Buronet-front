@@ -60,6 +60,7 @@ const CreatePollPage: React.FC = () => {
       imageUrl: imageUrl || null,
       tags,
       options: filteredOptions,
+      isPoll : true,
     };
 
     try {

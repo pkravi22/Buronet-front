@@ -40,7 +40,7 @@ interface DepartmentStats {
 
 // Reusable Components defined within the file
 const DashboardCard = ({ title, value, trend, icon, iconColor, trendIcon, trendColor = "text-[#16A34A]" }: DashboardCardProps) => (
-  <div className="w-[148px] h-32 bg-gradient-to-br from-[#DDECFF] to-[#E3EAFF] rounded-xl">
+  <div className="w-full h-32 bg-gradient-to-br from-[#DDECFF] to-[#E3EAFF] rounded-xl">
     <div className="h-full px-4 py-4 flex flex-col justify-between">
       <div className="flex items-center">
         <div className="w-8 h-8 bg-white rounded-lg shadow-sm flex items-center justify-center p-2">
@@ -115,15 +115,13 @@ const MainContent = () => {
       setIsLoading(true);
       try {
         const response = await get<Exam[]>('/exams');
-        const bookmarksResponse = await get<bookmarksResponseType[]>(`/bookmarks/${user.id}/exams`);
-        const dashboardStatsResponse = await get<DashboardStats>(`/dashboard/exam/stats/${user.id}`);
-        const departmentStatsResponse = await get<DepartmentStats[]>(`/dashboard/departments`);
-        console.log("Exams response:", response);
+        const bookmarksResponse = await get<bookmarksResponseType[]>(`/bookmarks/${user?.id}/exams`);
+        const dashboardStatsResponse = await get<DashboardStats>(`/dashboard/exam/stats/${user?.id}`);
+        console.log("Exams bookmark response:", bookmarksResponse);
         // if (response.success) {
         setExams(response);
         setBookmarkedExams(bookmarksResponse);
         setDashboardStats(dashboardStatsResponse);
-        setDepartmentStats(departmentStatsResponse.data);
         // console.log("Bookmarks response:", bookmarksResponse);
         // console.log("bookmarked Exams response:", );
         
@@ -218,9 +216,9 @@ const MainContent = () => {
       <div className="flex justify-center w-full">
         <div className="w-[640px] mt-6">
           {/* Dashboard Cards Section */}
-          <div className="flex flex-wrap gap-4 mb-8">
+          <div className="grid grid-cols-2 desktop:grid-cols-4 gap-4 mb-8">
             {dashboardCards.map((card, index) => (
-              <div key={index} className="w-[148px]"><DashboardCard {...card} /></div>
+              <div key={index} className="w-full desktop:w-[148px]"><DashboardCard {...card} /></div>
             ))}
           </div>
 

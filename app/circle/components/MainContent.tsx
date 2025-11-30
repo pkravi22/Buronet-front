@@ -7,6 +7,7 @@ import { useAuth } from '@/context/AuthContext';
 import { SuggestedUserDto } from '@/lib/types/connections'; // Import the new DTO
 import DashboardCards from '@/app/circle/components/DashboardCards';
 import LoadingSpinner from '@/components/UI/LoadingSpinner';
+import { AlertModal } from '@/components/AlertModal';
 
 // --- INTERFACES & CHILD COMPONENTS --- (DashboardCard, NetworkCard remain the same)
 // Assuming DashboardCardProps and NetworkCardProps are defined elsewhere
@@ -19,29 +20,71 @@ interface NetworkCardProps {
   isConnected?: boolean;
 }
 
+// const NetworkCard: React.FC<NetworkCardProps> = ({ user, onConnectClick, isConnected }) => (
+//   <div className="bg-white rounded-xl shadow-sm h-[260px]">
+//     <div className="p-4 h-full flex flex-col">
+//       <div className="flex flex-col items-center">
+//         <div className="w-16 h-16 mb-2 bg-[#F3F4F6] rounded-full flex items-center justify-center">
+//           <User size={32} className="text-[#6B7280]" />
+//         </div>
+//         <h3 className="text-[#1F2937] text-base font-medium text-center">{user.firstName}</h3>
+//         {/* {user.lastName || user.username} */}
+//         <div className="mt-1 text-center">
+//           <p className="text-[#6B7280] text-sm">{user.headline}</p>
+//         </div>
+//         <div className="mt-3">
+//           <span className="bg-[#F3F4F6] text-[#374151] text-xs px-3 py-1.5 rounded-full">
+//             {user.mutualConnections} mutual connections
+//           </span>
+//         </div>
+//       </div>
+//       <button
+//         onClick={() => onConnectClick(user.id)}
+//         className={`mt-auto w-full h-10 rounded flex items-center justify-center gap-2 ${
+//           isConnected ? 'bg-[#F3F4F6] text-[#374151]' : 'bg-[#2563EB] text-white'
+//           }`}
+//       >
+//         <Users size={16} />
+//         {isConnected ? 'Message' : 'Connect'}
+//       </button>
+//     </div>
+//   </div>
+// );
+
 const NetworkCard: React.FC<NetworkCardProps> = ({ user, onConnectClick, isConnected }) => (
-  <div className="bg-white rounded-xl shadow-sm h-[260px] w-full">
-    <div className="p-4 h-full flex flex-col">
+  // REMOVED fixed height h-[260px]
+  <div className="bg-white rounded-xl shadow-sm"> 
+    {/* Reduced padding p-4 to p-3 on small screens, keeping it responsive */}
+    <div className="p-3 sm:p-4 h-full flex flex-col">
+      
       <div className="flex flex-col items-center">
+        {/* Profile picture size remains w-16 h-16, which is acceptable */}
         <div className="w-16 h-16 mb-2 bg-[#F3F4F6] rounded-full flex items-center justify-center">
           <User size={32} className="text-[#6B7280]" />
         </div>
+        
+        {/* Name: Text size remains base, which is fine */}
         <h3 className="text-[#1F2937] text-base font-medium text-center">{user.firstName}</h3>
-        {/* {user.lastName || user.username} */}
-        <div className="mt-1 text-center">
-          <p className="text-[#6B7280] text-sm">{user.headline}</p>
+        
+        {/* Headline: Reduced margin mt-1 to mt-0.5 for compactness */}
+        <div className="mt-0.5 text-center">
+          <p className="text-[#6B7280] text-sm leading-snug line-clamp-1">{user.headline}</p>
         </div>
-        <div className="mt-3">
-          <span className="bg-[#F3F4F6] text-[#374151] text-xs px-3 py-1.5 rounded-full">
+        
+        {/* Mutual Connections: Reduced margin mt-3 to mt-2 for compactness */}
+        <div className="mt-2">
+          <span className="bg-[#F3F4F6] text-[#374151] text-xs px-3 py-1.5 rounded-full whitespace-nowrap">
             {user.mutualConnections} mutual connections
           </span>
         </div>
       </div>
+      
+      {/* Button: Kept mt-auto to push it to the bottom, ensuring consistent button placement */}
       <button
         onClick={() => onConnectClick(user.id)}
-        className={`mt-auto w-full h-10 rounded flex items-center justify-center gap-2 ${
+        className={`mt-4 w-full h-10 rounded flex items-center justify-center gap-2 ${
           isConnected ? 'bg-[#F3F4F6] text-[#374151]' : 'bg-[#2563EB] text-white'
-          }`}
+        }`}
       >
         <Users size={16} />
         {isConnected ? 'Message' : 'Connect'}
@@ -55,7 +98,8 @@ const MainContent = () => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [showLeftButton, setShowLeftButton] = useState(false);
   const [showRightButton, setShowRightButton] = useState(true);
-
+    // Use the new useConnections hook to get data
+  const { suggestedConnections, networkMetrics, popularConnections, isLoading, error, sendRequest, clearError } = useConnections();
   const handleScroll = useCallback(() => {
     const container = scrollContainerRef.current;
     if (container) {
@@ -96,10 +140,9 @@ const MainContent = () => {
       container.removeEventListener('scroll', handleScroll);
       resizeObserver.unobserve(container);
     };
-  }, [handleScroll]);
+  }, [handleScroll, error]);
 
-  // Use the new useConnections hook to get data
-  const { suggestedConnections, networkMetrics, popularConnections, isLoading, error, sendRequest } = useConnections();
+  console.log('Error: ', error);
 
   console.log('Suggested Connections:', suggestedConnections);
 
@@ -112,11 +155,17 @@ const MainContent = () => {
 
   return (
     <div className="flex-1">
+      {/* {
+        error && <AlertModal key={Date.now()} duration={4000} message={error} type="error" />
+      } */}
+      {
+        error && <AlertModal duration={4000} message={error} type="error" onClose={clearError} />
+      }
       <div className="flex justify-center w-full">
         <div className="w-full max-w-[640px] mt-6">
 
           {/* CORRECTED: This is now a responsive grid */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <div className="grid grid-cols-4 md:grid-cols-4 gap-4 mb-8">
             {dashboardCards.map((card, index) => (
               <DashboardCards key={index} {...card} />
             ))}
@@ -138,11 +187,9 @@ const MainContent = () => {
                   {/* Use dynamic suggestedConnections from the hook */}
                   {isLoading ? (
                     <LoadingSpinner />
-                  ) : error ? (
-                    <p className="text-red-500">{error}</p>
                   ) : (
                     popularConnections.map((user, index) => (
-                      <div key={user.id || index} className="w-full sm:w-[46%] lg:w-[32%] shrink-0 snap-start sm:snap-center">
+                      <div key={user.id || index} className="w-[50%] sm:w-[50%] lg:w-[32%] shrink-0 snap-start sm:snap-center">
                         <NetworkCard user={user} onConnectClick={sendRequest} isConnected={false} />
                       </div>
                     ))
@@ -180,11 +227,9 @@ const MainContent = () => {
               {/* Use dynamic suggestedConnections from the hook */}
               {isLoading ? (
                 <LoadingSpinner />
-              ) : error ? (
-                <p className="text-red-500">{error}</p>
-              ) : ( suggestedConnections["People With Similar Headline"] && suggestedConnections["People With Similar Headline"].length > 0 ?
+              ) : ( suggestedConnections['People With Similar Headline'] && suggestedConnections["People With Similar Headline"].length > 0 ?
                 suggestedConnections["People With Similar Headline"].map((user, index) => (
-                  <div key={user.id || index} className="w-full sm:w-[46%] lg:w-[32%] shrink-0 snap-start sm:snap-center">
+                  <div key={user.id || index} className="w-[50%] sm:w-[46%] lg:w-[32%] shrink-0 snap-start sm:snap-center">
                     <NetworkCard user={user} onConnectClick={sendRequest} isConnected={false} />
                   </div>
                 )) : "No profiles found"
@@ -205,11 +250,9 @@ const MainContent = () => {
               {/* Use dynamic suggestedConnections from the hook */}
               {isLoading ? (
                 <LoadingSpinner />
-              ) : error ? (
-                <p className="text-red-500">{error}</p>
               ) : (suggestedConnections["People With Similar Title"] && suggestedConnections["People With Similar Title"].length > 0 ?
                 suggestedConnections["People With Similar Title"].map((user, index) => (
-                  <div key={user.id || index} className="w-full sm:w-[46%] lg:w-[32%] shrink-0 snap-start sm:snap-center">
+                  <div key={user.id || index} className="w-[50%] sm:w-[46%] lg:w-[32%] shrink-0 snap-start sm:snap-center">
                     <NetworkCard user={user} onConnectClick={sendRequest} isConnected={false} />
                   </div>
                 )) : "No profiles found"
@@ -229,11 +272,10 @@ const MainContent = () => {
               {/* Use dynamic suggestedConnections from the hook */}
               {isLoading ? (
                 <LoadingSpinner />
-              ) : error ? (
-                <p className="text-red-500">{error}</p>
-              ) : (suggestedConnections["People With Similar Education"] && suggestedConnections["People With Similar Education"].length > 0 ?
+              ) :
+              (suggestedConnections["People With Similar Education"] && suggestedConnections["People With Similar Education"].length > 0 ?
                 suggestedConnections["People With Similar Education"].map((user, index) => (
-                  <div key={user.id || index} className="w-full sm:w-[46%] lg:w-[32%] shrink-0 snap-start sm:snap-center">
+                  <div key={user.id || index} className="w-[50%] sm:w-[46%] lg:w-[32%] shrink-0 snap-start sm:snap-center">
                     <NetworkCard user={user} onConnectClick={sendRequest} isConnected={false} />
                   </div>
                 )) : "No profiles found"

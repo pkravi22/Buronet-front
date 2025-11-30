@@ -45,7 +45,7 @@ const RightSidebar = () => {
   return (
     // Hide on small/medium screens, show on large screens with a fixed width.
     // The parent container should be a grid on `lg` screens. e.g. lg:grid-cols-[1fr_287px]
-    <div className="hidden lg:block w-[260px] mr-6 mt-6 mb-6">
+    <div className="hidden lg:block xl:w-[260px] laptop:w-[30%] mr-6 mt-6 mb-6">
       <div className="bg-white rounded-lg shadow-sm border border-[#E5E7EB] p-4 mb-6">
         <div className="flex items-center mb-4">
           <FiTrendingUp className="text-[#5E98FF] w-5 h-5" />

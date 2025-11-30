@@ -4,7 +4,7 @@ export interface User { // Your core User type
   email: string;
   createdAt: string;
   updatedAt: string;
-  isAdmin: boolean;
+  isAdmin: boolean | undefined;
   // PasswordHash and PasswordSalt are NOT here for security
 }
 
@@ -18,4 +18,9 @@ export interface RegisterData {
   username: string;
   email: string;
   password: string;
+}
+
+export interface RegisterResponse {
+  success: boolean;
+  message?: string;
 }

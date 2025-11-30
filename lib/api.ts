@@ -48,8 +48,10 @@ export async function apiFetch<T>(
     if (url.toLowerCase().includes("bytes")) {
       API_BASE = process.env.NEXT_PUBLIC_BYTES_BACKEND_BASE || "http://localhost:3000/api";
     } 
-    else if ((url.toLowerCase().includes("jobs")) || (url.toLowerCase().includes("exams"))) {
+    else if ((url.toLowerCase().includes("job")) || (url.toLowerCase().includes("exam"))) {
       API_BASE = process.env.NEXT_PUBLIC_JOBS_BACKEND_BASE || "http://localhost:3000/api";
+    } else {
+      API_BASE = process.env.NEXT_PUBLIC_DOTNET_BACKEND_BASE || "http://localhost:3000/api";
     }
     console.log("API call URL: ", `${API_BASE}${url}`); // Log the full URL being called
     const response = await fetch(`${API_BASE}${url}`, requestConfig);

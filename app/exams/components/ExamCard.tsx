@@ -18,7 +18,7 @@ const ExamCard = ({ exam, isInitiallyBookmarked }: ExamCardProps) => {
   const { user } = useAuth(); // Assuming you have a useAuth hook to get the current user
   const router = useRouter();
 
-  console.log("ExamCard - isInitiallyBookmarked:", exam, isInitiallyBookmarked);
+  // console.log("ExamCard - isInitiallyBookmarked:", exam, isInitiallyBookmarked);
 
   useEffect(() => {
      setIsBookmarked(isInitiallyBookmarked);
@@ -38,11 +38,11 @@ const ExamCard = ({ exam, isInitiallyBookmarked }: ExamCardProps) => {
       if (newState) {
         // Your API call to ADD a bookmark would go here
         console.log(`Bookmarking exam ${exam.id}`);
-        await postApi(`/bookmarks/${user.id}/exam`, { Id: exam.id });
+        await postApi(`/bookmarks/${user?.id}/exam`, { Id: exam.id });
       } else {
         // Your API call to REMOVE a bookmark would go here
         console.log(`Removing bookmark for exam ${exam.id}`);
-        await remove(`/bookmarks/${user.id}/exam/${exam.id}`);
+        await remove(`/bookmarks/${user?.id}/exam/${exam.id}`);
       }
     } catch (error) {
       console.error("Failed to update bookmark status:", error);
@@ -53,7 +53,7 @@ const ExamCard = ({ exam, isInitiallyBookmarked }: ExamCardProps) => {
 
   return (
     <Link href={`/exams/${exam.id}`} className="block group">
-      <div className="bg-white rounded-xl shadow border border-[#E5E7EB] p-6 flex flex-col min-h-[270px] relative cursor-pointer group-hover:shadow-md transition-shadow" style={{boxShadow:'0 1px 2px 0 rgba(0,0,0,0.05)'}}>
+      <div className="bg-white rounded-xl shadow border border-[#E5E7EB] p-6 flex min-h-[270px] relative cursor-pointer group-hover:shadow-md transition-shadow" style={{boxShadow:'0 1px 2px 0 rgba(0,0,0,0.05)'}}>
         
         <button 
           onClick={handleBookmarkClick}
@@ -72,26 +72,26 @@ const ExamCard = ({ exam, isInitiallyBookmarked }: ExamCardProps) => {
         </button>
 
         <div className="flex flex-col mb-4">
-          <div className="flex items-start">
-            <img src={logoSrc} alt={`${exam.companyName} logo`} className="w-12 h-12 rounded-lg object-cover border border-[#E5E7EB] bg-white" />
+          <div className="items-start">
+            {/* <img src={logoSrc} alt={`${exam.examTitle} logo`} className="w-12 h-12 rounded-lg object-cover border border-[#E5E7EB] bg-white" /> */}
             <div className="flex flex-col ml-3">
-              <h3 className="text-[#1F2937] text-xl font-bold leading-tight">{exam.examTitle}</h3>
-              <p className="text-[#4B5563] text-base font-medium mt-1">{exam.companyName || exam.organizationName}</p>
+              <h3 className="text-[#1F2937] text-xl font-bold leading-tight line-clamp-2 overflow-hidden text-ellipsis w-[90%]">{exam.examTitle}</h3>
+              <p className="text-[#4B5563] text-base font-medium mt-1">{exam.conductingBody}</p>
               <span className="flex items-center gap-1 text-sm text-[#6B7280] mt-2">
                 <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M12 21s-6-5.686-6-10A6 6 0 0 1 18 11c0 4.314-6 10-6 10Z" stroke="#6B7280" strokeWidth="1.5"/><circle cx="12" cy="11" r="2.5" stroke="#6B7280" strokeWidth="1.5"/></svg>
-                {exam.location}
+                {exam.referenceNumber}
               </span>
               <span className="flex items-center gap-1 text-xs text-[#6B7280] mt-1">
                 <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M6 4h9M6 8h9M9 4v12a4 4 0 0 0 4 4h2M6 12h7" stroke="#6B7280" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                {exam.compensation || 'Not disclosed'}
+                {exam.eligibilityCriteria?.ageLimit?.maximum ? (exam.eligibilityCriteria?.ageLimit?.maximum + " years") : 'Not disclosed'}
               </span>
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-2 text-[#EF4444] text-sm mt-auto mb-4">
+        {/* <div className="flex items-center gap-2 text-[#EF4444] text-sm mt-auto mb-4">
           <svg width="18" height="18" fill="none"><circle cx="9" cy="9" r="8" stroke="#EF4444" strokeWidth="2"/><path d="M9 5v4l2.5 2.5" stroke="#EF4444" strokeWidth="1.5" strokeLinecap="round"/></svg>
           <span className="font-medium">Deadline: {formatDateHelper(exam.lastDateToApply)}</span>
-        </div>
+        </div> */}
         
       </div>
     </Link>

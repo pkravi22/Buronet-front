@@ -25,7 +25,7 @@ const GlobalStyle = createGlobalStyle`
     color-scheme: dark;
   }
   html, body {
-    overflow-x: hidden;
+    overflow: hidden;
   }
   * {
     margin: 0;
@@ -79,12 +79,12 @@ const GlobalStyle = createGlobalStyle`
 
 const BytesPage = () => {
   return (
-    <div className="min-h-screen flex flex-col bg-[#EEF0F4]">
+    <div className="min-h-screen max-h-screen flex flex-col bg-[#EEF0F4]">
       <TopBar />
       <div className="flex flex-1 pt-[61px]">
-        <div className="w-[239px]" /> {/* Placeholder for fixed navbar */}
+        <div className="hidden w-[239px]" /> {/* Placeholder for fixed navbar */}
         <Navbar activeItem="Bytes" />
-        <main className="flex-1 px-6 ml-6 h-[80vh]">
+        <main className="flex-1 tablet:px-6 tablet:ml-6 h-[80vh] laptop:w-full">
           <GlobalStyle />
           <VideoList />
         </main>

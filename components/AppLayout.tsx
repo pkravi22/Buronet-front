@@ -44,7 +44,7 @@ export default function RootLayout({
           />
 
           {/* Scrollable container for the page content */}
-          <main className="flex-1 overflow-y-auto p-8 lg:px-16 lg:mt-16DoneI"> {/* Set padding here */}
+          <main className="flex-1 overflow-y-auto lg:px-16 lg:mt-16 md:px-8 sm:px-0"> {/* Set padding here */}
             {children}
           </main>
 

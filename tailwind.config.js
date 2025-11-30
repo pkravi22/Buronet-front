@@ -11,6 +11,22 @@ module.exports = {
         background: 'rgb(var(--background-rgb))',
         foreground: 'rgb(var(--foreground-rgb))',
       },
+      screens: {
+        'tablet': '640px',
+        'laptop': '1024px',
+        'lg-laptop': '900px',
+        'desktop': '1280px',
+      },
+      keyframes: {
+        'slide-in-right': {
+          '0%': { transform: 'translateX(100%)' },
+          '100%': { transform: 'translateX(0)' },
+        },
+      },
+      // Apply the keyframes to an animation class
+      animation: {
+        'slide-in-right': 'slide-in-right 0.5s ease-out forwards',
+      },
     },
   },
   plugins: [],

@@ -6,7 +6,7 @@ name: Build and deploy Node.js app to Azure Web App - buronet-frontend
 on:
   push:
     branches:
-      - main
+      - no_branch
   workflow_dispatch:
 
 jobs:

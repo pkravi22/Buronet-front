@@ -92,7 +92,7 @@
 //       setIsPlaying(false);
 //     }
 //   };
-  
+
 //   // Format large numbers for display
 //   const formatCount = (num: number) => {
 //     if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
@@ -110,7 +110,7 @@
 //         className="w-full h-full object-cover"
 //         playsInline // Important for iOS
 //       />
-      
+
 //       {!isPlaying && (
 //          <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40 pointer-events-none">
 //             <Play size={64} className="text-white text-opacity-80" />
@@ -143,7 +143,7 @@
 //               <p className="text-white text-sm truncate">{byte.music}</p>
 //             </div>
 //           </div>
-          
+
 //           {/* Right Side Actions */}
 //           <div className="flex flex-col items-center gap-4 pointer-events-auto">
 //             <button 
@@ -319,14 +319,14 @@ interface Comment {
 }
 
 // --- Child Component: CommentSheet ---
-const CommentSheet = ({ byteId, authorName, onClose, currentUserId }: { byteId: string, authorName: string, onClose: () => void, currentUserId: string }) => {
+const CommentSheet = ({ byteId, authorName, onClose, currentUserId: string }: { byteId: string, authorName: string, onClose: () => void, currentUserId: string }) => {
     const [comments, setComments] = useState<Comment[]>([]);
     const [newComment, setNewComment] = useState("");
     const [isLoading, setIsLoading] = useState(true);
 
     const fetchComments = useCallback(async () => {
         try {
-            const data = await get(`/bytes/${byteId}/Comments`);
+            const data = await get<Comment[]>(`/bytes/${byteId}/Comments`);
             setComments(data);
         } catch (error) {
             console.error("Failed to fetch comments:", error);
@@ -405,7 +405,7 @@ const ByteCard = ({ byte, isActive, onLike, onCommentClick, currentUserId }: { b
         <div className="relative h-full w-full bg-black snap-start" onClick={() => videoRef.current?.paused ? videoRef.current?.play() : videoRef.current?.pause()}>
             <video ref={videoRef} src={byte.submission.mediaUrl} loop muted className="w-full h-full object-cover" playsInline />
             {!isPlaying && <div className="absolute inset-0 flex items-center justify-center bg-black/40 pointer-events-none"><Play size={64} className="text-white/80" /></div>}
-            
+
             <div className="absolute bottom-0 left-0 right-0 p-4 pb-6 bg-gradient-to-t from-black/60 to-transparent pointer-events-none">
                 <div className="flex items-end justify-between">
                     <div className="flex-1 min-w-0">
@@ -446,17 +446,17 @@ const BytesPage = () => {
     const [activeFilter, setActiveFilter] = useState<SuggestionType>('For You');
     const [isLoading, setIsLoading] = useState(true);
     const [commentingOn, setCommentingOn] = useState<{ byteId: string, authorName: string } | null>(null);
-    const {user} = useAuth();
+    const { user } = useAuth();
 
     // This would come from your AuthContext
     const currentUserId = user?.id;
-    
+
     useEffect(() => {
         const fetchBytes = async () => {
             setIsLoading(true);
             try {
                 // const data = await get(`/bytes/feed?filter=${activeFilter}`);
-                const data = await get(`/bytes`);
+                const data = await get<Byte[]>(`/bytes`);
                 console.log("Fetched bytes:", data);
                 setBytes(data);
                 if (data.length > 0) {
@@ -487,21 +487,29 @@ const BytesPage = () => {
         if (elements) elements.forEach(el => observer.observe(el));
         return () => elements?.forEach(el => observer.unobserve(el));
     }, [bytes]);
-    
+
     const handleLike = (byteId: string) => {
         // Optimistic update
         setBytes(prevBytes => prevBytes.map(b => {
             if (b.id === byteId) {
+                // THIS IS THE FIX: First, ensure currentUserId is not undefined.
+                if (typeof currentUserId === 'undefined') {
+                    // If there's no user, don't change anything.
+                    return b;
+                }
+
                 const isLiked = b.likes.includes(currentUserId);
                 const newLikes = isLiked
                     ? b.likes.filter(id => id !== currentUserId)
+                    // Now, TypeScript knows currentUserId is a string here.
                     : [...b.likes, currentUserId];
+
                 return { ...b, likes: newLikes };
             }
             return b;
         }));
         // API call
-        postApi(`/bytes/${byteId}/Like`).catch(err => {
+        postApi(`/bytes/${byteId}/Like`, {}).catch(err => {
             console.error("Failed to toggle like:", err);
             // Revert on error if needed
         });
@@ -521,12 +529,12 @@ const BytesPage = () => {
                     {isLoading ? <div className="h-full flex items-center justify-center"><Loader2 className="w-8 h-8 text-white animate-spin" /></div> :
                         bytes.map((byte) => (
                             <div key={byte.id} className="h-full w-full" data-byte-id={byte.id}>
-                                <ByteCard byte={byte} isActive={activeByteId === byte.id} onLike={handleLike} onCommentClick={(id) => setCommentingOn({ byteId: id, authorName: byte.creator.name })} currentUserId={currentUserId} />
+                                <ByteCard byte={byte} isActive={activeByteId === byte.id} onLike={handleLike} onCommentClick={(id) => setCommentingOn({ byteId: id, authorName: byte.creator.name })} currentUserId={typeof currentUserId !== "undefined" ? currentUserId : ""} />
                             </div>
                         ))
                     }
                 </div>
-                {commentingOn && <CommentSheet byteId={commentingOn.byteId} authorName={commentingOn.authorName} onClose={() => setCommentingOn(null)} currentUserId={currentUserId} />}
+                {commentingOn && <CommentSheet byteId={commentingOn.byteId} authorName={commentingOn.authorName} onClose={() => setCommentingOn(null)} currentUserId={typeof currentUserId !== "undefined" ? currentUserId : ""} />}
             </div>
         </>
     );

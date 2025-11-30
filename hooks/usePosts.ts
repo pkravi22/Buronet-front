@@ -157,7 +157,7 @@ export function usePosts() {
   const addComment = async (postId: number, createDto: CommentRequestDto) => {
     if (!currentUserProfile?.id) throw new Error("Authentication required to add a comment.");
     try {
-      const newComment = await postApi<Comment>(`${SINGLE_POST_API_ROUTE(postId)}/comments`, createDto);
+      const newComment = await postApi<CommentDto>(`${SINGLE_POST_API_ROUTE(postId)}/comments`, createDto);
 
       // Optimistically add comment to single post view cache (if comments are loaded)
       mutate(SINGLE_POST_API_ROUTE(postId), (currentPost: PostDto | undefined) => {
@@ -165,7 +165,7 @@ export function usePosts() {
         return {
           ...currentPost,
           commentsCount: currentPost.commentsCount + 1,
-          comments: currentPost.comments ? [...currentPost.comments, newComment] : undefined // Append only if comments array exists
+          comments: currentPost.comments ? [...currentPost.comments, newComment] : [] // Append only if comments array exists
         };
       }, false);
       // Optimistically update comment count in all posts view cache

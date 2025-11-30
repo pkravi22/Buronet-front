@@ -95,7 +95,7 @@ const VideoList = () => {
       })
     );
     try {
-      await post(`/bytes/${byteId}/Like`);
+      await post(`/bytes/${byteId}/Like`, {});
     } catch (error) {
       toast.error("Status 'placuit' non potuit renovari.");
        // Reverte in casu erroris
@@ -130,7 +130,7 @@ const VideoList = () => {
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
-      <div className="h-screen w-full relative flex justify-center items-center">
+      <div className="h-[100%] pt-20 w-full relative flex justify-center items-center">
         <div className="absolute top-4 left-0 right-0 z-10 flex justify-center">
             <div className="flex items-center space-x-4 bg-black/20 backdrop-blur-md p-1 rounded-full">
                 {filters.map(filter => (
@@ -154,7 +154,7 @@ const VideoList = () => {
               hasMore={hasMore}
               loader={<div className="h-24 flex justify-center items-center"><Loader2 className="w-8 h-8 text-white animate-spin" /></div>}
               height="100vh"
-              className="w-full min-w-md snap-y snap-mandatory no-scrollbar"
+              className="mt-24 w-full min-w-md snap-y snap-mandatory no-scrollbar"
               endMessage={
                   <p style={{ textAlign: 'center', color: 'white', padding: '20px' }}>
                     <b>Omnia vidisti!</b>

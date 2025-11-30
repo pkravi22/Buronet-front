@@ -1,9 +1,6 @@
 "use client";
 
-import { TrendingUp, Users, UserPlus, Clock, User, ChevronLeft, ChevronRight } from 'lucide-react';
-import { useRef, useState, useEffect, useCallback } from 'react';
-import {useRouter} from 'next/navigation';
-
+import { useRouter } from 'next/navigation';
 
 // --- INTERFACES ---
 interface DashboardCardProps {
@@ -29,34 +26,63 @@ const DashboardCard = ({ title, value, trend, icon, iconColor, trendIcon, trendC
   };
 
   return (
-  <div className="w-full h-32 bg-gradient-to-br from-[#DDECFF] to-[#E3EAFF] rounded-xl" onClick={() => handleOpenClick(refLink)}>
-    <div className="h-full px-4 py-4 flex flex-col justify-between">
-      <div className="flex items-center">
-        <div className="w-8 h-8 bg-white rounded-lg shadow-sm flex items-center justify-center">
-          <span className={`${iconColor}`}>
+    // The component wrapper now uses classes that work for BOTH designs.
+    // On small screens, it centers content. On medium screens, it behaves like a standard grid item.
+    <div 
+      className="w-full cursor-pointer flex justify-center md:block" // Add flex justify-center for mobile centering
+      onClick={() => handleOpenClick(refLink)}
+    >
+      {/* SMALL SCREEN (Mobile First) Design: Circular Icon with Title Below 
+        This is the default view.
+      */}
+      <div className="flex flex-col items-center justify-center gap-2 md:hidden">
+        {/* Circular Icon Container */}
+        <div 
+          className={`w-16 h-16 rounded-full shadow-md flex items-center justify-center bg-white border-2 border-opacity-20 ${iconColor.replace('text-', 'border-')}`} // Use icon color for border
+        >
+          {/* Icon */}
+          <span className={`${iconColor} scale-[1.75]`}> {/* Increase icon size */}
             {icon}
           </span>
         </div>
-        <div className="ml-3">
-          <h3 className="text-[#1F2937] font-medium text-sm">{title}</h3>
-        </div>
+        {/* Title Below */}
+        <h3 className="text-[#1F2937] font-medium text-xs text-center px-1 max-w-[80px] leading-tight">{title}</h3>
       </div>
-      <div>
-        <p className="text-[#1F2937] text-2xl font-semibold">{value}</p>
-        <div className="flex items-center gap-1 mt-1">
-          {trendIcon && (
-            <span className={`${trendColor}`}>
-              {trendIcon}
-            </span>
-          )}
-          <p className="text-xs text-[#6B7280]">{trend}</p>
+
+      {/* MEDIUM SCREEN (Desktop/Tablet) Design: Original Card Layout 
+        This view is hidden by default and appears only on md screens and up.
+      */}
+      <div className="hidden md:block w-full h-32 bg-gradient-to-br from-[#DDECFF] to-[#E3EAFF] rounded-xl">
+        <div className="h-full px-4 py-4 flex flex-col justify-between">
+          {/* Top Section */}
+          <div className="flex items-center">
+            {/* Icon Container - Standard Square */}
+            <div className="w-8 h-8 bg-white rounded-lg shadow-sm flex items-center justify-center">
+              <span className={`${iconColor}`}>
+                {icon}
+              </span>
+            </div>
+            {/* Title */}
+            <div className="ml-3">
+              <h3 className="text-[#1F2937] font-medium text-sm">{title}</h3>
+            </div>
+          </div>
+          {/* Bottom Section (Value and Trend) */}
+          <div>
+            <p className="text-[#1F2937] text-2xl font-semibold">{value}</p>
+            <div className="flex items-center gap-1 mt-1">
+              {trendIcon && (
+                <span className={`${trendColor}`}>
+                  {trendIcon}
+                </span>
+              )}
+              <p className="text-xs text-[#6B7280]">{trend}</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-  </div>)
+  );
 };
-
-// Note: This file also contains other components like NetworkCard and the main MainContent component.
-// I have provided only the requested DashboardCard component and its props here.
 
 export default DashboardCard;

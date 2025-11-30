@@ -5,15 +5,16 @@ import RightBar from './components/RightBar';
 
 export default function CirclePage() {
   return (
-    <div className="min-h-screen flex flex-col bg-[#EEF0F4] pb-6">
+    <div className="min-h-screen flex flex-col bg-[#EEF0F4] pb-6 mb-12 sm:mb-0">
       <TopBar />
       <div className="flex flex-1 pt-[61px]">
         {/* Placeholder correctly collapses on smaller screens */}
-        <div className="hidden lg:block lg:w-[239px] shrink-0" />
+        <div className="hidden lg:block w-[20%] ml-4 xl:w-[270px] desktop:ml-0 desktop:w-[245px] left-6 shrink-0" />
         <Navbar activeItem="My Circle" />
-        <main className="flex-1 px-4 sm:px-6">
+        <main className="w-[100%] flex-1 px-4 sm:px-6 xl:w-full laptop:w-[50%] desktop:ml-3">
           <MainContent />
         </main>
+        <div className="fixed h-[21px]"></div>
         <RightBar />
       </div>
     </div>

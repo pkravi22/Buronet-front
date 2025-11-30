@@ -73,7 +73,7 @@ const Navbar = ({ activeItem }: NavbarProps) => {
     { icon: <FiVideo size={20} />, text: 'Bytes', href: '/bytes' },
     { icon: <FiBriefcase size={20} />, text: 'Jobs', href: '/jobs' },
     { icon: <FiBriefcase size={20} />, text: 'Exams', href: '/exams' },
-    { icon: <FiMessageSquare size={20} />, text: 'Messaging', href: '/messaging', badge: 3 }
+    { icon: <FiMessageSquare size={20} />, text: 'Messaging', href: '/messaging'}
   ];
 
   return (
@@ -82,7 +82,7 @@ const Navbar = ({ activeItem }: NavbarProps) => {
       <nav
         className={`
           hidden lg:block
-          fixed top-[61px] left-6 w-[260px] rounded-lg
+          fixed top-[61px] ml-4 desktop:ml-0 xl:w-[260px] lg-laptop:w-[20%] rounded-lg
           shadow-sm border border-[#E5E7EB] my-6
           min-h-[calc(100vh-61px-3rem)] bg-white
         `}
@@ -108,11 +108,11 @@ const Navbar = ({ activeItem }: NavbarProps) => {
                     item.text === activeItem ? 'text-[#5E98FF]' : 'text-gray-500'
                   }`}>
                   {React.cloneElement(item.icon as React.ReactElement, { size: 24 })}
-                  {item.badge && (
+                  {/* {item.badge && (
                     <span className="absolute top-[-4px] right-[-8px] bg-red-500 text-white text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center">
                       {item.badge}
                     </span>
-                  )}
+                  )} */}
                  </div>
               </Link>
             </li>

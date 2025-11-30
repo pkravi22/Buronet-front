@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { styled } from "styled-components";
-import type { Byte } from "@/lib/types"; // Updated to use the new Byte type
+import type { Byte } from "@/lib/types/Byte"; // Updated to use the new Byte type
 import { RiShareForwardFill } from "react-icons/ri";
 import { FaThumbsUp } from "react-icons/fa";
 import { MdInsertComment } from "react-icons/md";

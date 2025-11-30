@@ -1,3 +1,19 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 14px !important;
+  @media screen and (max-width: 1200px) {
+    font-size: 12px !important;
+  }
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -27,7 +43,7 @@
   .text-balance {
     text-wrap: balance;
   }
-}
+
 .line-clamp-4 {
   overflow: hidden;
   display: -webkit-box;
@@ -40,4 +56,14 @@
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
+}
+/* Hide scrollbar for Chrome, Safari, Edge, and Opera */
+      .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+      }
+      /* Hide scrollbar for IE, Edge and Firefox */
+      .scrollbar-hide {
+        -ms-overflow-style: none;  /* IE and Edge */
+        scrollbar-width: none;  /* Firefox */
+      }
 }

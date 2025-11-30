@@ -3,7 +3,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { apiFetch, get, postApi } from '../lib/api';
-import { User, LoginData, RegisterData, UserProfile } from '../lib/types/user';
+import { User, LoginData, RegisterData, UserProfile, RegisterResponse } from '../lib/types/user';
 import { useRouter } from 'next/navigation';
 import { jwtDecode } from 'jwt-decode'; // Ensure jwt-decode is installed: npm install jwt-decode
 import LoadingSpinner from '../components/UI/LoadingSpinner'; // Adjust path based on your project structure
@@ -18,7 +18,7 @@ interface AuthContextType {
   isLoading: boolean;
   login: (data: LoginData) => Promise<boolean>;
   logout: () => Promise<void>;
-  register: (data: RegisterData) => Promise<boolean>;
+  register: (data: RegisterData) => Promise<RegisterResponse>;
   error: string | null;
 }
 
@@ -119,7 +119,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         localStorage.setItem('token', response.token); // Save JWT to localStorage
         // Set user context directly with basic info from login response
         // IMPORTANT: Ensure response.userId is a string GUID if User.id is string
-        setUser({ id: response.userId, username: response.username, email: response.email, createdAt: '', updatedAt: '' }); // Simplified
+        setUser({ id: response.userId, username: response.username, email: response.email, createdAt: '', updatedAt: '', isAdmin: user?.isAdmin }); // Simplified
         router.push('/profile'); // Redirect after login
         return true;
       } else {
@@ -166,7 +166,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   // --- Register Function ---
-  const register = async (data: RegisterData): Promise<boolean> => {
+  const register = async (data: RegisterData): Promise<RegisterResponse> => {
     console.log('register: Attempting registration for username:', data.username);
     setIsLoading(true);
     setError(null);
@@ -178,9 +178,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         console.log('register: Registration successful. Token received.');
         localStorage.setItem('token', registerResponse.token);
         // Set user context directly with basic info from registration response
-        setUser({ id: registerResponse.userId, username: registerResponse.username, email: registerResponse.email, createdAt: '', updatedAt: '' });
+        setUser({ id: registerResponse.userId, username: registerResponse.username, email: registerResponse.email, createdAt: '', updatedAt: '', isAdmin: false });
         router.push('/complete-profile'); // Redirect to complete profile page after successful registration
-        return true;
+        return {"success":true, "message": "Registration successful."} as RegisterResponse;
       } else {
         throw new Error("Registration successful but no token received.");
       }
@@ -189,7 +189,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setError(err.message || "Registration failed. Username or email might be taken.");
       localStorage.removeItem('token'); // Clear any potential token/state from failed attempt
       setUser(null);
-      return false;
+      return {"success":false, "message": err.message || "Registration failed."} as RegisterResponse;
     } finally {
       console.log('register: Registration process complete.');
       setIsLoading(false);
