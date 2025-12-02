@@ -1,5 +1,4 @@
 // hooks/useUserProfile.ts
-import useSWR, { mutate } from 'swr';
 import { apiFetch, get, postApi, put, remove } from '../lib/api'; // Use new apiFetch
 import { useAuth } from '../context/AuthContext'; // Import our new AuthContext
 
@@ -16,64 +15,25 @@ import {
   UserProject, UpdateUserProjectDto,
   UserCommunityGroup, UpdateUserCommunityGroupDto
 } from '../lib/types/user';
-
-// The SWR fetcher function, now fetches 'UserProfile' type
-// It takes userId as a parameter to the fetcher key
-const fetchUserProfile = (url: string, userId: string | null) => {
-  if (!userId) return null; // Don't fetch if no user ID
-  console.log("Fetching user profile for userId:", userId);
-  console.log("API URL:", url);
-  return get<UserProfile>(url);
-};
-
-// A constant key for SWR cache invalidation
-// Now depends on the authenticated user's ID
-const getUserProfileApiRoute = (userId: string | null) => {
-  const route = userId ? `/Users/profile?userId=${userId}` : null;
-  console.log("SWR Key for UserProfile:", route);
-  return route;
-}
-
+import { useEffect } from 'react';
 
 export function useUserProfile() {
-  const { user, isLoading: isAuthLoading } = useAuth(); // Get user from our AuthContext
+  const { user, userProfile, isProfileLoading: isLoading, isProfileError: isError, refetchProfile } = useAuth();
 
-  // SWR key now includes the user.id
-  const swrKey = getUserProfileApiRoute(user?.id || null);
-  console.log(">>>> useUserProfile hook: SWR Key (before useSWR):", swrKey);
-
-  const { data, error, isLoading: isProfileDataLoading } = useSWR(
-    swrKey,
-    // ([url]) => fetchUserProfile(url, user?.id || null) // Pass userId to fetcher
-    // Set your breakpoint on THE LINE BELOW, inside the arrow function:
-    (keyPassedToFetcher) => { // <--- Breakpoint GOES HERE
-        console.log(">>>> SWR's fetcher function activated. Key it received:", keyPassedToFetcher); // <--- Make sure this log is here
-        return fetchUserProfile(keyPassedToFetcher as string, user?.id || null); // Pass userId to fetcher
-    }
-  );
-
-  console.log("User Data ", user);
-  
-
-  console.log("UserProfile SWR Key:", swrKey);
-  console.log("UserProfile SWR Data:", data);
-  console.log("UserProfile SWR Error:", error);
-
-  // Consolidated loading state
-  const isLoading = isAuthLoading || isProfileDataLoading;
+  const isProfileSetup = !!userProfile;
 
   // --- Core Profile Actions ---
   const updateProfile = async (updateDto: UpdateUserProfileDto) => {
     if (!user?.id) throw new Error("User not authenticated for update.");
     try {
-      const updatedData = await put<UserProfile>(`/users/profile`, updateDto); // API endpoint does not need userId in URL as it's from claims
-      mutate(getUserProfileApiRoute(user.id), updatedData, false); // Optimistic update
+      const updatedData = await put<UserProfile>(`/users/profile`, updateDto); 
+      // NOTE: We don't need to optimistically update or revalidate here, we just need to refetch
+      // the source of truth from the AuthContext to get the new state.
+      await refetchProfile(); 
       return updatedData;
     } catch (err: any) {
       console.error("Failed to update profile:", err);
       throw err;
-    } finally {
-      mutate(getUserProfileApiRoute(user.id)); // Revalidate
     }
   };
 
@@ -82,7 +42,7 @@ export function useUserProfile() {
     if (!user?.id) throw new Error("User not authenticated for adding item.");
     try {
       const newItem = await postApi<T>(url, dto);
-      mutate(getUserProfileApiRoute(user.id)); // Revalidate full UserProfile after add
+      await refetchProfile(); // CRITICAL: Re-fetch the entire profile after any change
       return newItem;
     } catch (err: any) {
       console.error(`Failed to add item to ${url}:`, err);
@@ -94,7 +54,7 @@ export function useUserProfile() {
     if (!user?.id) throw new Error("User not authenticated for updating item.");
     try {
       await put<T>(`${url}/${id}`, dto);
-      mutate(getUserProfileApiRoute(user.id)); // Revalidate full UserProfile after update
+      await refetchProfile(); // CRITICAL: Re-fetch the entire profile after any change
     } catch (err: any) {
       console.error(`Failed to update item ${id} in ${url}:`, err);
       throw err;
@@ -105,7 +65,7 @@ export function useUserProfile() {
     if (!user?.id) throw new Error("User not authenticated for deleting item.");
     try {
       await remove(`${url}/${id}`);
-      mutate(getUserProfileApiRoute(user.id)); // Revalidate full UserProfile after delete
+      await refetchProfile(); // CRITICAL: Re-fetch the entire profile after any change
     } catch (err: any) {
       console.error(`Failed to delete item ${id} from ${url}:`, err);
       throw err;
@@ -155,10 +115,11 @@ export function useUserProfile() {
   const deleteCommunityGroup = (id: number) => deleteItem('/users/profile/communitygroups', id);
 
   return {
-    userProfile: data,
+    userProfile,
     isLoading,
-    isError: error,
+    isError,
     updateProfile,
+    isProfileSetup,
     addExperience, updateExperience, deleteExperience,
     addSkill, updateSkill, deleteSkill,
     addEducation, updateEducation, deleteEducation,

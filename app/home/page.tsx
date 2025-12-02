@@ -13,13 +13,42 @@ import CreatePollModal from './components/CreatePollModal';
 import CreateByteModal from './components/CreateBytePostModal';
 import { useAuth } from '@/context/AuthContext';
 import Home from './components/hero-page/page';
+import { useUserProfile } from '@/hooks/useUserProfile';
+import LoadingSpinner from '@/components/UI/LoadingSpinner';
 
 const HomePage: React.FC = () => {
 
   const [isCreatePostModalOpen, setIsCreatePostModalOpen] = useState(false);
   const [isCreatePollModalOpen, setIsCreatePollModalOpen] = useState(false);
   const [isCreateByteModalOpen, setIsCreateByteModalOpen] = useState(false);
-  const { user, isLoading=false } = useAuth();
+  const { user, isLoading: isAuthLoading } = useAuth(); 
+  const { userProfile, isLoading: isProfileLoading } = useUserProfile(); 
+  
+  // Combine loading state, especially if the home page relies on profile data
+  const isLoading = isAuthLoading || (user && isProfileLoading);
+
+  // CRITICAL: Conditional rendering based on loading and auth status
+  if (isAuthLoading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen bg-gray-100">
+        <LoadingSpinner /> <span className="ml-2 text-gray-700">Checking authentication...</span>
+      </div>
+    );
+  }
+  
+  // If authenticated but profile is loading, show loading
+  if (user && isProfileLoading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen bg-gray-100">
+        <LoadingSpinner /> <span className="ml-2 text-gray-700">Loading user profile...</span>
+      </div>
+    );
+  }
+  
+  // If not authenticated, let the AuthRedirectHandler handle the redirect (assuming it's working)
+  if (!user) {
+    return null; 
+  }
 
   // State to trigger refetching of posts after a new post is created
   // This is passed as a key to PostSection to force it to re-render and refetch
@@ -31,15 +60,6 @@ const HomePage: React.FC = () => {
     setPostsRefetchKey(prev => prev + 1);
     // The modal will call onClose itself, so no need to explicitly close here
   };
-
-  if(!user){
-    // isLoading = false;
-    return (
-      <div>
-        <Home/>
-      </div>
-    )
-  }
 
   return (
     <div className="min-h-screen flex flex-col bg-[#EEF0F4] pb-6 mb-12 sm:mb-0">

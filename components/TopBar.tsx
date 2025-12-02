@@ -11,6 +11,7 @@ import { useNotifications } from '@/hooks/useNotifications';
 import { SearchItemType, UnifiedSearchResultItem, SearchResultDto } from '@/lib/types/search';
 import { useSearch } from '@/hooks/useSearch';
 import { RiComputerFill } from 'react-icons/ri';
+import { useUserProfile } from '@/hooks/useUserProfile';
 
 const setItemLink = (results: SearchResultDto) => {
   results.results.forEach((item) => {
@@ -26,6 +27,7 @@ const setItemLink = (results: SearchResultDto) => {
 
 const TopBar = () => {
   const { user, logout, isLoading } = useAuth();
+  const { userProfile, isLoading: isProfileLoading, isError: profileError } = useUserProfile();
   const router = useRouter();
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
@@ -70,6 +72,8 @@ const TopBar = () => {
       setShowSearchResults(false);
     }
   }, [searchQuery, executeSearch]);
+
+  console.log('User variable for topbar: ', user);
 
 
   // Close dropdowns when clicking outside
@@ -339,8 +343,8 @@ const TopBar = () => {
                             U
                           </div>
                           <div>
-                            <p className="font-medium text-[#1F2937]">{user?.username}</p>
-                            <p className="text-sm text-[#6B7280]">{user?.email}</p>
+                            <p className="font-medium text-[#1F2937]">{userProfile.firstName}</p>
+                            <p className="text-sm text-[#6B7280]">{userProfile.lastName}</p>
                           </div>
                         </div>
                       </div>

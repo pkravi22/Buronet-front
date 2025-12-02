@@ -20,6 +20,11 @@ interface AuthContextType {
   logout: () => Promise<void>;
   register: (data: RegisterData) => Promise<RegisterResponse>;
   error: string | null;
+  userProfile: UserProfile | null;
+  isProfileLoading: boolean;
+  isProfileError: boolean;
+  isProfileSetup: boolean;
+  refetchProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -30,11 +35,35 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
-  // --- Debugging: Log state changes ---
-  useEffect(() => {
-    console.log('AuthContext State Update: user =', user, 'isLoading =', isLoading, 'error =', error);
-  }, [user, isLoading, error]);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [isProfileLoading, setIsProfileLoading] = useState(false); // Manually managed loading
+  const [isProfileError, setIsProfileError] = useState(false); // Manually managed error
+  
+  // Computed state for simplicity
+  const isProfileSetup = !!userProfile; // Use your chosen definition (e.g., !!userProfile?.firstName)
 
+  // NEW: Synchronous Profile Fetching Logic
+  const fetchAndSetProfile = async (id: string): Promise<void> => {
+    setIsProfileLoading(true);
+    setIsProfileError(false);
+    try {
+        const profile = await get<UserProfile>(`/Users/profile?userId=${id}`);
+        setUserProfile(profile);
+        setIsProfileError(false);
+    } catch (err: any) {
+        console.error("Failed to fetch user profile:", err);
+        setUserProfile(null);
+        setIsProfileError(true);
+    } finally {
+        setIsProfileLoading(false);
+    }
+  };
+  
+  const refetchProfile = async () => {
+    if (user?.id) {
+        await fetchAndSetProfile(user.id);
+    }
+  };
 
   // Function to fetch the current user's basic info from /Users/user (backend token verification)
   const fetchCurrentUser = async () => {
@@ -115,12 +144,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const response: { token: string; userId: string; username: string; email: string; } = await postApi('/auth/login', data);
 
       if (response && response.token) {
-        console.log('login: Login successful. Token received.');
-        localStorage.setItem('token', response.token); // Save JWT to localStorage
-        // Set user context directly with basic info from login response
-        // IMPORTANT: Ensure response.userId is a string GUID if User.id is string
-        setUser({ id: response.userId, username: response.username, email: response.email, createdAt: '', updatedAt: '', isAdmin: user?.isAdmin }); // Simplified
-        router.push('/profile'); // Redirect after login
+        const token = response.token;
+        localStorage.setItem('token', token);
+        const decodedUser = jwtDecode<User>(token);
+        setUser(decodedUser);
+
+        console.log('login: Login successful. Token received and user set in context:', decodedUser);
+        
+        // CRITICAL: SYNCHRONOUS FETCH PROFILE
+        await fetchAndSetProfile(decodedUser.id);
+        // ... (Your existing code returns true)
         return true;
       } else {
         throw new Error("Login successful but no token received.");
@@ -133,7 +166,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       return false;
     } finally {
       console.log('login: Login process complete.');
-      setIsLoading(false); // Login process complete
+      setIsLoading(false);
     }
   };
 
@@ -196,8 +229,41 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        const decodedUser = jwtDecode<User>(token);
+        setUser(decodedUser);
+        
+        // CRITICAL: Call the synchronous fetch here
+        fetchAndSetProfile(decodedUser.id)
+            .finally(() => setIsLoading(false)); // Set auth loading to false only AFTER profile fetch attempt
+      } catch (e) {
+        // ... (Error handling)
+        setIsLoading(false);
+      }
+    } else {
+      setIsLoading(false);
+    }
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, logout, register, error }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        isLoading,
+        login,
+        logout,
+        register,
+        error,
+        userProfile,          // NEW
+        isProfileLoading,     // NEW
+        isProfileError,       // NEW
+        isProfileSetup,       // NEW
+        refetchProfile,       // NEW
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
@@ -208,6 +274,7 @@ export const useAuth = () => {
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
+  return context;
   return context;
 };
 
@@ -220,24 +287,16 @@ export const withAuthRequired = (Component: React.ComponentType<any>) => {
    
 
     useEffect(() => {
-       setTimeout(() => {
       console.log("withAuthRequired: Checking user authentication status...");
       if (typeof window !== 'undefined') { // Ensure running in browser
         if (!isLoading && !user) {
-          const currentPath = window.location.pathname + window.location.search; // Use window.location for full path
+          const currentPath = window.location.pathname + window.location.search; 
+          // CRITICAL: Ensure the entire path is passed as the returnTo value
           router.push(`/login?returnTo=${encodeURIComponent(currentPath)}`);
           console.log("This is being called/redirected to login page");
         }
       }
-    }, 3000);
-      // if (typeof window !== 'undefined') { // Ensure running in browser
-      //   if (!isLoading && !user) {
-      //     const currentPath = window.location.pathname + window.location.search; // Use window.location for full path
-      //     router.push(`/login?returnTo=${encodeURIComponent(currentPath)}`);
-      //     console.log("This is being called/redirected to login page");
-      //   }
-      // }
-    }, [user]);
+    }, [user, isLoading, router]); // CRITICAL: ADD isLoading and router
 
     if (isLoading || !user) {
       return (

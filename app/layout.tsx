@@ -5,6 +5,7 @@ import './globals.css';
 import { Inter } from 'next/font/google';
 import type { Metadata } from 'next';
 import Providers from '../components/providers'; // Import the Providers component
+import { useUserProfile } from '@/hooks/useUserProfile';
 
 const inter = Inter({ subsets: ['latin'] });
 
