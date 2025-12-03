@@ -343,8 +343,8 @@ const TopBar = () => {
                             U
                           </div>
                           <div>
-                            <p className="font-medium text-[#1F2937]">{userProfile.firstName}</p>
-                            <p className="text-sm text-[#6B7280]">{userProfile.lastName}</p>
+                            <p className="font-medium text-[#1F2937]">{userProfile?.firstName}</p>
+                            <p className="text-sm text-[#6B7280]">{userProfile?.lastName}</p>
                           </div>
                         </div>
                       </div>

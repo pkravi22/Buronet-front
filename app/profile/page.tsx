@@ -59,7 +59,7 @@ const ProfilePage: React.FC = () => {
     return (
       <AppLayout>
         <div className="text-red-600 text-center py-8">
-          <p>Error loading your profile: {error.message || "An unexpected error occurred."}</p>
+          <p>Error loading your profile: {error || "An unexpected error occurred."}</p>
           <p className="mt-4 text-gray-700">Please try refreshing the page or contact support.</p>
         </div>
       </AppLayout>
