@@ -46,8 +46,13 @@ const HomePage: React.FC = () => {
   }
   
   // If not authenticated, let the AuthRedirectHandler handle the redirect (assuming it's working)
-  if (!user) {
-    return null; 
+ if(!user){
+    // isLoading = false;
+    return (
+      <div>
+        <Home/>
+      </div>
+    )
   }
 
   // State to trigger refetching of posts after a new post is created
