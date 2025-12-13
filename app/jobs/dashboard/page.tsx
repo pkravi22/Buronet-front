@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { get } from '../../../lib/api';
+import { get, remove, postApi } from '../../../lib/api';
 import { Job, ApiResponse } from '@/lib/types/jobs';
 import JobCard from '../components/JobCard';
 import TopBar from '@/components/TopBar';
@@ -45,6 +45,25 @@ const JobDashboard = () => {
     fetchBookmarkedJobs();
   }, [userId]);
 
+  const toggleBookmark = async (jobId: string, isCurrentlyBookmarked: boolean) => {
+    try {
+      if (isCurrentlyBookmarked) {
+        // Remove bookmark
+        await remove(`/bookmarks/${userId}/job/${jobId}`);
+  
+        // Remove exam from UI immediately
+        setBookmarkedJobs(prev =>
+          prev.filter(job => job.id !== jobId)
+        );
+      } else {
+        // Optional: allow re-bookmarking from dashboard
+        await postApi(`/bookmarks/${userId}/job`, { Id: jobId });
+      }
+    } catch (error) {
+        console.error('Failed to toggle bookmark', error);
+      }
+    };
+
   return (
     <div className="min-h-screen bg-[#EEF0F4]">
       <TopBar />
@@ -57,7 +76,7 @@ const JobDashboard = () => {
           ) : bookmarkedJobs.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {bookmarkedJobs.map(job => (
-                <JobCard key={job.id} job={job} isInitiallyBookmarked={true} />
+                <JobCard key={job.id} job={job} isBookmarked={true} onToggleBookmark={toggleBookmark} />
               ))}
             </div>
           ) : (

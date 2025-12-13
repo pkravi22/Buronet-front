@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { get } from '../../../lib/api';
+import { get, postApi, remove } from '../../../lib/api';
 import { Exam, ApiResponse } from '@/lib/types/exams';
 import ExamCard from '../components/ExamCard';
 import TopBar from '@/components/TopBar';
@@ -45,6 +45,25 @@ const ExamDashboard = () => {
     fetchBookmarkedExams();
   }, [userId]);
 
+  const toggleBookmark = async (examId: string, isCurrentlyBookmarked: boolean) => {
+  try {
+    if (isCurrentlyBookmarked) {
+      // Remove bookmark
+      await remove(`/bookmarks/${userId}/exam/${examId}`);
+
+      // Remove exam from UI immediately
+      setBookmarkedExams(prev =>
+        prev.filter(exam => exam.id !== examId)
+      );
+    } else {
+      // Optional: allow re-bookmarking from dashboard
+      await postApi(`/bookmarks/${userId}/exam`, { Id: examId });
+    }
+  } catch (error) {
+      console.error('Failed to toggle bookmark', error);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#EEF0F4]">
       <TopBar />
@@ -57,7 +76,7 @@ const ExamDashboard = () => {
           ) : bookmarkedExams.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {bookmarkedExams.map(exam => (
-                <ExamCard key={exam.id} exam={exam} isInitiallyBookmarked={true} />
+                <ExamCard key={exam.id} exam={exam} isBookmarked={true} onToggleBookmark={toggleBookmark}/>
               ))}
             </div>
           ) : (
