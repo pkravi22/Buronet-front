@@ -9,46 +9,47 @@ import { useRouter } from 'next/navigation';
 // The component's props are updated to accept the initial bookmark status
 interface ExamCardProps {
   exam: Exam;
-  isInitiallyBookmarked: boolean;
+  isBookmarked: boolean;
+  onToggleBookmark: (examId: string, isBookmarked: boolean) => void;
 }
 
-const ExamCard = ({ exam, isInitiallyBookmarked }: ExamCardProps) => {
+const ExamCard = ({ exam, isBookmarked, onToggleBookmark}: ExamCardProps) => {
   // Internal state to manage the bookmark status for immediate UI feedback
-  const [isBookmarked, setIsBookmarked] = useState(isInitiallyBookmarked);
   const { user } = useAuth(); // Assuming you have a useAuth hook to get the current user
   const router = useRouter();
 
   // console.log("ExamCard - isInitiallyBookmarked:", exam, isInitiallyBookmarked);
 
-  useEffect(() => {
-     setIsBookmarked(isInitiallyBookmarked);
-  }, []);
+  // useEffect(() => {
+  //    setIsBookmarked(isBookmarked);
+  // }, []);
 
   const logoSrc = 'https://readdy.ai/api/search-image?query=official%20government%20logo%20of%20Union%20Public%20Service%20Commission%20of%20India%20with%20emblem%20and%20blue%20and%20gold%20colors%20professional%20clean%20design%20on%20white%20background&width=120&height=120&seq=201&orientation=squarish';
 
   const handleBookmarkClick = async (e: MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
     e.preventDefault();
+    onToggleBookmark(exam.id!, isBookmarked);
     
     // Optimistic UI update: toggle the state immediately
-    const newState = !isBookmarked;    
-    setIsBookmarked(newState);
+    // const newState = !isBookmarked;    
+    // setIsBookmarked(newState);
 
-    try {
-      if (newState) {
-        // Your API call to ADD a bookmark would go here
-        console.log(`Bookmarking exam ${exam.id}`);
-        await postApi(`/bookmarks/${user?.id}/exam`, { Id: exam.id });
-      } else {
-        // Your API call to REMOVE a bookmark would go here
-        console.log(`Removing bookmark for exam ${exam.id}`);
-        await remove(`/bookmarks/${user?.id}/exam/${exam.id}`);
-      }
-    } catch (error) {
-      console.error("Failed to update bookmark status:", error);
-      // If the API call fails, revert the state to what it was before the click
-      setIsBookmarked(!newState);
-    }
+    // try {
+    //   if (newState) {
+    //     // Your API call to ADD a bookmark would go here
+    //     console.log(`Bookmarking exam ${exam.id}`);
+    //     await postApi(`/bookmarks/${user?.id}/exam`, { Id: exam.id });
+    //   } else {
+    //     // Your API call to REMOVE a bookmark would go here
+    //     console.log(`Removing bookmark for exam ${exam.id}`);
+    //     await remove(`/bookmarks/${user?.id}/exam/${exam.id}`);
+    //   }
+    // } catch (error) {
+    //   console.error("Failed to update bookmark status:", error);
+    //   // If the API call fails, revert the state to what it was before the click
+    //   setIsBookmarked(!newState);
+    // }
   };
 
   return (

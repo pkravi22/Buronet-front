@@ -4,7 +4,7 @@
 
 import { TrendingUp, Clock, Briefcase, FileText, Bookmark, Bell, ChevronRight, Building2, Banknote, Shield, GraduationCap, Stethoscope, Landmark, ChevronLeft } from 'lucide-react';
 import { useRef, useState, useEffect, useMemo } from 'react';
-import { get } from '@/lib/api'; // Make sure this path is correct for your API helper
+import { get, remove, postApi } from '@/lib/api'; // Make sure this path is correct for your API helper
 import { Exam, ApiResponse } from '@/lib/types/exams'; // Make sure this path is correct for your types
 import ExamCard from '../components/ExamCard'; // Make sure this path is correct for your ExamCard component
 import { useAuth } from '@/context/AuthContext';
@@ -67,37 +67,6 @@ const DashboardCard = ({ title, value, trend, icon, iconColor, trendIcon, trendC
   </div>
 );
 
-const DepartmentCard = ({ title, exams, icon }: { title: string; exams: number; icon: React.ReactNode }) => {
-  const getGradient = (title: string) => {
-    switch (title.toLowerCase()) {
-      case 'railway': return 'from-blue-500 to-indigo-600';
-      case 'banking': return 'from-indigo-500 to-purple-600';
-      case 'defense': return 'from-purple-500 to-pink-600';
-      case 'education': return 'from-pink-500 to-red-600';
-      case 'healthcare': return 'from-red-500 to-orange-600';
-      case 'civil services': return 'from-orange-500 to-yellow-600';
-      default: return 'from-blue-500 to-indigo-600';
-    }
-  };
-
-  return (
-    <div className={`w-[180px] h-32 bg-gradient-to-br ${getGradient(title)} rounded-xl`}>
-      <div className="h-full px-4 py-4 flex flex-col justify-between">
-        <div className="flex items-center justify-between">
-          <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
-            <span className="text-white">{icon}</span>
-          </div>
-          <span className="bg-white/20 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-full">{exams} exams</span>
-        </div>
-        <div>
-          <h3 className="text-white text-lg font-medium">{title}</h3>
-          <p className="text-white/80 text-sm">Ministry of India</p>
-        </div>
-      </div>
-    </div>
-  );
-};
-
 // Main Component
 const MainContent = () => {
   // State for dynamic exam data
@@ -139,6 +108,23 @@ const MainContent = () => {
     };
     fetchExams();
   }, [user]);
+
+    const toggleBookmark = async (examId: string, isCurrentlyBookmarked: boolean) => {
+    try {
+      if (isCurrentlyBookmarked) {
+        await remove(`/bookmarks/${user?.id}/exam/${examId}`);
+        setBookmarkedExams(prev => prev.filter(b => b.examId !== examId));
+      } else {
+        await postApi(`/bookmarks/${user?.id}/exam`, { Id: examId });
+        setBookmarkedExams(prev => [
+          ...prev,
+          { examId: examId, userId: user?.id!, id: '', savedDate: new Date().toISOString() }
+        ]);
+      }
+    } catch (err) {
+      console.error("Bookmark toggle failed", err);
+    }
+  };
 
   const filteredExams = useMemo(() => {
     switch (activeTab) {
@@ -275,7 +261,8 @@ const MainContent = () => {
                   <ExamCard
                     key={exam.id}
                     exam={exam}
-                    isInitiallyBookmarked={bookmarkedExams.some(b => b.examId === exam.id)}
+                    isBookmarked={bookmarkedExams.some(b => b.examId === exam.id)}
+                    onToggleBookmark={toggleBookmark}
                   />
                 ))
               ) : (

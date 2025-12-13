@@ -9,47 +9,49 @@ import { useRouter } from 'next/navigation';
 // The component's props are updated to accept the initial bookmark status
 interface JobCardProps {
   job: Job;
-  isInitiallyBookmarked: boolean;
+  isBookmarked: boolean;
+  onToggleBookmark: (jobId: string, isBookmarked: boolean) => void;
 }
 
-const JobCard = ({ job, isInitiallyBookmarked }: JobCardProps) => {
+const JobCard = ({ job, isBookmarked, onToggleBookmark }: JobCardProps) => {
   // Internal state to manage the bookmark status for immediate UI feedback
-  const [isBookmarked, setIsBookmarked] = useState(isInitiallyBookmarked);
+  // const [isBookmarked, setIsBookmarked] = useState(isInitiallyBookmarked);
   const { user } = useAuth(); // Assuming you have a useAuth hook to get the current user
   const router = useRouter();
 
-  console.log("JobCard - isInitiallyBookmarked:", job, isInitiallyBookmarked);
+  console.log("JobCard - isInitiallyBookmarked:", job, isBookmarked);
 
-  useEffect(() => {
-     setIsBookmarked(isInitiallyBookmarked);
-  }, [isBookmarked, isInitiallyBookmarked]);
+  // useEffect(() => {
+  //    setIsBookmarked(isInitiallyBookmarked);
+  // }, [isBookmarked, isInitiallyBookmarked]);
 
   const logoSrc = 'https://readdy.ai/api/search-image?query=official%20government%20logo%20of%20Union%20Public%20Service%20Commission%20of%20India%20with%20emblem%20and%20blue%20and%20gold%20colors%20professional%20clean%20design%20on%20white%20background&width=120&height=120&seq=201&orientation=squarish';
 
   const handleBookmarkClick = async (e: MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
     e.preventDefault();
+    onToggleBookmark(job.id!, isBookmarked);
     
     // Optimistic UI update: toggle the state immediately
-    const newState = !isBookmarked;
+    // const newState = !isBookmarked;
 
-    setIsBookmarked(newState);
+    // setIsBookmarked(newState);
 
-    try {
-      if (newState) {
-        // Your API call to ADD a bookmark would go here
-        console.log(`Bookmarking job ${job.id}`);
-        await postApi(`/bookmarks/${user?.id}/job`, { Id: job.id });
-      } else {
-        // Your API call to REMOVE a bookmark would go here
-        console.log(`Removing bookmark for job ${job.id}`);
-        await remove(`/bookmarks/${user?.id}/job/${job.id}`);
-      }
-    } catch (error) {
-      console.error("Failed to update bookmark status:", error);
-      // If the API call fails, revert the state to what it was before the click
-      setIsBookmarked(!newState);
-    }
+    // try {
+    //   if (newState) {
+    //     // Your API call to ADD a bookmark would go here
+    //     console.log(`Bookmarking job ${job.id}`);
+    //     await postApi(`/bookmarks/${user?.id}/job`, { Id: job.id });
+    //   } else {
+    //     // Your API call to REMOVE a bookmark would go here
+    //     console.log(`Removing bookmark for job ${job.id}`);
+    //     await remove(`/bookmarks/${user?.id}/job/${job.id}`);
+    //   }
+    // } catch (error) {
+    //   console.error("Failed to update bookmark status:", error);
+    //   // If the API call fails, revert the state to what it was before the click
+    //   setIsBookmarked(!newState);
+    // }
   };
 
   return (

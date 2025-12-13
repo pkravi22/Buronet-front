@@ -4,7 +4,7 @@
 
 import { TrendingUp, Clock, Briefcase, FileText, Bookmark, Bell, ChevronRight, Building2, Banknote, Shield, GraduationCap, Stethoscope, Landmark, ChevronLeft } from 'lucide-react';
 import { useRef, useState, useEffect, useMemo } from 'react';
-import { get } from '@/lib/api'; // Make sure this path is correct for your API helper
+import { get, remove, postApi } from '@/lib/api'; // Make sure this path is correct for your API helper
 import { Job, ApiResponse } from '@/lib/types/jobs'; // Make sure this path is correct for your types
 import JobCard from '../components/JobCard'; // Make sure this path is correct for your JobCard component
 import { useAuth } from '@/context/AuthContext';
@@ -160,6 +160,24 @@ const MainContent = () => {
     }
   }, [activeTab, jobs, bookmarkedJobs]);
 
+  const toggleBookmark = async (jobId: string, isCurrentlyBookmarked: boolean) => {
+  try {
+    if (isCurrentlyBookmarked) {
+      await remove(`/bookmarks/${user?.id}/job/${jobId}`);
+      setBookmarkedJobs(prev => prev.filter(b => b.jobId !== jobId));
+    } else {
+      await postApi(`/bookmarks/${user?.id}/job`, { Id: jobId });
+      setBookmarkedJobs(prev => [
+        ...prev,
+        { jobId, userId: user?.id!, id: '', savedDate: new Date().toISOString() }
+      ]);
+    }
+  } catch (err) {
+    console.error("Bookmark toggle failed", err);
+  }
+};
+
+
 
   // Static data for dashboard and departments
   const dashboardCards: DashboardCardProps[] = [
@@ -283,7 +301,8 @@ const MainContent = () => {
                   <JobCard
                     key={job.id}
                     job={job}
-                    isInitiallyBookmarked={bookmarkedJobs.some(b => b.jobId === job.id)}
+                    isBookmarked={bookmarkedJobs.some(b => b.jobId === job.id)}
+                    onToggleBookmark={toggleBookmark}
                   />
                 ))
               ) : (

@@ -208,7 +208,7 @@ const TopBar = () => {
                 </button> */}
                 <div className="flex items-center gap-2 cursor-pointer" onClick={() => router.push('/home')}>
                     <div className="flex items-center justify-center w-9 h-9">
-                        <img src="/Logo.png" alt="Buronet Logo" className="w-7 h-7" />
+                        <img src="/Logo.PNG" alt="Buronet Logo" className="w-7 h-7" />
                     </div>
                     <span className="hidden sm:block text-xl font-semibold bg-gradient-to-b from-[#488AFF] to-[#2563EB] text-transparent bg-clip-text">
                         Buronet
