@@ -23,7 +23,7 @@ interface UseChatResult {
   refetchConversations: () => void;
 }
 
-const MESSAGE_SERVICE_BASE_URL = 'https://localhost:44345';
+const MESSAGE_SERVICE_BASE_URL = process.env.MESSAGE_SERVICE_BASE_URL || '';
 
 export const useChat = (): UseChatResult => {
   const { user, isLoading: isAuthLoading } = useAuth();
