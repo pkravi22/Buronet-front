@@ -30,6 +30,7 @@ jobs:
           NEXT_PUBLIC_JOBS_BACKEND_BASE: 'http://buronet-jobs-env.eba-btarxmsr.eu-north-1.elasticbeanstalk.com/api'
           NEXT_PUBLIC_BYTES_BACKEND_BASE: 'http://buronet-bytes-service.eba-btarxmsr.eu-north-1.elasticbeanstalk.com/api'
           NEXT_PUBLIC_MESSAGING_BACKEND_BASE: 'http://buronet-messaging-env.eba-btarxmsr.eu-north-1.elasticbeanstalk.com/api'
+          NEXT_PUBLIC_MESSAGE_SERVICE_BASE_URL: 'http://buronet-messaging-env.eba-btarxmsr.eu-north-1.elasticbeanstalk.com'
 
         run: npm run build
 
