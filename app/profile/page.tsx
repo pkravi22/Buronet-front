@@ -30,6 +30,7 @@ const ProfilePage: React.FC = () => {
   // Get authentication status and profile data from our custom hooks
   const { user: authUser, isLoading: isAuthLoading, error: authError } = useAuth();
   const { userProfile, isLoading: isProfileLoading, isError: profileError } = useUserProfile();
+  const API_BASE = process.env.NEXT_PUBLIC_DOTNET_BACKEND_BASE || "http://localhost:3000/api";
 
   // State for controlling the main profile edit modal's visibility
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -94,7 +95,7 @@ const ProfilePage: React.FC = () => {
               <div className="bg-white rounded-xl shadow-sm p-6 sticky top-24">
                 <div className="flex flex-col items-center">
                   <img
-                    src={userProfile.profilePictureUrl || "/default-profile.png"} // Dynamic photo
+                    src={userProfile.profilePictureUrl || '/default-profile.png'} // Dynamic photo
                     alt={userProfile.firstName || userProfile.username || "Profile"} // Dynamic alt text
                     className="w-28 h-28 rounded-full object-cover object-top mb-4"
                   />

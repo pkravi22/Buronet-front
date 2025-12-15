@@ -27,7 +27,9 @@ export async function apiFetch<T>(
   // Prepare headers, including Content-Type and Authorization if a token exists
   const headers: HeadersInit = {
     // Set Content-Type unless body is FormData (which sets its own Content-Type)
-    ...(config.body && config.contentType !== 'multipart/form-form-data' && { 'Content-Type': config.contentType || 'application/json' }),
+    ...(config.body && !(config.body instanceof FormData) && {
+      'Content-Type': 'application/json'
+    }),
     // Add Authorization header if a token is found in localStorage
     ...(typeof window !== 'undefined' && localStorage.getItem('token') && {
       'Authorization': `Bearer ${localStorage.getItem('token')}`

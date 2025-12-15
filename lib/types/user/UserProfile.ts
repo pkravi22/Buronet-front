@@ -22,6 +22,7 @@ export interface UserProfile {
   zipCode?: string | null;
   country?: string | null;
   profilePictureUrl?: string | null;
+  profilePictureMediaId?: string | null;
   bio?: string | null;
   headline?: string | null;
   profileCreatedAt: string; // Renamed to avoid clash with User.createdAt
@@ -51,6 +52,7 @@ export interface UpdateUserProfileDto {
   zipCode?: string | null;
   country?: string | null;
   profilePictureUrl?: string | null;
+  profilePictureMediaId?: string | null;
   bio?: string | null;
   headline?: string | null;
 }

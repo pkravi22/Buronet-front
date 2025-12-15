@@ -7,7 +7,12 @@ import Link from 'next/link';
 import LoadingSpinner from '../../components/UI/LoadingSpinner'; // Assuming this component exists
 import { useAuth } from '../../context/AuthContext'; // Assuming useAuth provides user, isLoading, etc.
 import { UserProfile, UpdateUserProfileDto } from '../../lib/types/user'; // Assuming these types exist
-import { get, put } from '../../lib/api'; // Import 'get' and 'put' from your API utility
+import { get, postApi, put } from '../../lib/api'; // Import 'get' and 'put' from your API utility
+
+type UploadImageResponse = {
+  profilePictureMediaId: string;
+  profilePictureUrl: string;
+}
 
 const CompleteProfilePage: React.FC = () => {
   // Destructure values from AuthContext
@@ -35,6 +40,7 @@ const CompleteProfilePage: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [fetchLoading, setFetchLoading] = useState(true); // Start as true, as we'll fetch data on mount
+  const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
 
   // --- Redirect Logic ---
   // Redirect if not logged in (shouldn't happen if coming from register, but good guard)
@@ -93,6 +99,12 @@ const CompleteProfilePage: React.FC = () => {
     fetchUserProfile();
   }, [user, authLoading]); // Re-fetch when user object or authentication loading status changes
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setProfileImageFile(e.target.files[0]);
+    }
+  };
+
   // --- Form Field Change Handlers ---
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -122,6 +134,18 @@ const CompleteProfilePage: React.FC = () => {
     try {
       // --- FIX: Use the 'put' utility from lib/api.ts ---
       // This ensures the correct API_BASE_URL is used and Authorization header is added.
+      if (profileImageFile) {
+              const formData = new FormData();
+              formData.append("file", profileImageFile);
+              // const res = await postApi("/users/profile/upload_picture", { body: formData, isFormData: true });
+              const res: UploadImageResponse = await postApi(`/users/profile/upload_picture`, formData);
+      
+              if (!res) {
+                throw new Error("Failed to upload profile picture");
+              } else {
+                profileData.profilePictureMediaId = res.profilePictureMediaId;
+              }
+            }
       await put('/Users/profile', { // Call the /userprofile/me endpoint with PUT
         ...profileData,
         dateOfBirth: profileData.dateOfBirth ? profileData.dateOfBirth.toISOString() : null,
@@ -323,7 +347,7 @@ const CompleteProfilePage: React.FC = () => {
               />
             </div>
             {/* Profile Picture URL */}
-            <div className="md:col-span-2">
+            {/* <div className="md:col-span-2">
               <label htmlFor="profilePictureUrl" className="block text-sm font-medium text-gray-700">Profile Picture URL</label>
               <input
                 type="url"
@@ -333,6 +357,26 @@ const CompleteProfilePage: React.FC = () => {
                 onChange={handleChange}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               />
+            </div> */}
+            <div className="md:col-span-2">
+              <label className="block text-gray-700 text-sm font-bold mb-2">
+                Profile Picture
+              </label>
+
+              <div className="flex items-center space-x-4">
+                <img
+                  src={profileData.profilePictureUrl || "/default-profile.png"}
+                  alt="Current profile"
+                  className="w-16 h-16 rounded-full object-cover"
+                />
+
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  className="block text-sm text-gray-600"
+                />
+              </div>
             </div>
           </div>
 

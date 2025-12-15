@@ -18,7 +18,7 @@ export const AuthRedirectHandler: React.FC<{ children: React.ReactNode }> = ({ c
 
   useEffect(() => {
     // Define routes that are publicly accessible without authentication
-    const publicRoutes = ['/login', '/register', '/complete-profile', '/forgot-password', '/reset-password'];
+    const publicRoutes = ['/login', '/register', '/forgot-password', '/reset-password'];
     const isPublicRoute = publicRoutes.includes(pathname);
 
     // --- IMPORTANT: Only make redirection decisions AFTER isLoading is false ---

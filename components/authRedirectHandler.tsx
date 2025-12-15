@@ -23,7 +23,7 @@ export const AuthRedirectHandler: React.FC<{ children: React.ReactNode }> = ({ c
   const isLoading = isAuthLoading || (user && isProfileLoading);
 
   useEffect(() => {
-    const publicRoutes = ['/login', '/register', '/complete-profile', '/forgot-password', '/reset-password'];
+    const publicRoutes = ['/login', '/register', '/forgot-password', '/reset-password'];
     const isPublicRoute = publicRoutes.includes(pathname);
 
     // 1. Wait for stability (Auth and Profile data must be loaded)

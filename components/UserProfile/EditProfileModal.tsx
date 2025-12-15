@@ -5,10 +5,17 @@ import React, { useState } from 'react';
 import { UserProfile, UpdateUserProfileDto } from '../../lib/types/user'; // Import from the consolidated types folder
 import { useUserProfile } from '../../hooks/useUserProfile';
 import { format } from 'date-fns';
+import { postApi } from '@/lib/api';
+import { Upload } from 'lucide-react';
 
 interface EditProfileModalProps {
   userProfile: UserProfile; // Type is UserProfile
   onClose: () => void;
+}
+
+type UploadImageResponse = {
+  profilePictureMediaId: string;
+  profilePictureUrl: string;
 }
 
 type UserProfileFormData = Omit<UpdateUserProfileDto, 'dateOfBirth'> & {
@@ -17,6 +24,7 @@ type UserProfileFormData = Omit<UpdateUserProfileDto, 'dateOfBirth'> & {
 
 const EditProfileModal: React.FC<EditProfileModalProps> = ({ userProfile, onClose }) => {
   const { updateProfile } = useUserProfile();
+  const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
   const [formData, setFormData] = useState<UserProfileFormData>({
     firstName: userProfile.firstName || '',
     lastName: userProfile.lastName || '',
@@ -30,7 +38,6 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ userProfile, onClos
     stateProvince: userProfile.stateProvince || '',
     zipCode: userProfile.zipCode || '',
     country: userProfile.country || '',
-    profilePictureUrl: userProfile.profilePictureUrl || '',
   });
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -40,6 +47,12 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ userProfile, onClos
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  if (e.target.files && e.target.files.length > 0) {
+    setProfileImageFile(e.target.files[0]);
+  }
+};
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
@@ -48,6 +61,18 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ userProfile, onClos
       const dataToSend: UpdateUserProfileDto = Object.fromEntries(
         Object.entries(formData).map(([key, value]) => [key, value === '' ? null : value])
       );
+      if (profileImageFile) {
+        const formData = new FormData();
+        formData.append("file", profileImageFile);
+        // const res = await postApi("/users/profile/upload_picture", { body: formData, isFormData: true });
+        const res: UploadImageResponse = await postApi(`/users/profile/upload_picture`, formData);
+
+        if (!res) {
+          throw new Error("Failed to upload profile picture");
+        } else {
+          dataToSend.profilePictureMediaId = res.profilePictureMediaId;
+        }
+      }
       await updateProfile(dataToSend);
       onClose();
     } catch (err: any) {
@@ -117,10 +142,32 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ userProfile, onClos
               <label htmlFor="country" className="block text-gray-700 text-sm font-bold mb-2">Country</label>
               <input type="text" id="country" name="country" value={formData.country || ''} onChange={handleChange} className="form-input" />
             </div>
-            <div className="md:col-span-2">
+            {/* <div className="md:col-span-2">
               <label htmlFor="profilePictureUrl" className="block text-gray-700 text-sm font-bold mb-2">Profile Picture URL</label>
               <input type="url" id="profilePictureUrl" name="profilePictureUrl" value={formData.profilePictureUrl || ''} onChange={handleChange} className="form-input" placeholder="https://example.com/your-image.jpg" />
+            </div> */}
+
+            <div className="md:col-span-2">
+              <label className="block text-gray-700 text-sm font-bold mb-2">
+                Profile Picture
+              </label>
+
+              <div className="flex items-center space-x-4">
+                <img
+                  src={userProfile.profilePictureUrl || "/default-profile.png"}
+                  alt="Current profile"
+                  className="w-16 h-16 rounded-full object-cover"
+                />
+
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  className="block text-sm text-gray-600"
+                />
+              </div>
             </div>
+
 
             <div className="md:col-span-2 flex justify-end space-x-4 mt-6">
               <button

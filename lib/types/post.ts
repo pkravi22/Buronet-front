@@ -94,8 +94,9 @@ export interface CreatePollDto {
 export interface CreatePostDto {
   title: string;
   content: string;
-  imageUrl: string | null; // Can be null if not provided
+  image: string | null; // Can be null if not provided
   tagsJson: string[];
+  isPoll: boolean;
 }
 
 export interface CommentRequestDto {
@@ -119,4 +120,9 @@ export interface PollVoteDto {
   pollId: number;
   pollOptionId: number;
   userId: string;
+}
+
+export interface UploadImageResponse {
+  profilePictureMediaId: string;
+  profilePictureUrl: string;
 }
