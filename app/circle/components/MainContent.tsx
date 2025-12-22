@@ -178,7 +178,7 @@ const MainContent = () => {
         error && <AlertModal duration={4000} message={error} type="error" onClose={clearError} />
       }
       <div className="flex justify-center w-full">
-        <div className="w-full max-w-[640px] mt-6">
+        <div className="w-full max-w-[640px]">
 
           {/* CORRECTED: This is now a responsive grid */}
           <div className="grid grid-cols-4 md:grid-cols-4 gap-4 mb-8">

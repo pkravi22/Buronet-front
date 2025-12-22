@@ -200,7 +200,7 @@ const MainContent = () => {
   return (
     <div className="flex-1">
       <div className="flex justify-center w-full">
-        <div className="w-[640px] mt-6">
+        <div className="w-[640px]">
           {/* Dashboard Cards Section */}
           <div className="grid grid-cols-2 desktop:grid-cols-4 gap-4 mb-8">
             {dashboardCards.map((card, index) => (

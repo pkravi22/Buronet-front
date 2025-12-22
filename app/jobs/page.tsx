@@ -25,12 +25,15 @@
 
 "use client";
 
+import { useRef } from 'react';
 import Navbar from '../../components/Navbar';
 import TopBar from '../../components/TopBar';
 import MainContent from './components/MainContent';
 import RightSidebar from './components/RightSidebar';
+import '../restrictScroll.css'
 
 const JobsPage = () => {
+  const mainRef = useRef<HTMLDivElement>(null);
   return (
     <div className="min-h-screen flex flex-col bg-[#EEF0F4] pb-6 mb-12 sm:mb-0">
       <TopBar />
@@ -38,7 +41,7 @@ const JobsPage = () => {
         Use a grid/flex layout that handles the sidebar's presence correctly.
         The content needs to shift left on mobile where the Navbar is hidden/collapsed.
       */}
-      <div className="flex flex-1 pt-[61px]">
+      <div className="flex flex-col lg:flex-row flex-1 pt-[80px]">
         {/* Placeholder correctly collapses on smaller screens */}
         <div className="hidden lg:block w-[20%] ml-6 xl:w-[270px] desktop:w-[260px] left-6 shrink-0" />
         {/* Navbar: Fixed width on large screens, hidden on small screens (e.g., up to md) */}
@@ -49,13 +52,15 @@ const JobsPage = () => {
           to account for the fixed-position Navbar. 
           On small screens, MainContent will take up the full width. 
         */}
-        <main className="w-[100%] flex-1 px-4 sm:px-6 xl:w-full laptop:w-[50%]">
+        <main ref={mainRef} className="w-full flex-1 px-4 sm:px-6 lg:w-[50%] overflow-y-auto h-[calc(100vh-100px)] scrollbar-hide">
+          <MainContent />
+          <MainContent />
           <MainContent />
         </main>
 
         {/* RightSidebar: Fixed width, but hide on smaller screens if necessary */}
-        <div className="hidden fixed h-[21px]"></div>
-        <RightSidebar />
+        <div className="hidden fixed h-[21px] lg:hidden"></div>
+        <RightSidebar scrollSourceRef={mainRef} />
       </div>
     </div>
   );

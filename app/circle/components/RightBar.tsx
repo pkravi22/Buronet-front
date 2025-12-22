@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { FiMessageSquare } from 'react-icons/fi';
-import React from 'react';
+import React, { useEffect, useLayoutEffect, useRef } from 'react';
 import { useConnections } from '@/hooks/useConnections'; // Import the new hook
 import { useAuth } from '@/context/AuthContext'; // Import useAuth
 import LoadingSpinner from '@/components/UI/LoadingSpinner';
@@ -123,11 +123,110 @@ const GroupCard = ({ name, memberCount, iconBgColor = "bg-[#DBE9FE]" }: GroupCar
 );
 
 
-const RightBar = () => {
+const RightBar = ({ scrollSourceRef }: { scrollSourceRef: React.RefObject<HTMLElement> }) => {
   // Use the new hook to get connections data
   const { connections, pendingRequests, isLoading, error, acceptRequest, declineRequest } = useConnections();
   const { user } = useAuth(); // Get current user for logic
   const router = useRouter(); // For redirecting to messaging
+  const sidebarRef = useRef<HTMLDivElement | null>(null) as React.MutableRefObject<HTMLDivElement | null>;
+  const syncing = useRef(false);
+  const lastScrollTop = useRef(0);
+
+  useLayoutEffect(() => {
+      console.log(
+  "effect ran",
+  scrollSourceRef.current,
+  sidebarRef.current
+);
+  const mainEl = scrollSourceRef.current;
+  const sideEl = sidebarRef.current;
+  if (!mainEl || !sideEl) return;
+
+  // const onScroll = () => {
+  //   sideEl.scrollTop = Math.min(
+  //     mainEl.scrollTop,
+  //     sideEl.scrollHeight - sideEl.clientHeight
+  //   );
+  // };
+  const onMainScroll = () => {
+      console.log(
+        'main:',
+        mainEl.scrollTop,
+        'side:',
+        sideEl.scrollTop
+      );
+
+      if (syncing.current) return;
+      syncing.current = true;
+
+      const delta = mainEl.scrollTop - lastScrollTop.current;
+      lastScrollTop.current = mainEl.scrollTop;
+
+      // Apply SAME pixel delta
+      const maxSideScroll =
+        sideEl.scrollHeight - sideEl.clientHeight;
+
+      sideEl.scrollTop = Math.max(
+        0,
+        Math.min(sideEl.scrollTop + delta, maxSideScroll)
+      );
+
+      requestAnimationFrame(() => {
+        syncing.current = false;
+      });
+    };
+
+  mainEl.addEventListener("scroll", onMainScroll);
+  return () => mainEl.removeEventListener("scroll", onMainScroll);
+}, [sidebarRef.current]);
+
+const setSidebarRef = (node: HTMLDivElement | null) => {
+  if (!node) return;
+  sidebarRef.current = node;
+  console.log("sidebar ref populated", node);
+};
+
+//   useLayoutEffect(() => {
+//     console.log(
+//   "effect ran",
+//   scrollSourceRef.current,
+//   sidebarRef.current
+// );
+//     const mainEl = scrollSourceRef.current;
+//     const sideEl = sidebarRef.current;
+//     if (!mainEl || !sideEl) return;
+
+//     const onMainScroll = () => {
+//       console.log(
+//         'main:',
+//         mainEl.scrollTop,
+//         'side:',
+//         sideEl.scrollTop
+//       );
+
+//       if (syncing.current) return;
+//       syncing.current = true;
+
+//       const delta = mainEl.scrollTop - lastScrollTop.current;
+//       lastScrollTop.current = mainEl.scrollTop;
+
+//       // Apply SAME pixel delta
+//       const maxSideScroll =
+//         sideEl.scrollHeight - sideEl.clientHeight;
+
+//       sideEl.scrollTop = Math.max(
+//         0,
+//         Math.min(sideEl.scrollTop + delta, maxSideScroll)
+//       );
+
+//       requestAnimationFrame(() => {
+//         syncing.current = false;
+//       });
+//     };
+
+  //   mainEl.addEventListener('scroll', onMainScroll);
+  //   return () => mainEl.removeEventListener('scroll', onMainScroll);
+  // }, [scrollSourceRef, sidebarRef.curren]);
 
   // Function to navigate to the messaging page with a pre-selected user ID
   const handleMessageClick = (connection: ConnectionDto) => {
@@ -143,8 +242,18 @@ const RightBar = () => {
   }
 
   return (
-    <div className="block xl:w-[260px] laptop:w-[20%] mr-6 ml-6 laptop:ml-0 shrink-0">
-      <div className="bg-white rounded-lg shadow-sm border border-[#E5E7EB] p-6 mt-6">
+    <aside className="block pb-20 laptop:pb-0 xl:w-[260px] laptop:w-[20%] mr-6 ml-6 laptop:ml-0 shrink-0">
+      <div
+        ref={setSidebarRef}
+        className="
+          sticky
+          top-[80px]
+          max-h-[calc(100vh-100px)]
+          overflow-y-auto
+          scrollbar-hide
+        "
+      >
+      <div className="bg-white rounded-lg shadow-sm border border-[#E5E7EB] p-6">
         <div className="mb-10">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-[#1F2937] font-medium">Pending Requests</h2>
@@ -204,7 +313,8 @@ const RightBar = () => {
           </div>
           <p className="text-[#6B728B]">© 2025 Buronet</p>
         </div>
-    </div>
+        </div>
+    </aside>
   );
 };
 

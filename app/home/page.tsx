@@ -8,13 +8,14 @@ import PostSectionOld from '../home/components/PostSectionOld';
 import PostSection from '../home/components/PostSection'; // Updated import for new PostSection
 import SiteLayout from '@/components/SiteLayout';
 import CreatePostModal from './components/CreatePostModal';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import CreatePollModal from './components/CreatePollModal';
 import CreateByteModal from './components/CreateBytePostModal';
 import { useAuth } from '@/context/AuthContext';
 import Home from './components/hero-page/page';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import LoadingSpinner from '@/components/UI/LoadingSpinner';
+import '../restrictScroll.css';
 
 const HomePage: React.FC = () => {
 
@@ -23,6 +24,7 @@ const HomePage: React.FC = () => {
   const [isCreateByteModalOpen, setIsCreateByteModalOpen] = useState(false);
   const { user, isLoading: isAuthLoading } = useAuth(); 
   const { userProfile, isLoading: isProfileLoading } = useUserProfile(); 
+  const mainRef = useRef<HTMLDivElement>(null);
   
   // Combine loading state, especially if the home page relies on profile data
   const isLoading = isAuthLoading || (user && isProfileLoading);
@@ -67,24 +69,24 @@ const HomePage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#EEF0F4] pb-6 mb-12 sm:mb-0">
+    <div className="max-h-screen flex flex-col bg-[#EEF0F4] pb-6 mb-12 sm:mb-0">
       <TopBar />
-      <div className="flex flex-1 pt-[61px]">
+      <div className="flex flex-1 pt-[80px]">
         <div className="hidden lg:block w-[20%] ml-6 xl:w-[270px] desktop:w-[260px] left-6 shrink-0" />
         <Navbar activeItem="Home" />
         {/* Placeholder is now hidden on small screens and visible on large screens */}
         {/* <div className="hidden lg:block lg:w-[239px] shrink-0" /> */}
         {/* <Navbar activeItem="Home" /> */}
-        <main className="flex-1 px-4 sm:px-6 lg:mx-1"> {/* Margin is now responsive */}
-          <div className="mt-6">
+        <main ref={mainRef} className="flex-1 px-4 sm:px-6 lg:mx-1 overflow-y-auto h-[calc(100vh-100px)] scrollbar-hide"> {/* Margin is now responsive */}
+          <div className="">
             <DashboardCards />
             <InsightsSection onShareArticleClick={() => setIsCreatePostModalOpen(true)} onCreatePollClick={() => setIsCreatePollModalOpen(true)} onShareByteClick={() => setIsCreateByteModalOpen(true)} />
             <PostSection postsRefetchKey={postsRefetchKey}/>
             {/* Using the new PostSection component */}
-            <PostSectionOld />
+            {/* <PostSectionOld /> */}
           </div>
         </main>
-        <RightSidebar />
+        <RightSidebar scrollSourceRef={mainRef} />
       </div>
       <CreatePostModal
         isOpen={isCreatePostModalOpen} // Controls modal visibility

@@ -1,7 +1,7 @@
 "use client";
 
 import { ChevronLeft, ChevronRight, MoreHorizontal } from 'lucide-react';
-import { useRef, useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 
 interface UpdateCardProps {
   type: 'Results' | 'Exam Schedule' | 'Application' | 'Admit Card';
@@ -62,27 +62,64 @@ const UpdateCard = ({ type, timeAgo, title }: UpdateCardProps) => {
   );
 };
 
-const RightSidebar = () => {
+const RightSidebar = ({ scrollSourceRef }: { scrollSourceRef: React.RefObject<HTMLElement> }) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const [showLeftButton, setShowLeftButton] = useState(false);
-  const [showRightButton, setShowRightButton] = useState(true);
+  const sidebarRef = useRef<HTMLDivElement | null>(null) as React.MutableRefObject<HTMLDivElement | null>;
+  const syncing = useRef(false);
+  const lastScrollTop = useRef(0);
 
-  const handleScroll = () => {
-    if (scrollContainerRef.current) {
-      const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
-      setShowLeftButton(scrollLeft > 0);
-      setShowRightButton(scrollLeft < scrollWidth - clientWidth - 1);
-    }
-  };
-
-  const scroll = (direction: 'left' | 'right') => {
-    if (scrollContainerRef.current) {
-      const scrollAmount = 200;
-      scrollContainerRef.current.scrollBy({
-        left: direction === 'left' ? -scrollAmount : scrollAmount,
-        behavior: 'smooth'
-      });
-    }
+  useLayoutEffect(() => {
+        console.log(
+    "effect ran",
+    scrollSourceRef.current,
+    sidebarRef.current
+  );
+    const mainEl = scrollSourceRef.current;
+    const sideEl = sidebarRef.current;
+    if (!mainEl || !sideEl) return;
+  
+    // const onScroll = () => {
+    //   sideEl.scrollTop = Math.min(
+    //     mainEl.scrollTop,
+    //     sideEl.scrollHeight - sideEl.clientHeight
+    //   );
+    // };
+    const onMainScroll = () => {
+        console.log(
+          'main:',
+          mainEl.scrollTop,
+          'side:',
+          sideEl.scrollTop
+        );
+  
+        if (syncing.current) return;
+        syncing.current = true;
+  
+        const delta = mainEl.scrollTop - lastScrollTop.current;
+        lastScrollTop.current = mainEl.scrollTop;
+  
+        // Apply SAME pixel delta
+        const maxSideScroll =
+          sideEl.scrollHeight - sideEl.clientHeight;
+  
+        sideEl.scrollTop = Math.max(
+          0,
+          Math.min(sideEl.scrollTop + delta, maxSideScroll)
+        );
+  
+        requestAnimationFrame(() => {
+          syncing.current = false;
+        });
+      };
+  
+    mainEl.addEventListener("scroll", onMainScroll);
+    return () => mainEl.removeEventListener("scroll", onMainScroll);
+  }, [sidebarRef.current]);
+  
+  const setSidebarRef = (node: HTMLDivElement | null) => {
+    if (!node) return;
+    sidebarRef.current = node;
+    console.log("sidebar ref populated", node);
   };
 
   const updates = [
@@ -114,7 +151,17 @@ const RightSidebar = () => {
   ];
 
   return (
-    <div className="block xl:w-[260px] laptop:w-[20%] mr-6 ml-6 mt-6 laptop:ml-0 shrink-0">
+    <div className="block xl:w-[260px] laptop:w-[20%] mr-6 ml-6 laptop:ml-0 shrink-0">
+      <div
+        ref={setSidebarRef}
+        className="
+          sticky
+          top-[80px]
+          max-h-[calc(100vh-100px)]
+          overflow-y-auto
+          scrollbar-hide
+        "
+      >
       <div className="bg-white rounded-lg shadow-sm border border-[#E5E7EB] p-6">
         <h2 className="text-[#1F2937] font-semibold text-lg mb-4">Recent Exam Updates</h2>
         
@@ -241,6 +288,7 @@ const RightSidebar = () => {
           <a href="/app" className="text-[#6B7280] hover:text-[#374151] text-sm">Get the App</a>
         </div>
         <p className="text-[#6B7280] text-sm">© 2025 Buronet Corporation</p>
+      </div>
       </div>
     </div>
   );

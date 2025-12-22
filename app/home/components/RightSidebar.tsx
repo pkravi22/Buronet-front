@@ -1,7 +1,7 @@
 import { FiTrendingUp, FiMoreHorizontal } from 'react-icons/fi';
 import { FaFire } from 'react-icons/fa';
 import TrendingNowSection from '@/components/TrendingNowSection';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { get } from '@/lib/api';
 import { SuggestedUserDto } from '@/lib/types/connections';
 import { useConnections } from '@/hooks/useConnections';
@@ -32,9 +32,47 @@ const SuggestedUser: React.FC<SuggestedUserProps> = ({ name, role, imageUrl }) =
   );
 };
 
-const RightSidebar = () => {
+const RightSidebar = ({ scrollSourceRef }: { scrollSourceRef: React.RefObject<HTMLElement> }) => {
   // const [suggestedConnections, setSuggestedConnections] = useState<SuggestedUserDto[]>([]);
+  const sidebarRef = useRef<HTMLDivElement>(null);
+  const syncing = useRef(false);
+  const lastScrollTop = useRef(0);
   const { suggestedGeneralConnections } = useConnections();
+
+  useEffect(() => {
+        console.log(
+  "effect ran",
+  scrollSourceRef.current,
+  sidebarRef.current
+);
+    const mainEl = scrollSourceRef.current;
+    const sideEl = sidebarRef.current;
+    if (!mainEl || !sideEl) return;
+
+    const onMainScroll = () => {
+      if (syncing.current) return;
+      syncing.current = true;
+
+      const delta = mainEl.scrollTop - lastScrollTop.current;
+      lastScrollTop.current = mainEl.scrollTop;
+
+      // Apply SAME pixel delta
+      const maxSideScroll =
+        sideEl.scrollHeight - sideEl.clientHeight;
+
+      sideEl.scrollTop = Math.max(
+        0,
+        Math.min(sideEl.scrollTop + delta, maxSideScroll)
+      );
+
+      requestAnimationFrame(() => {
+        syncing.current = false;
+      });
+    };
+
+    mainEl.addEventListener('scroll', onMainScroll);
+    return () => mainEl.removeEventListener('scroll', onMainScroll);
+  }, [scrollSourceRef]);
   // useEffect(() => {
   //   // This effect runs once when the component mounts
   //   const suggestedConnectionsResponse = get<SuggestedUserDto[]>('/connections/general-suggestions');
@@ -45,13 +83,27 @@ const RightSidebar = () => {
   return (
     // Hide on small/medium screens, show on large screens with a fixed width.
     // The parent container should be a grid on `lg` screens. e.g. lg:grid-cols-[1fr_287px]
-    <div className="hidden lg:block xl:w-[260px] laptop:w-[30%] mr-6 mt-6 mb-6">
+    <aside className="hidden lg:block xl:w-[260px] laptop:w-[30%] mr-6 mb-6">
+      <div
+        ref={sidebarRef}
+        className="
+          sticky
+          top-[80px]
+          max-h-[calc(100vh-100px)]
+          overflow-y-auto
+          scrollbar-hide
+        "
+      >
       <div className="bg-white rounded-lg shadow-sm border border-[#E5E7EB] p-4 mb-6">
         <div className="flex items-center mb-4">
           <FiTrendingUp className="text-[#5E98FF] w-5 h-5" />
           <span className="ml-2 text-[#1F2937] font-semibold">Trending Now</span>
         </div>
         <div>
+          <TrendingNowSection />
+          <TrendingNowSection />
+          <TrendingNowSection />
+          <TrendingNowSection />
           <TrendingNowSection />
         </div>
         
@@ -98,7 +150,8 @@ const RightSidebar = () => {
           </div>
           <p className="text-[#6B728B]">© 2025 Buronet</p>
         </div>
-    </div>
+        </div>
+    </aside>
   );
 };
 

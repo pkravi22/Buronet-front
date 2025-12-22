@@ -1,27 +1,32 @@
 "use client";
 
+import { useRef } from 'react';
 import Navbar from '../../components/Navbar';
 import TopBar from '../../components/TopBar';
 import MainContent from './components/MainContent';
 import RightSidebar from './components/RightSidebar';
+import '../restrictScroll.css'
 
 const JobsPage = () => {
+  const mainRef = useRef<HTMLDivElement>(null);
   return (
     <div className="min-h-screen flex flex-col bg-[#EEF0F4] pb-6 mb-12 sm:mb-0">
       <TopBar />
-      <div className="flex flex-col lg:flex-row flex-1 pt-[61px]">
+      <div className="flex flex-col lg:flex-row flex-1 pt-[80px]">
          {/* Placeholder correctly collapses on smaller screens */}
          <div className="hidden lg:block w-[20%] ml-6 xl:w-[270px] desktop:w-[260px] left-6 shrink-0" />
         <Navbar activeItem="Exams" />
         {/* FIX: Remove width constraints for mobile flow, let it be full width */}
-        <main className="w-full flex-1 px-4 sm:px-6 lg:w-[50%]">
+        <main ref={mainRef} className="w-full flex-1 px-4 sm:px-6 lg:w-[50%] overflow-y-auto h-[calc(100vh-100px)] scrollbar-hide">
+          <MainContent />
+          <MainContent />
           <MainContent />
         </main>
         
         <div className="fixed h-[21px] lg:hidden"></div> {/* Hide fixed height div on desktop */}
         
         {/* RightBar is rendered last in the JSX, so in flex-col mode, it flows naturally below MainContent. */}
-        <RightSidebar />
+        <RightSidebar scrollSourceRef={mainRef} />
       </div>
     </div>
   );

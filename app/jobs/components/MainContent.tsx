@@ -237,7 +237,7 @@ const MainContent = () => {
     <div className="flex-1">
       <div className="flex justify-center w-full">
         {/* RESPONSIVE CHANGE: Replaced fixed w-[640px] with w-full max-w-[640px] and added responsive padding */}
-        <div className="w-full max-w-[640px] mt-6 px-4 md:px-0">
+        <div className="w-full max-w-[640px] px-4 md:px-0">
           {/* Dashboard Cards Section */}
           {/* RESPONSIVE CHANGE: Replaced flex-wrap with a responsive grid. Removed fixed-width wrapper from loop. */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
