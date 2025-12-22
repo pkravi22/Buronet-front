@@ -137,7 +137,7 @@ const EditPostPage:React.FC<EditPostPageProps> = ({ params, searchParams }) => {
                 required
               ></textarea>
             </div>
-            <div className="mb-6">
+            {/* <div className="mb-6">
               <label htmlFor="imageUrl" className="block text-gray-700 text-sm font-bold mb-2">Image URL (Optional)</label>
               <input
                 type="url"
@@ -147,7 +147,7 @@ const EditPostPage:React.FC<EditPostPageProps> = ({ params, searchParams }) => {
                 onChange={(e) => setImageUrl(e.target.value)}
                 placeholder="https://example.com/image.jpg"
               />
-            </div>
+            </div> */}
             <div className="flex justify-end space-x-4">
               <button
                 type="button"

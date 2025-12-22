@@ -2,6 +2,8 @@
 
 import { ChevronLeft, ChevronRight, MoreHorizontal } from 'lucide-react';
 import { useLayoutEffect, useRef, useState } from 'react';
+import UpdatesList from '@/components/UpdatesList';
+import { useUpdates } from '@/hooks/useUpdates';
 
 interface UpdateCardProps {
   type: 'Results' | 'Exam Schedule' | 'Application' | 'Admit Card';
@@ -67,6 +69,7 @@ const RightSidebar = ({ scrollSourceRef }: { scrollSourceRef: React.RefObject<HT
   const sidebarRef = useRef<HTMLDivElement | null>(null) as React.MutableRefObject<HTMLDivElement | null>;
   const syncing = useRef(false);
   const lastScrollTop = useRef(0);
+  const exams = useUpdates("EXAM", 5);
 
   useLayoutEffect(() => {
         console.log(
@@ -164,57 +167,12 @@ const RightSidebar = ({ scrollSourceRef }: { scrollSourceRef: React.RefObject<HT
       >
       <div className="bg-white rounded-lg shadow-sm border border-[#E5E7EB] p-6">
         <h2 className="text-[#1F2937] font-semibold text-lg mb-4">Recent Exam Updates</h2>
-        
-        {/* <div className="relative">
-          {showLeftButton && (
-            <button 
-              onClick={() => scroll('left')}
-              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 w-8 h-8 flex items-center justify-center z-10"
-            >
-              <ChevronLeft size={20} className="text-[#6B7280]" />
-            </button>
-          )}
-          <div className="relative">
-            <div 
-              ref={scrollContainerRef}
-              onScroll={handleScroll}
-              className="flex gap-2 overflow-x-auto scrollbar-hide scroll-smooth"
-              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-            >
-              <button className="bg-[#2563eb] text-white px-3 py-1 rounded text-xs whitespace-nowrap">
-                All Updates
-              </button>
-              <button className="bg-[#f3f4f6] text-[#374151] px-3 py-1 rounded text-xs whitespace-nowrap">
-                Results
-              </button>
-              <button className="bg-[#f3f4f6] text-[#374151] px-3 py-1 rounded text-xs whitespace-nowrap">
-                Admit Cards
-              </button>
-              <button className="bg-[#f3f4f6] text-[#374151] px-3 py-1 rounded text-xs whitespace-nowrap">
-                Applications
-              </button>
-            </div>
-            <div className={`absolute left-0 top-0 bottom-0 w-12 pointer-events-none ${
-              showLeftButton ? 'bg-gradient-to-r from-white via-white/80 to-transparent' : ''
-            }`} />
-            <div className={`absolute right-0 top-0 bottom-0 w-12 pointer-events-none ${
-              showRightButton ? 'bg-gradient-to-l from-white via-white/80 to-transparent' : ''
-            }`} />
-          </div>
-          {showRightButton && (
-            <button 
-              onClick={() => scroll('right')}
-              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 w-8 h-8 flex items-center justify-center z-10"
-            >
-              <ChevronRight size={20} className="text-[#6B7280]" />
-            </button>
-          )}
-        </div> */}
 
         <div className="mt-6 space-y-4">
-          {updates.map((update, index) => (
+          {/* {updates.map((update, index) => (
             <UpdateCard key={index} {...update} />
-          ))}
+          ))} */}
+          <UpdatesList title="Exam Updates" updates={exams.data} />
         </div>
       </div>
 
@@ -273,7 +231,7 @@ const RightSidebar = ({ scrollSourceRef }: { scrollSourceRef: React.RefObject<HT
             </div>
           </div>
           <button className="w-full bg-white text-[#2563EB] py-2 rounded hover:bg-[#F3F4F6] transition-colors">
-            Access Now
+            Coming Soon
           </button>
         </div>
       </div>

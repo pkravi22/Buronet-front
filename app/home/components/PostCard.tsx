@@ -9,6 +9,7 @@ import { postApi } from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
 import { useUserProfile } from '@/hooks/useUserProfile';
+import { toast } from "react-hot-toast";
 
 // --- NEW COMPONENT FOR POLLS ---
 interface PollCardProps {
@@ -88,6 +89,12 @@ const PostCard: React.FC<PostCardProps> = ({ post: initialPost, onPostUpdated, c
   const [isVoting, setIsVoting] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const [showShareModal, setShowShareModal] = useState(false);
+
+  const postUrl =
+  typeof window !== "undefined"
+    ? `${window.location.origin}/posts/${post.id}`
+    : "";
 
   useEffect(() => {
     setPost(initialPost);
@@ -420,12 +427,16 @@ const PostCard: React.FC<PostCardProps> = ({ post: initialPost, onPostUpdated, c
               <span>Bookmark</span>
             </button> */}
             {/* Share Button */}
-            <button className="flex items-center text-[#4B5563] text-sm hover:text-blue-600">
+            <button
+              onClick={() => setShowShareModal(true)}
+              className="flex items-center text-[#4B5563] text-sm hover:text-blue-600"
+            >
               <svg className="w-4 h-3.5 mr-2" viewBox="0 0 16 14" fill="currentColor">
                 <path d="M14 6L8 0V4C3 5 0 8 0 14C2 11 4 9.9 8 9.9V14L14 8L16 7L14 6Z" />
               </svg>
               <span>Share</span>
             </button>
+
           </div>
         </div>
 
@@ -482,6 +493,47 @@ const PostCard: React.FC<PostCardProps> = ({ post: initialPost, onPostUpdated, c
           </div>
         )}
       </div>
+      {showShareModal && (
+  <div
+    className="fixed inset-0 z-50 flex items-center justify-center bg-black/30"
+    onClick={() => setShowShareModal(false)}
+  >
+    <div
+      className="bg-white rounded-xl shadow-lg w-[90%] max-w-sm p-4"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <h3 className="text-sm font-semibold text-gray-900 mb-2">
+        Share this post
+      </h3>
+
+      <div className="flex items-center gap-2 bg-gray-100 rounded-lg p-2">
+        <input
+          type="text"
+          readOnly
+          value={postUrl}
+          className="flex-1 bg-transparent text-sm text-gray-700 outline-none"
+        />
+        <button
+          onClick={() => {
+            navigator.clipboard.writeText(postUrl);
+            toast.success("Link copied to clipboard");
+          }}
+          className="text-sm font-medium text-blue-600 hover:text-blue-700"
+        >
+          Copy
+        </button>
+      </div>
+
+      <button
+        onClick={() => setShowShareModal(false)}
+        className="mt-3 w-full text-sm text-gray-500 hover:text-gray-700"
+      >
+        Close
+      </button>
+    </div>
+  </div>
+)}
+
     </div>
   );
 };

@@ -17,6 +17,7 @@
     "date-fns-tz": "^3.2.0",
     "jwt-decode": "^4.0.0",
     "lucide-react": "^0.513.0",
+    "mongodb": "^7.0.0",
     "next": "^14.2.0",
     "react": "^18",
     "react-dom": "^18",

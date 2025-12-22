@@ -1,7 +1,9 @@
 "use client";
 
+import { useUpdates } from '@/hooks/useUpdates';
 import { ChevronLeft, ChevronRight, MoreHorizontal } from 'lucide-react';
 import { useLayoutEffect, useRef, useState } from 'react';
+import UpdatesList from '@/components/UpdatesList';
 
 interface UpdateCardProps {
   type: 'Results' | 'Exam Schedule' | 'Application' | 'Admit Card';
@@ -67,6 +69,8 @@ const RightSidebar = ({ scrollSourceRef }: { scrollSourceRef: React.RefObject<HT
   const sidebarRef = useRef<HTMLDivElement | null>(null) as React.MutableRefObject<HTMLDivElement | null>;
   const syncing = useRef(false);
   const lastScrollTop = useRef(0);
+
+  const jobs = useUpdates("JOB", 5);
 
   useLayoutEffect(() => {
       console.log(
@@ -212,9 +216,10 @@ const setSidebarRef = (node: HTMLDivElement | null) => {
         </div> */}
 
         <div className="mt-6 space-y-4">
-          {updates.map((update, index) => (
+          {/* {updates.map((update, index) => (
             <UpdateCard key={index} {...update} />
-          ))}
+          ))} */}
+          <UpdatesList title="Job Updates" updates={jobs.data} />
         </div>
       </div>
 
@@ -273,7 +278,7 @@ const setSidebarRef = (node: HTMLDivElement | null) => {
             </div>
           </div>
           <button className="w-full bg-white text-[#2563EB] py-2 rounded hover:bg-[#F3F4F6] transition-colors">
-            Access Now
+            Coming Soon
           </button>
         </div>
       </div>

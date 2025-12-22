@@ -110,7 +110,7 @@ const PostPage: React.FC<PostPageProps> = ({ params, searchParams }) => {
                 disabled
               ></textarea>
             </div>
-            <div className="mb-6">
+            {/* <div className="mb-6">
               <label htmlFor="imageUrl" className="block text-gray-700 text-sm font-bold mb-2">Image URL (Optional)</label>
               <input
                 type="url"
@@ -121,7 +121,7 @@ const PostPage: React.FC<PostPageProps> = ({ params, searchParams }) => {
                 placeholder="https://example.com/image.jpg"
                 disabled
               />
-            </div>
+            </div> */}
             <div className="flex justify-end space-x-4">
               <button
                 type="button"
