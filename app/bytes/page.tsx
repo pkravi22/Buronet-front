@@ -3,7 +3,6 @@
 import Navbar from '../../components/Navbar';
 import TopBar from '../../components/TopBar';
 import MainContent from './components/MainContent';
-import RightSidebar from './components/RightSidebar';
 import VideoList from './components/VideoList';
 import { createGlobalStyle } from "styled-components";
 
@@ -23,9 +22,6 @@ const GlobalStyle = createGlobalStyle`
   }
   html {
     color-scheme: dark;
-  }
-  html, body {
-    overflow: hidden;
   }
   * {
     margin: 0;
@@ -79,18 +75,23 @@ const GlobalStyle = createGlobalStyle`
 
 const BytesPage = () => {
   return (
-    <div className="min-h-screen max-h-screen flex flex-col bg-[#EEF0F4]">
-      <TopBar />
-      <div className="flex flex-1 pt-[61px]">
-        <div className="hidden lg:block w-[20%] ml-4 xl:w-[270px] desktop:ml-0 desktop:w-[245px] left-6 shrink-0" />
-        
-        <Navbar activeItem="Bytes" />
-        <main className="flex-1 tablet:px-6 tablet:ml-6 h-[80vh] laptop:w-full">
-          <GlobalStyle />
-          <VideoList />
-        </main>
-      </div>
-    </div>
+    <div className="h-screen flex flex-col bg-[#EEF0F4] overflow-hidden">
+  <TopBar />
+
+  <div className="flex flex-1 overflow-hidden">
+    {/* Left spacer (desktop only) */}
+    <div className="hidden lg:block w-[245px] shrink-0" />
+
+    <Navbar activeItem="Bytes" />
+
+    {/* MAIN SCROLL AREA */}
+    <main className="flex-1 overflow-hidden mt-[61px] h-[calc(100vh-61px-2rem)]">
+      <GlobalStyle />
+      <VideoList />
+    </main>
+  </div>
+</div>
+
   );
 };
 

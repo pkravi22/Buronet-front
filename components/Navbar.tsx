@@ -19,6 +19,25 @@ const FiUsers = ({ size = 24 }) => (
 const FiBriefcase = ({ size = 24 }) => (
   <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
 );
+const FiBook = ({ size = 24 }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    {/* Left page */}
+    <path d="M2 4h8a2 2 0 0 1 2 2v14a2 2 0 0 0-2-2H2z" />
+    {/* Right page */}
+    <path d="M22 4h-8a2 2 0 0 0-2 2v14a2 2 0 0 1 2-2h8z" />
+  </svg>
+);
+
 const FiVideo = ({ size = 24 }) => (
   <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
 );
@@ -72,7 +91,7 @@ const Navbar = ({ activeItem }: NavbarProps) => {
     { icon: <FiUsers size={20} />, text: 'My Circle', href: '/circle' },
     { icon: <FiVideo size={20} />, text: 'Bytes', href: '/bytes' },
     { icon: <FiBriefcase size={20} />, text: 'Jobs', href: '/jobs' },
-    { icon: <FiBriefcase size={20} />, text: 'Exams', href: '/exams' },
+    { icon: <FiBook size={20} />, text: 'Exams', href: '/exams' },
     { icon: <FiMessageSquare size={20} />, text: 'Messaging', href: '/messaging'}
   ];
 

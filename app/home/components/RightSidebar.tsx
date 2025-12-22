@@ -101,10 +101,6 @@ const RightSidebar = ({ scrollSourceRef }: { scrollSourceRef: React.RefObject<HT
         </div>
         <div>
           <TrendingNowSection />
-          <TrendingNowSection />
-          <TrendingNowSection />
-          <TrendingNowSection />
-          <TrendingNowSection />
         </div>
         
         <div className="mt-6 pt-6 border-t border-[#E5E7EB]">

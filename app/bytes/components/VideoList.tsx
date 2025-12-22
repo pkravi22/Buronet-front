@@ -130,7 +130,7 @@ const VideoList = () => {
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
-      <div className="h-[100%] pt-20 w-full relative flex justify-center items-center">
+      <div id="bytes-scroll-container" className="relative w-full h-[100dvh] overflow-hidden flex justify-center">
         <div className="absolute top-4 left-0 right-0 z-10 flex justify-center">
             <div className="flex items-center space-x-4 bg-black/20 backdrop-blur-md p-1 rounded-full">
                 {filters.map(filter => (
@@ -152,9 +152,10 @@ const VideoList = () => {
               dataLength={bytes.length}
               next={loadMoreBytes}
               hasMore={hasMore}
+              scrollableTarget="bytes-scroll-container"
+              height= "100%"
               loader={<div className="h-24 flex justify-center items-center"><Loader2 className="w-8 h-8 text-white animate-spin" /></div>}
-              height="100vh"
-              className="mt-24 w-full min-w-md snap-y snap-mandatory no-scrollbar"
+              className="snap-y snap-mandatory scrollbar-hide"
               endMessage={
                   <p style={{ textAlign: 'center', color: 'white', padding: '20px' }}>
                     <b>Omnia vidisti!</b>
@@ -162,7 +163,10 @@ const VideoList = () => {
               }
             >
             {bytes.map((byte) => (
-                <div key={byte.id} className="h-screen w-full snap-center flex justify-center items-center">
+                <div
+                  key={byte.id}
+                  className="h-[100dvh] laptop:w-full snap-start flex justify-center items-center"
+                >
                   <Video
                     byte={byte}
                     mute={mute}

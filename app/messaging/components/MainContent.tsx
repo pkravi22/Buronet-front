@@ -1,7 +1,7 @@
 // app/messaging/page.tsx
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
 // Import ChevronLeft for the back button
 import {
   Search,
@@ -48,31 +48,17 @@ const MessagingPage: React.FC = () => {
   const [isCreatingConversation, setIsCreatingConversation] = useState(false);
   const [newChatError, setNewChatError] = useState<string | null>(null);
 
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  // const messagesEndRef = useRef<HTMLDivElement>(null);
   const initialErrorRef = useRef(false);
+  const [showChatView, setShowChatView] = useState(false);
+  const isInitialLoadRef = useRef(true);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
 
-  // useEffect(() => {
-  //   // Calling refetchConversations here ensures the chat service is initialized
-  //   // or data is refreshed every time the user navigates to this page.
-  //   console.log('MessagingPage mounted. Forcing a refresh/reconnection attempt.');
-  //   refetchConversations();
-    
-  //   // The empty array ensures this only runs once when the component mounts.
-  // }, []);
-
-  // Auto-scroll to bottom of messages whenever messages change
-  useEffect(() => {
-    // Only attempt to scroll if we have messages and the ref is attached
-    if (messages.length > 0 && messagesEndRef.current) {
-      // Use setTimeout to delay the scroll until the browser
-      // has finished rendering the messages and calculating their height.
-      const timer = setTimeout(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-      }, 100); // 100ms is a safe, short delay
-
-      return () => clearTimeout(timer); // Cleanup function for the timer
-    }
-  }, [messages, selectedConversation]);
+  useLayoutEffect(() => {
+    const el = messagesContainerRef.current;
+    if (!el) return;
+    el.scrollTop = el.scrollHeight;
+  }, [selectedConversation?.id, messages.length]);
 
   // NEW: Automatic Retry Logic
     useEffect(() => {
@@ -90,11 +76,17 @@ const MessagingPage: React.FC = () => {
         }
     }, [error, refetchConversations]);
 
+  useEffect(() => {
+  isInitialLoadRef.current = true;
+}, [selectedConversation?.id]);
+
+
   /**
    * Wrapper function to handle selecting a conversation or deselecting (going back).
    */
   const handleSelectConversation = (conversationId: number) => {
     selectConversation(conversationId);
+    setShowChatView(true);
   };
 
   const handleSendMessage = async (e: React.FormEvent) => {
@@ -187,7 +179,7 @@ const MessagingPage: React.FC = () => {
         - Added responsive margins: `mx-2` (mobile) and `md:mx-8` (medium+).
         - Added `overflow-hidden` to prevent layout issues during screen transitions.
       */}
-      <div className="flex bg-white rounded-lg shadow-sm border border-[#E5E7EB] mt-16 lg:mt-8 mx-2 md:mx-8 py-2 px-2 h-[calc(100vh-61px)] lg:h-[calc(100vh-61px-3rem)] overflow-hidden">
+      <div className="flex bg-white rounded-lg lg:shadow-sm border border-[#E5E7EB] mt-16 lg:mt-8 mx-2 md:mx-8 py-2 px-2 h-[calc(100vh-80px-3.5rem)] lg:h-[calc(100vh-61px-3rem)]">
         {/* Recent Chats Sidebar:
           - Default (mobile): `w-full`, `flex` (visible)
           - Mobile (chat selected): `hidden`
@@ -196,8 +188,8 @@ const MessagingPage: React.FC = () => {
         
         <div
           className={`
-            ${selectedConversation ? 'hidden' : 'flex'}
-            md:flex flex-col h-full w-full md:w-80 border-r border-gray-200
+            ${showChatView ? 'hidden' : 'flex'}
+            md:flex flex-col h-full w-full md:w-80 md:border-r border-gray-200 overflow-y-auto
           `}
         >
           {/* <Navbar /> */}
@@ -315,7 +307,7 @@ const MessagingPage: React.FC = () => {
         */}
         <div
           className={`
-            ${selectedConversation ? 'flex' : 'hidden'}
+            ${showChatView ? 'flex' : 'hidden'}
             md:flex flex-col h-full w-full md:flex-1
           `}
         >
@@ -325,8 +317,8 @@ const MessagingPage: React.FC = () => {
               <div className="flex items-center gap-4 border-b border-gray-100 px-4 md:px-6 py-4">
                 {/* NEW: Back button, only visible on mobile (md:hidden) */}
                 <button
-                  onClick={() => handleSelectConversation(0)}
-                  className="p-1 text-gray-500 hover:text-blue-600 hover:bg-gray-100 rounded-full md:hidden"
+                  onClick={() => setShowChatView(false)}
+                  className="p-1 text-gray-500 hover:text-blue-600 hover:bg-gray-100 rounded-full md:hidden sticky top-0"
                   title="Back to chats"
                 >
                   <ChevronLeft size={22} />
@@ -354,10 +346,11 @@ const MessagingPage: React.FC = () => {
               </div>
               {/* Messages */}
               <div
+                ref={messagesContainerRef}
                 className="flex-1 px-4 md:px-6 py-4 overflow-y-auto bg-[#F7F9FB] scrollbar-hide"
                 style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
               >
-                <div className="flex flex-col gap-4 overflow-y-auto scrollbar-hide">
+                <div className="flex flex-col gap-4">
                   {isLoadingMessages ? (
                     <div className="flex justify-center items-center h-full">
                       <LoadingSpinner />{' '}
@@ -402,7 +395,7 @@ const MessagingPage: React.FC = () => {
                       </div>
                     ))
                   )}
-                  <div ref={messagesEndRef} />
+                  {/* <div ref={messagesEndRef} /> */}
                 </div>
               </div>
               {/* Message Input */}
@@ -410,12 +403,13 @@ const MessagingPage: React.FC = () => {
                 onSubmit={handleSendMessage}
                 className="flex items-center gap-2 px-4 md:px-6 py-4 border-t border-gray-100"
               >
-                <button
+                {/* Button for attachments. Not yet workable */}
+                {/* <button
                   type="button"
                   className="p-2 text-gray-400 hover:text-blue-600 rounded-full hover:bg-gray-100"
                 >
                   <Paperclip size={20} />
-                </button>
+                </button> */}
                 <input
                   type="text"
                   placeholder="Type a message"
