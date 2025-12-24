@@ -59,16 +59,16 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            # Navigate to the app directory
             cd /var/www/buronet-app/
-            
-            # Extract the transferred files (this will overwrite old files including .next)
-            # The tar command will correctly place .next, public, etc., in the current directory.
+
+            # Extract build
             tar -xzf deploy.tar.gz
-            
-            # Cleanup the archive file
             rm deploy.tar.gz
-            
-            # Restart the production process
-            pm2 restart buronet-app 
+
+            # Export runtime env variables (CRITICAL)
+            export MONGO_URI="mongodb+srv://shobhit9887:0aX62ECWzZ4sOrzb@cluster0.uo5qhgj.mongodb.net/job_postings_db?retryWrites=true&w=majority&appName=Cluster0"
+            export NODE_ENV=production
+
+            # Restart PM2 with updated env
+            pm2 restart buronet-app --update-env
             pm2 save
