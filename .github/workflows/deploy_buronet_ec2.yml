@@ -59,16 +59,18 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd /var/www/buronet-app/
+            cd /var/www/buronet-app
 
-            # Extract build
+            # Clean old build
+            rm -rf .next
+
+            # Extract new build
             tar -xzf deploy.tar.gz
             rm deploy.tar.gz
 
-            # Export runtime env variables (CRITICAL)
-            export MONGO_URI="mongodb+srv://shobhit9887:0aX62ECWzZ4sOrzb@cluster0.uo5qhgj.mongodb.net/job_postings_db?retryWrites=true&w=majority&appName=Cluster0"
-            export NODE_ENV=production
+            # 🔥 INSTALL DEPENDENCIES ON EC2
+            npm ci --omit=dev
 
-            # Restart PM2 with updated env
+            # Restart app with env
             pm2 restart buronet-app --update-env
             pm2 save
