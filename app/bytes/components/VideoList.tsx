@@ -52,6 +52,7 @@ const VideoList = () => {
   const fetchBytes = useCallback(async (pageNum: number, filter: SuggestionType) => {
     try {
       const fetchedBytes = await get<Byte[]>(`/bytes/feed?filter=${filter}&page=${pageNum}`);
+      console.log('Fetched Bytes:', fetchedBytes);
       if (fetchedBytes.length === 0) {
         setHasMore(false);
       } else {
@@ -170,6 +171,7 @@ const VideoList = () => {
                   <Video
                     byte={byte}
                     mute={mute}
+                    link={byte.submission.mediaUrl}
                     setMute={setMute}
                     playingVideo={playingVideoId}
                     setPlayingVideo={setPlayingVideoId}

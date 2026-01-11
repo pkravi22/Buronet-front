@@ -9,8 +9,67 @@ import {
   IoMdPlay,
   IoMdVolumeHigh,
   IoMdVolumeOff,
+  IoMdClose,
 } from "react-icons/io";
 import { toast } from "react-hot-toast";
+import { useRouter } from 'next/navigation';
+
+// Add Modal Styled Component
+const ModalOverlay = styled.div`
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: grid;
+  place-items: center;
+  z-index: 9999;
+  padding: 1rem;
+`;
+
+const ModalContent = styled.div`
+  background: white;
+  padding: 2rem;
+  border-radius: 1rem;
+  width: 100%;
+  max-width: 400px;
+  position: relative;
+  color: black;
+
+  h3 { margin-bottom: 1rem; font-weight: bold; }
+  
+  .link-box {
+    display: flex;
+    gap: 0.5rem;
+    background: #f3f4f6;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    border: 1px solid #e5e7eb;
+    
+    input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      font-size: 0.85rem;
+      color: #374151;
+    }
+
+    button {
+      background: rgb(var(--primary-color));
+      color: white;
+      padding: 0.25rem 0.75rem;
+      border-radius: 0.25rem;
+      font-size: 0.8rem;
+    }
+  }
+
+  .close-btn {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    cursor: pointer;
+    color: #6b7280;
+  }
+`;
 
 const VideoStyled = styled.div`
   display: flex;
@@ -171,6 +230,7 @@ const VideoStyled = styled.div`
 const Video = ({
   byte,
   mute,
+  link,
   setMute,
   playingVideo,
   setPlayingVideo,
@@ -180,6 +240,7 @@ const Video = ({
 }: {
   byte: Byte;
   mute: boolean;
+  link: string;
   setMute: React.Dispatch<React.SetStateAction<boolean>>;
   playingVideo: string | null;
   setPlayingVideo: React.Dispatch<React.SetStateAction<string | null>>;
@@ -190,9 +251,16 @@ const Video = ({
   const videoRef = useRef<HTMLVideoElement>(null);
   const [play, setPlay] = useState(byte.id === playingVideo);
   const isLiked = byte.likes.includes(currentUserId);
+  const router = useRouter();
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(link);
+    toast.success("Link copied!");
+  };
 
   const handleShare = () => {
-    navigator.clipboard.writeText(window.location.href);
+    navigator.clipboard.writeText(link);
     toast.success("Link copied to clipboard!");
   };
 
@@ -226,7 +294,16 @@ const Video = ({
   const formatCount = (n: number) =>
     n > 999 ? `${(n / 1000).toFixed(1)}k` : n;
 
+    const handleProfileClick = (refLink: string | undefined) => {
+    if (!refLink) return;
+    
+    // Remove any leading slash from the prop, then add one back
+    const cleanPath = "/profile/" + (refLink.startsWith('/') ? refLink.slice(1) : refLink);
+    router.push(cleanPath);
+  };
+
   return (
+    <>
     <VideoStyled>
       <div className="video">
         <video
@@ -251,8 +328,7 @@ const Video = ({
         <div className="video-details">
           <div className="creator-details">
             <img src={byte.creator.pic} alt={byte.creator.name} />
-            <p>{byte.creator.name}</p>
-            <button>Subscribe</button>
+            <p onClick={() => handleProfileClick(byte.creator.id)}>{byte.creator.name}</p>
           </div>
           <p>{byte.submission.title}</p>
           <p>{byte.submission.description}</p>
@@ -277,7 +353,7 @@ const Video = ({
           </div>
 
           <div>
-            <button onClick={handleShare}>
+            <button onClick={() => setIsShareModalOpen(true)}>
               <RiShareForwardFill />
             </button>
             <span>Share</span>
@@ -285,6 +361,24 @@ const Video = ({
         </div>
       </div>
     </VideoStyled>
+    {/* SHARE MODAL */}
+      {isShareModalOpen && (
+        <ModalOverlay onClick={() => setIsShareModalOpen(false)}>
+          <ModalContent onClick={(e) => e.stopPropagation()}>
+            <IoMdClose 
+              className="close-btn" 
+              size={24} 
+              onClick={() => setIsShareModalOpen(false)} 
+            />
+            <h3>Share this Byte</h3>
+            <div className="link-box">
+              <input readOnly value={link} />
+              <button onClick={copyToClipboard}>Copy</button>
+            </div>
+          </ModalContent>
+        </ModalOverlay>
+      )}
+    </>
   );
 };
 
