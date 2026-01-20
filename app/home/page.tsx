@@ -16,18 +16,19 @@ import Home from './components/hero-page/page';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import LoadingSpinner from '@/components/UI/LoadingSpinner';
 import '../restrictScroll.css';
+import { AuthRedirectHandler } from '@/components/authRedirectHandler';
 
 const HomePage: React.FC = () => {
 
   const [isCreatePostModalOpen, setIsCreatePostModalOpen] = useState(false);
   const [isCreatePollModalOpen, setIsCreatePollModalOpen] = useState(false);
   const [isCreateByteModalOpen, setIsCreateByteModalOpen] = useState(false);
-  const { user, isLoading: isAuthLoading } = useAuth(); 
+  const { user: authUser, isLoading: isAuthLoading } = useAuth(); 
   const { userProfile, isLoading: isProfileLoading } = useUserProfile(); 
   const mainRef = useRef<HTMLDivElement>(null);
   
   // Combine loading state, especially if the home page relies on profile data
-  const isLoading = isAuthLoading || (user && isProfileLoading);
+  const isLoading = isAuthLoading || (authUser && isProfileLoading);
 
   // CRITICAL: Conditional rendering based on loading and auth status
   if (isAuthLoading) {
@@ -39,7 +40,7 @@ const HomePage: React.FC = () => {
   }
   
   // If authenticated but profile is loading, show loading
-  if (user && isProfileLoading) {
+  if (authUser && isProfileLoading) {
     return (
       <div className="flex justify-center items-center min-h-screen bg-gray-100">
         <LoadingSpinner /> <span className="ml-2 text-gray-700">Loading user profile...</span>
@@ -48,7 +49,7 @@ const HomePage: React.FC = () => {
   }
   
   // If not authenticated, let the AuthRedirectHandler handle the redirect (assuming it's working)
- if(!user){
+ if(!authUser){
     // isLoading = false;
     return (
       <div>
@@ -69,6 +70,7 @@ const HomePage: React.FC = () => {
   };
 
   return (
+    <AuthRedirectHandler>
     <div className="max-h-screen flex flex-col bg-[#EEF0F4] pb-6 mb-12 sm:mb-0">
       <TopBar />
       <div className="flex flex-1 pt-[80px]">
@@ -82,10 +84,11 @@ const HomePage: React.FC = () => {
             <DashboardCards />
             <InsightsSection onShareArticleClick={() => setIsCreatePostModalOpen(true)} onCreatePollClick={() => setIsCreatePollModalOpen(true)} onShareByteClick={() => setIsCreateByteModalOpen(true)} />
             <PostSection postsRefetchKey={postsRefetchKey}/>
-            {/* Using the new PostSection component */}
+            {/* Using the new PostSection component */}  
             {/* <PostSectionOld /> */}
           </div>
         </main>
+        <div className="fixed h-[21px] lg:hidden"></div> {/* Hide fixed height div on desktop */}
         <RightSidebar scrollSourceRef={mainRef} />
       </div>
       <CreatePostModal
@@ -104,6 +107,7 @@ const HomePage: React.FC = () => {
       />
       {/* </SiteLayout> */}
     </div>
+    </AuthRedirectHandler>
   );
 }
 

@@ -8,6 +8,8 @@ import LoadingSpinner from '../../components/UI/LoadingSpinner'; // Assuming thi
 import { useAuth } from '../../context/AuthContext'; // Assuming useAuth provides user, isLoading, etc.
 import { UserProfile, UpdateUserProfileDto } from '../../lib/types/user'; // Assuming these types exist
 import { get, postApi, put } from '../../lib/api'; // Import 'get' and 'put' from your API utility
+import { useUserProfile } from '@/hooks/useUserProfile';
+import { getProfileImageUrl } from '@/lib/helpers/profileImage';
 
 type UploadImageResponse = {
   profilePictureMediaId: string;
@@ -17,6 +19,7 @@ type UploadImageResponse = {
 const CompleteProfilePage: React.FC = () => {
   // Destructure values from AuthContext
   const { user, isLoading: authLoading, error: authError } = useAuth();
+  const { userProfile, isLoading: isProfileLoading } = useUserProfile(); 
   const router = useRouter();
 
   // State for form data, initialized with empty strings or undefined
@@ -46,7 +49,7 @@ const CompleteProfilePage: React.FC = () => {
   // Redirect if not logged in (shouldn't happen if coming from register, but good guard)
   useEffect(() => {
     // If authentication status has been determined (not loading) AND no user is found
-    if (!authLoading && !user) {
+    if (!authLoading && !user && userProfile) {
       router.push('/login'); // Redirect to login page
     }
   }, [user, authLoading, router]); // Dependencies: re-run when user or authLoading changes
@@ -365,7 +368,7 @@ const CompleteProfilePage: React.FC = () => {
 
               <div className="flex items-center space-x-4">
                 <img
-                  src={profileData.profilePictureUrl || "/default-profile.png"}
+                  src={getProfileImageUrl(profileData.profilePictureUrl)}
                   alt="Current profile"
                   className="w-16 h-16 rounded-full object-cover"
                 />

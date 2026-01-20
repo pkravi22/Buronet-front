@@ -8,6 +8,7 @@ import { useAuth } from '../context/AuthContext'; // To get current user and tok
 import { ConversationDto, MessageDto, CreateMessageDto, CreateConversationDto } from '@/lib/types/message'; // New DTOs
 import { formatDistanceToNow } from 'date-fns';
 import { v4 as uuidv4 } from 'uuid'; // npm install uuid @types/uuid
+import { DEFAULT_PROFILE_IMAGE_URL } from '@/lib/helpers/profileImage';
 
 interface UseChatResult {
   conversations: ConversationDto[];
@@ -276,7 +277,7 @@ export const useChat = (): UseChatResult => {
                 id: user?.id || 'unknown',
                 username: user?.username || 'You',
 //                 avatar: user?.avatar || 'https://placehold.co/32x32/CCCCCC/FFFFFF?text=U',
-                avatar: 'https://placehold.co/32x32/CCCCCC/FFFFFF?text=U',
+                avatar: DEFAULT_PROFILE_IMAGE_URL,
               },
           };
           setMessages(prevMessages => [...prevMessages, tempMessage]);

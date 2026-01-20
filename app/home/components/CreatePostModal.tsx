@@ -6,6 +6,7 @@ import { postApi } from '@/lib/api';
 import { CreatePostDto, UploadImageResponse } from '@/lib/types/post';
 import LoadingSpinner from '@/components/UI/LoadingSpinner';
 import { useAuth } from '@/context/AuthContext';
+import { getProfileImageUrl } from '@/lib/helpers/profileImage';
 import { Rss, Image as ImageIcon, Briefcase, ChevronDown } from 'lucide-react'; // Import icons
 import { useUserProfile } from '@/hooks/useUserProfile';
 
@@ -137,25 +138,19 @@ const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         {/* User Info Section */}
         <div className="flex items-center p-6 pb-2">
           <div className="w-12 h-12 shrink-0">
-            {userProfile?.profilePictureUrl ? (
-              <Image
-                src={userProfile?.profilePictureUrl}
-                alt={userProfile?.username}
-                width={48}
-                height={48}
-                className="rounded-full object-cover"
-              />
-            ) : (
-              <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center text-lg font-medium text-gray-600">
-                {user?.username?.charAt(0).toUpperCase()}
-              </div>
-            )}
+            <Image
+              src={getProfileImageUrl(userProfile?.profilePictureUrl)}
+              alt={userProfile?.username || user?.username || 'User'}
+              width={48}
+              height={48}
+              className="rounded-full object-cover"
+            />
           </div>
           <div className="ml-3">
             <h3 className="text-lg font-semibold text-gray-900">{userProfile?.firstName} {userProfile?.lastName}</h3>
             <div className="flex items-center text-sm text-gray-500">
               <span className="font-medium">{userProfile?.headline}</span>
-              <ChevronDown size={16} className="ml-1" />
+              {/* <ChevronDown size={16} className="ml-1" /> */}
             </div>
           </div>
         </div>
@@ -234,7 +229,7 @@ const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                 onChange={handleFileChange}
                 className="hidden"
               />
-              <button
+              {/*<button
                 type="button"
                 className="p-2 rounded-full hover:bg-gray-100 text-gray-600"
                 title="Add a document"
@@ -250,7 +245,8 @@ const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
               >
                 <Rss size={20} />
               </button>
-            </div>
+              */}
+            </div> 
             
             {/* Submit Button */}
             <button

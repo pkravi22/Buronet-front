@@ -15,6 +15,7 @@ import {
 // Restore original imports
 import AppLayout from '@/components/AppLayout';
 import LoadingSpinner from '@/components/UI/LoadingSpinner';
+import { getProfileImageUrl } from '@/lib/helpers/profileImage';
 import { ConversationDto } from '@/lib/types/message';
 import { useChat } from '@/hooks/useChat';
 import { useAuth, withAuthRequired } from '@/context/AuthContext';
@@ -262,8 +263,7 @@ const MessagingPage: React.FC = () => {
                   >
                     <img
                       src={
-                        otherParticipant?.avatar ||
-                        'https://placehold.co/48x48/CCCCCC/FFFFFF?text=U'
+                        getProfileImageUrl(otherParticipant?.avatar)
                       }
                       alt={otherParticipant?.username || 'Unknown User'}
                       className="w-12 h-12 rounded-full object-cover"
@@ -326,8 +326,9 @@ const MessagingPage: React.FC = () => {
 
                 <img
                   src={
-                    getOtherParticipant(selectedConversation as ConversationDto)?.avatar || // Cast here
-                    'https://placehold.co/40x40/CCCCCC/FFFFFF?text=U'
+                    getProfileImageUrl(
+                      getOtherParticipant(selectedConversation as ConversationDto)?.avatar,
+                    )
                   }
                   alt={
                     getOtherParticipant(selectedConversation as ConversationDto)?.username || // Cast here

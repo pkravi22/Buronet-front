@@ -15,12 +15,41 @@ import {
   UserProject, UpdateUserProjectDto,
   UserCommunityGroup, UpdateUserCommunityGroupDto
 } from '../lib/types/user';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
-export function useUserProfile() {
-  const { user, userProfile, isProfileLoading: isLoading, isProfileError: isError, refetchProfile } = useAuth();
+export function useUserProfile(targetUserId?: string) {
+  const { user: authUser, userProfile: myProfile, isProfileLoading: isAuthProfileLoading, isProfileError: isError, refetchProfile } = useAuth();
 
-  const isProfileSetup = !!userProfile;
+  const [externalProfile, setExternalProfile] = useState<UserProfile | null>(null);
+  const [isExternalLoading, setIsExternalLoading] = useState(false);
+  const [externalError, setExternalError] = useState<any>(null);
+
+  const isOwnProfile = !targetUserId || targetUserId === 'me' || (authUser?.id !== undefined && targetUserId === authUser.id);
+
+  const isProfileSetup = !!myProfile;
+
+  useEffect(() => {
+    // Only fetch if it's NOT our own profile and we have a target ID
+    if (!isOwnProfile && targetUserId) {
+      const fetchExternalProfile = async () => {
+        setIsExternalLoading(true);
+        try {
+          // Fetch specific user by ID
+          const data = await get<UserProfile>(`/users/profile/${targetUserId}`);
+          setExternalProfile(data);
+        } catch (err) {
+          setExternalError(err);
+        } finally {
+          setIsExternalLoading(false);
+        }
+      };
+      fetchExternalProfile();
+    }
+  }, [targetUserId, isOwnProfile]);
+
+  const profileToDisplay = isOwnProfile ? myProfile : externalProfile;
+  const isLoading = isOwnProfile ? isAuthProfileLoading : isExternalLoading;
+  const error = isOwnProfile ? null : externalError;
 
   // --- Core Profile Actions ---
   const updateProfile = async (updateDto: UpdateUserProfileDto) => {
@@ -115,10 +144,13 @@ export function useUserProfile() {
   const deleteCommunityGroup = (id: number) => deleteItem('/users/profile/communitygroups', id);
 
   return {
-    userProfile,
+    userProfile: profileToDisplay,
     isLoading,
     isError,
-    updateProfile,
+    isOwnProfile,
+    updateProfile: (dto: any) => {
+        if (!isOwnProfile) throw new Error("Cannot edit someone else's profile");
+    },
     isProfileSetup,
     addExperience, updateExperience, deleteExperience,
     addSkill, updateSkill, deleteSkill,

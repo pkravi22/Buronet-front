@@ -10,6 +10,8 @@ import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { toast } from "react-hot-toast";
+import { useRouter } from 'next/navigation';
+import { getProfileImageUrl } from '@/lib/helpers/profileImage';
 
 // --- NEW COMPONENT FOR POLLS ---
 interface PollCardProps {
@@ -90,6 +92,7 @@ const PostCard: React.FC<PostCardProps> = ({ post: initialPost, onPostUpdated, c
   const [showMenu, setShowMenu] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const [showShareModal, setShowShareModal] = useState(false);
+  const router = useRouter();
 
   const postUrl =
   typeof window !== "undefined"
@@ -230,6 +233,14 @@ const PostCard: React.FC<PostCardProps> = ({ post: initialPost, onPostUpdated, c
     }
   };
 
+  const handleProfileClick = (refLink: string | undefined) => {
+    if (!refLink) return;
+    
+    // Remove any leading slash from the prop, then add one back
+    const cleanPath = "/profile/" + (refLink.startsWith('/') ? refLink.slice(1) : refLink);
+    router.push(cleanPath);
+  };
+
   // Effect to close menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -262,7 +273,7 @@ const PostCard: React.FC<PostCardProps> = ({ post: initialPost, onPostUpdated, c
           <div className="flex">
             <div className="w-12 h-12 shrink-0">
               <Image
-                src={"/default-profile.png"}
+                src={getProfileImageUrl(post.user?.profilePictureUrl)}
                 alt={post.user?.username || "User"}
                 width={48}
                 height={48}
@@ -271,7 +282,7 @@ const PostCard: React.FC<PostCardProps> = ({ post: initialPost, onPostUpdated, c
             </div>
             <div className="ml-4">
               <div className="flex items-center flex-wrap">
-                <h3 className="text-[#1F2937] font-medium text-base">
+                <h3 className="text-[#1F2937] font-medium text-base cursor-pointer" onClick={() => handleProfileClick(post.userId)}>
                   {post.user?.firstName && post.user?.lastName ? `${post.user.firstName} ${post.user.lastName}` : post.user?.username || "N/A"}
                 </h3>
                 {post.user?.headline && (
@@ -281,7 +292,7 @@ const PostCard: React.FC<PostCardProps> = ({ post: initialPost, onPostUpdated, c
                 )}
               </div>
               <p className="text-[#6B7280] text-sm mt-1">
-                {post.user?.email || "N/A"}
+                {post.user?.username || "N/A"}
               </p>
             </div>
           </div>
@@ -476,7 +487,7 @@ const PostCard: React.FC<PostCardProps> = ({ post: initialPost, onPostUpdated, c
                   <div key={comment.id} className="bg-gray-50 p-3 rounded-lg text-sm">
                     <div className="flex items-center mb-1">
                       <img
-                        src={comment.user?.profilePictureUrl || "/default-profile.png"}
+                        src={getProfileImageUrl(comment.user?.profilePictureUrl)}
                         alt={comment.user?.username || "Commenter"}
                         width={24}
                         height={24}

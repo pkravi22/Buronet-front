@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
+import { getProfileImageUrl } from '@/lib/helpers/profileImage';
 
 // --- Mock Data and Components ---
 // In a real app, this data would come from an API.
@@ -11,7 +12,7 @@ const mockTrendingPosts = [
     postedAgo: '3 hours ago',
     title: 'Online Learning Platform Sees Record Growth',
     description: 'E-learning platforms experience unprecedented user growth as digital education becomes mainstream.',
-    author: { handle: '@edu_trends', pic: 'https://placehold.co/32x32/E3EAFF/5E98FF?text=E' },
+    author: { handle: '@edu_trends', pic: '' },
     views: '892K',
     likes: '18K',
     imageUrl: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?q=80&w=2070&auto=format&fit=crop',
@@ -22,7 +23,7 @@ const mockTrendingPosts = [
     postedAgo: '5 hours ago',
     title: 'New AI Chip Breakthrough',
     description: 'Revolutionary semiconductor technology promises to accelerate artificial intelligence processing capabilities.',
-    author: { handle: '@tech_news', pic: 'https://placehold.co/32x32/D1FAE5/10B981?text=T' },
+    author: { handle: '@tech_news', pic: '' },
     views: '1.2M',
     likes: '25K',
     imageUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=2070&auto=format&fit=crop',
@@ -33,7 +34,7 @@ const mockTrendingPosts = [
     postedAgo: '8 hours ago',
     title: 'Digital Voting System Implementation',
     description: 'Secure electronic voting systems roll out nationwide to enhance democratic participation and transparency.',
-    author: { handle: '@gov_tech', pic: 'https://placehold.co/32x32/DBEAFE/3B82F6?text=G' },
+    author: { handle: '@gov_tech', pic: '' },
     views: '756K',
     likes: '14K',
     imageUrl: 'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?q=80&w=1932&auto=format&fit=crop',
@@ -44,7 +45,7 @@ const mockTrendingPosts = [
     postedAgo: '1 day ago',
     title: 'Remote Work Revolution Continues',
     description: 'Companies worldwide embrace flexible work models as productivity and employee satisfaction reach new...',
-    author: { handle: '@job_market', pic: 'https://placehold.co/32x32/F3E8FF/A855F7?text=J' },
+    author: { handle: '@job_market', pic: '' },
     views: '2.1M',
     likes: '42K',
     imageUrl: 'https://images.unsplash.com/photo-1516321497487-e288fb19713f?q=80&w=2070&auto=format&fit=crop',
@@ -55,7 +56,7 @@ const mockTrendingPosts = [
     postedAgo: '1 day ago',
     title: 'STEM Education Initiative Launch',
     description: 'New national program aims to boost science, technology, engineering, and mathematics education...',
-    author: { handle: '@edu_future', pic: 'https://placehold.co/32x32/E3EAFF/5E98FF?text=E' },
+    author: { handle: '@edu_future', pic: '' },
     views: '643K',
     likes: '12K',
     imageUrl: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=2070&auto=format&fit=crop',
@@ -66,7 +67,7 @@ const mockTrendingPosts = [
     postedAgo: '2 days ago',
     title: 'Tech Industry Job Growth',
     description: 'Technology sector continues robust hiring with record-breaking job opportunities across multiple disciplines.',
-    author: { handle: '@job_market', pic: 'https://placehold.co/32x32/F3E8FF/A855F7?text=J' },
+    author: { handle: '@job_market', pic: '' },
     views: '987K',
     likes: '19K',
     imageUrl: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=2072&auto=format&fit=crop',
@@ -95,7 +96,7 @@ const PostCard = ({ post }: { post: typeof mockTrendingPosts[0] }) => (
             <p className="text-sm text-gray-600 mb-4 h-10">{post.description}</p>
             <div className="flex items-center justify-between text-sm text-gray-500">
                 <div className="flex items-center">
-                    <img src={post.author.pic} alt={post.author.handle} className="w-6 h-6 rounded-full mr-2" />
+                    <img src={getProfileImageUrl(post.author.pic)} alt={post.author.handle} className="w-6 h-6 rounded-full mr-2" />
                     <span>{post.author.handle}</span>
                 </div>
                 <div className="flex items-center space-x-4">

@@ -15,6 +15,7 @@ module.exports = {
         'tablet': '640px',
         'laptop': '1024px',
         'lg-laptop': '900px',
+        'sm-desktop': '1000px',
         'desktop': '1280px',
       },
       keyframes: {

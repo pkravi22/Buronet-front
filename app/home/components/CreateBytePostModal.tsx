@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { postApi } from '@/lib/api';
 import LoadingSpinner from '@/components/UI/LoadingSpinner';
+import { getProfileImageUrl } from '@/lib/helpers/profileImage';
 
 interface CreateByteModalProps {
   isOpen: boolean;
@@ -15,7 +16,7 @@ const CLOUDINARY_CLOUD_NAME = 'db65bnadc';
 const CLOUDINARY_UPLOAD_PRESET = 'use_filename';
 
 const CreateByteModal: React.FC<CreateByteModalProps> = ({ isOpen, onClose, onBytePostCreated }) => {
-  const { user, isLoading: authLoading } = useAuth();
+  const { user, userProfile, isLoading: authLoading } = useAuth();
   const [byteFile, setByteFile] = useState<File | null>(null);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -82,6 +83,7 @@ const CreateByteModal: React.FC<CreateByteModalProps> = ({ isOpen, onClose, onBy
         Description: description,
         MediaUrl: mediaUrl,
         ThumbnailUrl: thumbnailUrl,
+        CreatorPic: getProfileImageUrl(userProfile?.profilePictureUrl),
       };
 
       await postApi('/bytes/upload', backendPayload);

@@ -1,91 +1,3 @@
-// import { FaPen, FaPoll, FaCalendarAlt } from 'react-icons/fa';
-
-// // --- Data for the action buttons ---
-// const actionButtonsData = [
-//   {
-//     icon: <FaPen size={12} />,
-//     title: "Share Article",
-//     description: "Write your thoughts",
-//     iconBgColor: "bg-[#F0FDF4]",
-//     iconColor: "text-[#22C55E]",
-//   },
-//   {
-//     icon: <FaPoll size={16} />,
-//     title: "Create Poll",
-//     description: "Get community feedback",
-//     iconBgColor: "bg-[#EFF6FF]",
-//     iconColor: "text-[#3B82F6]",
-//   },
-//   {
-//     icon: <FaCalendarAlt size={12} />,
-//     title: "Host Event",
-//     description: "Schedule a meetup",
-//     iconBgColor: "bg-[#FAF5FF]",
-//     iconColor: "text-[#A855F7]",
-//   },
-// ];
-
-
-// // --- Full-size button component ---
-// const ActionButton = ({ icon, title, description, iconBgColor, iconColor }: (typeof actionButtonsData)[0]) => {
-//   return (
-//     <button className="flex items-center bg-white rounded h-[60px] flex-1 min-w-[200px] sm:min-w-[180px]">
-//       <div className="px-3 py-3 flex items-center w-full">
-//         <div className={`w-8 h-8 ${iconBgColor} rounded-lg flex items-center justify-center shrink-0`}>
-//           <span className={`${iconColor}`}>
-//             {icon}
-//           </span>
-//         </div>
-//         <div className="ml-2 text-left">
-//           <h3 className="text-[#1F2937] font-medium text-sm whitespace-nowrap">{title}</h3>
-//           <p className="text-[#6B7280] text-xs whitespace-nowrap">{description}</p>
-//         </div>
-//       </div>
-//     </button>
-//   );
-// };
-
-// // --- Compact mobile button component ---
-// const MobileActionButton = ({ icon, title, iconBgColor, iconColor }: Omit<(typeof actionButtonsData)[0], 'description'>) => {
-//     return (
-//         <div className="flex flex-col items-center gap-2 flex-1">
-//             <div className={`w-12 h-12 ${iconBgColor} rounded-full flex items-center justify-center ${iconColor}`}>
-//                 {icon}
-//             </div>
-//             <p className="text-xs text-center text-[#4B5563] font-medium">{title}</p>
-//         </div>
-//     )
-// }
-
-
-// const InsightsSection = () => {
-//   return (
-//     <div className="flex justify-center w-full px-4 sm:px-0">
-//         <div className="mt-6 bg-gradient-to-b from-[#DDECFF] to-[#E3EAFF] rounded-xl w-full max-w-[640px]">
-//             <div className="px-5 py-4">
-//             <h2 className="text-[#1F2937] text-lg font-bold mb-4 text-center">Share Your Professional Insights</h2>
-            
-//             {/* --- Mobile View (< sm) --- */}
-//             <div className="sm:hidden flex justify-around items-start gap-4">
-//                 {actionButtonsData.map(item => (
-//                     <MobileActionButton key={item.title} {...item} />
-//                 ))}
-//             </div>
-
-//             {/* --- Desktop View (>= sm) --- */}
-//             <div className="hidden sm:flex flex-wrap sm:flex-nowrap gap-3">
-//                 {actionButtonsData.map(item => (
-//                     <ActionButton key={item.title} {...item} />
-//                 ))}
-//             </div>
-//             </div>
-//         </div>
-//     </div>
-//   );
-// };
-
-// export default InsightsSection;
-
 // components/InsightsSection.tsx
 import { FaPen, FaPoll, FaCalendarAlt } from 'react-icons/fa';
 import React from 'react'; // Import React
@@ -128,7 +40,7 @@ type ActionButtonProps = (typeof actionButtonsData)[0] & {
 const ActionButton: React.FC<ActionButtonProps> = ({ icon, title, description, iconBgColor, iconColor, actionType, onClick }) => {
   return (
     <button
-      className="flex items-center bg-white rounded h-[60px] flex-1 min-w-[200px] sm:min-w-[180px] shadow-sm hover:shadow-md transition-shadow" // Added shadow and hover effect
+      className="flex items-center bg-white rounded h-[60px] flex-1 min-w-[200px] sm:min-w-[180px] laptop:min-w-[150px] desktop:min-w-[180px] shadow-sm hover:shadow-md transition-shadow" // Added shadow and hover effect
       onClick={() => onClick?.(actionType)} // Call onClick with actionType
     >
       <div className="px-3 py-3 flex items-center w-full">
@@ -158,7 +70,7 @@ const MobileActionButton: React.FC<MobileActionButtonProps> = ({ icon, title, ic
       className="flex flex-col items-center gap-2 flex-1 p-2 rounded-lg hover:bg-gray-50 transition-colors" // Made it a button and added hover
       onClick={() => onClick?.(actionType)} // Call onClick with actionType
     >
-      <div className={`w-12 h-12 ${iconBgColor} rounded-full flex items-center justify-center ${iconColor}`}>
+      <div className={`w-12 laptop:w-8 desktop:w-12 h-12 ${iconBgColor} rounded-full flex items-center justify-center ${iconColor}`}>
         {icon}
       </div>
       <p className="text-xs text-center text-[#4B5563] font-medium">{title}</p>

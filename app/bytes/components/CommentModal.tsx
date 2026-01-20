@@ -3,6 +3,7 @@ import { Send, X, Loader2 } from 'lucide-react';
 import type { Comment } from '@/lib/types/Byte';
 import { toast } from 'react-hot-toast';
 import { get, postApi as post } from '@/lib/api';
+import { getProfileImageUrl } from '@/lib/helpers/profileImage';
 
 interface CommentModalProps {
   byteId: string;
@@ -61,7 +62,7 @@ const CommentModal = ({ byteId, authorName, onClose }: CommentModalProps) => {
                      ) : (
                         comments.map(comment => (
                             <div key={comment.id} className="flex items-start gap-3 my-4">
-                                <img src={comment.creator.pic || `https://i.pravatar.cc/150?u=${comment.creator.id}`} alt={comment.creator.name} className="w-9 h-9 rounded-full bg-gray-200" />
+                                <img src={getProfileImageUrl(comment.creator.pic)} alt={comment.creator.name} className="w-9 h-9 rounded-full bg-gray-200" />
                                 <div className="bg-gray-100 rounded-lg p-3">
                                     <p className="text-xs font-semibold text-gray-700">{comment.creator.name}</p>
                                     <p className="text-sm text-gray-800">{comment.text}</p>

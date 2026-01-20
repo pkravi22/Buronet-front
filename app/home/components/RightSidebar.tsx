@@ -5,6 +5,7 @@ import { useEffect, useState, useRef } from 'react';
 import { get } from '@/lib/api';
 import { SuggestedUserDto } from '@/lib/types/connections';
 import { useConnections } from '@/hooks/useConnections';
+import { getProfileImageUrl } from '@/lib/helpers/profileImage';
 
 interface SuggestedUserProps {
   name: string;
@@ -19,7 +20,7 @@ const SuggestedUser: React.FC<SuggestedUserProps> = ({ name, role, imageUrl }) =
   return (
     <div className="flex items-center justify-between py-3">
       <div className="flex items-center">
-        <img src={imageUrl} alt="U" className="w-10 h-10 rounded-full" />
+        <img src={getProfileImageUrl(imageUrl)} alt="U" className="w-10 h-10 rounded-full" />
         <div className="ml-3">
           <h3 className="text-[#1F2937] text-base font-medium">{name}</h3>
           <p className="text-[#6B728B] text-sm">{role}</p>
@@ -83,7 +84,7 @@ const RightSidebar = ({ scrollSourceRef }: { scrollSourceRef: React.RefObject<HT
   return (
     // Hide on small/medium screens, show on large screens with a fixed width.
     // The parent container should be a grid on `lg` screens. e.g. lg:grid-cols-[1fr_287px]
-    <aside className="hidden lg:block xl:w-[260px] laptop:w-[30%] mr-6 mb-6">
+    <aside className="hidden lg:block xl:w-[260px] laptop:w-[20%] mr-6 mb-6">
       <div
         ref={sidebarRef}
         className="
@@ -103,12 +104,11 @@ const RightSidebar = ({ scrollSourceRef }: { scrollSourceRef: React.RefObject<HT
           <TrendingNowSection />
         </div>
         
-        <div className="mt-6 pt-6 border-t border-[#E5E7EB]">
+        {/*<div className="mt-6 pt-6 border-t border-[#E5E7EB]">
           <div className="flex items-center mb-4">
             <span className="text-[#1F2937] font-semibold">Suggested For You</span>
           </div>
           <div>
-            {/* SuggestedUser components go here... */}
             <div>
               {suggestedGeneralConnections.map(user => (
                 <SuggestedUser
@@ -119,7 +119,7 @@ const RightSidebar = ({ scrollSourceRef }: { scrollSourceRef: React.RefObject<HT
                 />
               ))}
            
-            {/* <SuggestedUser
+             <SuggestedUser
               name="Sarah Chen"
               role="Product Designer at TechCo"
               imageUrl="/placeholder-avatar.jpg"
@@ -128,10 +128,10 @@ const RightSidebar = ({ scrollSourceRef }: { scrollSourceRef: React.RefObject<HT
               name="Michael Brown"
               role="UI Developer at WebStudio"
               imageUrl="/placeholder-avatar.jpg"
-            />*/}
+            />
           </div>
           </div>
-        </div>
+        </div>*/}
 
         
       </div>

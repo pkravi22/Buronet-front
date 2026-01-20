@@ -3,6 +3,7 @@
 
 import Image from 'next/image';
 import { UserProfile } from '../../lib/types/user'; // Import from the consolidated types folder
+import { getProfileImageUrl } from '@/lib/helpers/profileImage';
 
 interface UserProfileHeaderProps {
   userProfile: UserProfile; // Type is UserProfile
@@ -15,7 +16,7 @@ const UserProfileHeader: React.FC<UserProfileHeaderProps> = ({ userProfile, onEd
       <div className="flex flex-col items-center">
         <div className="relative w-28 h-28 mb-4 rounded-full overflow-hidden border-4 border-blue-200">
           <Image
-            src={userProfile.profilePictureUrl || '/default-profile.png'}
+            src={getProfileImageUrl(userProfile.profilePictureUrl)}
             alt="Profile Picture"
             layout="fill"
             objectFit="cover"

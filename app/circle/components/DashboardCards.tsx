@@ -20,10 +20,12 @@ const DashboardCard = ({ title, value, trend, icon, iconColor, trendIcon, trendC
   const router = useRouter();
 
   const handleOpenClick = (refLink: string | undefined) => {
-    if (refLink) {
-      router.push(`/${refLink}`);
-    }
-  };
+  if (!refLink) return;
+  
+  // Remove any leading slash from the prop, then add one back
+  const cleanPath = refLink.startsWith('/') ? refLink : `/${refLink}`;
+  router.push(cleanPath);
+};
 
   return (
     // The component wrapper now uses classes that work for BOTH designs.
@@ -67,21 +69,27 @@ const DashboardCard = ({ title, value, trend, icon, iconColor, trendIcon, trendC
               <h3 className="text-[#1F2937] font-medium text-sm">{title}</h3>
             </div>
           </div>
-          {/* Bottom Section (Value and Trend) */}
-          <div>
-            <p className="text-[#1F2937] text-2xl font-semibold">{value}</p>
-            <div className="flex items-center gap-1 mt-1">
-              {trendIcon && (
-                <span className={`${trendColor}`}>
-                  {trendIcon}
-                </span>
-              )}
+
+        <div>
+          <p className={`text-[#1F2937] font-semibold ${value === "Coming Soon" ? "text-xl italic" : "text-2xl"}`}>
+            {value}
+          </p>
+
+          <div className="flex items-center gap-1 mt-1">
+            {trendIcon && (
+              <span className={trendColor}>
+                {trendIcon}
+              </span>
+            )}
+            {/* Only show trend text if it's NOT "Coming Soon" */}
+            {value !== "Coming Soon" && (
               <p className="text-xs text-[#6B7280]">{trend}</p>
-            </div>
+            )}
+          </div>
+        </div>
           </div>
         </div>
       </div>
-    </div>
   );
 };
 

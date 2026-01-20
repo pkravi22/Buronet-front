@@ -1,6 +1,7 @@
 import { AiOutlineSearch, AiOutlineBell } from 'react-icons/ai';
 import Image from 'next/image';
 import Link from 'next/link';
+import { DEFAULT_PROFILE_IMAGE_URL } from '@/lib/helpers/profileImage';
 
 const Header = () => {
   return (
@@ -47,7 +48,7 @@ const Header = () => {
           <div className="flex items-center space-x-3">
             <div className="relative w-8 h-8 rounded-full overflow-hidden">
               <Image
-                src="/placeholder-avatar.svg"
+                src={DEFAULT_PROFILE_IMAGE_URL}
                 alt="Profile"
                 width={32}
                 height={32}

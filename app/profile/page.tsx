@@ -25,6 +25,7 @@ import { format } from 'date-fns'; // For date formatting from backend ISO strin
 
 import { useAuth, withAuthRequired } from '../../context/AuthContext'; // Authentication context and HOC
 import TopBar from '@/components/TopBar';
+import { getProfileImageUrl } from '@/lib/helpers/profileImage';
 
 const ProfilePage: React.FC = () => {
   // Get authentication status and profile data from our custom hooks
@@ -95,7 +96,7 @@ const ProfilePage: React.FC = () => {
               <div className="bg-white rounded-xl shadow-sm p-6 sticky top-24">
                 <div className="flex flex-col items-center">
                   <img
-                    src={userProfile.profilePictureUrl || '/default-profile.png'} // Dynamic photo
+                    src={getProfileImageUrl(userProfile.profilePictureUrl)} // Dynamic photo
                     alt={userProfile.firstName || userProfile.username || "Profile"} // Dynamic alt text
                     className="w-28 h-28 rounded-full object-cover object-top mb-4"
                   />

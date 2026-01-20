@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import { AiOutlineLike, AiOutlineComment } from 'react-icons/ai';
 import { BiShare } from 'react-icons/bi';
+import { DEFAULT_PROFILE_IMAGE_URL } from '@/lib/helpers/profileImage';
 
 const Feed = () => {
   return (
@@ -10,7 +11,7 @@ const Feed = () => {
         <div className="flex space-x-4">
           <div className="relative w-10 h-10 rounded-full overflow-hidden">
             <Image
-              src="/placeholder-avatar.svg"
+              src={DEFAULT_PROFILE_IMAGE_URL}
               alt="Your profile"
               width={40}
               height={40}
@@ -36,7 +37,7 @@ const Feed = () => {
           <div className="flex items-center space-x-3 mb-4">
             <div className="relative w-10 h-10 rounded-full overflow-hidden">
               <Image
-                src="/placeholder-avatar.svg"
+                src={DEFAULT_PROFILE_IMAGE_URL}
                 alt="User profile"
                 width={40}
                 height={40}

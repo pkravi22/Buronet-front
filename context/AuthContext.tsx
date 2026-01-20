@@ -40,7 +40,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isProfileError, setIsProfileError] = useState(false); // Manually managed error
   
   // Computed state for simplicity
-  const isProfileSetup = !!userProfile; // Use your chosen definition (e.g., !!userProfile?.firstName)
+  const isProfileSetup = !!userProfile && !!userProfile?.firstName; // Use your chosen definition (e.g., !!userProfile?.firstName)
 
   // NEW: Synchronous Profile Fetching Logic
   const fetchAndSetProfile = async (id: string): Promise<void> => {
@@ -211,7 +211,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         console.log('register: Registration successful. Token received.');
         localStorage.setItem('token', registerResponse.token);
         // Set user context directly with basic info from registration response
-        setUser({ id: registerResponse.userId, username: registerResponse.username, email: registerResponse.email, createdAt: '', updatedAt: '', isAdmin: false });
+        // setUser({ id: registerResponse.userId, username: registerResponse.username, email: registerResponse.email, createdAt: '', updatedAt: '', isAdmin: false });
+        const decodedUser = jwtDecode<User>(registerResponse.token);
+        setUser(decodedUser);
+
+        console.log('login: Login successful. Token received and user set in context:', decodedUser);
+        
+        // CRITICAL: SYNCHRONOUS FETCH PROFILE
+        await fetchAndSetProfile(decodedUser.id);
         router.push('/complete-profile'); // Redirect to complete profile page after successful registration
         return {"success":true, "message": "Registration successful."} as RegisterResponse;
       } else {

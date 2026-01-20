@@ -91,10 +91,15 @@ const JobDetailsPage = ({ params }: JobDetailsPageProps) => {
   if (!job) {
     return <div className="flex justify-center items-center h-screen">Job not found.</div>;
   }
+  const ensureAbsoluteUrl = (url: string | undefined) => {
+  if (!url) return "#";
+  // If it starts with http or https, leave it. Otherwise, add https://
+  return /^https?:\/\//i.test(url) ? url : `https://${url}`;
+};
 
   return (
     <div className="bg-[#EEF0F4] font-sans text-gray-800">
-      <Navbar />
+      <Navbar activeItem="Jobs" />
 
       {/* THIS IS THE FIX: A main content wrapper with left padding on large screens */}
       <main className="lg:pl-[284px]">
@@ -157,10 +162,10 @@ const JobDetailsPage = ({ params }: JobDetailsPageProps) => {
                           <Bookmark size={18} className={`transition-all ${isBookmarked ? 'text-blue-600 fill-blue-600' : 'text-gray-500 hover:text-gray-800'}` }/> {isBookmarked ? "Remove Bookmark" : "Bookmark Job"}
                         </a>                                  
                         {/* Share button can be added here */}
-                        <a href={job.applyLink?.link} target="_blank" rel="noopener noreferrer" className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-lg font-medium transition shadow-md hover:shadow-lg flex items-center justify-center gap-2">
+                        <a href={ensureAbsoluteUrl(job.applyLink?.link)} target="_blank" rel="noopener noreferrer" className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-lg font-medium transition shadow-md hover:shadow-lg flex items-center justify-center gap-2">
                           <Edit size={18} /> Apply Now
                         </a>
-                        <a href={job.applyLink?.fileName} target="_blank" rel="noopener noreferrer" className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-2.5 rounded-lg font-medium transition flex items-center justify-center gap-2">
+                        <a href={ensureAbsoluteUrl(job.applyLink?.fileName)} target="_blank" rel="noopener noreferrer" className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-2.5 rounded-lg font-medium transition flex items-center justify-center gap-2">
                           <Download size={18} /> Download Notification
                         </a>
                         {user?.isAdmin && 

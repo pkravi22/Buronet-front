@@ -21,15 +21,6 @@ const RegisterPage: React.FC = () => {
   const { register, user, isLoading, error: authError } = useAuth();
   const router = useRouter();
 
-  // Redirect if already logged in
-  useEffect(() => {
-    // If not currently loading authentication status AND user object is present (meaning logged in)
-    if (!isLoading && user) {
-      // Redirect to the profile page or dashboard if authenticated
-      router.push('/profile');
-    }
-  }, [user, isLoading, router]); // Dependencies for useEffect
-
   // Handles the form submission for registration
   // const handleSubmit = async (e: React.FormEvent) => {
   //   e.preventDefault(); // Prevent default form submission behavior

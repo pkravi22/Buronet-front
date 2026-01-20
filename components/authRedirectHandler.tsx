@@ -43,20 +43,24 @@ export const AuthRedirectHandler: React.FC<{ children: React.ReactNode }> = ({ c
     }
 
     // 3. Profile Enforcement (for authenticated users)
-    if (user && userProfile) {
-
-      // A. Profile Incomplete: Force redirect to /complete-profile from ANY other page
-      if (!isProfileSetup && pathname !== '/complete-profile') {
-        console.log('AuthRedirectHandler: Profile incomplete. Forcing redirect to /complete-profile.');
+    if (user) {
+  // A profile is incomplete if the object is missing OR if the setup flag is false
+      const profileIncomplete = !userProfile || !isProfileSetup;
+      console.log('AuthRedirectHandler: User is authenticated. Checking profile status...', { userProfile, isProfileSetup });
+      console.log(`AuthRedirectHandler: User is authenticated. Profile incomplete: ${profileIncomplete}. Current path: ${pathname}`);
+      // A. Profile Incomplete: Force redirect
+      if (profileIncomplete && pathname !== '/complete-profile') {
+        console.log('AuthRedirectHandler: Profile missing or incomplete. Redirecting.');
         router.replace('/complete-profile');
         return;
       }
 
       // B. Profile Complete: Redirect away from public/setup pages
-      if (isProfileSetup && publicRoutes.includes(pathname)) {
-        const finalDestination = '/home';
-        console.log(`AuthRedirectHandler: Profile complete. Redirecting from public page (${pathname}) to ${finalDestination}.`);
-        router.replace(finalDestination);
+      // Only redirect to /home if they are on a public route or trying to go back to complete-profile
+      const isOnSetupPage = pathname === '/complete-profile';
+      if (!profileIncomplete && (isPublicRoute || isOnSetupPage)) {
+        console.log('AuthRedirectHandler: Profile complete. Moving to /home.');
+        router.replace('/home');
         return;
       }
     }

@@ -7,6 +7,7 @@ import { useUserProfile } from '../../hooks/useUserProfile';
 import { format } from 'date-fns';
 import { postApi } from '@/lib/api';
 import { Upload } from 'lucide-react';
+import { getProfileImageUrl } from '@/lib/helpers/profileImage';
 
 interface EditProfileModalProps {
   userProfile: UserProfile; // Type is UserProfile
@@ -154,7 +155,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ userProfile, onClos
 
               <div className="flex items-center space-x-4">
                 <img
-                  src={userProfile.profilePictureUrl || "/default-profile.png"}
+                  src={getProfileImageUrl(userProfile.profilePictureUrl)}
                   alt="Current profile"
                   className="w-16 h-16 rounded-full object-cover"
                 />

@@ -164,7 +164,7 @@ const ExamDetailsPage = ({ params }: ExamDetailsPageProps) => {
 
   return (
     <div className="bg-[#EEF0F4] font-sans text-gray-800">
-      <Navbar />
+      <Navbar activeItem="Exams" />
 
       <main className="lg:pl-[284px]">
         <TopBar />

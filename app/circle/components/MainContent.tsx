@@ -9,6 +9,7 @@ import DashboardCards from '@/app/circle/components/DashboardCards';
 import LoadingSpinner from '@/components/UI/LoadingSpinner';
 import { AlertModal } from '@/components/AlertModal';
 import SeeMoreModal from './SeeMoreModal';
+import { useRouter } from 'next/navigation';
 
 // --- INTERFACES & CHILD COMPONENTS --- (DashboardCard, NetworkCard remain the same)
 // Assuming DashboardCardProps and NetworkCardProps are defined elsewhere
@@ -52,9 +53,19 @@ interface NetworkCardProps {
 //   </div>
 // );
 
-const NetworkCard: React.FC<NetworkCardProps> = ({ user, onConnectClick, isConnected }) => (
+const NetworkCard: React.FC<NetworkCardProps> = ({ user, onConnectClick, isConnected }) => 
+  {
+    const router = useRouter();
+      const handleOpenClick = (refLink: string | undefined) => {
+    if (!refLink) return;
+    
+    // Remove any leading slash from the prop, then add one back
+    const cleanPath = "/profile/" + (refLink.startsWith('/') ? refLink.slice(1) : refLink);
+    router.push(cleanPath);
+  };
+   return (
   // REMOVED fixed height h-[260px]
-  <div className="bg-white rounded-xl shadow-sm"> 
+  <div className="bg-white rounded-xl shadow-sm" onClick={() => handleOpenClick(user.id)}>
     {/* Reduced padding p-4 to p-3 on small screens, keeping it responsive */}
     <div className="p-3 sm:p-4 h-full flex flex-col">
       
@@ -69,7 +80,7 @@ const NetworkCard: React.FC<NetworkCardProps> = ({ user, onConnectClick, isConne
         
         {/* Headline: Reduced margin mt-1 to mt-0.5 for compactness */}
         <div className="mt-0.5 text-center">
-          <p className="text-[#6B7280] text-sm leading-snug line-clamp-1">{user.headline}</p>
+          {user.headline ? <p className="text-[#6B7280] text-sm leading-snug line-clamp-1">{user.headline}</p> : <p className="text-[#6B7280] text-sm italic text-center">No headline available</p>}
         </div>
         
         {/* Mutual Connections: Reduced margin mt-3 to mt-2 for compactness */}
@@ -92,7 +103,7 @@ const NetworkCard: React.FC<NetworkCardProps> = ({ user, onConnectClick, isConne
       </button>
     </div>
   </div>
-);
+)};
 
 
 const MainContent = () => {
@@ -115,6 +126,7 @@ const MainContent = () => {
   const closeModal = () => {
     setModalState({ isOpen: false, title: '', users: [] });
   };
+
 
   const handleScroll = useCallback(() => {
     const container = scrollContainerRef.current;
@@ -164,8 +176,9 @@ const MainContent = () => {
 
   const dashboardCards = [
     { title: 'Total Connections', value: `${networkMetrics?.totalConnections}`, trend: `${networkMetrics?.totalConnectionsTrend}% this month`, icon: <Users size={16} />, iconColor: 'text-[#EF4444]', trendIcon: <TrendingUp size={12} />, trendColor: 'text-[#16A34A]', refLink: "" },
-    { title: 'Joined Groups', value: `${networkMetrics?.joinedGroups}`, trend: `${networkMetrics?.joinedGroupsTrend} new this month`, icon: <Users size={16} />, iconColor: 'text-[#3B82F6]', trendIcon: <TrendingUp size={12} />, trendColor: 'text-[#16A34A]', refLink: "" },
-    { title: 'Pending Requests', value: `${networkMetrics?.pendingRequests}`, trend: `${networkMetrics?.pendingRequestsTrend} new this week`, icon: <UserPlus size={16} />, iconColor: 'text-[#22C55E]', trendIcon: <Clock size={12} />, trendColor: 'text-[#F59E0B]', refLink: "" },
+    // { title: 'Joined Groups', value: `${networkMetrics?.joinedGroups}`, trend: `${networkMetrics?.joinedGroupsTrend} new this month`, icon: <Users size={16} />, iconColor: 'text-[#3B82F6]', trendIcon: <TrendingUp size={12} />, trendColor: 'text-[#16A34A]', refLink: "" },
+    { title: 'Joined Groups', value: `Coming Soon`, trend: `${networkMetrics?.joinedGroupsTrend} new this month`, icon: <Users size={16} />, iconColor: 'text-[#3B82F6]', trendIcon: <TrendingUp size={12} />, trendColor: 'text-[#16A34A]', refLink: "" },
+    { title: 'Pending Requests', value: `${networkMetrics?.pendingRequests}`, trend: `${networkMetrics?.pendingRequestsTrend} new this week`, icon: <UserPlus size={16} />, iconColor: 'text-[#22C55E]', trendIcon: <Clock size={12} />, trendColor: 'text-[#F59E0B]', refLink: "/network/requests" },
     { title: 'Network Growth', value: `${networkMetrics?.networkGrowth}`, trend: `${networkMetrics?.networkGrowthPercentage}% this month`, icon: <TrendingUp size={16} />, iconColor: 'text-[#A855F7]', trendIcon: <TrendingUp size={12} />, trendColor: 'text-[#16A34A]', refLink: "" }
   ];
 

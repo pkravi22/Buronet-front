@@ -255,6 +255,7 @@ import { Heart, MessageCircle, Send, X, Bookmark, Music, UserPlus, Play, Pause, 
 import { get, postApi, } from '@/lib/api'; // Assume these are helper functions for API calls
 import { console } from 'inspector';
 import { useAuth } from '@/context/AuthContext';
+import { getProfileImageUrl } from '@/lib/helpers/profileImage';
 
 // --- API Helper Functions ---
 // In your real app, these would be in a separate file (e.g., lib/api.ts)
@@ -363,7 +364,7 @@ const CommentSheet = ({ byteId, authorName, onClose, currentUserId: string }: { 
                     {isLoading ? <Loader2 className="animate-spin mx-auto mt-8" /> : (
                         comments.map(comment => (
                             <div key={comment.id} className="flex items-start gap-3 my-4">
-                                <img src={comment.creator.pic} alt={comment.creator.name} className="w-8 h-8 rounded-full" />
+                                <img src={getProfileImageUrl(comment.creator.pic)} alt={comment.creator.name} className="w-8 h-8 rounded-full" />
                                 <div>
                                     <p className="text-xs text-gray-500">{comment.creator.name}</p>
                                     <p className="text-sm">{comment.text}</p>
@@ -410,7 +411,7 @@ const ByteCard = ({ byte, isActive, onLike, onCommentClick, currentUserId }: { b
                 <div className="flex items-end justify-between">
                     <div className="flex-1 min-w-0">
                         <div className="flex items-center mb-2 pointer-events-auto">
-                            <img src={byte.creator.pic} alt={byte.creator.name} className="w-10 h-10 rounded-full border-2 border-white" />
+                            <img src={getProfileImageUrl(byte.creator.pic)} alt={byte.creator.name} className="w-10 h-10 rounded-full border-2 border-white" />
                             <div className="ml-3">
                                 <p className="text-white font-semibold text-sm">{byte.creator.name}</p>
                                 <p className="text-white/80 text-xs">{byte.creator.handle}</p>

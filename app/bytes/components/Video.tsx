@@ -13,6 +13,7 @@ import {
 } from "react-icons/io";
 import { toast } from "react-hot-toast";
 import { useRouter } from 'next/navigation';
+import { getProfileImageUrl } from '@/lib/helpers/profileImage';
 
 // Add Modal Styled Component
 const ModalOverlay = styled.div`
@@ -327,7 +328,7 @@ const Video = ({
 
         <div className="video-details">
           <div className="creator-details">
-            <img src={byte.creator.pic} alt={byte.creator.name} />
+            <img src={getProfileImageUrl(byte.creator.pic)} alt={byte.creator.name} />
             <p onClick={() => handleProfileClick(byte.creator.id)}>{byte.creator.name}</p>
           </div>
           <p>{byte.submission.title}</p>

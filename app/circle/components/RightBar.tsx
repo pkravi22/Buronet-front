@@ -9,6 +9,7 @@ import LoadingSpinner from '@/components/UI/LoadingSpinner';
 import { ConnectionDto, ConnectionRequestDto, SuggestedUserDto, UserForConnection } from '@/lib/types/connections';
 import { formatDistanceToNow } from 'date-fns';
 import { useRouter } from 'next/navigation';
+import { getProfileImageUrl } from '@/lib/helpers/profileImage';
 
 // --- Reusable card components ---
 // RequestCard now takes props from the DTO
@@ -23,7 +24,7 @@ const RequestCard = ({ request, onAccept, onDecline }: RequestCardProps) => (
     <div className="flex justify-between items-start">
       <div className="flex">
         <Image
-          src={request.sender.profilePictureUrl || "/default-profile.png"} // Dynamic image URL
+          src={getProfileImageUrl(request.sender.profilePictureUrl)} // Dynamic image URL
           alt={request.sender.firstName || request.sender.username || "User"}
           width={36}
           height={36}
@@ -73,7 +74,7 @@ const ConnectionCard = ({ connection, onMessageClick, currentUserId }: Connectio
     <div className="flex justify-between items-center">
       <div className="flex">
         <Image
-          src={connection.connectedUserProfilePictureUrl || "/default-profile.png"}
+          src={getProfileImageUrl(connection.connectedUserProfilePictureUrl)}
           // alt={connection.connectedUserName}
           alt="U"
           width={40}
@@ -269,7 +270,7 @@ const setSidebarRef = (node: HTMLDivElement | null) => {
               />
             ))}
           </div>
-          <button className="w-full text-[#2563EB] font-medium mt-[40px] py-2 hover:bg-[#F3F4F6] rounded">
+          <button className="w-full text-[#2563EB] font-medium mt-[40px] py-2 hover:bg-[#F3F4F6] rounded" onClick={() => router.push('/network/requests')}>
             View All Requests
           </button>
         </div>

@@ -113,6 +113,12 @@ const MainContent = () => {
   const [departmentStats, setDepartmentStats] = useState<DepartmentStats[]>([]);
   const { user } = useAuth(); // Assuming you have a useAuth hook to get the current user
   const [activeTab, setActiveTab] = useState('All Jobs');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [allJobs, setAllJobs] = useState<Job[]>([]);
+  const [modalLoading, setModalLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const pageSize = 10; // Number of jobs per page
 
   // Data fetching effect for jobs
   useEffect(() => {
@@ -146,6 +152,28 @@ const MainContent = () => {
     };
     fetchJobs();
   }, [user]);
+
+  const fetchAllJobs = async (page: number) => {
+  setModalLoading(true);
+  try {
+    // Note: Ensure your C# backend has an endpoint like: /api/jobs/all?page=1&pageSize=10
+    const response = await get<any>(`/jobs/all?page=${page}&pageSize=${pageSize}`);
+    
+    // Logic: Adapt the following based on your specific API response structure
+    setAllJobs(response.data || response); 
+    setTotalPages(response.totalPages || 1);
+    setCurrentPage(page);
+  } catch (error) {
+    console.error("Failed to fetch all jobs", error);
+  } finally {
+    setModalLoading(false);
+  }
+};
+
+const handleOpenModal = () => {
+  setIsModalOpen(true);
+  fetchAllJobs(1); // Reset to page 1 on open
+};
 
   const filteredJobs = useMemo(() => {
     switch (activeTab) {
@@ -250,7 +278,7 @@ const MainContent = () => {
           <div className="mb-8">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-[#1F2937] font-semibold text-lg">Popular Departments</h2>
-              <button className="text-[#3B82F6] text-sm flex items-center gap-1 hover:text-[#2563EB]">View All<ChevronRight size={16} /></button>
+              {/* <button className="text-[#3B82F6] text-sm flex items-center gap-1 hover:text-[#2563EB]">View All<ChevronRight size={16} /></button> */}
             </div>
             <div className="relative">
               {/* RESPONSIVE CHANGE: Hide scroll buttons on mobile (md:flex) */}
@@ -269,7 +297,12 @@ const MainContent = () => {
           <div className="mb-8">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-[#1F2937] font-semibold text-lg">Latest Job Openings</h2>
-              <button className="text-[#3B82F6] text-sm flex items-center gap-1 hover:text-[#2563EB]">View All<ChevronRight size={16} /></button>
+              <button 
+                onClick={handleOpenModal}
+                className="text-[#3B82F6] text-sm flex items-center gap-1 hover:text-[#2563EB]"
+              >
+                View All<ChevronRight size={16} />
+              </button>
             </div>
             {/* RESPONSIVE CHANGE: Added overflow-x-auto and scrollbar-hide to make tabs scroll on mobile */}
             <div className="flex items-center gap-2 border-b border-[#E5E7EB] pb-4 overflow-x-auto scrollbar-hide">
@@ -314,6 +347,59 @@ const MainContent = () => {
           </div>
         </div>
       </div>
+      {isModalOpen && (
+  <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+    <div className="bg-white w-full max-w-4xl max-h-[90vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+      
+      {/* Header */}
+      <div className="p-6 border-b flex items-center justify-between">
+        <h2 className="text-xl font-bold text-gray-900">All Job Openings</h2>
+        <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-gray-100 rounded-full">
+          <X size={24} className="text-gray-500" />
+        </button>
+      </div>
+
+      {/* Body */}
+      <div className="flex-1 overflow-y-auto p-6 bg-gray-50">
+        {modalLoading ? (
+          <div className="flex justify-center py-20">Loading...</div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {allJobs.map(job => (
+              <JobCard
+                key={job.id}
+                job={job}
+                isBookmarked={bookmarkedJobs.some(b => b.jobId === job.id)}
+                onToggleBookmark={toggleBookmark}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Pagination Footer */}
+      <div className="p-4 border-t flex items-center justify-between bg-white">
+        <button
+          disabled={currentPage === 1 || modalLoading}
+          onClick={() => fetchAllJobs(currentPage - 1)}
+          className="flex items-center gap-1 px-4 py-2 border rounded-lg disabled:opacity-50"
+        >
+          <ChevronLeft size={16} /> Previous
+        </button>
+        
+        <span className="text-sm font-medium">Page {currentPage} of {totalPages}</span>
+
+        <button
+          disabled={currentPage === totalPages || modalLoading}
+          onClick={() => fetchAllJobs(currentPage + 1)}
+          className="flex items-center gap-1 px-4 py-2 border rounded-lg disabled:opacity-50"
+        >
+          Next <ChevronRight size={16} />
+        </button>
+      </div>
+    </div>
+  </div>
+)}
     </div>
   );
 };
