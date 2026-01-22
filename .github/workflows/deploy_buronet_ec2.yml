@@ -41,7 +41,7 @@ jobs:
       # --- Tar is reliable for including hidden files like .next ---
       - name: Create Deployment Tarball
         run: |
-          tar -czf deploy.tar.gz .next public package.json node_modules package-lock.json next.config.js
+          tar -czf deploy.tar.gz .next public package.json node_modules package-lock.json next.config.js ecosystem.config.js
           
       # 5. Secure Copy (SCP) the Archive to EC2 Server
       - name: Transfer Archive to EC2
