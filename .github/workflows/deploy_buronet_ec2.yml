@@ -69,7 +69,7 @@ jobs:
             rm deploy.tar.gz
 
             # 🔥 INSTALL DEPENDENCIES ON EC2
-            npm ci --omit=dev
+            npm i mongodb
 
             # Restart app with env
             pm2 restart buronet-app --update-env
