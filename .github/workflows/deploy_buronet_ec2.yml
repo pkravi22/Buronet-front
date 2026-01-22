@@ -20,7 +20,9 @@ jobs:
 
       # 2. Install Dependencies (Runner par)
       - name: Install Dependencies
-        run: npm ci
+        run: |
+          npm ci
+          npm install mongodb
 
       # 3. Build the Application (Runner par)
       - name: Build Application
@@ -39,7 +41,7 @@ jobs:
       # --- Tar is reliable for including hidden files like .next ---
       - name: Create Deployment Tarball
         run: |
-          tar -czf deploy.tar.gz .next public package.json package-lock.json next.config.js
+          tar -czf deploy.tar.gz .next public package.json node_modules package-lock.json next.config.js
           
       # 5. Secure Copy (SCP) the Archive to EC2 Server
       - name: Transfer Archive to EC2
@@ -52,7 +54,7 @@ jobs:
           target: "/var/www/buronet-app" # Single tar file transfer ho raha hai
           
       # 6. Connect via SSH, Unzip, and Restart Application Process (PM2)
-      - name: Extract Files and Restart App via PM2
+      - name: Extract Files and Restart App
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -60,17 +62,9 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /var/www/buronet-app
-
-            # Clean old build
-            rm -rf .next
-
-            # Extract new build
+            rm -rf .next node_modules # Delete old stuff
             tar -xzf deploy.tar.gz
             rm deploy.tar.gz
-
-            # 🔥 INSTALL DEPENDENCIES ON EC2
-            npm i mongodb
-
-            # Restart app with env
-            pm2 restart buronet-app --update-env
+            # Purely restarting - no building or installing
+            pm2 restart buronet-app --update-env || pm2 start npm --name "buronet-app" -- start
             pm2 save
