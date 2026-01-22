@@ -68,7 +68,7 @@ const RegisterPage: React.FC = () => {
           {/* Logo - ensure you have a logo.svg in your public folder */}
           <img
             className="mx-auto h-12 w-auto"
-            src="/logo.svg"
+            src="/Logo.png"
             alt="Buronet Logo"
           />
           {/* Heading for the register page */}

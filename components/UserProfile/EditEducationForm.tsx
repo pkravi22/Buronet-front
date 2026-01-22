@@ -4,7 +4,7 @@
 import React, { useState } from 'react';
 import { UserEducation, UpdateUserEducationDto } from '../../lib/types/user'; // Import from the consolidated types folder
 import { useUserProfile } from '../../hooks/useUserProfile';
-import { format } from 'date-fns';
+import { toDateOnly } from '@/lib/dates';
 
 interface EditEducationFormProps {
   education: UserEducation | null;
@@ -17,8 +17,8 @@ const EditEducationForm: React.FC<EditEducationFormProps> = ({ education, onClos
     degree: education?.degree || '',
     major: education?.major || '',
     institution: education?.institution || '',
-    startDate: education?.startDate ? format(new Date(education.startDate), 'yyyy-MM-dd') : '',
-    endDate: education?.endDate ? format(new Date(education.endDate), 'yyyy-MM-dd') : '',
+    startDate: toDateOnly(education?.startDate) || '',
+    endDate: toDateOnly(education?.endDate) || '',
     description: education?.description || '',
   });
   const [isSaving, setIsSaving] = useState(false);

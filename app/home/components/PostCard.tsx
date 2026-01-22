@@ -4,7 +4,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { PostDto, CommentDto, CommentRequestDto, PollOptionDto, LikeDto } from '@/lib/types/post';
-import { formatDistanceToNow } from 'date-fns';
 import { postApi } from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
@@ -12,6 +11,7 @@ import { useUserProfile } from '@/hooks/useUserProfile';
 import { toast } from "react-hot-toast";
 import { useRouter } from 'next/navigation';
 import { getProfileImageUrl } from '@/lib/helpers/profileImage';
+import { formatTimeAgo } from '@/lib/dates';
 
 // --- NEW COMPONENT FOR POLLS ---
 interface PollCardProps {
@@ -92,6 +92,9 @@ const PostCard: React.FC<PostCardProps> = ({ post: initialPost, onPostUpdated, c
   const [showMenu, setShowMenu] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const [showShareModal, setShowShareModal] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [reportMessage, setReportMessage] = useState('');
+  const [isReporting, setIsReporting] = useState(false);
   const router = useRouter();
 
   const postUrl =
@@ -106,7 +109,7 @@ const PostCard: React.FC<PostCardProps> = ({ post: initialPost, onPostUpdated, c
   const getTimeAgo = (dateString: string) => {
     try {
       if (!dateString) return 'N/A';
-      return formatDistanceToNow(new Date(dateString), { addSuffix: true });
+      return formatTimeAgo(dateString);
     } catch {
       return 'N/A';
     }
@@ -233,6 +236,46 @@ const PostCard: React.FC<PostCardProps> = ({ post: initialPost, onPostUpdated, c
     }
   };
 
+  const handleReportClick = () => {
+    setShowMenu(false);
+    setReportMessage('');
+    setShowReportModal(true);
+  };
+
+  const handleSubmitReport = async () => {
+    if (isReporting) return;
+    setIsReporting(true);
+    try {
+      const data = await postApi<{ ok: boolean; error?: string; previewUrl?: string }>(
+        '/posts/report-post',
+        {
+          postId: post.id,
+          postUrl,
+          message: reportMessage,
+          reporter: user
+            ? { id: user.id, email: user.email, username: user.username }
+            : undefined,
+        }
+      );
+
+      if (!data?.ok) {
+        throw new Error(data?.error || 'Failed to send report');
+      }
+
+      setShowReportModal(false);
+      toast.success('Report sent. Thanks for helping keep Buronet safe.');
+
+      if (data?.previewUrl) {
+        console.log('Report email preview URL:', data.previewUrl);
+      }
+    } catch (err: any) {
+      console.error('Report failed:', err);
+      toast.error(err?.message || 'Failed to send report');
+    } finally {
+      setIsReporting(false);
+    }
+  };
+
   const handleProfileClick = (refLink: string | undefined) => {
     if (!refLink) return;
     
@@ -300,48 +343,117 @@ const PostCard: React.FC<PostCardProps> = ({ post: initialPost, onPostUpdated, c
           {/* Three-dot menu and popup */}
           <div className="flex items-center text-[#9CA3AF] text-sm shrink-0 ml-2 relative">
             <span>{getTimeAgo(post.createdAt)}</span>
-            {isPostOwner && (
-              <div ref={menuRef}>
-                <button
-                  onClick={handleMenuToggle}
-                  className="ml-2 p-2 hover:bg-gray-50 rounded"
-                  aria-label="Post options"
-                >
-                  <svg className="w-3.5 h-0.5" viewBox="0 0 14 4" fill="currentColor">
-                    <circle cx="2" cy="2" r="2" />
-                    <circle cx="7" cy="2" r="2" />
-                    <circle cx="12" cy="2" r="2" />
-                  </svg>
-                </button>
+            <div ref={menuRef}>
+              <button
+                onClick={handleMenuToggle}
+                className="ml-2 p-2 hover:bg-gray-50 rounded"
+                aria-label="Post options"
+              >
+                <svg className="w-3.5 h-0.5" viewBox="0 0 14 4" fill="currentColor">
+                  <circle cx="2" cy="2" r="2" />
+                  <circle cx="7" cy="2" r="2" />
+                  <circle cx="12" cy="2" r="2" />
+                </svg>
+              </button>
 
-                {showMenu && (
-                  <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-md shadow-lg z-10">
-                    <Link
-                      href={`/posts/${post.id}`}
-                      onClick={handleOpenClick}
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    >
-                      <i className="fas fa-eye mr-2"></i> Open
-                    </Link>
-                    <Link
-                      href={`/posts/${post.id}/edit`}
-                      onClick={handleEditClick}
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    >
-                      <i className="fas fa-edit mr-2"></i> Edit
-                    </Link>
-                    <button
-                      onClick={handleDeleteClick}
-                      className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
-                    >
-                      <i className="fas fa-trash-alt mr-2"></i> Delete
-                    </button>
-                  </div>
-                )}
-              </div>
-            )}
+              {showMenu && (
+                <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-10">
+                  <Link
+                    href={`/posts/${post.id}`}
+                    onClick={handleOpenClick}
+                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    <i className="fas fa-eye mr-2"></i> Open
+                  </Link>
+
+                  <button
+                    onClick={handleReportClick}
+                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    <i className="fas fa-flag mr-2"></i> Report
+                  </button>
+
+                  {isPostOwner && (
+                    <>
+                      <Link
+                        href={`/posts/${post.id}/edit`}
+                        onClick={handleEditClick}
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        <i className="fas fa-edit mr-2"></i> Edit
+                      </Link>
+                      <button
+                        onClick={handleDeleteClick}
+                        className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                      >
+                        <i className="fas fa-trash-alt mr-2"></i> Delete
+                      </button>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
+
+        {showReportModal && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) setShowReportModal(false);
+            }}
+          >
+            <div className="bg-white w-full max-w-lg rounded-xl shadow-2xl overflow-hidden">
+              <div className="px-6 py-4 border-b flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-gray-900">Report Post</h3>
+                <button
+                  onClick={() => setShowReportModal(false)}
+                  className="p-2 rounded hover:bg-gray-100 text-gray-600"
+                  aria-label="Close report modal"
+                >
+                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              <div className="px-6 py-4 space-y-3">
+                <p className="text-sm text-gray-600">
+                  This will email our moderators with the post link automatically.
+                </p>
+                <div className="text-xs text-gray-500 break-all">
+                  <span className="font-medium text-gray-700">Post:</span> {postUrl}
+                </div>
+                <textarea
+                  value={reportMessage}
+                  onChange={(e) => setReportMessage(e.target.value)}
+                  className="w-full min-h-[120px] border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Add details (what’s wrong with this post?)"
+                  disabled={isReporting}
+                />
+              </div>
+
+              <div className="px-6 py-4 border-t flex items-center justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowReportModal(false)}
+                  className="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700"
+                  disabled={isReporting}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSubmitReport}
+                  className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-60"
+                  disabled={isReporting}
+                >
+                  {isReporting ? 'Sending…' : 'Send Report'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Post Content */}
         <div className="mt-6">

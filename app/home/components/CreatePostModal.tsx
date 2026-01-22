@@ -36,8 +36,17 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onPo
       setTagsInput('');
       setError(null);
       setIsSubmitting(false);
+      setPostImage(null);
+      setPreview(null);
     }
   }, [isOpen]);
+
+  // Avoid leaking object URLs when user changes/removes the selected image.
+  useEffect(() => {
+    return () => {
+      if (preview) URL.revokeObjectURL(preview);
+    };
+  }, [preview]);
 
   const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) {
@@ -45,29 +54,39 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onPo
     }
   };
 
-  const MAX_FILE_SIZE_MB = 5;
-const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
+  const MAX_FILE_SIZE_MB = 2;
+  const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 
-const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  const file = e.target.files?.[0];
-  if (!file) return;
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-  // Type check
-  if (!ALLOWED_TYPES.includes(file.type)) {
-    alert("Only JPG, PNG or WEBP images are allowed.");
-    return;
-  }
+    // Only images
+    if (!file.type?.startsWith('image/') || !ALLOWED_IMAGE_TYPES.includes(file.type)) {
+      setError('Only image files (JPG, PNG, WEBP, GIF) are allowed.');
+      setPostImage(null);
+      if (preview) URL.revokeObjectURL(preview);
+      setPreview(null);
+      e.target.value = '';
+      return;
+    }
 
-  // Size check
-  if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
-    alert("Image must be under 5MB.");
-    return;
-  }
+    // Max size: 2MB
+    if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
+      setError('Image must be 2MB or smaller.');
+      setPostImage(null);
+      if (preview) URL.revokeObjectURL(preview);
+      setPreview(null);
+      e.target.value = '';
+      return;
+    }
 
-  // ✅ Valid file — proceed
-  setPreview(URL.createObjectURL(file));
-  setPostImage(file);
-};
+    // Valid file — proceed
+    setError(null);
+    if (preview) URL.revokeObjectURL(preview);
+    setPreview(URL.createObjectURL(file));
+    setPostImage(file);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -116,6 +135,15 @@ const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onOpenCreatePoll?.(); // Open the poll modal
   };
 
+  const closeModal = () => {
+      setContent('');
+      setImageUrl('');
+      setTagsInput('');
+      setError(null);
+      setIsSubmitting(false);
+      onClose();
+  }
+
   if (!isOpen) return null;
 
   return (
@@ -125,7 +153,7 @@ const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         <div className="px-6 py-4 border-b border-gray-200">
           <h2 className="text-xl font-semibold text-gray-900">Create a Post</h2>
           <button
-            onClick={onClose}
+            onClick={() => closeModal()}
             className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 focus:outline-none"
             aria-label="Close modal"
           >
@@ -225,7 +253,7 @@ const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
               <input
                 id="profile-image-upload"
                 type="file"
-                accept="image/*"
+                accept="image/jpeg,image/png,image/webp,image/gif"
                 onChange={handleFileChange}
                 className="hidden"
               />

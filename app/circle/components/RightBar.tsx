@@ -7,9 +7,9 @@ import { useConnections } from '@/hooks/useConnections'; // Import the new hook
 import { useAuth } from '@/context/AuthContext'; // Import useAuth
 import LoadingSpinner from '@/components/UI/LoadingSpinner';
 import { ConnectionDto, ConnectionRequestDto, SuggestedUserDto, UserForConnection } from '@/lib/types/connections';
-import { formatDistanceToNow } from 'date-fns';
 import { useRouter } from 'next/navigation';
 import { getProfileImageUrl } from '@/lib/helpers/profileImage';
+import { formatTimeAgo } from '@/lib/dates';
 
 // --- Reusable card components ---
 // RequestCard now takes props from the DTO
@@ -33,7 +33,7 @@ const RequestCard = ({ request, onAccept, onDecline }: RequestCardProps) => (
         <div className="ml-3">
           <h3 className="text-[#1F2937] font-medium">{request.sender.firstName} {request.sender.lastName || request.sender.username}</h3>
           <p className="text-[#6B7280] text-sm">{request.sender.headline}</p>
-          <p className="text-[#9CA3AF] text-sm">{formatDistanceToNow(new Date(request.createdAt), { addSuffix: true })}</p>
+          <p className="text-[#9CA3AF] text-sm">{formatTimeAgo(request.createdAt)}</p>
         </div>
       </div>
       <div className="flex space-x-2">
@@ -84,7 +84,7 @@ const ConnectionCard = ({ connection, onMessageClick, currentUserId }: Connectio
         <div className="ml-3">
           <h3 className="text-[#1F2937] font-medium">{otherUser.firstName} {otherUser.lastName}</h3>
           <p className="text-[#6B7280] text-sm">{otherUser.headline}</p>
-          <p className="text-[#9CA3AF] text-sm mt-1">{formatDistanceToNow(new Date(connection.createdAt), { addSuffix: true })}</p>
+          <p className="text-[#9CA3AF] text-sm mt-1">{formatTimeAgo(connection.createdAt)}</p>
         </div>
       </div>
       <button onClick={() => onMessageClick(connection)} className="w-8 h-8 flex items-center justify-center hover:bg-[#F3F4F6] rounded">

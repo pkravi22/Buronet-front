@@ -4,7 +4,7 @@
 import React, { useState } from 'react';
 import { UserPublication, UpdateUserPublicationDto } from '../../lib/types/user'; // Import from the consolidated types folder
 import { useUserProfile } from '../../hooks/useUserProfile';
-import { format } from 'date-fns';
+import { toDateOnly } from '@/lib/dates';
 
 interface EditPublicationFormProps {
   publication: UserPublication | null;
@@ -16,7 +16,7 @@ const EditPublicationForm: React.FC<EditPublicationFormProps> = ({ publication, 
   const [formData, setFormData] = useState<UpdateUserPublicationDto>({
     title: publication?.title || '',
     journalConference: publication?.journalConference || '',
-    publicationDate: publication?.publicationDate ? format(new Date(publication.publicationDate), 'yyyy-MM-dd') : '',
+    publicationDate: toDateOnly(publication?.publicationDate) || '',
     url: publication?.url || '',
     abstract: publication?.abstract || '',
   });

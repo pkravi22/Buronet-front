@@ -2,6 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { parseUtcDateTime } from '@/lib/dates';
 
 // Define the type for a single news article, based on the NewsAPI response structure.
 export interface NewsArticle {
@@ -62,7 +63,9 @@ export const useNews = (query: string): UseNewsResult => {
         const data = await response.json();
         if (data && data.articles && Array.isArray(data.articles)) {
           const sortedArticles = data.articles.sort((a: any, b: any) => {
-            return new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime();
+            const bTime = parseUtcDateTime(b.publishedAt)?.getTime() ?? 0;
+            const aTime = parseUtcDateTime(a.publishedAt)?.getTime() ?? 0;
+            return bTime - aTime;
           });
           setArticles(sortedArticles);
         } else {

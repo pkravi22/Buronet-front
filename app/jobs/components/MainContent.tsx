@@ -2,7 +2,7 @@
 
 "use client";
 
-import { TrendingUp, Clock, Briefcase, FileText, Bookmark, Bell, ChevronRight, Building2, Banknote, Shield, GraduationCap, Stethoscope, Landmark, ChevronLeft } from 'lucide-react';
+import { TrendingUp, Clock, Briefcase, FileText, Bookmark, Bell, ChevronRight, Building2, Banknote, Shield, GraduationCap, Stethoscope, Landmark, ChevronLeft, X } from 'lucide-react';
 import { useRef, useState, useEffect, useMemo } from 'react';
 import { get, remove, postApi } from '@/lib/api'; // Make sure this path is correct for your API helper
 import { Job, ApiResponse } from '@/lib/types/jobs'; // Make sure this path is correct for your types

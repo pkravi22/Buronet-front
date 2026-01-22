@@ -9,9 +9,10 @@ import { useUserProfile } from '../../hooks/useUserProfile';
 
 interface CommunityGroupsSectionProps {
   communityGroups: UserCommunityGroup[];
+  canEdit?: boolean;
 }
 
-const CommunityGroupsSection: React.FC<CommunityGroupsSectionProps> = ({ communityGroups }) => {
+const CommunityGroupsSection: React.FC<CommunityGroupsSectionProps> = ({ communityGroups, canEdit = true }) => {
   const { deleteCommunityGroup } = useUserProfile();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingCommunityGroup, setEditingCommunityGroup] = useState<UserCommunityGroup | null>(null);
@@ -38,29 +39,31 @@ const CommunityGroupsSection: React.FC<CommunityGroupsSectionProps> = ({ communi
   };
 
   return (
-    <UserProfileSection title="Community Groups" onAdd={handleAddClick}>
+    <UserProfileSection title="Community Groups" onAdd={canEdit ? handleAddClick : undefined}>
       {communityGroups.length === 0 ? (
         <p className="text-gray-500 italic">No community groups added yet. Click "Add New" to add one.</p>
       ) : (
         <div className="space-y-4">
           {communityGroups.map((group) => (
             <div key={group.id} className="relative p-4 border rounded-lg bg-gray-50">
-              <div className="absolute top-2 right-2 flex space-x-2">
-                <button
-                  onClick={() => handleEditClick(group)}
-                  className="text-blue-600 hover:underline text-sm"
-                  title="Edit Group"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => handleDeleteClick(group.id)}
-                  className="text-red-600 hover:underline text-sm"
-                  title="Delete Group"
-                >
-                  Delete
-                </button>
-              </div>
+              {canEdit && (
+                <div className="absolute top-2 right-2 flex space-x-2">
+                  <button
+                    onClick={() => handleEditClick(group)}
+                    className="text-blue-600 hover:underline text-sm"
+                    title="Edit Group"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDeleteClick(group.id)}
+                    className="text-red-600 hover:underline text-sm"
+                    title="Delete Group"
+                  >
+                    Delete
+                  </button>
+                </div>
+              )}
               <h4 className="font-semibold text-lg text-gray-800">{group.groupName}</h4>
               {group.url && <p className="text-blue-600 text-sm hover:underline"><a href={group.url} target="_blank" rel="noopener noreferrer">View Group</a></p>}
               {group.description && <p className="text-gray-700 mt-2 text-sm">{group.description}</p>}
@@ -69,7 +72,7 @@ const CommunityGroupsSection: React.FC<CommunityGroupsSectionProps> = ({ communi
         </div>
       )}
 
-      {isFormOpen && (
+      {canEdit && isFormOpen && (
         <EditCommunityGroupForm
           communityGroup={editingCommunityGroup}
           onClose={() => setIsFormOpen(false)}

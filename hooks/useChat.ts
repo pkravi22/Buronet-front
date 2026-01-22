@@ -33,6 +33,25 @@ export const useChat = (): UseChatResult => {
   // 💡 NEW: Ref to hold the current selected conversation ID for the SignalR listener
   const selectedConversationIdRef = useRef<number | null>(null);
 
+  // Allows createConversation() to await a ConversationCreated event when using SignalR
+  const pendingConversationCreatesRef = useRef<
+    Map<
+      string,
+      {
+        resolve: (conversation: ConversationDto) => void;
+        reject: (error: unknown) => void;
+        timeoutId: ReturnType<typeof setTimeout>;
+      }
+    >
+  >(new Map());
+
+  const makeParticipantsKey = useCallback((participantIds: string[]) => {
+    const uniqueSorted = Array.from(new Set(participantIds.filter(Boolean))).sort((a, b) =>
+      a.localeCompare(b),
+    );
+    return uniqueSorted.join('|');
+  }, []);
+
   const [conversations, setConversations] = useState<ConversationDto[]>([]);
   const [selectedConversation, setSelectedConversation] = useState<ConversationDto | null>(null);
   const [messages, setMessages] = useState<MessageDto[]>([]);
@@ -191,6 +210,24 @@ export const useChat = (): UseChatResult => {
 
       connection.on("ConversationCreated", (conversation: ConversationDto) => {
         console.log("SignalR: >>> Conversation Created Event <<<", conversation);
+
+        // Resolve any pending createConversation awaiting this participant set
+        try {
+          const participantIdsFromServer = (conversation.participants || [])
+            .map((p) => p.user?.id || p.userId)
+            .filter(Boolean) as string[];
+
+          const key = makeParticipantsKey(participantIdsFromServer);
+          const pending = pendingConversationCreatesRef.current.get(key);
+          if (pending) {
+            clearTimeout(pending.timeoutId);
+            pendingConversationCreatesRef.current.delete(key);
+            pending.resolve(conversation);
+          }
+        } catch (e) {
+          console.warn('SignalR: Failed to resolve pending conversation create:', e);
+        }
+
         setConversations(prevConversations => {
             if (!prevConversations.some(conv => conv.id === conversation.id)) {
                 return [conversation, ...prevConversations];
@@ -315,16 +352,38 @@ export const useChat = (): UseChatResult => {
     setIsLoadingConversations(true);
     setError(null);
     try {
+
+		const allParticipantIds = [...participantUserIds, user.id];
+		const expectedKey = makeParticipantsKey(allParticipantIds);
+
       const newConversationData: CreateConversationDto = {
-        participantUserIds: [...participantUserIds, user.id], // Ensure current user is included
+    participantUserIds: allParticipantIds, // Ensure current user is included
         title: title || 'New Chat',
       };
 
       if (connectionRef.current && connectionRef.current.state === signalR.HubConnectionState.Connected) {
           console.log('useChat: Creating conversation via SignalR hub.');
-          await connectionRef.current.invoke("CreateNewConversation", newConversationData);
-          console.log('useChat: Conversation creation request sent via hub.');
-          return null;
+
+          const conversationPromise = new Promise<ConversationDto>((resolve, reject) => {
+            const existing = pendingConversationCreatesRef.current.get(expectedKey);
+            if (existing) {
+              clearTimeout(existing.timeoutId);
+              pendingConversationCreatesRef.current.delete(expectedKey);
+            }
+
+            const timeoutId = setTimeout(() => {
+              pendingConversationCreatesRef.current.delete(expectedKey);
+              reject(new Error('Timed out waiting for conversation creation.'));
+            }, 10000);
+
+            pendingConversationCreatesRef.current.set(expectedKey, { resolve, reject, timeoutId });
+          });
+
+          await connectionRef.current.invoke("CreateNewConversation", newConversationData);
+          console.log('useChat: Conversation creation request sent via hub.');
+
+          const createdConversation = await conversationPromise;
+          return createdConversation;
       } else {
           console.warn('useChat: SignalR not connected. Falling back to API POST for creating conversation.');
           const newConv = await postApi<ConversationDto>('/conversations', newConversationData);
@@ -340,7 +399,7 @@ export const useChat = (): UseChatResult => {
     } finally {
       setIsLoadingConversations(false);
     }
-  }, [user, postApi, fetchMessages, connectionRef]);
+ }, [user, makeParticipantsKey, fetchMessages]);
 
 
   return {

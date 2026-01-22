@@ -4,10 +4,9 @@
 import React, { useState } from 'react';
 import { UserProfile, UpdateUserProfileDto } from '../../lib/types/user'; // Import from the consolidated types folder
 import { useUserProfile } from '../../hooks/useUserProfile';
-import { format } from 'date-fns';
 import { postApi } from '@/lib/api';
-import { Upload } from 'lucide-react';
 import { getProfileImageUrl } from '@/lib/helpers/profileImage';
+import { toDateOnly } from '@/lib/dates';
 
 interface EditProfileModalProps {
   userProfile: UserProfile; // Type is UserProfile
@@ -31,7 +30,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ userProfile, onClos
     lastName: userProfile.lastName || '',
     headline: userProfile.headline || '',
     bio: userProfile.bio || '',
-    dateOfBirth: userProfile.dateOfBirth ? format(new Date(userProfile.dateOfBirth), 'yyyy-MM-dd') : '',
+    dateOfBirth: toDateOnly(userProfile.dateOfBirth) || '',
     phoneNumber: userProfile.phoneNumber || '',
     addressLine1: userProfile.addressLine1 || '',
     addressLine2: userProfile.addressLine2 || '',
@@ -62,6 +61,9 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ userProfile, onClos
       const dataToSend: UpdateUserProfileDto = Object.fromEntries(
         Object.entries(formData).map(([key, value]) => [key, value === '' ? null : value])
       );
+
+      // `dateOfBirth` is a date-only field; send as `YYYY-MM-DD` to avoid timezone drift.
+      // Backend should treat this as a date-only value.
       if (profileImageFile) {
         const formData = new FormData();
         formData.append("file", profileImageFile);

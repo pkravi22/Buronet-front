@@ -8,9 +8,11 @@ interface SeeMoreModalProps {
   title: string;
   users: SuggestedUserDto[];
   onConnectClick: (receiverId: string) => Promise<void>;
+    pendingOutgoingIds?: Set<string>;
+    pendingIncomingIds?: Set<string>;
 }
 
-const SeeMoreModal: React.FC<SeeMoreModalProps> = ({ isOpen, onClose, title, users, onConnectClick }) => {
+const SeeMoreModal: React.FC<SeeMoreModalProps> = ({ isOpen, onClose, title, users, onConnectClick, pendingOutgoingIds, pendingIncomingIds }) => {
     if (!isOpen) return null;
 
     return (
@@ -35,6 +37,8 @@ const SeeMoreModal: React.FC<SeeMoreModalProps> = ({ isOpen, onClose, title, use
                                 user={user} 
                                 onConnectClick={onConnectClick} 
                                 isConnected={false} // Assuming all users in 'See More' are not yet connected
+                                isRequestSent={pendingOutgoingIds?.has(user.id)}
+                                isRequestPending={pendingIncomingIds?.has(user.id)}
                             />
                         ))
                     ) : (

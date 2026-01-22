@@ -9,9 +9,10 @@ import { useUserProfile } from '../../hooks/useUserProfile';
 
 interface ExamAttemptsSectionProps {
   examAttempts: UserExamAttempt[];
+  canEdit?: boolean;
 }
 
-const ExamAttemptsSection: React.FC<ExamAttemptsSectionProps> = ({ examAttempts }) => {
+const ExamAttemptsSection: React.FC<ExamAttemptsSectionProps> = ({ examAttempts, canEdit = true }) => {
   const { deleteExamAttempt } = useUserProfile();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingExamAttempt, setEditingExamAttempt] = useState<UserExamAttempt | null>(null);
@@ -38,29 +39,31 @@ const ExamAttemptsSection: React.FC<ExamAttemptsSectionProps> = ({ examAttempts 
   };
 
   return (
-    <UserProfileSection title="Exam Attempts" onAdd={handleAddClick}>
+    <UserProfileSection title="Exam Attempts" onAdd={canEdit ? handleAddClick : undefined}>
       {examAttempts.length === 0 ? (
         <p className="text-gray-500 italic">No exam attempts added yet. Click "Add New" to add one.</p>
       ) : (
         <div className="space-y-4">
           {examAttempts.map((attempt) => (
             <div key={attempt.id} className="relative p-4 border rounded-lg bg-gray-50">
-              <div className="absolute top-2 right-2 flex space-x-2">
-                <button
-                  onClick={() => handleEditClick(attempt)}
-                  className="text-blue-600 hover:underline text-sm"
-                  title="Edit Exam Attempt"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => handleDeleteClick(attempt.id)}
-                  className="text-red-600 hover:underline text-sm"
-                  title="Delete Exam Attempt"
-                >
-                  Delete
-                </button>
-              </div>
+              {canEdit && (
+                <div className="absolute top-2 right-2 flex space-x-2">
+                  <button
+                    onClick={() => handleEditClick(attempt)}
+                    className="text-blue-600 hover:underline text-sm"
+                    title="Edit Exam Attempt"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDeleteClick(attempt.id)}
+                    className="text-red-600 hover:underline text-sm"
+                    title="Delete Exam Attempt"
+                  >
+                    Delete
+                  </button>
+                </div>
+              )}
               <h4 className="font-semibold text-lg text-gray-800">{attempt.examName}</h4>
               <p className="text-gray-700">Year: {attempt.year || 'N/A'}</p>
               <p className="text-gray-700">Result: {attempt.result || 'N/A'}</p>
@@ -70,7 +73,7 @@ const ExamAttemptsSection: React.FC<ExamAttemptsSectionProps> = ({ examAttempts 
         </div>
       )}
 
-      {isFormOpen && (
+      {canEdit && isFormOpen && (
         <EditExamAttemptForm
           examAttempt={editingExamAttempt}
           onClose={() => setIsFormOpen(false)}

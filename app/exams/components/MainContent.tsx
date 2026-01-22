@@ -2,7 +2,7 @@
 
 "use client";
 
-import { TrendingUp, Clock, Briefcase, FileText, Bookmark, Bell, ChevronRight, Building2, Banknote, Shield, GraduationCap, Stethoscope, Landmark, ChevronLeft } from 'lucide-react';
+import { TrendingUp, Clock, Briefcase, FileText, Bookmark, Bell, ChevronRight, Building2, Banknote, Shield, GraduationCap, Stethoscope, Landmark, ChevronLeft, X } from 'lucide-react';
 import { useRef, useState, useEffect, useMemo } from 'react';
 import { get, remove, postApi } from '@/lib/api'; // Make sure this path is correct for your API helper
 import { Exam, ApiResponse } from '@/lib/types/exams'; // Make sure this path is correct for your types
@@ -77,6 +77,12 @@ const MainContent = () => {
   const [departmentStats, setDepartmentStats] = useState<DepartmentStats[]>([]);
   const { user } = useAuth(); // Assuming you have a useAuth hook to get the current user
   const [activeTab, setActiveTab] = useState('All Exams');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [allExams, setAllExams] = useState<Exam[]>([]);
+  const [modalLoading, setModalLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const pageSize = 10;
 
   // Data fetching effect for exams
   useEffect(() => {
@@ -108,6 +114,47 @@ const MainContent = () => {
     };
     fetchExams();
   }, [user]);
+
+  const fetchAllExams = async (page: number) => {
+    setModalLoading(true);
+    try {
+      // Prefer server-side pagination if available.
+      const response = await get<any>(`/exams/all?page=${page}&pageSize=${pageSize}`);
+      const data = response?.data ?? response?.items ?? response;
+
+      if (Array.isArray(data)) {
+        setAllExams(data);
+        setTotalPages(response?.totalPages || response?.pageCount || 1);
+      } else {
+        setAllExams([]);
+        setTotalPages(1);
+      }
+
+      setCurrentPage(page);
+    } catch (error) {
+      // Fallback: fetch all exams and paginate client-side.
+      try {
+        const full = await get<Exam[]>('/exams');
+        const pages = Math.max(1, Math.ceil(full.length / pageSize));
+        const start = (page - 1) * pageSize;
+        setAllExams(full.slice(start, start + pageSize));
+        setTotalPages(pages);
+        setCurrentPage(page);
+      } catch (fallbackError) {
+        console.error("Failed to fetch all exams", fallbackError);
+        setAllExams([]);
+        setTotalPages(1);
+        setCurrentPage(1);
+      }
+    } finally {
+      setModalLoading(false);
+    }
+  };
+
+  const handleOpenModal = () => {
+    setIsModalOpen(true);
+    fetchAllExams(1);
+  };
 
     const toggleBookmark = async (examId: string, isCurrentlyBookmarked: boolean) => {
     try {
@@ -229,7 +276,12 @@ const MainContent = () => {
           <div className="mb-8">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-[#1F2937] font-semibold text-lg">Latest Exam Openings</h2>
-              <button className="text-[#3B82F6] text-sm flex items-center gap-1 hover:text-[#2563EB]">View All<ChevronRight size={16} /></button>
+              <button
+                onClick={handleOpenModal}
+                className="text-[#3B82F6] text-sm flex items-center gap-1 hover:text-[#2563EB]"
+              >
+                View All<ChevronRight size={16} />
+              </button>
             </div>
             {/* KEY CHANGE 4: Functional Tabs */}
             <div className="flex items-center gap-2 border-b border-[#E5E7EB] pb-4">
@@ -274,6 +326,56 @@ const MainContent = () => {
           </div>
         </div>
       </div>
+
+      {isModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <div className="bg-white w-full max-w-4xl max-h-[90vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+            <div className="p-6 border-b flex items-center justify-between">
+              <h2 className="text-xl font-bold text-gray-900">All Exam Openings</h2>
+              <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-gray-100 rounded-full">
+                <X size={24} className="text-gray-500" />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-6 bg-gray-50">
+              {modalLoading ? (
+                <div className="flex justify-center py-20">Loading...</div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {allExams.map(exam => (
+                    <ExamCard
+                      key={exam.id}
+                      exam={exam}
+                      isBookmarked={bookmarkedExams.some(b => b.examId === exam.id)}
+                      onToggleBookmark={toggleBookmark}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="p-4 border-t flex items-center justify-between bg-white">
+              <button
+                disabled={currentPage === 1 || modalLoading}
+                onClick={() => fetchAllExams(currentPage - 1)}
+                className="flex items-center gap-1 px-4 py-2 border rounded-lg disabled:opacity-50"
+              >
+                <ChevronLeft size={16} /> Previous
+              </button>
+
+              <span className="text-sm font-medium">Page {currentPage} of {totalPages}</span>
+
+              <button
+                disabled={currentPage === totalPages || modalLoading}
+                onClick={() => fetchAllExams(currentPage + 1)}
+                className="flex items-center gap-1 px-4 py-2 border rounded-lg disabled:opacity-50"
+              >
+                Next <ChevronRight size={16} />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

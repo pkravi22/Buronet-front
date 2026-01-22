@@ -18,9 +18,10 @@ import LoadingSpinner from '@/components/UI/LoadingSpinner';
 import { getProfileImageUrl } from '@/lib/helpers/profileImage';
 import { ConversationDto } from '@/lib/types/message';
 import { useChat } from '@/hooks/useChat';
+import { useConnections } from '@/hooks/useConnections';
 import { useAuth, withAuthRequired } from '@/context/AuthContext';
-import { formatDistanceToNow } from 'date-fns'; // For formatting time
 import Navbar from '@/components/Navbar';
+import { formatTimeAgo } from '@/lib/dates';
 
 // --- Mock Interfaces (Removed) ---
 // --- MOCK IMPLEMENTATIONS (Removed) ---
@@ -43,11 +44,13 @@ const MessagingPage: React.FC = () => {
 
   const { user: currentUser } = useAuth(); // Get the current authenticated user from AuthContext
 
+  const { connections, isLoading: isLoadingConnections } = useConnections();
+
   const [messageInput, setMessageInput] = useState('');
   const [showNewChatInput, setShowNewChatInput] = useState(false);
-  const [newChatParticipantIds, setNewChatParticipantIds] = useState('');
   const [isCreatingConversation, setIsCreatingConversation] = useState(false);
   const [newChatError, setNewChatError] = useState<string | null>(null);
+  const [newChatQuery, setNewChatQuery] = useState('');
 
   // const messagesEndRef = useRef<HTMLDivElement>(null);
   const initialErrorRef = useRef(false);
@@ -98,40 +101,67 @@ const MessagingPage: React.FC = () => {
     }
   };
 
-  const handleCreateNewConversation = async () => {
-    if (!newChatParticipantIds.trim()) {
-      setNewChatError('Participant IDs cannot be empty.');
+  const normalizeForSearch = (value: string) =>
+    value
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/gi, ' ')
+      .trim();
+
+  const getDisplayName = (user: any) => {
+    const firstName = (user?.firstName || '').trim();
+    const lastName = (user?.lastName || '').trim();
+    const fullName = `${firstName} ${lastName}`.trim();
+    return fullName || user?.username || 'Unknown User';
+  };
+
+  const connectionUsers = (connections || [])
+    .map((c) => c.connectedUser)
+    .filter(Boolean)
+    .filter((u: any) => u.id !== currentUser?.id);
+
+  const filteredConnectionUsers = (() => {
+    const q = normalizeForSearch(newChatQuery);
+    if (!q) return connectionUsers;
+    const tokens = q.split(' ').filter(Boolean);
+    return connectionUsers.filter((u: any) => {
+      const haystack = normalizeForSearch(
+        `${u.username || ''} ${u.firstName || ''} ${u.lastName || ''}`,
+      );
+      return tokens.every((t) => haystack.includes(t));
+    });
+  })();
+
+  const handleStartChatWithUser = async (targetUserId: string) => {
+    if (!targetUserId || !currentUser?.id) return;
+
+    // If a 1:1 conversation already exists, open it instead of creating a duplicate
+    const existing = conversations.find((c) => {
+      const ids = (c.participants || [])
+        .map((p) => p.user?.id || p.userId)
+        .filter(Boolean) as string[];
+      return (
+        ids.length === 2 && ids.includes(currentUser.id) && ids.includes(targetUserId)
+      );
+    });
+
+    if (existing) {
+      setShowNewChatInput(false);
+      setNewChatQuery('');
+      setNewChatError(null);
+      handleSelectConversation(existing.id);
       return;
     }
 
     setIsCreatingConversation(true);
     setNewChatError(null);
-
     try {
-      const participantIdsArray = newChatParticipantIds
-        .split(',')
-        .map((id) => id.trim())
-        .filter((id) => id !== '');
-
-      // Restore original GUID validation
-      const isValidGuids = participantIdsArray.every((id) =>
-        /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(
-          id,
-        ),
-      );
-      if (!isValidGuids) {
-        setNewChatError('Please enter valid GUIDs for participant IDs.');
-        setIsCreatingConversation(false);
-        return;
-      }
-
-      // Call createConversation (title is handled by your hook)
-      const newConv = await createConversation(participantIdsArray);
+      const newConv = await createConversation([targetUserId]);
       if (newConv) {
         setShowNewChatInput(false);
-        setNewChatParticipantIds('');
-        // Automatically select the new conversation after creating it
+        setNewChatQuery('');
         handleSelectConversation(newConv.id);
+      } else {
+        setNewChatError('Failed to create new conversation.');
       }
     } catch (err: any) {
       setNewChatError(err.message || 'Failed to create new conversation.');
@@ -197,7 +227,11 @@ const MessagingPage: React.FC = () => {
           <div className="p-4 border-b border-gray-100 flex items-center justify-between">
             <span className="font-semibold text-lg">Chats</span>
             <button
-              onClick={() => setShowNewChatInput((prev) => !prev)}
+              onClick={() => {
+                setShowNewChatInput((prev) => !prev);
+                setNewChatError(null);
+                setNewChatQuery('');
+              }}
               className="text-gray-400 hover:text-blue-600 p-1 rounded-full hover:bg-gray-100 transition"
               title="Start new conversation"
             >
@@ -209,24 +243,43 @@ const MessagingPage: React.FC = () => {
             <div className="p-3 border-b border-gray-100">
               <input
                 type="text"
-                placeholder="Enter participant IDs (comma-separated GUIDs)"
-                value={newChatParticipantIds}
-                onChange={(e) => setNewChatParticipantIds(e.target.value)}
+                placeholder="Search your connections by name"
+                value={newChatQuery}
+                onChange={(e) => setNewChatQuery(e.target.value)}
                 className="w-full px-3 py-2 rounded-lg bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-200 text-sm"
                 disabled={isCreatingConversation}
               />
               {newChatError && (
                 <p className="text-red-500 text-xs mt-1">{newChatError}</p>
               )}
-              <button
-                onClick={handleCreateNewConversation}
-                className="mt-2 w-full bg-blue-600 hover:bg-blue-700 text-white py-1.5 rounded-lg text-sm font-medium transition"
-                disabled={
-                  isCreatingConversation || !newChatParticipantIds.trim()
-                }
-              >
-                {isCreatingConversation ? 'Creating...' : 'Create Chat'}
-              </button>
+
+              <div className="mt-2 max-h-56 overflow-y-auto">
+                {isLoadingConnections ? (
+                  <div className="text-xs text-gray-500 py-2">Loading connections…</div>
+                ) : filteredConnectionUsers.length === 0 ? (
+                  <div className="text-xs text-gray-500 py-2">No matching connections.</div>
+                ) : (
+                  filteredConnectionUsers.slice(0, 25).map((u: any) => (
+                    <button
+                      key={u.id}
+                      type="button"
+                      onClick={() => handleStartChatWithUser(u.id)}
+                      disabled={isCreatingConversation}
+                      className="w-full flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-blue-50 transition text-left disabled:opacity-60"
+                    >
+                      <img
+                        src={getProfileImageUrl(u.profilePictureUrl)}
+                        alt={u.username || 'User'}
+                        className="w-8 h-8 rounded-full object-cover"
+                      />
+                      <div className="min-w-0">
+                        <div className="text-sm font-medium truncate">{getDisplayName(u)}</div>
+                        <div className="text-xs text-gray-500 truncate">@{u.username}</div>
+                      </div>
+                    </button>
+                  ))
+                )}
+              </div>
             </div>
           )}
           <div className="p-3">
@@ -275,10 +328,7 @@ const MessagingPage: React.FC = () => {
                         </span>
                         <span className="text-xs text-gray-400 ml-2 whitespace-nowrap">
                           {chat.lastMessage
-                            ? formatDistanceToNow(
-                                new Date(chat.lastMessage.sentAt),
-                                { addSuffix: true },
-                              )
+                            ? formatTimeAgo(chat.lastMessage.sentAt)
                             : ''}
                         </span>
                       </div>
@@ -382,9 +432,7 @@ const MessagingPage: React.FC = () => {
                         >
                           {msg.content}
                           <span className="block text-[10px] text-right mt-1 opacity-60">
-                            {formatDistanceToNow(new Date(msg.sentAt), {
-                              addSuffix: true,
-                            })}
+                            {formatTimeAgo(msg.sentAt)}
                             {msg.senderId === currentUser?.id && (
                               <CheckCircle
                                 size={12}
@@ -431,8 +479,7 @@ const MessagingPage: React.FC = () => {
           ) : (
             // This placeholder is now only shown on medium+ screens when no chat is selected
             <div className="flex-1 md:flex items-center justify-center text-gray-500 hidden">
-              Select a chat to start messaging, or click the '+' to create a new
-              one.
+              Select a chat to start messaging, or click the + button to create a new one.
             </div>
           )}
         </div>

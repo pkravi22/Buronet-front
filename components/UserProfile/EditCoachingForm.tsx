@@ -4,7 +4,7 @@
 import React, { useState } from 'react';
 import { UserCoaching, UpdateUserCoachingDto } from '../../lib/types/user'; // Import from the consolidated types folder
 import { useUserProfile } from '../../hooks/useUserProfile';
-import { format } from 'date-fns';
+import { toDateOnly } from '@/lib/dates';
 
 interface EditCoachingFormProps {
   coaching: UserCoaching | null;
@@ -16,8 +16,8 @@ const EditCoachingForm: React.FC<EditCoachingFormProps> = ({ coaching, onClose }
   const [formData, setFormData] = useState<UpdateUserCoachingDto>({
     coachingInstitute: coaching?.coachingInstitute || '',
     courseName: coaching?.courseName || '',
-    startDate: coaching?.startDate ? format(new Date(coaching.startDate), 'yyyy-MM-dd') : '',
-    endDate: coaching?.endDate ? format(new Date(coaching.endDate), 'yyyy-MM-dd') : '',
+    startDate: toDateOnly(coaching?.startDate) || '',
+    endDate: toDateOnly(coaching?.endDate) || '',
   });
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);

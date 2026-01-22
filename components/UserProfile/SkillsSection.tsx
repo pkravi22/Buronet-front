@@ -9,9 +9,10 @@ import { useUserProfile } from '../../hooks/useUserProfile';
 
 interface SkillsSectionProps {
   skills: UserSkill[];
+  canEdit?: boolean;
 }
 
-const SkillsSection: React.FC<SkillsSectionProps> = ({ skills }) => {
+const SkillsSection: React.FC<SkillsSectionProps> = ({ skills, canEdit = true }) => {
   const { deleteSkill } = useUserProfile();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingSkill, setEditingSkill] = useState<UserSkill | null>(null);
@@ -38,7 +39,7 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({ skills }) => {
   };
 
   return (
-    <UserProfileSection title="Skills" onAdd={handleAddClick}>
+    <UserProfileSection title="Skills" onAdd={canEdit ? handleAddClick : undefined}>
       {skills.length === 0 ? (
         <p className="text-gray-500 italic">No skills added yet. Click "Add New" to add one.</p>
       ) : (
@@ -46,28 +47,30 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({ skills }) => {
           {skills.map((skill) => (
             <div key={skill.id} className="relative bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full flex items-center group">
               <span>{skill.skillName} {skill.level && `(${skill.level})`}</span>
-              <div className="absolute inset-0 flex items-center justify-center bg-blue-200 bg-opacity-75 rounded-full opacity-0 group-hover:opacity-100 transition-opacity space-x-1">
-                <button
-                  onClick={() => handleEditClick(skill)}
-                  className="text-blue-700 hover:text-blue-900 text-xs font-bold"
-                  title="Edit Skill"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => handleDeleteClick(skill.id)}
-                  className="text-red-700 hover:text-red-900 text-xs font-bold"
-                  title="Delete Skill"
-                >
-                  X
-                </button>
-              </div>
+              {canEdit && (
+                <div className="absolute inset-0 flex items-center justify-center bg-blue-200 bg-opacity-75 rounded-full opacity-0 group-hover:opacity-100 transition-opacity space-x-1">
+                  <button
+                    onClick={() => handleEditClick(skill)}
+                    className="text-blue-700 hover:text-blue-900 text-xs font-bold"
+                    title="Edit Skill"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDeleteClick(skill.id)}
+                    className="text-red-700 hover:text-red-900 text-xs font-bold"
+                    title="Delete Skill"
+                  >
+                    X
+                  </button>
+                </div>
+              )}
             </div>
           ))}
         </div>
       )}
 
-      {isFormOpen && (
+      {canEdit && isFormOpen && (
         <EditSkillForm
           skill={editingSkill}
           onClose={() => setIsFormOpen(false)}

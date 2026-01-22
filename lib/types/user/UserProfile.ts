@@ -43,7 +43,8 @@ export interface UserProfile {
 export interface UpdateUserProfileDto {
   firstName?: string | null;
   lastName?: string | null;
-  dateOfBirth?: Date | null;
+  // Date-only value; use `YYYY-MM-DD` or null.
+  dateOfBirth?: string | null;
   phoneNumber?: string | null;
   addressLine1?: string | null;
   addressLine2?: string | null;

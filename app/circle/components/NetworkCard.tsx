@@ -5,9 +5,11 @@ interface NetworkCardProps {
   user: SuggestedUserDto;
   onConnectClick: (receiverId: string) => Promise<void>;
   isConnected?: boolean;
+  isRequestSent?: boolean;
+  isRequestPending?: boolean;
 }
 
-export const NetworkCard: React.FC<NetworkCardProps> = ({ user, onConnectClick, isConnected }) => (
+export const NetworkCard: React.FC<NetworkCardProps> = ({ user, onConnectClick, isConnected, isRequestSent, isRequestPending }) => (
   <div className="bg-white rounded-xl shadow-sm h-[260px]">
     <div className="p-4 h-full flex flex-col">
       <div className="flex flex-col items-center">
@@ -25,15 +27,37 @@ export const NetworkCard: React.FC<NetworkCardProps> = ({ user, onConnectClick, 
           </span>
         </div>
       </div>
-      <button
-        onClick={() => onConnectClick(user.id)}
-        className={`mt-auto w-full h-10 rounded flex items-center justify-center gap-2 ${
-          isConnected ? 'bg-[#F3F4F6] text-[#374151]' : 'bg-[#2563EB] text-white'
-          }`}
-      >
-        <Users size={16} />
-        {isConnected ? 'Message' : 'Connect'}
-      </button>
+      {(() => {
+        const pending = Boolean(isRequestSent || isRequestPending);
+        const disabled = !isConnected && pending;
+        const label = isConnected
+          ? 'Message'
+          : isRequestSent
+          ? 'Request Sent'
+          : isRequestPending
+          ? 'Request Pending'
+          : 'Connect';
+
+        return (
+          <button
+            disabled={disabled}
+            onClick={() => {
+              if (disabled) return;
+              onConnectClick(user.id);
+            }}
+            className={`mt-auto w-full h-10 rounded flex items-center justify-center gap-2 ${
+              disabled
+                ? 'bg-[#F3F4F6] text-[#6B7280] cursor-not-allowed'
+                : isConnected
+                ? 'bg-[#F3F4F6] text-[#374151]'
+                : 'bg-[#2563EB] text-white'
+            }`}
+          >
+            <Users size={16} />
+            {label}
+          </button>
+        );
+      })()}
     </div>
   </div>
 );

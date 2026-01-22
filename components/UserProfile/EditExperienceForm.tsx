@@ -4,7 +4,7 @@
 import React, { useState } from 'react';
 import { UserExperience, UpdateUserExperienceDto } from '../../lib/types/user'; // Import from the consolidated types folder
 import { useUserProfile } from '../../hooks/useUserProfile';
-import { format } from 'date-fns';
+import { toDateOnly } from '@/lib/dates';
 
 interface EditExperienceFormProps {
   experience: UserExperience | null; // Null for new, object for edit
@@ -16,8 +16,8 @@ const EditExperienceForm: React.FC<EditExperienceFormProps> = ({ experience, onC
   const [formData, setFormData] = useState<UpdateUserExperienceDto>({
     title: experience?.title || '',
     organization: experience?.organization || '',
-    startDate: experience?.startDate ? format(new Date(experience.startDate), 'yyyy-MM-dd') : '',
-    endDate: experience?.endDate ? format(new Date(experience.endDate), 'yyyy-MM-dd') : '',
+    startDate: toDateOnly(experience?.startDate) || '',
+    endDate: toDateOnly(experience?.endDate) || '',
     description: experience?.description || '',
   });
   const [isSaving, setIsSaving] = useState(false);

@@ -6,22 +6,13 @@ import AppLayout from '../../components/AppLayout';
 import SiteLayout from '../../components/SiteLayout';
 import LoadingSpinner from '../../components/UI/LoadingSpinner';
 import { useAuth, withAuthRequired } from '../../context/AuthContext';
-import { formatDistanceToNow, parseISO } from 'date-fns';
 import Image from 'next/image';
 import { useNews } from '@/hooks/useNews';
+import { formatTimeAgo } from '@/lib/dates';
 
 const CurrentAffairsPage: React.FC = () => {
   // Use the new hook with a specific query for "india exams"
   const { articles, isLoading, error, refetch } = useNews('government jobs india');
-
-  const formatTimeAgo = (dateString: string) => {
-    try {
-      const date = parseISO(dateString);
-      return formatDistanceToNow(date, { addSuffix: true });
-    } catch {
-      return 'N/A';
-    }
-  };
 
   if (isLoading) {
     return (

@@ -4,7 +4,7 @@
 import React, { useState } from 'react';
 import { UserProject, UpdateUserProjectDto } from '../../lib/types/user'; // Import from the consolidated types folder
 import { useUserProfile } from '../../hooks/useUserProfile';
-import { format } from 'date-fns';
+import { toDateOnly } from '@/lib/dates';
 
 interface EditProjectFormProps {
   project: UserProject | null;
@@ -16,8 +16,8 @@ const EditProjectForm: React.FC<EditProjectFormProps> = ({ project, onClose }) =
   const [formData, setFormData] = useState<UpdateUserProjectDto>({
     projectName: project?.projectName || '',
     description: project?.description || '',
-    startDate: project?.startDate ? format(new Date(project.startDate), 'yyyy-MM-dd') : '',
-    endDate: project?.endDate ? format(new Date(project.endDate), 'yyyy-MM-dd') : '',
+    startDate: toDateOnly(project?.startDate) || '',
+    endDate: toDateOnly(project?.endDate) || '',
     url: project?.url || '',
   });
   const [isSaving, setIsSaving] = useState(false);

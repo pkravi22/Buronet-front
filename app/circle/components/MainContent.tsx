@@ -1,7 +1,7 @@
 "use client";
 
 import { TrendingUp, Users, UserPlus, Clock, User, ChevronLeft, ChevronRight } from 'lucide-react';
-import { useRef, useState, useEffect, useCallback } from 'react';
+import { useRef, useState, useEffect, useCallback, useMemo } from 'react';
 import { useConnections } from '@/hooks/useConnections'; // Import the new hook
 import { useAuth } from '@/context/AuthContext';
 import { SuggestedUserDto } from '@/lib/types/connections'; // Import the new DTO
@@ -20,6 +20,8 @@ interface NetworkCardProps {
   user: SuggestedUserDto;
   onConnectClick: (receiverId: string) => Promise<void>;
   isConnected?: boolean;
+  isRequestSent?: boolean;
+  isRequestPending?: boolean;
 }
 
 // const NetworkCard: React.FC<NetworkCardProps> = ({ user, onConnectClick, isConnected }) => (
@@ -53,7 +55,7 @@ interface NetworkCardProps {
 //   </div>
 // );
 
-const NetworkCard: React.FC<NetworkCardProps> = ({ user, onConnectClick, isConnected }) => 
+const NetworkCard: React.FC<NetworkCardProps> = ({ user, onConnectClick, isConnected, isRequestSent, isRequestPending }) => 
   {
     const router = useRouter();
       const handleOpenClick = (refLink: string | undefined) => {
@@ -92,15 +94,38 @@ const NetworkCard: React.FC<NetworkCardProps> = ({ user, onConnectClick, isConne
       </div>
       
       {/* Button: Kept mt-auto to push it to the bottom, ensuring consistent button placement */}
-      <button
-        onClick={() => onConnectClick(user.id)}
-        className={`mt-4 w-full h-10 rounded flex items-center justify-center gap-2 ${
-          isConnected ? 'bg-[#F3F4F6] text-[#374151]' : 'bg-[#2563EB] text-white'
-        }`}
-      >
-        <Users size={16} />
-        {isConnected ? 'Message' : 'Connect'}
-      </button>
+      {(() => {
+        const pending = Boolean(isRequestSent || isRequestPending);
+        const disabled = !isConnected && pending;
+        const label = isConnected
+          ? 'Message'
+          : isRequestSent
+          ? 'Request Sent'
+          : isRequestPending
+          ? 'Request Pending'
+          : 'Connect';
+
+        return (
+          <button
+            disabled={disabled}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (disabled) return;
+              onConnectClick(user.id);
+            }}
+            className={`mt-4 w-full h-10 rounded flex items-center justify-center gap-2 ${
+              disabled
+                ? 'bg-[#F3F4F6] text-[#6B7280] cursor-not-allowed'
+                : isConnected
+                ? 'bg-[#F3F4F6] text-[#374151]'
+                : 'bg-[#2563EB] text-white'
+            }`}
+          >
+            <Users size={16} />
+            {label}
+          </button>
+        );
+      })()}
     </div>
   </div>
 )};
@@ -111,7 +136,30 @@ const MainContent = () => {
   const [showLeftButton, setShowLeftButton] = useState(false);
   const [showRightButton, setShowRightButton] = useState(true);
     // Use the new useConnections hook to get data
-  const { suggestedConnections, networkMetrics, popularConnections, isLoading, error, sendRequest, clearError } = useConnections();
+  const { suggestedConnections, networkMetrics, popularConnections, isLoading, error, sendRequest, clearError, pendingRequests } = useConnections();
+  const { user: authUser } = useAuth();
+
+  const outgoingSet = useMemo(() => {
+    const set = new Set<string>();
+    if (!authUser?.id) return set;
+    for (const req of pendingRequests) {
+      if (req.status === 'Pending' && req.senderId === authUser.id) {
+        set.add(req.receiverId);
+      }
+    }
+    return set;
+  }, [pendingRequests, authUser?.id]);
+
+  const incomingSet = useMemo(() => {
+    const set = new Set<string>();
+    if (!authUser?.id) return set;
+    for (const req of pendingRequests) {
+      if (req.status === 'Pending' && req.receiverId === authUser.id) {
+        set.add(req.senderId);
+      }
+    }
+    return set;
+  }, [pendingRequests, authUser?.id]);
 
   const [modalState, setModalState] = useState<{ isOpen: boolean; title: string; users: SuggestedUserDto[] }>({
     isOpen: false,
@@ -223,7 +271,13 @@ const MainContent = () => {
                   ) : (
                     popularConnections.map((user, index) => (
                       <div key={user.id || index} className="w-[50%] sm:w-[50%] lg:w-[32%] shrink-0 snap-start sm:snap-center">
-                        <NetworkCard user={user} onConnectClick={sendRequest} isConnected={false} />
+                        <NetworkCard
+                          user={user}
+                          onConnectClick={sendRequest}
+                          isConnected={false}
+                          isRequestSent={outgoingSet.has(user.id)}
+                          isRequestPending={incomingSet.has(user.id)}
+                        />
                       </div>
                     ))
                   )}
@@ -267,7 +321,13 @@ const MainContent = () => {
               ) : ( suggestedConnections['People With Similar Headline'] && suggestedConnections["People With Similar Headline"].length > 0 ?
                 suggestedConnections["People With Similar Headline"].map((user, index) => (
                   <div key={user.id || index} className="w-[50%] sm:w-[46%] lg:w-[32%] shrink-0 snap-start sm:snap-center">
-                    <NetworkCard user={user} onConnectClick={sendRequest} isConnected={false} />
+                    <NetworkCard
+                      user={user}
+                      onConnectClick={sendRequest}
+                      isConnected={false}
+                      isRequestSent={outgoingSet.has(user.id)}
+                      isRequestPending={incomingSet.has(user.id)}
+                    />
                   </div>
                 )) : "No profiles found"
               )}
@@ -294,7 +354,13 @@ const MainContent = () => {
               ) : (suggestedConnections["People With Similar Title"] && suggestedConnections["People With Similar Title"].length > 0 ?
                 suggestedConnections["People With Similar Title"].map((user, index) => (
                   <div key={user.id || index} className="w-[50%] sm:w-[46%] lg:w-[32%] shrink-0 snap-start sm:snap-center">
-                    <NetworkCard user={user} onConnectClick={sendRequest} isConnected={false} />
+                    <NetworkCard
+                      user={user}
+                      onConnectClick={sendRequest}
+                      isConnected={false}
+                      isRequestSent={outgoingSet.has(user.id)}
+                      isRequestPending={incomingSet.has(user.id)}
+                    />
                   </div>
                 )) : "No profiles found"
               )}
@@ -321,7 +387,13 @@ const MainContent = () => {
               (suggestedConnections["People With Similar Education"] && suggestedConnections["People With Similar Education"].length > 0 ?
                 suggestedConnections["People With Similar Education"].map((user, index) => (
                   <div key={user.id || index} className="w-[50%] sm:w-[46%] lg:w-[32%] shrink-0 snap-start sm:snap-center">
-                    <NetworkCard user={user} onConnectClick={sendRequest} isConnected={false} />
+                    <NetworkCard
+                      user={user}
+                      onConnectClick={sendRequest}
+                      isConnected={false}
+                      isRequestSent={outgoingSet.has(user.id)}
+                      isRequestPending={incomingSet.has(user.id)}
+                    />
                   </div>
                 )) : "No profiles found"
               )}
@@ -336,6 +408,8 @@ const MainContent = () => {
         title={modalState.title}
         users={modalState.users}
         onConnectClick={sendRequest}
+        pendingOutgoingIds={outgoingSet}
+        pendingIncomingIds={incomingSet}
       />
     </div>
   );

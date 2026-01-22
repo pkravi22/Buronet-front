@@ -53,7 +53,7 @@ export function useUserProfile(targetUserId?: string) {
 
   // --- Core Profile Actions ---
   const updateProfile = async (updateDto: UpdateUserProfileDto) => {
-    if (!user?.id) throw new Error("User not authenticated for update.");
+    if (!authUser?.id) throw new Error("User not authenticated for update.");
     try {
       const updatedData = await put<UserProfile>(`/users/profile`, updateDto); 
       // NOTE: We don't need to optimistically update or revalidate here, we just need to refetch
@@ -68,7 +68,7 @@ export function useUserProfile(targetUserId?: string) {
 
   // --- Generic CRUD for Nested Collections ---
   const addItem = async <T, U>(url: string, dto: U): Promise<T> => {
-    if (!user?.id) throw new Error("User not authenticated for adding item.");
+    if (!authUser?.id) throw new Error("User not authenticated for adding item.");
     try {
       const newItem = await postApi<T>(url, dto);
       await refetchProfile(); // CRITICAL: Re-fetch the entire profile after any change
@@ -80,7 +80,7 @@ export function useUserProfile(targetUserId?: string) {
   };
 
   const updateItem = async <T, U>(url: string, id: number, dto: U): Promise<void> => {
-    if (!user?.id) throw new Error("User not authenticated for updating item.");
+    if (!authUser?.id) throw new Error("User not authenticated for updating item.");
     try {
       await put<T>(`${url}/${id}`, dto);
       await refetchProfile(); // CRITICAL: Re-fetch the entire profile after any change
@@ -91,7 +91,7 @@ export function useUserProfile(targetUserId?: string) {
   };
 
   const deleteItem = async (url: string, id: number): Promise<void> => {
-    if (!user?.id) throw new Error("User not authenticated for deleting item.");
+    if (!authUser?.id) throw new Error("User not authenticated for deleting item.");
     try {
       await remove(`${url}/${id}`);
       await refetchProfile(); // CRITICAL: Re-fetch the entire profile after any change

@@ -23,6 +23,9 @@ const HomePage: React.FC = () => {
   const [isCreatePostModalOpen, setIsCreatePostModalOpen] = useState(false);
   const [isCreatePollModalOpen, setIsCreatePollModalOpen] = useState(false);
   const [isCreateByteModalOpen, setIsCreateByteModalOpen] = useState(false);
+  // State to trigger refetching of posts after a new post is created
+  // This is passed as a key to PostSection to force it to re-render and refetch
+  const [postsRefetchKey, setPostsRefetchKey] = useState(0);
   const { user: authUser, isLoading: isAuthLoading } = useAuth(); 
   const { userProfile, isLoading: isProfileLoading } = useUserProfile(); 
   const mainRef = useRef<HTMLDivElement>(null);
@@ -32,6 +35,7 @@ const HomePage: React.FC = () => {
 
   // CRITICAL: Conditional rendering based on loading and auth status
   if (isAuthLoading) {
+    console.log("Auth loading...", authUser);
     return (
       <div className="flex justify-center items-center min-h-screen bg-gray-100">
         <LoadingSpinner /> <span className="ml-2 text-gray-700">Checking authentication...</span>
@@ -57,10 +61,6 @@ const HomePage: React.FC = () => {
       </div>
     )
   }
-
-  // State to trigger refetching of posts after a new post is created
-  // This is passed as a key to PostSection to force it to re-render and refetch
-  const [postsRefetchKey, setPostsRefetchKey] = useState(0);
 
   // Callback function to be executed when a post is successfully created in the modal
   const handlePostCreated = () => {

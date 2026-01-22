@@ -1,11 +1,21 @@
 'use client'
 
+import Link from 'next/link';
 import Head from 'next/head';
 import { useRouter } from 'next/navigation';
+import { useEffect, useMemo, useState } from 'react';
+
+import { get } from '@/lib/api';
+import type { Job } from '@/lib/types/jobs';
+import JobCard from '../../../jobs/components/JobCard';
 
 export default function Home() {
 
   const router = useRouter();
+
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [isJobsLoading, setIsJobsLoading] = useState(false);
+  const [jobsError, setJobsError] = useState<string | null>(null);
 
     const handleLogin = () => {
       router.push('/login');
@@ -15,6 +25,38 @@ export default function Home() {
       router.push('/register');
     }
 
+  useEffect(() => {
+    const fetchLatestJobs = async () => {
+      setIsJobsLoading(true);
+      setJobsError(null);
+      try {
+        const response = await get<Job[]>('/jobs/job-home');
+        setJobs(response);
+      } catch (err) {
+        const message = err instanceof Error ? err.message : 'Failed to load jobs';
+        setJobsError(message);
+      } finally {
+        setIsJobsLoading(false);
+      }
+    };
+
+    fetchLatestJobs();
+  }, []);
+
+  const latestJobs = useMemo(() => {
+    const toTime = (job: Job) => {
+      const value = job.createdDate || job.updatedDate || job.dateOfIssue;
+      const timestamp = value ? new Date(value).getTime() : NaN;
+      return Number.isFinite(timestamp) ? timestamp : 0;
+    };
+
+    return [...jobs].sort((a, b) => toTime(b) - toTime(a)).slice(0, 3);
+  }, [jobs]);
+
+  const handleLatestJobBookmarkToggle = () => {
+    router.push('/login');
+  };
+
   return (
     <>
       <Head>
@@ -23,11 +65,11 @@ export default function Home() {
         <link rel="icon" href="data:image/x-icon;base64," type="image/x-icon" />
       </Head>
 
-      <div className="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
-        <div className="layout-container flex h-full grow flex-col">
+      <div className="relative flex h-[100dvh] w-full flex-col group/design-root overflow-x-hidden overflow-y-auto">
+        <div className="layout-container flex min-h-full flex-col">
           {/* Header */}
-          <header className="flex items-center justify-between whitespace-nowrap border-b border-solid border-border-light dark:border-border-dark px-4 sm:px-6 lg:px-10 py-3">
-            <div className="flex items-center gap-3 text-content-light dark:text-content-dark">
+          <header className="grid grid-cols-[1fr_auto_1fr] items-center whitespace-nowrap border-b border-solid border-border-light dark:border-border-dark px-4 sm:px-6 lg:px-10 py-3">
+            <div className="flex items-center gap-3 text-content-light dark:text-content-dark justify-self-start">
               <div className="h-8 w-8 text-primary">
                 <svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
                   <path
@@ -38,25 +80,26 @@ export default function Home() {
               </div>
               <h2 className="text-xl font-bold">Buronet</h2>
             </div>
-            <nav className="hidden lg:flex items-center gap-8">
-              <a className="text-sm font-medium text-content-light dark:text-content-dark hover:text-primary dark:hover:text-primary" href="#">
-                Home
-              </a>
-              <a className="text-sm font-medium text-content-light dark:text-content-dark hover:text-primary dark:hover:text-primary" href="#">
-                Mentorship
-              </a>
-              <a className="text-sm font-medium text-content-light dark:text-content-dark hover:text-primary dark:hover:text-primary" href="#">
-                Jobs
-              </a>
-              <a className="text-sm font-medium text-content-light dark:text-content-dark hover:text-primary dark:hover:text-primary" href="#">
-                Community
-              </a>
-              <a className="text-sm font-medium text-content-light dark:text-content-dark hover:text-primary dark:hover:text-primary" href="#">
-                About Us
-              </a>
+            <nav className="hidden lg:flex items-center gap-8 justify-self-center">
+                <a className="text-sm font-medium text-content-light dark:text-content-dark hover:text-primary dark:hover:text-primary" href="#">
+                  Home
+                </a>
+                {/*<a className="text-sm font-medium text-content-light dark:text-content-dark hover:text-primary dark:hover:text-primary" href="#">
+                  Mentorship
+                </a>
+                <a className="text-sm font-medium text-content-light dark:text-content-dark hover:text-primary dark:hover:text-primary" href="#">
+                  Community
+                </a>
+              */}
+                <a className="text-sm font-medium text-content-light dark:text-content-dark hover:text-primary dark:hover:text-primary" href="#">
+                  Jobs
+                </a>
+                <a className="text-sm font-medium text-content-light dark:text-content-dark hover:text-primary dark:hover:text-primary" href="#">
+                  About Us
+                </a>
             </nav>
-            <div className="flex items-center gap-2">
-              <button onClick={handleJoin} className="hidden sm:flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-wide hover:bg-primary/90 transition-colors">
+            <div className="flex items-center gap-2 justify-self-end">
+              <button onClick={handleJoin} className="hidden sm:flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-sm font-bold leading-normal tracking-wide hover:bg-primary/90 transition-colors">
                 <span className="truncate">Join Now</span>
               </button>
               <button onClick={handleLogin} className="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-accent-light dark:bg-accent-dark text-content-light dark:text-content-dark text-sm font-bold leading-normal tracking-wide hover:bg-border-light dark:hover:bg-border-dark transition-colors">
@@ -143,73 +186,6 @@ export default function Home() {
                       Your centralized hub for all government job and exam
                       notifications. Get accurate, real-time alerts instantly.
                     </p>
-                  </div>
-                </div>
-              </section>
-
-              {/* Latest Government Jobs */}
-              <section className="py-16 sm:py-20">
-                <div className="text-center mb-12">
-                  <h2 className="text-3xl md:text-4xl font-bold text-content-light dark:text-content-dark tracking-tight">
-                    Latest Government Jobs
-                  </h2>
-                </div>
-                <div className="flex overflow-x-auto snap-x snap-mandatory [-ms-scrollbar-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden -mx-4 px-4 gap-6">
-                  <div className="snap-start shrink-0 w-full sm:w-1/2 lg:w-1/3">
-                    <div className="flex flex-col gap-4 rounded-lg">
-                      <div
-                        className="w-full bg-center bg-no-repeat aspect-video bg-cover rounded-lg"
-                        style={{
-                          backgroundImage: `url('https://lh3.googleusercontent.com/aida-public/AB6AXuDVY9yAucnC4qsjDdR8UDRmQTzBJgWKghXF91ZnhtoUzkFd3g4l0oC7gTGEN8H-7LqBnNbpvAc4dQ-PYB1s0-pxbh4a-ZDqBKZxzGCqsw9tO3J9ctWPj0tS_6pidMmiDgWZUM6HUdPBrDYwPpDd7AZYckud9AmodbwbwIefZ4Jx9Jf1kse6q45rvRC3KM6a2VfO00qn4xOhLKByWseqQNGe3cu8Z7ODLG2KbqqdQywkLUTD7srVq71AplMDEvT0qIXGMjPfmF9V_vXX')`,
-                        }}
-                      ></div>
-                      <div>
-                        <p className="text-content-light dark:text-content-dark text-base font-medium leading-normal">
-                          Civil Services Officer
-                        </p>
-                        <p className="text-subtle-light dark:text-subtle-dark text-sm font-normal leading-normal">
-                          Apply now for the prestigious Civil Services Examination.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="snap-start shrink-0 w-full sm:w-1/2 lg:w-1/3">
-                    <div className="flex flex-col gap-4 rounded-lg">
-                      <div
-                        className="w-full bg-center bg-no-repeat aspect-video bg-cover rounded-lg"
-                        style={{
-                          backgroundImage: `url('https://lh3.googleusercontent.com/aida-public/AB6AXuDBwU0_ymxFadduUmLHPx-UxNopObeGZHGyf-wOd2WaP8hXpz0rd6TYiqJrk2_T4tdn1cWfrIl76P56IDA-t60vQ1O6lP9aAk8Vm3A62hTXlM7jEozGkOMVieTYohMThSH-z7Xfc2v3S4-u6ZqM9MsMTyoma05oGMiMulmhwcBhEdfbfyVANwGjxaX-AnRfyw5cyRekVWKv2XlEAF61eb8jV0F3C78QzhqCNElXxehV5UuwDiWdvPN6_6jIgP52S8RkrUj4N22XgPcK')`,
-                        }}
-                      ></div>
-                      <div>
-                        <p className="text-content-light dark:text-content-dark text-base font-medium leading-normal">
-                          Public Health Administrator
-                        </p>
-                        <p className="text-subtle-light dark:text-subtle-dark text-sm font-normal leading-normal">
-                          Lead public health initiatives and make a difference in
-                          your community.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="snap-start shrink-0 w-full sm:w-1/2 lg:w-1/3">
-                    <div className="flex flex-col gap-4 rounded-lg">
-                      <div
-                        className="w-full bg-center bg-no-repeat aspect-video bg-cover rounded-lg"
-                        style={{
-                          backgroundImage: `url('https://lh3.googleusercontent.com/aida-public/AB6AXuC31k_FKZlmkuirNQWJhBupz-B89Itr3UjWVVR9YU7wQm8Scw0T5sRzG9GYpB4dQAlNMJvlJ3afXCLc4MRO47SpL4dShICWjy6mdkyb4ReFr4GU0mMf2JDbutobHWhMybl1AOiDSPYxbIDC1-SIfWR6fDp8BL3PQ55LMzb465Zy81cKxeVFIJ26B627DV44AM81oU0NLxKaxUVAJLiIcjhEHq4Xh2jfT0wHWwGzp2OAspcihwX9ymgzKbPN5ggf7xctt2lr3tTo-0HX')`,
-                        }}
-                      ></div>
-                      <div>
-                        <p className="text-content-light dark:text-content-dark text-base font-medium leading-normal">
-                          Urban Planner
-                        </p>
-                        <p className="text-subtle-light dark:text-subtle-dark text-sm font-normal leading-normal">
-                          Shape the future of cities with innovative urban
-                          planning strategies.
-                        </p>
-                      </div>
-                    </div>
                   </div>
                 </div>
               </section>
@@ -383,12 +359,42 @@ export default function Home() {
                   </p>
                 </div>
                 <div className="flex justify-center gap-4 flex-wrap">
-                  <button className="flex min-w-[140px] max-w-[240px] grow cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-6 bg-primary text-white text-base font-bold leading-normal tracking-wide hover:bg-primary/90 transition-colors">
+                  <button onClick={handleJoin} className="flex min-w-[140px] max-w-[240px] grow cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-6 bg-primary text-white text-base font-bold leading-normal tracking-wide hover:bg-primary/90 transition-colors">
                     <span className="truncate">Join the Community</span>
                   </button>
-                  <button className="flex min-w-[140px] max-w-[240px] grow cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-6 bg-accent-light dark:bg-accent-dark text-content-light dark:text-content-dark text-base font-bold leading-normal tracking-wide hover:bg-border-light dark:hover:bg-border-dark transition-colors">
-                    <span className="truncate">Job and Exam Updates</span>
-                  </button>
+                </div>
+
+                <div className="mt-12">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+                    <h3 className="text-xl md:text-2xl font-bold text-content-light dark:text-content-dark text-center sm:text-left">
+                      Latest Job Openings
+                    </h3>
+                    <Link
+                      href="/jobs"
+                      className="text-sm font-semibold text-primary hover:underline text-center sm:text-right"
+                    >
+                      View all jobs
+                    </Link>
+                  </div>
+
+                  {isJobsLoading ? (
+                    <div className="text-center text-subtle-light dark:text-subtle-dark">Loading latest jobs…</div>
+                  ) : jobsError ? (
+                    <div className="text-center text-red-600">{jobsError}</div>
+                  ) : latestJobs.length === 0 ? (
+                    <div className="text-center text-subtle-light dark:text-subtle-dark">No jobs found.</div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {latestJobs.map((job) => (
+                        <JobCard
+                          key={job.id ?? `${job.jobTitle}-${job.createdDate}`}
+                          job={job}
+                          isBookmarked={false}
+                          onToggleBookmark={handleLatestJobBookmarkToggle}
+                        />
+                      ))}
+                    </div>
+                  )}
                 </div>
               </section>
 

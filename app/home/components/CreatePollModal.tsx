@@ -333,6 +333,15 @@ const CreatePollModal: React.FC<CreatePollModalProps> = ({ isOpen, onClose, onPo
     }
   };
 
+  const closeModal = () => {
+      setContent('');
+      setImageUrl('');
+      setTagsInput('');
+      setError(null);
+      setIsSubmitting(false);
+      onClose();
+  }
+
   return (
     <div
       className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
@@ -340,7 +349,7 @@ const CreatePollModal: React.FC<CreatePollModalProps> = ({ isOpen, onClose, onPo
     >
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg p-6 relative">
         <button
-          onClick={onClose}
+          onClick={() => closeModal()}
           className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 focus:outline-none transition-colors"
           aria-label="Close modal"
         >

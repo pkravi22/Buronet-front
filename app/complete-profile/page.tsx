@@ -10,6 +10,7 @@ import { UserProfile, UpdateUserProfileDto } from '../../lib/types/user'; // Ass
 import { get, postApi, put } from '../../lib/api'; // Import 'get' and 'put' from your API utility
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { getProfileImageUrl } from '@/lib/helpers/profileImage';
+import { toDateOnly } from '@/lib/dates';
 
 type UploadImageResponse = {
   profilePictureMediaId: string;
@@ -26,7 +27,7 @@ const CompleteProfilePage: React.FC = () => {
   const [profileData, setProfileData] = useState<UpdateUserProfileDto>({
     firstName: '',
     lastName: '',
-    dateOfBirth: undefined, // Use undefined for optional Date objects
+    dateOfBirth: '', // Date-only string for <input type="date">
     phoneNumber: '',
     addressLine1: '',
     addressLine2: '',
@@ -79,8 +80,8 @@ const CompleteProfilePage: React.FC = () => {
         setProfileData({
           firstName: data.firstName || '',
           lastName: data.lastName || '',
-          // Convert ISO string date to YYYY-MM-DD format for input type="date"
-          dateOfBirth: data.dateOfBirth ? new Date(data.dateOfBirth) : undefined,
+          // Keep date-only fields stable in UI.
+          dateOfBirth: toDateOnly(data.dateOfBirth) || '',
           phoneNumber: data.phoneNumber || '',
           addressLine1: data.addressLine1 || '',
           addressLine2: data.addressLine2 || '',
@@ -119,10 +120,10 @@ const CompleteProfilePage: React.FC = () => {
 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    // Store as Date object or undefined
+    // Store as date-only string (YYYY-MM-DD) or empty.
     setProfileData(prev => ({
       ...prev,
-      [name]: value ? new Date(value) : undefined
+      [name]: value || ''
     }));
   };
 
@@ -151,7 +152,7 @@ const CompleteProfilePage: React.FC = () => {
             }
       await put('/Users/profile', { // Call the /userprofile/me endpoint with PUT
         ...profileData,
-        dateOfBirth: profileData.dateOfBirth ? profileData.dateOfBirth.toISOString() : null,
+        dateOfBirth: profileData.dateOfBirth ? profileData.dateOfBirth : null,
       });
 
       // If successful, redirect to the main profile page
@@ -235,8 +236,7 @@ const CompleteProfilePage: React.FC = () => {
                 type="date"
                 name="dateOfBirth"
                 id="dateOfBirth"
-                // Value for type="date" must be YYYY-MM-DD string
-                value={profileData.dateOfBirth ? (typeof profileData.dateOfBirth === 'string' ? profileData.dateOfBirth : profileData.dateOfBirth.toISOString().split('T')[0]) : ''}
+                value={profileData.dateOfBirth || ''}
                 onChange={handleDateChange}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               />
