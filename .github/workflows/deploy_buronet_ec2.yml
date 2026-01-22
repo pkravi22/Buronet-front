@@ -66,5 +66,5 @@ jobs:
             tar -xzf deploy.tar.gz
             rm deploy.tar.gz
             # Purely restarting - no building or installing
-            pm2 restart buronet-app --update-env || pm2 start npm --name "buronet-app" -- start
+            pm2 start ecosystem.config.js --update-env
             pm2 save
