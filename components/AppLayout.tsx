@@ -20,10 +20,16 @@ export const metadata: Metadata = {
 // RootLayout is a Server Component by default
 export default function RootLayout({
   children,
+  mainClassName,
 }: {
   children: React.ReactNode;
+  mainClassName?: string;
 }) {
   const [isNavOpen, setIsNavOpen] = useState(false);
+
+  const defaultMainClassName =
+    'flex-1 max-h-[calc(100vh-3rem)] overflow-y-auto lg:px-16 lg:mt-16 md:px-8 sm:px-0';
+
   return (
     <AuthProvider>
       <div className="flex bg-gray-100"> {/* Set background here */}
@@ -44,7 +50,7 @@ export default function RootLayout({
           />
 
           {/* Scrollable container for the page content */}
-          <main className="flex-1 max-h-[calc(100vh-3rem)] overflow-y-auto lg:px-16 lg:mt-16 md:px-8 sm:px-0"> {/* Set padding here */}
+          <main className={mainClassName ?? defaultMainClassName}> {/* Set padding here */}
             {children}
           </main>
 

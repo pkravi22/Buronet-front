@@ -19,6 +19,7 @@ import CommunityGroupsSection from '../../components/UserProfile/CommunityGroups
 
 // Modals/Forms for editing profile data
 import EditProfileModal from '../../components/UserProfile/EditProfileModal';
+import ChangePasswordModal from '../../components/UserProfile/ChangePasswordModal';
 
 import LoadingSpinner from '../../components/UI/LoadingSpinner'; // Our loading spinner component
 import { format } from 'date-fns'; // For date formatting from backend ISO strings
@@ -26,6 +27,7 @@ import { format } from 'date-fns'; // For date formatting from backend ISO strin
 import { useAuth, withAuthRequired } from '../../context/AuthContext'; // Authentication context and HOC
 import TopBar from '@/components/TopBar';
 import { getProfileImageUrl } from '@/lib/helpers/profileImage';
+import { AlertModal } from '@/components/AlertModal';
 
 const ProfilePage: React.FC = () => {
   // Get authentication status and profile data from our custom hooks
@@ -35,6 +37,8 @@ const ProfilePage: React.FC = () => {
 
   // State for controlling the main profile edit modal's visibility
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
+  const [passwordToast, setPasswordToast] = useState<string | null>(null);
 
   // Consolidated loading and error states for the entire page
   const isLoading = isAuthLoading || isProfileLoading;
@@ -161,15 +165,33 @@ const ProfilePage: React.FC = () => {
                   </div>
 
                   {/* Edit Profile Button - Dynamic Action */}
-                  <div className="flex w-full space-x-3">
+                  <div className="w-full space-y-3">
+                    <div className="grid grid-cols-2 gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setIsEditModalOpen(true)}
+                        className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                      >
+                        <i className="fas fa-edit"></i>
+                        <span className="whitespace-nowrap">Edit Profile</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        className="inline-flex items-center justify-center gap-2 rounded-lg bg-gray-100 px-4 py-2.5 text-sm font-semibold text-gray-800 shadow-sm transition hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2"
+                      >
+                        <i className="fas fa-share-alt"></i>
+                        <span className="whitespace-nowrap">Share</span>
+                      </button>
+                    </div>
+
                     <button
-                      onClick={() => setIsEditModalOpen(true)}
-                      className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-lg font-medium transition shadow-md hover:shadow-lg"
+                      type="button"
+                      onClick={() => setIsChangePasswordOpen(true)}
+                      className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-900 shadow-sm transition hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                     >
-                      <i className="fas fa-edit mr-2"></i> Edit Profile
-                    </button>
-                    <button className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2.5 rounded-lg font-medium transition">
-                      <i className="fas fa-share-alt mr-2"></i> Share
+                      <i className="fas fa-key"></i>
+                      <span className="whitespace-nowrap">Change Password</span>
                     </button>
                   </div>
                 </div>
@@ -216,6 +238,21 @@ const ProfilePage: React.FC = () => {
         <EditProfileModal
           userProfile={userProfile}
           onClose={() => setIsEditModalOpen(false)}
+        />
+      )}
+
+      {isChangePasswordOpen && (
+        <ChangePasswordModal
+          onClose={() => setIsChangePasswordOpen(false)}
+          onSuccess={() => setPasswordToast('Password updated successfully.')}
+        />
+      )}
+
+      {passwordToast && (
+        <AlertModal
+          message={passwordToast}
+          type="success"
+          onClose={() => setPasswordToast(null)}
         />
       )}
     </AppLayout>

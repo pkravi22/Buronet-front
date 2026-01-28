@@ -1,5 +1,34 @@
 import { jwtDecode } from 'jwt-decode';
 
+export const LOGOUT_GUARD_UNTIL_KEY = 'logout_guard_until';
+
+export const setLogoutGuard = (durationMs: number = 2 * 60 * 1000) => {
+  if (typeof window === 'undefined') return;
+  const until = Date.now() + durationMs;
+  localStorage.setItem(LOGOUT_GUARD_UNTIL_KEY, String(until));
+};
+
+export const clearLogoutGuard = () => {
+  if (typeof window === 'undefined') return;
+  localStorage.removeItem(LOGOUT_GUARD_UNTIL_KEY);
+};
+
+export const isLogoutGuardActive = (): boolean => {
+  if (typeof window === 'undefined') return false;
+  const raw = localStorage.getItem(LOGOUT_GUARD_UNTIL_KEY);
+  if (!raw) return false;
+  const until = Number(raw);
+  if (!Number.isFinite(until)) {
+    localStorage.removeItem(LOGOUT_GUARD_UNTIL_KEY);
+    return false;
+  }
+  if (until <= Date.now()) {
+    localStorage.removeItem(LOGOUT_GUARD_UNTIL_KEY);
+    return false;
+  }
+  return true;
+};
+
 export const isAuthenticated = () => {
   const token = localStorage.getItem('token');
   if (!token) {

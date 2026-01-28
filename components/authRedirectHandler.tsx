@@ -5,6 +5,7 @@ import React, { useEffect } from 'react';
 import { withAuthRequired, useAuth } from '../context/AuthContext';
 import LoadingSpinner from './UI/LoadingSpinner';
 import { authExclusions } from './authExclusions';
+import { isLogoutGuardActive } from '@/utils/auth';
 
 export const AuthRedirectHandler: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const router = useRouter();
@@ -22,9 +23,44 @@ export const AuthRedirectHandler: React.FC<{ children: React.ReactNode }> = ({ c
   // Combined loading state: Wait for Auth check, AND if authenticated, wait for Profile check
   const isLoading = isAuthLoading || (user && isProfileLoading);
 
+  // Post-logout session monitor:
+  // For 2 minutes after logout, keep forcing /login and keep clearing any token that reappears.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    if (!isLogoutGuardActive()) return;
+
+    const tick = () => {
+      if (!isLogoutGuardActive()) return;
+
+      // Defensive: token can reappear briefly due to hydration/race conditions.
+      const token = localStorage.getItem('token');
+      if (token) {
+        localStorage.removeItem('token');
+      }
+
+      if (pathname !== '/login') {
+        router.replace('/login');
+      }
+    };
+
+    tick();
+    const intervalId = window.setInterval(tick, 2000);
+    return () => window.clearInterval(intervalId);
+  }, [pathname, router]);
+
   useEffect(() => {
     const publicRoutes = ['/login', '/register', '/forgot-password', '/reset-password'];
     const isPublicRoute = publicRoutes.includes(pathname);
+
+    // 0. Logout guard override: during the guard window, never redirect away from /login,
+    // and always force navigation to /login from anywhere else.
+    if (isLogoutGuardActive()) {
+      if (pathname !== '/login') {
+        router.replace('/login');
+      }
+      return;
+    }
 
     // 1. Wait for stability (Auth and Profile data must be loaded)
     if (isLoading) {

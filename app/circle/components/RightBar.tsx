@@ -133,6 +133,8 @@ const RightBar = ({ scrollSourceRef }: { scrollSourceRef: React.RefObject<HTMLEl
   const syncing = useRef(false);
   const lastScrollTop = useRef(0);
 
+  console.log("pending requests in RightBar:", pendingRequests);
+
   useLayoutEffect(() => {
       console.log(
   "effect ran",

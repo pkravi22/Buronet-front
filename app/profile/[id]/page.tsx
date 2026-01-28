@@ -1,7 +1,7 @@
 'use client';
 
-import React from 'react';
-import { useParams } from 'next/navigation';
+import React, { useEffect, useMemo } from 'react';
+import { useParams, useRouter } from 'next/navigation';
 import AppLayout from '@/components/AppLayout';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import UserProfileHeader from '@/components/UserProfile/UserProfileHeader'; // Component for the left profile card
@@ -23,15 +23,140 @@ import EditProfileModal from '@/components/UserProfile/EditProfileModal';
 import LoadingSpinner from '@/components/UI/LoadingSpinner';
 import { useAuth } from '@/context/AuthContext'; 
 import { getProfileImageUrl } from '@/lib/helpers/profileImage';
+import { useConnections } from '@/hooks/useConnections';
 
 const OthersProfilePage: React.FC = () => {
   const params = useParams();
   const userId = params.id as string;
+  const router = useRouter();
 
   // We fetch the specific user profile. Note: we do NOT use withAuthRequired here 
   // so that profiles can be viewed, but useAuth still provides the current viewer's info.
   const { user: authUser } = useAuth();
   const { userProfile, isLoading: isProfileLoading, isError: profileError } = useUserProfile(userId);
+
+  // The route param might not always be the canonical user Guid.
+  // Use the loaded profile id when available to match connection request ids.
+  const targetUserId = userProfile?.id || userId;
+  const normalizeId = (value?: string | null) => (value || '').toLowerCase();
+
+  // Connection state/actions (reused from Circle logic)
+  const {
+    connections,
+    pendingRequests,
+    pendingIncomingRequests,
+    pendingOutgoingRequests,
+    sendRequest,
+    acceptRequest,
+    declineRequest,
+    isLoading: isConnectionsLoading,
+  } = useConnections({ includeOutgoingPending: true });
+
+  const isOwnProfile = !!authUser?.id && authUser.id === targetUserId;
+
+  const connectionToUser = useMemo(() => {
+    const target = normalizeId(targetUserId);
+    return connections.find(
+      (c) => normalizeId(c.connectedUserId) === target || normalizeId(c.connectedUser?.id) === target
+    );
+  }, [connections, targetUserId]);
+
+  const isConnected = !!connectionToUser;
+
+  const outgoingRequest = useMemo(() => {
+    if (!authUser?.id) return null;
+    const me = normalizeId(authUser.id);
+    const target = normalizeId(targetUserId);
+    return (
+      pendingOutgoingRequests.find(
+        (r) => r.status === 'Pending' && normalizeId(r.senderId) === me && normalizeId(r.receiverId) === target
+      ) || null
+    );
+  }, [pendingOutgoingRequests, authUser?.id, targetUserId]);
+
+  const incomingRequest = useMemo(() => {
+    if (!authUser?.id) return null;
+    const me = normalizeId(authUser.id);
+    const target = normalizeId(targetUserId);
+    return (
+      (pendingIncomingRequests.length ? pendingIncomingRequests : pendingRequests).find(
+        (r) => r.status === 'Pending' && normalizeId(r.receiverId) === me && normalizeId(r.senderId) === target
+      ) || null
+    );
+  }, [pendingRequests, pendingIncomingRequests, authUser?.id, targetUserId]);
+
+  // Dev-only diagnostics (remove once verified)
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'production') return;
+
+    const me = normalizeId(authUser?.id);
+    const target = normalizeId(targetUserId);
+
+    const outgoingMatch = pendingOutgoingRequests.find(
+      (r) => r.status === 'Pending' && normalizeId(r.senderId) === me && normalizeId(r.receiverId) === target
+    );
+    const incomingMatch = pendingRequests.find(
+      (r) => r.status === 'Pending' && normalizeId(r.receiverId) === me && normalizeId(r.senderId) === target
+    );
+
+    console.log('[Profile Connect Debug]', {
+      routeParam: userId,
+      userProfileId: userProfile?.id,
+      targetUserId,
+      authUserId: authUser?.id,
+      pendingRequestsCount: pendingRequests.length,
+      pendingIncomingRequestsCount: pendingIncomingRequests?.length,
+      pendingOutgoingRequestsCount: pendingOutgoingRequests?.length,
+      connectionsCount: connections.length,
+      outgoingMatch,
+      incomingMatch,
+      pendingSample: pendingRequests.slice(0, 10).map((r) => ({
+        id: r.id,
+        status: r.status,
+        senderId: r.senderId,
+        receiverId: r.receiverId,
+      })),
+    });
+  }, [
+    authUser?.id,
+    connections.length,
+    pendingRequests,
+    pendingIncomingRequests,
+    pendingOutgoingRequests,
+    targetUserId,
+    userId,
+    userProfile?.id,
+  ]);
+
+  const handlePrimaryAction = async () => {
+    if (!authUser?.id) {
+      // Preserve the exact current path in case the param isn't a Guid.
+      const returnTo = typeof window !== 'undefined' ? window.location.pathname + window.location.search : `/profile/${userId}`;
+      router.push(`/login?returnTo=${encodeURIComponent(returnTo)}`);
+      return;
+    }
+
+    if (isConnected) {
+      router.push(`/messaging?userId=${targetUserId}`);
+      return;
+    }
+
+    if (incomingRequest) {
+      await acceptRequest(incomingRequest.id);
+      return;
+    }
+
+    if (outgoingRequest) {
+      return;
+    }
+
+    await sendRequest(targetUserId);
+  };
+
+  const handleDeclineIncoming = async () => {
+    if (!incomingRequest) return;
+    await declineRequest(incomingRequest.id);
+  };
 
   if (isProfileLoading) {
     return (
@@ -103,14 +228,71 @@ const OthersProfilePage: React.FC = () => {
                   </div>
 
                   {/* Redundant structure: Only "Share" and "Connect" buttons, no Edit */}
-                  <div className="flex w-full space-x-3">
-                    <button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-lg font-medium transition shadow-md">
-                      <i className="fas fa-user-plus mr-2"></i> Connect
-                    </button>
-                    <button className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2.5 rounded-lg font-medium transition">
-                      <i className="fas fa-share-alt mr-2"></i> Share
-                    </button>
-                  </div>
+                  {!isOwnProfile ? (
+                    <div className="w-full space-y-3">
+                      <div className="flex w-full space-x-3">
+                        {incomingRequest ? (
+                          <button
+                            disabled={isConnectionsLoading}
+                            onClick={handlePrimaryAction}
+                            className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white py-2.5 rounded-lg font-medium transition shadow-md"
+                          >
+                            <i className="fas fa-user-check mr-2"></i> Accept
+                          </button>
+                        ) : (
+                          <button
+                            disabled={isConnectionsLoading || !!outgoingRequest}
+                            onClick={handlePrimaryAction}
+                            className={`flex-1 py-2.5 rounded-lg font-medium transition shadow-md ${
+                              isConnected
+                                ? 'bg-gray-100 hover:bg-gray-200 text-gray-700 shadow-none'
+                                : outgoingRequest
+                                ? 'bg-gray-100 text-gray-500 cursor-not-allowed shadow-none'
+                                : 'bg-blue-600 hover:bg-blue-700 text-white'
+                            }`}
+                          >
+                            <i className={`fas ${isConnected ? 'fa-comment-dots' : 'fa-user-plus'} mr-2`}></i>
+                            {isConnected ? 'Message' : outgoingRequest ? 'Request Pending' : 'Connect'}
+                          </button>
+                        )}
+
+                        <button
+                          className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2.5 rounded-lg font-medium transition"
+                          onClick={() => {
+                            // Placeholder: implement share later (copy profile link)
+                            if (typeof window !== 'undefined') {
+                              navigator.clipboard?.writeText(window.location.href);
+                            }
+                          }}
+                        >
+                          <i className="fas fa-share-alt mr-2"></i> Share
+                        </button>
+                      </div>
+
+                      {incomingRequest && (
+                        <button
+                          disabled={isConnectionsLoading}
+                          onClick={handleDeclineIncoming}
+                          className="w-full bg-gray-100 hover:bg-gray-200 disabled:bg-gray-100 text-gray-700 py-2.5 rounded-lg font-medium transition"
+                        >
+                          Ignore request
+                        </button>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="flex w-full">
+                      <button
+                        className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2.5 rounded-lg font-medium transition"
+                        onClick={() => {
+                          if (typeof window !== 'undefined') {
+                            navigator.clipboard?.writeText(window.location.href);
+                          }
+                        }}
+                      >
+                        <i className="fas fa-share-alt mr-2"></i> Share
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

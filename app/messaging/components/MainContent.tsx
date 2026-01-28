@@ -28,6 +28,9 @@ import { formatTimeAgo } from '@/lib/dates';
 // --- End of Helper Interfaces ---
 
 const MessagingPage: React.FC = () => {
+  const messagingMainClassName =
+    'flex-1 max-h-[calc(100vh-3rem)] overflow-y-auto lg:pl-8 lg:pr-2 lg:mt-16 md:px-8 sm:px-0';
+
   const {
     conversations,
     selectedConversation, // This is now managed by useChat
@@ -179,7 +182,7 @@ const MessagingPage: React.FC = () => {
   // --- Conditional Rendering for Loading/Error States ---
   if (isLoadingConversations) {
     return (
-      <AppLayout>
+      <AppLayout mainClassName={messagingMainClassName}>
         <div className="flex justify-center items-center min-h-[calc(100vh-64px)]">
           <LoadingSpinner />{' '}
           <span className="ml-2 text-gray-700">Loading chats...</span>
@@ -190,7 +193,7 @@ const MessagingPage: React.FC = () => {
 
   if (error) {
     return (
-      <AppLayout>
+      <AppLayout mainClassName={messagingMainClassName}>
         <div className="text-red-600 text-center py-8">
           <p>Error loading messaging service: {error as string}</p>
           <button
@@ -205,12 +208,12 @@ const MessagingPage: React.FC = () => {
   }
 
   return (
-    <AppLayout>
+    <AppLayout mainClassName={messagingMainClassName}>
       {/* Main container:
         - Added responsive margins: `mx-2` (mobile) and `md:mx-8` (medium+).
         - Added `overflow-hidden` to prevent layout issues during screen transitions.
       */}
-      <div className="flex bg-white rounded-lg lg:shadow-sm border border-[#E5E7EB] mt-16 lg:mt-8 mx-2 md:mx-8 py-2 px-2 h-[calc(100vh-80px-3.5rem)] lg:h-[calc(100vh-61px-3rem)]">
+      <div className="flex bg-white rounded-lg lg:shadow-sm border border-[#E5E7EB] mt-16 lg:mt-8 mx-2 md:mr-6 md:ml-2 py-2 px-2 h-[calc(100vh-80px-3.5rem)] lg:h-[calc(100vh-61px-3rem)] laptop:ml-[6.5rem]">
         {/* Recent Chats Sidebar:
           - Default (mobile): `w-full`, `flex` (visible)
           - Mobile (chat selected): `hidden`

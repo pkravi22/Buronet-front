@@ -7,6 +7,7 @@ import { User, LoginData, RegisterData, UserProfile, RegisterResponse } from '..
 import { useRouter } from 'next/navigation';
 import { jwtDecode } from 'jwt-decode'; // Ensure jwt-decode is installed: npm install jwt-decode
 import LoadingSpinner from '../components/UI/LoadingSpinner'; // Adjust path based on your project structure
+import { clearLogoutGuard, setLogoutGuard } from '../utils/auth';
 
 // Define your User type based on what your backend returns after successful login/token verification
 // Ensure 'id' is string if your backend returns it as string GUID, or Guid if you convert it.
@@ -145,6 +146,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       if (response && response.token) {
         const token = response.token;
+        // If a logout guard is active (e.g., user logged out in another tab), clear it on successful login.
+        clearLogoutGuard();
         localStorage.setItem('token', token);
         const decodedUser = jwtDecode<User>(token);
         setUser(decodedUser);
@@ -176,8 +179,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setIsLoading(true);
     setError(null);
     try {
+      // Force a 2-minute "logout guard" window so redirect logic cannot bounce back to /home.
+      // This also enables continuous checking for an active session during token-clearing races.
+      setLogoutGuard(2 * 60 * 1000);
+
       localStorage.removeItem('token'); // Clear token from storage
       setUser(null); // Clear user from context
+      setUserProfile(null);
+      setIsProfileError(false);
 
       try {
         // Call backend logout endpoint (optional, for refresh token invalidation/blacklisting)
@@ -188,7 +197,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         console.warn("logout: Backend logout endpoint failed (might be expected if token already cleared or endpoint doesn't exist/is unreachable):", backendLogoutError);
       }
 
-      router.push('/login'); // Redirect to login after logout
+      router.replace('/login'); // Redirect to login after logout (avoid back-button returning to protected routes)
     } catch (err: any) {
       console.error('logout: Error during client-side logout process:', err);
       setError(err.message || "Logout failed.");
