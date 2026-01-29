@@ -89,8 +89,9 @@ const RegisterPage: React.FC = () => {
           <div className="rounded-md shadow-sm"> {/* Removed -space-y-px from here */}
             {/* Username Input */}
             <div className='mb-4'> {/* Each input div now manages its own bottom margin */}
-              <label htmlFor="username" className="sr-only">
+              <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
                 Username
+                <span className="text-red-500" aria-hidden="true"> *</span>
               </label>
               <input
                 id="username"
@@ -106,8 +107,9 @@ const RegisterPage: React.FC = () => {
             </div>
             {/* Email Input */}
             <div className='mb-4'> {/* Each input div now manages its own bottom margin */}
-              <label htmlFor="email" className="sr-only">
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
                 Email address
+                <span className="text-red-500" aria-hidden="true"> *</span>
               </label>
               <input
                 id="email"
@@ -123,8 +125,9 @@ const RegisterPage: React.FC = () => {
             </div>
             {/* Password Input */}
             <div> {/* No mb-4 here as it's the last input before the button */}
-              <label htmlFor="password" className="sr-only">
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
                 Password
+                <span className="text-red-500" aria-hidden="true"> *</span>
               </label>
               <input
                 id="password"

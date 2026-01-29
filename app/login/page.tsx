@@ -79,8 +79,9 @@ export default function LoginPage() {
           <input type="hidden" name="remember" defaultValue="true" />
           <div className="rounded-md shadow-sm -space-y-px">
             <div className='mb-4'>
-              <label htmlFor="username" className="sr-only">
+              <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
                 Username
+                <span className="text-red-500" aria-hidden="true"> *</span>
               </label>
               <input
                 id="username" // Corrected id
@@ -95,8 +96,9 @@ export default function LoginPage() {
               />
             </div>
             <div>
-              <label htmlFor="password" className="sr-only">
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
                 Password
+                <span className="text-red-500" aria-hidden="true"> *</span>
               </label>
               <input
                 id="password"
