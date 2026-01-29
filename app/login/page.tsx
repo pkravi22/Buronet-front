@@ -80,7 +80,7 @@ export default function LoginPage() {
           <div className="rounded-md shadow-sm -space-y-px">
             <div className='mb-4'>
               <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
-                Username
+                Username / Email
                 <span className="text-red-500" aria-hidden="true"> *</span>
               </label>
               <input
@@ -89,10 +89,10 @@ export default function LoginPage() {
                 type="text"
                 value={username}
                 onChange={e => setUsername(e.target.value)} // Corrected state setter
-                autoComplete="username" // Use 'username' for username field
+                autoComplete="username" // Accepts username or email (browser still uses 'username')
                 required
                 className="appearance-none rounded-t-md rounded-b-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Username"
+                placeholder="Username or Email"
               />
             </div>
             <div>
