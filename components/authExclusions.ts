@@ -3,4 +3,5 @@ export const authExclusions: string[] = [
   '/hero-page',
   '/login',
   '/register',
+  '/forgot-password',
 ];
