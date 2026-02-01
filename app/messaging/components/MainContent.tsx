@@ -28,8 +28,10 @@ import { formatTimeAgo } from '@/lib/dates';
 // --- End of Helper Interfaces ---
 
 const MessagingPage: React.FC = () => {
-  const messagingMainClassName =
-    'flex-1 max-h-[calc(100vh-3rem)] overflow-y-auto lg:pl-8 lg:pr-2 lg:mt-16 md:px-8 sm:px-0';
+  // Keep the overall page background consistent and reserve space for the fixed TopBar.
+  // The inner panel then uses `my-6` and `h-[calc(100vh-61px-3rem)]` so it matches the
+  // left fixed navbar height.
+  const messagingMainClassName = 'flex-1 overflow-y-auto bg-[#EEF0F4] pt-[61px]';
 
   const {
     conversations,
@@ -213,7 +215,7 @@ const MessagingPage: React.FC = () => {
         - Added responsive margins: `mx-2` (mobile) and `md:mx-8` (medium+).
         - Added `overflow-hidden` to prevent layout issues during screen transitions.
       */}
-      <div className="flex bg-white rounded-lg lg:shadow-sm border border-[#E5E7EB] mt-16 lg:mt-8 mx-2 md:mr-6 md:ml-2 py-2 px-2 h-[calc(100vh-80px-3.5rem)] lg:h-[calc(100vh-61px-3rem)] laptop:ml-[6.5rem]">
+      <div className="flex bg-white rounded-lg lg:shadow-sm border border-[#E5E7EB] p-2 my-6 mx-2 md:mx-6 laptop:mx-0 laptop:ml-[6.5rem] laptop:mr-6 h-[calc(100vh-61px-3rem)] overflow-hidden">
         {/* Recent Chats Sidebar:
           - Default (mobile): `w-full`, `flex` (visible)
           - Mobile (chat selected): `hidden`

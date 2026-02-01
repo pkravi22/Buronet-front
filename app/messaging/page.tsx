@@ -7,7 +7,7 @@ import '../restrictScroll.css'
 
 const MessagingPage = () => {
   return (
-    <div>
+    <div className="min-h-screen bg-[#EEF0F4]">
           <MessagingIconNavbar />
           <div className="pt-[1.5rem] mb-[4.5rem] laptop:mb-0 laptop:pt-0">
             <MainContent />

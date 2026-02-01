@@ -1,7 +1,7 @@
 "use client";
 
-import { TrendingUp, Users, UserPlus, Clock, User, ChevronLeft, ChevronRight } from 'lucide-react';
-import { useRef, useState, useEffect, useCallback, useMemo } from 'react';
+import { TrendingUp, Users, UserPlus, Clock, User } from 'lucide-react';
+import { useState, useMemo } from 'react';
 import { useConnections } from '@/hooks/useConnections'; // Import the new hook
 import { useAuth } from '@/context/AuthContext';
 import { SuggestedUserDto } from '@/lib/types/connections'; // Import the new DTO
@@ -130,12 +130,20 @@ const NetworkCard: React.FC<NetworkCardProps> = ({ user, onConnectClick, isConne
 
 
 const MainContent = () => {
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const [showLeftButton, setShowLeftButton] = useState(false);
-  const [showRightButton, setShowRightButton] = useState(true);
     // Use the new useConnections hook to get data
   const { suggestedConnections, networkMetrics, popularConnections, isLoading, error, sendRequest, clearError, pendingIncomingRequests, pendingOutgoingRequests } = useConnections({ includeOutgoingPending: true });
   const { user: authUser } = useAuth();
+
+  // Show a maximum number of cards per breakpoint:
+  // - mobile (< md): 2
+  // - medium (md .. < lg): 4
+  // - desktop (lg+): 3
+  const getCardVisibilityClass = (index: number) => {
+    if (index < 2) return '';
+    if (index === 2) return 'hidden md:block';
+    if (index === 3) return 'hidden md:block lg:hidden';
+    return 'hidden';
+  };
 
   const outgoingSet = useMemo(() => {
     const set = new Set<string>();
@@ -173,49 +181,6 @@ const MainContent = () => {
     setModalState({ isOpen: false, title: '', users: [] });
   };
 
-
-  const handleScroll = useCallback(() => {
-    const container = scrollContainerRef.current;
-    if (container) {
-      const isAtStart = container.scrollLeft < 1;
-      const isAtEnd = Math.abs(container.scrollWidth - container.clientWidth - container.scrollLeft) < 1;
-
-      setShowLeftButton(!isAtStart);
-      setShowRightButton(!isAtEnd);
-    }
-  }, []);
-
-  const scroll = (direction: 'left' | 'right') => {
-    const container = scrollContainerRef.current;
-    if (container && container.children.length > 0) {
-      const firstItem = container.children[0] as HTMLElement;
-      const itemWidth = firstItem.offsetWidth;
-      const gap = parseInt(window.getComputedStyle(container).gap);
-      const scrollAmount = itemWidth + gap;
-
-      container.scrollBy({
-        left: direction === 'left' ? -scrollAmount : scrollAmount,
-        behavior: 'smooth'
-      });
-    }
-  };
-
-  useEffect(() => {
-    const container = scrollContainerRef.current;
-    if (!container) return;
-
-    handleScroll();
-    container.addEventListener('scroll', handleScroll);
-
-    const resizeObserver = new ResizeObserver(() => handleScroll());
-    resizeObserver.observe(container);
-
-    return () => {
-      container.removeEventListener('scroll', handleScroll);
-      resizeObserver.unobserve(container);
-    };
-  }, [handleScroll, error]);
-
   console.log('Error: ', error);
 
   console.log('Suggested Connections:', suggestedConnections);
@@ -237,10 +202,9 @@ const MainContent = () => {
         error && <AlertModal duration={4000} message={error} type="error" onClose={clearError} />
       }
       <div className="flex justify-center w-full">
-        <div className="w-full max-w-[640px]">
+        <div className="w-full max-w-6xl">
 
-          {/* CORRECTED: This is now a responsive grid */}
-          <div className="grid grid-cols-4 md:grid-cols-4 gap-4 mb-8">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
             {dashboardCards.map((card, index) => (
               <DashboardCards key={index} {...card} />
             ))}
@@ -255,47 +219,26 @@ const MainContent = () => {
                 See More
               </button>
             </div>
-            <div className="relative">
-              <div className="relative">
-                <div className={`absolute inset-y-0 left-0 w-8 bg-gradient-to-r from-[#EEF0F4] to-transparent z-10 pointer-events-none transition-opacity duration-300 ${showLeftButton ? 'opacity-100' : 'opacity-0'}`} />
-
-                <div
-                  ref={scrollContainerRef}
-                  className="flex gap-4 overflow-x-auto snap-x snap-proximity scrollbar-hide sm:scroll-p-4 sm:px-4 sm:-mx-4"
-                >
-                  {/* Use dynamic suggestedConnections from the hook */}
-                  {isLoading ? (
-                    <LoadingSpinner />
-                  ) : (
-                    popularConnections.map((user, index) => (
-                      <div key={user.id || index} className="w-[50%] sm:w-[50%] lg:w-[32%] shrink-0 snap-start sm:snap-center">
-                        <NetworkCard
-                          user={user}
-                          onConnectClick={sendRequest}
-                          isConnected={false}
-                          isRequestSent={outgoingSet.has(user.id)}
-                          isRequestPending={incomingSet.has(user.id)}
-                        />
-                      </div>
-                    ))
-                  )}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {isLoading ? (
+                <div className="col-span-full flex justify-center">
+                  <LoadingSpinner />
                 </div>
-
-                <div className={`absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-[#EEF0F4] to-transparent z-10 pointer-events-none transition-opacity duration-300 ${showRightButton ? 'opacity-100' : 'opacity-0'}`} />
-              </div>
-
-              <button
-                onClick={() => scroll('left')}
-                className={`hidden sm:flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 w-8 h-8 bg-white rounded-full shadow-md items-center justify-center z-20 transition-opacity duration-300 ${showLeftButton ? 'opacity-100' : 'opacity-0'}`}
-              >
-                <ChevronLeft size={20} className="text-[#6B7280]" />
-              </button>
-              <button
-                onClick={() => scroll('right')}
-                className={`hidden sm:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 w-8 h-8 bg-white rounded-full shadow-md items-center justify-center z-20 transition-opacity duration-300 ${showRightButton ? 'opacity-100' : 'opacity-0'}`}
-              >
-                <ChevronRight size={20} className="text-[#6B7280]" />
-              </button>
+              ) : popularConnections.length > 0 ? (
+                popularConnections.map((user, index) => (
+                  <div key={user.id || index} className={`w-full ${getCardVisibilityClass(index)}`}>
+                    <NetworkCard
+                      user={user}
+                      onConnectClick={sendRequest}
+                      isConnected={false}
+                      isRequestSent={outgoingSet.has(user.id)}
+                      isRequestPending={incomingSet.has(user.id)}
+                    />
+                  </div>
+                ))
+              ) : (
+                <p className="col-span-full text-sm text-[#6B7280]">No profiles found</p>
+              )}
             </div>
           </div>
 
@@ -308,17 +251,15 @@ const MainContent = () => {
                 See More
               </button>
             </div>
-            {/* The People You May Know section can also be made dynamic with a different hook/data set */}
-            <div
-              ref={scrollContainerRef}
-              className="flex gap-4 overflow-x-auto snap-x snap-proximity scrollbar-hide sm:scroll-p-4 sm:px-4 sm:-mx-4"
-            >
-              {/* Use dynamic suggestedConnections from the hook */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {isLoading ? (
-                <LoadingSpinner />
-              ) : ( suggestedConnections['People With Similar Headline'] && suggestedConnections["People With Similar Headline"].length > 0 ?
-                suggestedConnections["People With Similar Headline"].map((user, index) => (
-                  <div key={user.id || index} className="w-[50%] sm:w-[46%] lg:w-[32%] shrink-0 snap-start sm:snap-center">
+                <div className="col-span-full flex justify-center">
+                  <LoadingSpinner />
+                </div>
+              ) : suggestedConnections['People With Similar Headline'] &&
+                suggestedConnections['People With Similar Headline'].length > 0 ? (
+                suggestedConnections['People With Similar Headline'].map((user, index) => (
+                  <div key={user.id || index} className={`w-full ${getCardVisibilityClass(index)}`}>
                     <NetworkCard
                       user={user}
                       onConnectClick={sendRequest}
@@ -327,7 +268,9 @@ const MainContent = () => {
                       isRequestPending={incomingSet.has(user.id)}
                     />
                   </div>
-                )) : "No profiles found"
+                ))
+              ) : (
+                <p className="col-span-full text-sm text-[#6B7280]">No profiles found</p>
               )}
             </div>
           </div>
@@ -341,17 +284,15 @@ const MainContent = () => {
                 See More
               </button>
             </div>
-            {/* The People You May Know section can also be made dynamic with a different hook/data set */}
-            <div
-              ref={scrollContainerRef}
-              className="flex gap-4 overflow-x-auto snap-x snap-proximity scrollbar-hide sm:scroll-p-4 sm:px-4 sm:-mx-4"
-            >
-              {/* Use dynamic suggestedConnections from the hook */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {isLoading ? (
-                <LoadingSpinner />
-              ) : (suggestedConnections["People With Similar Title"] && suggestedConnections["People With Similar Title"].length > 0 ?
-                suggestedConnections["People With Similar Title"].map((user, index) => (
-                  <div key={user.id || index} className="w-[50%] sm:w-[46%] lg:w-[32%] shrink-0 snap-start sm:snap-center">
+                <div className="col-span-full flex justify-center">
+                  <LoadingSpinner />
+                </div>
+              ) : suggestedConnections['People With Similar Title'] &&
+                suggestedConnections['People With Similar Title'].length > 0 ? (
+                suggestedConnections['People With Similar Title'].map((user, index) => (
+                  <div key={user.id || index} className={`w-full ${getCardVisibilityClass(index)}`}>
                     <NetworkCard
                       user={user}
                       onConnectClick={sendRequest}
@@ -360,7 +301,9 @@ const MainContent = () => {
                       isRequestPending={incomingSet.has(user.id)}
                     />
                   </div>
-                )) : "No profiles found"
+                ))
+              ) : (
+                <p className="col-span-full text-sm text-[#6B7280]">No profiles found</p>
               )}
             </div>
           </div>
@@ -373,18 +316,15 @@ const MainContent = () => {
                 See More
               </button>
             </div>
-            {/* The People You May Know section can also be made dynamic with a different hook/data set */}
-            <div
-              ref={scrollContainerRef}
-              className="flex gap-4 overflow-x-auto snap-x snap-proximity scrollbar-hide sm:scroll-p-4 sm:px-4 sm:-mx-4"
-            >
-              {/* Use dynamic suggestedConnections from the hook */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {isLoading ? (
-                <LoadingSpinner />
-              ) :
-              (suggestedConnections["People With Similar Education"] && suggestedConnections["People With Similar Education"].length > 0 ?
-                suggestedConnections["People With Similar Education"].map((user, index) => (
-                  <div key={user.id || index} className="w-[50%] sm:w-[46%] lg:w-[32%] shrink-0 snap-start sm:snap-center">
+                <div className="col-span-full flex justify-center">
+                  <LoadingSpinner />
+                </div>
+              ) : suggestedConnections['People With Similar Education'] &&
+                suggestedConnections['People With Similar Education'].length > 0 ? (
+                suggestedConnections['People With Similar Education'].map((user, index) => (
+                  <div key={user.id || index} className={`w-full ${getCardVisibilityClass(index)}`}>
                     <NetworkCard
                       user={user}
                       onConnectClick={sendRequest}
@@ -393,7 +333,9 @@ const MainContent = () => {
                       isRequestPending={incomingSet.has(user.id)}
                     />
                   </div>
-                )) : "No profiles found"
+                ))
+              ) : (
+                <p className="col-span-full text-sm text-[#6B7280]">No profiles found</p>
               )}
             </div>
           </div>
