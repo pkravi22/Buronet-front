@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import AppLayout from '@/components/AppLayout';
 import { useUserProfile } from '@/hooks/useUserProfile';
@@ -24,6 +24,8 @@ import LoadingSpinner from '@/components/UI/LoadingSpinner';
 import { useAuth } from '@/context/AuthContext'; 
 import { getProfileImageUrl } from '@/lib/helpers/profileImage';
 import { useConnections } from '@/hooks/useConnections';
+import { toast } from 'react-hot-toast';
+import ShareLinkModal from '@/components/UI/ShareLinkModal';
 
 const OthersProfilePage: React.FC = () => {
   const params = useParams();
@@ -53,6 +55,14 @@ const OthersProfilePage: React.FC = () => {
   } = useConnections({ includeOutgoingPending: true });
 
   const isOwnProfile = !!authUser?.id && authUser.id === targetUserId;
+
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+
+  const shareUrl = useMemo(() => {
+    return typeof window !== 'undefined' && targetUserId
+      ? `${window.location.origin}/profile/${targetUserId}`
+      : '';
+  }, [targetUserId]);
 
   const connectionToUser = useMemo(() => {
     const target = normalizeId(targetUserId);
@@ -259,10 +269,11 @@ const OthersProfilePage: React.FC = () => {
                         <button
                           className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2.5 rounded-lg font-medium transition"
                           onClick={() => {
-                            // Placeholder: implement share later (copy profile link)
-                            if (typeof window !== 'undefined') {
-                              navigator.clipboard?.writeText(window.location.href);
+                            if (!shareUrl) {
+                              toast.error('Profile link is not available yet');
+                              return;
                             }
+                            setIsShareModalOpen(true);
                           }}
                         >
                           <i className="fas fa-share-alt mr-2"></i> Share
@@ -284,9 +295,11 @@ const OthersProfilePage: React.FC = () => {
                       <button
                         className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2.5 rounded-lg font-medium transition"
                         onClick={() => {
-                          if (typeof window !== 'undefined') {
-                            navigator.clipboard?.writeText(window.location.href);
+                          if (!shareUrl) {
+                            toast.error('Profile link is not available yet');
+                            return;
                           }
+                          setIsShareModalOpen(true);
                         }}
                       >
                         <i className="fas fa-share-alt mr-2"></i> Share
@@ -317,6 +330,13 @@ const OthersProfilePage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      <ShareLinkModal
+        open={isShareModalOpen}
+        url={shareUrl}
+        title="Share profile"
+        onClose={() => setIsShareModalOpen(false)}
+      />
     </AppLayout>
   );
 };

@@ -48,7 +48,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setIsProfileLoading(true);
     setIsProfileError(false);
     try {
-        const profile = await get<UserProfile>(`/Users/profile?userId=${id}`);
+      // Always fetch the current authenticated user's profile.
+      // Keeping the endpoint canonical also avoids proxy/case mismatches.
+      const profile = await get<UserProfile>('/Users/profile');
         setUserProfile(profile);
         setIsProfileError(false);
     } catch (err: any) {
@@ -193,11 +195,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         console.log('logout: Attempting backend logout call.');
         await postApi('/auth/logout', {});
         console.log("logout: Backend logout endpoint hit successfully.");
-      } catch (backendLogoutError: any) {
+      } catch (backendLogoutError: any) { 
         console.warn("logout: Backend logout endpoint failed (might be expected if token already cleared or endpoint doesn't exist/is unreachable):", backendLogoutError);
       }
 
-      router.replace('/login'); // Redirect to login after logout (avoid back-button returning to protected routes)
+      router.replace('/home'); // Redirect to home after logout (avoid back-button returning to protected routes)
     } catch (err: any) {
       console.error('logout: Error during client-side logout process:', err);
       setError(err.message || "Logout failed.");
@@ -235,10 +237,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     } catch (err: any) {
       console.error('register: Registration failed:', err);
-      setError(err.message || "Registration failed. Username or email might be taken.");
+      const message = err?.message || "Registration failed.";
+      setError(message);
       localStorage.removeItem('token'); // Clear any potential token/state from failed attempt
       setUser(null);
-      return {"success":false, "message": err.message || "Registration failed."} as RegisterResponse;
+      return {"success":false, "message": message} as RegisterResponse;
     } finally {
       console.log('register: Registration process complete.');
       setIsLoading(false);

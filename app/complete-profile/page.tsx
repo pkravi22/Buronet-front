@@ -2,6 +2,7 @@
 'use client'; // This component uses React hooks and needs client-side interactivity
 
 import React, { useState, useEffect } from 'react';
+import { useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import LoadingSpinner from '../../components/UI/LoadingSpinner'; // Assuming this component exists
@@ -45,6 +46,33 @@ const CompleteProfilePage: React.FC = () => {
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [fetchLoading, setFetchLoading] = useState(true); // Start as true, as we'll fetch data on mount
   const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
+  const [submitAttempted, setSubmitAttempted] = useState(false);
+
+  const requiredFieldErrors = useMemo(() => {
+    const errors: Record<string, string> = {};
+
+    if (!profileData.firstName?.trim()) {
+      errors.firstName = 'First name is required.';
+    }
+
+    if (!profileData.lastName?.trim()) {
+      errors.lastName = 'Last name is required.';
+    }
+
+    if (!profileData.headline?.trim()) {
+      errors.headline = 'Headline is required.';
+    }
+
+    if (!profileData.dateOfBirth) {
+      errors.dateOfBirth = 'Date of birth is required.';
+    } else if (!/^\d{4}-\d{2}-\d{2}$/.test(profileData.dateOfBirth)) {
+      errors.dateOfBirth = 'Please enter a valid date of birth.';
+    }
+
+    return errors;
+  }, [profileData.dateOfBirth, profileData.firstName, profileData.headline, profileData.lastName]);
+
+  const isFormValid = useMemo(() => Object.keys(requiredFieldErrors).length === 0, [requiredFieldErrors]);
 
   // --- Redirect Logic ---
   // Redirect if not logged in (shouldn't happen if coming from register, but good guard)
@@ -132,6 +160,9 @@ const CompleteProfilePage: React.FC = () => {
     e.preventDefault(); // Prevent default form submission
     if (isSubmitting || !user) return; // Prevent double submission or submission if no user
 
+    setSubmitAttempted(true);
+    if (!isFormValid) return;
+
     setIsSubmitting(true); // Indicate submission is in progress
     setFetchError(null); // Clear previous errors
 
@@ -146,7 +177,7 @@ const CompleteProfilePage: React.FC = () => {
       if (profileImageFile) {
         const formData = new FormData();
         formData.append('file', profileImageFile);
-        const res: UploadImageResponse = await postApi(`/users/profile/upload_picture`, formData);
+        const res: UploadImageResponse = await postApi(`/Users/profile/upload_picture`, formData);
 
         if (!res) {
           throw new Error('Failed to upload profile picture');
@@ -216,39 +247,66 @@ const CompleteProfilePage: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* First Name */}
             <div>
-              <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">First Name</label>
+              <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">
+                First Name <span className="text-red-500" aria-hidden="true">*</span>
+              </label>
               <input
                 type="text"
                 name="firstName"
                 id="firstName"
                 value={profileData.firstName || ""}
                 onChange={handleChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                required
+                aria-required="true"
+                className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${
+                  submitAttempted && requiredFieldErrors.firstName ? 'border-red-500' : 'border-gray-300'
+                }`}
               />
+              {submitAttempted && requiredFieldErrors.firstName && (
+                <p className="text-xs text-red-500 mt-1">{requiredFieldErrors.firstName}</p>
+              )}
             </div>
             {/* Last Name */}
             <div>
-              <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">Last Name</label>
+              <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">
+                Last Name <span className="text-red-500" aria-hidden="true">*</span>
+              </label>
               <input
                 type="text"
                 name="lastName"
                 id="lastName"
                 value={profileData.lastName || ""}
                 onChange={handleChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                required
+                aria-required="true"
+                className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${
+                  submitAttempted && requiredFieldErrors.lastName ? 'border-red-500' : 'border-gray-300'
+                }`}
               />
+              {submitAttempted && requiredFieldErrors.lastName && (
+                <p className="text-xs text-red-500 mt-1">{requiredFieldErrors.lastName}</p>
+              )}
             </div>
             {/* Date of Birth */}
             <div>
-              <label htmlFor="dateOfBirth" className="block text-sm font-medium text-gray-700">Date of Birth</label>
+              <label htmlFor="dateOfBirth" className="block text-sm font-medium text-gray-700">
+                Date of Birth <span className="text-red-500" aria-hidden="true">*</span>
+              </label>
               <input
                 type="date"
                 name="dateOfBirth"
                 id="dateOfBirth"
                 value={profileData.dateOfBirth || ''}
                 onChange={handleDateChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                required
+                aria-required="true"
+                className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${
+                  submitAttempted && requiredFieldErrors.dateOfBirth ? 'border-red-500' : 'border-gray-300'
+                }`}
               />
+              {submitAttempted && requiredFieldErrors.dateOfBirth && (
+                <p className="text-xs text-red-500 mt-1">{requiredFieldErrors.dateOfBirth}</p>
+              )}
             </div>
             {/* Phone Number */}
             <div>
@@ -348,15 +406,24 @@ const CompleteProfilePage: React.FC = () => {
             </div>
             {/* Headline */}
             <div className="md:col-span-2">
-              <label htmlFor="headline" className="block text-sm font-medium text-gray-700">Headline</label>
+              <label htmlFor="headline" className="block text-sm font-medium text-gray-700">
+                Headline <span className="text-red-500" aria-hidden="true">*</span>
+              </label>
               <input
                 type="text"
                 name="headline"
                 id="headline"
                 value={profileData.headline || ""}
                 onChange={handleChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                required
+                aria-required="true"
+                className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${
+                  submitAttempted && requiredFieldErrors.headline ? 'border-red-500' : 'border-gray-300'
+                }`}
               />
+              {submitAttempted && requiredFieldErrors.headline && (
+                <p className="text-xs text-red-500 mt-1">{requiredFieldErrors.headline}</p>
+              )}
             </div>
             {/* Profile Picture URL */}
             {/* <div className="md:col-span-2">
@@ -397,7 +464,7 @@ const CompleteProfilePage: React.FC = () => {
             <button
               type="submit"
               className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:shadow-outline transition-colors"
-              disabled={isSubmitting}
+              disabled={isSubmitting || !isFormValid}
             >
               {isSubmitting ? 'Saving Profile...' : 'Save Profile'}
             </button>

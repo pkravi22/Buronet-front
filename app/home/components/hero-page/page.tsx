@@ -13,6 +13,14 @@ export default function Home() {
 
   const router = useRouter();
 
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const navLinks = [
+    { label: 'Home', href: '#' },
+    { label: 'Jobs', href: '/jobs' },
+    { label: 'About Us', href: '#' },
+  ];
+
   const [jobs, setJobs] = useState<Job[]>([]);
   const [isJobsLoading, setIsJobsLoading] = useState(false);
   const [jobsError, setJobsError] = useState<string | null>(null);
@@ -57,6 +65,8 @@ export default function Home() {
     router.push('/login');
   };
 
+  const closeMobileMenu = () => setIsMobileMenuOpen(false);
+
   return (
     <>
       <Head>
@@ -68,7 +78,7 @@ export default function Home() {
       <div className="relative flex h-[100dvh] w-full flex-col group/design-root overflow-x-hidden overflow-y-auto">
         <div className="layout-container flex min-h-full flex-col">
           {/* Header */}
-          <header className="grid grid-cols-[1fr_auto_1fr] items-center whitespace-nowrap border-b border-solid border-border-light dark:border-border-dark px-4 sm:px-6 lg:px-10 py-3">
+          <header className="relative flex items-center lg:grid lg:grid-cols-[1fr_auto_1fr] border-b border-solid border-border-light dark:border-border-dark pl-4 pr-2 sm:px-6 lg:px-10 py-3">
             <div className="flex items-center gap-3 text-content-light dark:text-content-dark justify-self-start">
               <div className="h-8 w-8 text-primary">
                 <svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
@@ -81,30 +91,131 @@ export default function Home() {
               <h2 className="text-xl font-bold">Buronet</h2>
             </div>
             <nav className="hidden lg:flex items-center gap-8 justify-self-center">
-                <a className="text-sm font-medium text-content-light dark:text-content-dark hover:text-primary dark:hover:text-primary" href="#">
-                  Home
-                </a>
-                {/*<a className="text-sm font-medium text-content-light dark:text-content-dark hover:text-primary dark:hover:text-primary" href="#">
-                  Mentorship
-                </a>
-                <a className="text-sm font-medium text-content-light dark:text-content-dark hover:text-primary dark:hover:text-primary" href="#">
-                  Community
-                </a>
-              */}
-                <a className="text-sm font-medium text-content-light dark:text-content-dark hover:text-primary dark:hover:text-primary" href="#">
-                  Jobs
-                </a>
-                <a className="text-sm font-medium text-content-light dark:text-content-dark hover:text-primary dark:hover:text-primary" href="#">
-                  About Us
-                </a>
+              {navLinks.map((item) => (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  className="text-sm font-medium text-content-light dark:text-content-dark hover:text-primary dark:hover:text-primary"
+                >
+                  {item.label}
+                </Link>
+              ))}
             </nav>
-            <div className="flex items-center gap-2 justify-self-end">
-              <button onClick={handleJoin} className="hidden sm:flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-sm font-bold leading-normal tracking-wide hover:bg-primary/90 transition-colors">
-                <span className="truncate">Join Now</span>
+            <div className="ml-auto flex items-center gap-2 lg:ml-0 lg:justify-self-end">
+              {/* Desktop actions */}
+              <div className="hidden lg:flex items-center gap-2">
+                <button onClick={handleJoin} className="hidden sm:flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-sm font-bold leading-normal tracking-wide hover:bg-primary/90 transition-colors">
+                  <span className="truncate">Join Now</span>
+                </button>
+                <button onClick={handleLogin} className="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-accent-light dark:bg-accent-dark text-content-light dark:text-content-dark text-sm font-bold leading-normal tracking-wide hover:bg-border-light dark:hover:bg-border-dark transition-colors">
+                  <span className="truncate">Login</span>
+                </button>
+              </div>
+
+              {/* Mobile menu toggle (kept on far right) */}
+              <button
+                type="button"
+                onClick={() => setIsMobileMenuOpen((v) => !v)}
+                aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
+                aria-expanded={isMobileMenuOpen}
+                className="inline-flex items-center justify-center rounded-lg h-10 w-10 text-content-light dark:text-content-dark hover:bg-border-light/40 dark:hover:bg-border-dark/40 transition-colors lg:hidden"
+              >
+                {isMobileMenuOpen ? (
+                  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M18 6L6 18" />
+                    <path d="M6 6l12 12" />
+                  </svg>
+                ) : (
+                  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M4 6h16" />
+                    <path d="M4 12h16" />
+                    <path d="M4 18h16" />
+                  </svg>
+                )}
               </button>
-              <button onClick={handleLogin} className="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-accent-light dark:bg-accent-dark text-content-light dark:text-content-dark text-sm font-bold leading-normal tracking-wide hover:bg-border-light dark:hover:bg-border-dark transition-colors">
-                <span className="truncate">Login</span>
-              </button>
+            </div>
+
+            {/* Mobile off-canvas menu (slides in from the right) */}
+            <div className="lg:hidden">
+              <div
+                className={`fixed inset-0 z-40 bg-black/40 transition-opacity duration-200 ${
+                  isMobileMenuOpen ? 'opacity-100' : 'pointer-events-none opacity-0'
+                }`}
+                onClick={closeMobileMenu}
+              />
+              <aside
+                className={`fixed inset-y-0 right-0 z-50 w-[320px] max-w-[85vw] bg-white dark:bg-accent-dark shadow-xl border-l border-solid border-border-light dark:border-border-dark transform transition-transform duration-300 ${
+                  isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full pointer-events-none'
+                }`}
+                aria-hidden={!isMobileMenuOpen}
+              >
+                <div className="h-full flex flex-col">
+                  <div className="flex items-center justify-between px-4 py-3 border-b border-solid border-border-light dark:border-border-dark bg-white">
+                    <p className="text-base font-bold text-gray-900">Menu</p>
+                    <button
+                      type="button"
+                      onClick={closeMobileMenu}
+                      aria-label="Close menu"
+                      className="inline-flex items-center justify-center rounded-lg h-10 w-10 text-gray-900 hover:bg-gray-100 transition-colors"
+                    >
+                      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M18 6L6 18" />
+                        <path d="M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+
+                  <div className="flex-1 overflow-y-auto px-4 py-4 bg-white">
+                    <div className="flex flex-col gap-2">
+                      <div className="rounded-lg bg-gray-50 px-3 py-2">
+                        <p className="text-[11px] font-bold uppercase tracking-wide text-gray-700">
+                        Navigation
+                        </p>
+                      </div>
+                      <div className="flex flex-col">
+                        {navLinks.map((item) => (
+                          <Link
+                            key={`mobile-${item.label}`}
+                            href={item.href}
+                            onClick={closeMobileMenu}
+                            className="rounded-lg px-3 py-2 text-sm font-semibold text-gray-900 hover:bg-gray-100"
+                          >
+                            {item.label}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="mt-6 pt-4 border-t border-solid border-border-light dark:border-border-dark">
+                      <div className="rounded-lg bg-gray-50 px-3 py-2">
+                        <p className="text-[11px] font-bold uppercase tracking-wide text-gray-700">
+                          Actions
+                        </p>
+                      </div>
+                      <div className="mt-3 grid grid-cols-1 gap-2">
+                        <button
+                          onClick={() => {
+                            closeMobileMenu();
+                            handleJoin();
+                          }}
+                          className="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-11 px-4 bg-gray-100 text-gray-900 text-sm font-bold leading-normal tracking-wide hover:bg-gray-200 transition-colors"
+                        >
+                          <span className="truncate">Join Now</span>
+                        </button>
+                        <button
+                          onClick={() => {
+                            closeMobileMenu();
+                            handleLogin();
+                          }}
+                          className="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-11 px-4 bg-white text-gray-900 text-sm font-bold leading-normal tracking-wide border border-gray-300 hover:bg-gray-50 transition-colors"
+                        >
+                          <span className="truncate">Login</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </aside>
             </div>
           </header>
 
@@ -251,7 +362,7 @@ export default function Home() {
 
               {/* Connect with Community */}
               <section className="py-16 sm:py-20 bg-accent-light dark:bg-accent-dark rounded-xl">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center px-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center px-4 sm:px-8">
                   <div className="text-center md:text-left">
                     <h2 className="text-3xl md:text-4xl font-bold text-content-light dark:text-content-dark tracking-tight">
                       Connect with Our Community
@@ -406,9 +517,9 @@ export default function Home() {
                   </h2>
                 </div>
                 <div className="grid grid-cols-1 gap-8">
-                  <div className="flex gap-4">
+                  <div className="flex flex-col sm:flex-row gap-4">
                     <div
-                      className="w-full flex-1 bg-center bg-no-repeat aspect-square bg-cover rounded-lg"
+                      className="w-full sm:w-48 md:w-56 flex-none bg-center bg-no-repeat aspect-video sm:aspect-square bg-cover rounded-lg"
                       style={{
                         backgroundImage: `url('https://lh3.googleusercontent.com/aida-public/AB6AXuBBC6jqf3qXvD_IFb6jRIbvGQNPWsefjBmh7v2czMZAT6kIIQhqKtzI2MGpJnbXie0bc8JNeZ8d6KYXla96Hqrtr9SYPzgjchhGuZrxfnurJVFT6Ybsia7EFZzWwfG6VDlj212MIkSq9fgBiuDIMpVDrIONlUWA58lnySyCCoDUQgAYxgofKhif6b0nVtKqP0nGVCRmvCpggaA1o15hNLJXVhfEebwCU2t8gZtChYRRReN_rxn1J6MHEHB_78XRQbKrRnFiRalnCITB')`,
                       }}
@@ -423,7 +534,7 @@ export default function Home() {
                       </p>
                     </div>
                   </div>
-                  <div className="flex gap-4">
+                  <div className="flex flex-col-reverse sm:flex-row gap-4">
                     <div>
                       <p className="text-content-light dark:text-content-dark text-base font-medium leading-normal">
                         Success Story
@@ -434,15 +545,15 @@ export default function Home() {
                       </p>
                     </div>
                     <div
-                      className="w-full bg-center bg-no-repeat aspect-square bg-cover rounded-lg"
+                      className="w-full sm:w-48 md:w-56 flex-none bg-center bg-no-repeat aspect-video sm:aspect-square bg-cover rounded-lg"
                       style={{
                         backgroundImage: `url('https://lh3.googleusercontent.com/aida-public/AB6AXuCrEhfkSXmJR2OospF1v-3K5ofYN7JTTalHwVTYq7dV0IdkZogTkj8PUJB7_vx1QULVi33oANYTujv4TFdI_PXRdRUdq0yIYMpzPkKdeK3VbTCjfVh0CMHZymUH4NZnL8JGgy08KFNTBnpkW0-lkl9Nw9mSxHLLZ4jGtBVboe-Bj0i0u6j793bau1-LqC5cv9gtsbS7pmCXug3KHA3xjoEZCeg_qglVP_lr3qJeb-5PGBhDsea6-k8iFHmmyKNI76lLcz4Ts2dOBjl6')`,
                       }}
                     ></div>
                   </div>
-                  <div className="flex gap-4">
+                  <div className="flex flex-col sm:flex-row gap-4">
                     <div
-                      className="w-full bg-center bg-no-repeat aspect-square bg-cover rounded-lg"
+                      className="w-full sm:w-48 md:w-56 flex-none bg-center bg-no-repeat aspect-video sm:aspect-square bg-cover rounded-lg"
                       style={{
                         backgroundImage: `url('https://lh3.googleusercontent.com/aida-public/AB6AXuCt1doZMEZ90Vzj-lgVYKw7OO6dPTqIr7WzuodAIW-dkWewShC-LileoYEfU6q5IWXksByw1YFpZKcsot5gU_-vlkq3Q9g1R8xyXtBHLg_LHUbXpnk4wLqMFn9PoUNiFjM9bxmFPhuchtCx0Mp4pKGNk9KPzz-P17vFTx1cPBoDlTTE7wFbsa67K1Vx8aPUwVsbyzRYqbPlzwilm3YVB41YB3CXIIaIMlbvBlhfdn1Z6S6_C40LsYzTcJj2Wby3hP97lCAsXJTfqrId')`,
                       }}

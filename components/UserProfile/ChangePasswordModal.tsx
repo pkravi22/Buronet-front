@@ -3,6 +3,7 @@
 import React, { useMemo, useState } from 'react';
 import LoadingSpinner from '../UI/LoadingSpinner';
 import { postApi } from '@/lib/api';
+import { validatePassword } from '@/lib/helpers/password';
 
 interface ChangePasswordModalProps {
   onClose: () => void;
@@ -42,8 +43,9 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ onClose, onSu
     if (!newPassword) {
       errors.newPassword = 'New password is required.';
     } else {
-      if (newPassword.length < MIN_PASSWORD_LENGTH) {
-        errors.newPassword = `New password must be at least ${MIN_PASSWORD_LENGTH} characters.`;
+      const passwordValidation = validatePassword(newPassword, MIN_PASSWORD_LENGTH);
+      if (!passwordValidation.isValid) {
+        errors.newPassword = passwordValidation.errorMessage || 'Invalid password.';
       } else if (newPassword.length > MAX_PASSWORD_LENGTH) {
         errors.newPassword = `New password must be at most ${MAX_PASSWORD_LENGTH} characters.`;
       } else if (currentPassword && newPassword === currentPassword) {
@@ -163,7 +165,9 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ onClose, onSu
               {fieldErrors.newPassword ? (
                 <p className="text-xs text-red-500 mt-1">{fieldErrors.newPassword}</p>
               ) : (
-                <p className="text-xs text-gray-500 mt-1">Minimum {MIN_PASSWORD_LENGTH} characters.</p>
+                <p className="text-xs text-gray-500 mt-1">
+                  Minimum {MIN_PASSWORD_LENGTH} characters, no spaces, and include uppercase, lowercase, number, and special character.
+                </p>
               )}
             </div>
 

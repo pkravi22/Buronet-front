@@ -24,7 +24,7 @@ export const AuthRedirectHandler: React.FC<{ children: React.ReactNode }> = ({ c
   const isLoading = isAuthLoading || (user && isProfileLoading);
 
   // Post-logout session monitor:
-  // For 2 minutes after logout, keep forcing /login and keep clearing any token that reappears.
+  // For 2 minutes after logout, keep forcing /home and keep clearing any token that reappears.
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
@@ -39,8 +39,8 @@ export const AuthRedirectHandler: React.FC<{ children: React.ReactNode }> = ({ c
         localStorage.removeItem('token');
       }
 
-      if (pathname !== '/login') {
-        router.replace('/login');
+      if (pathname !== '/home') {
+        router.replace('/home');
       }
     };
 
@@ -53,11 +53,10 @@ export const AuthRedirectHandler: React.FC<{ children: React.ReactNode }> = ({ c
     const publicRoutes = ['/login', '/register', '/forgot-password', '/reset-password'];
     const isPublicRoute = publicRoutes.includes(pathname);
 
-    // 0. Logout guard override: during the guard window, never redirect away from /login,
-    // and always force navigation to /login from anywhere else.
+    // 0. Logout guard override: during the guard window, always force navigation to /home.
     if (isLogoutGuardActive()) {
-      if (pathname !== '/login') {
-        router.replace('/login');
+      if (pathname !== '/home') {
+        router.replace('/home');
       }
       return;
     }

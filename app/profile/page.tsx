@@ -1,7 +1,7 @@
 // app/profile/page.tsx
 'use client'; // This component uses React hooks and needs client-side interactivity
 
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import AppLayout from '../../components/AppLayout'; // Our main application layout
 import { useUserProfile } from '../../hooks/useUserProfile'; // Our custom hook to fetch user profile data
 import UserProfileHeader from '../../components/UserProfile/UserProfileHeader'; // Component for the left profile card
@@ -28,10 +28,12 @@ import { useAuth, withAuthRequired } from '../../context/AuthContext'; // Authen
 import TopBar from '@/components/TopBar';
 import { getProfileImageUrl } from '@/lib/helpers/profileImage';
 import { AlertModal } from '@/components/AlertModal';
+import { toast } from 'react-hot-toast';
+import ShareLinkModal from '@/components/UI/ShareLinkModal';
 
 const ProfilePage: React.FC = () => {
   // Get authentication status and profile data from our custom hooks
-  const { user: authUser, isLoading: isAuthLoading, error: authError } = useAuth();
+  const { user: authUser, isLoading: isAuthLoading, error: authError, refetchProfile } = useAuth();
   const { userProfile, isLoading: isProfileLoading, isError: profileError } = useUserProfile();
   const API_BASE = process.env.NEXT_PUBLIC_DOTNET_BACKEND_BASE || "http://localhost:3000/api";
 
@@ -39,6 +41,15 @@ const ProfilePage: React.FC = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
   const [passwordToast, setPasswordToast] = useState<string | null>(null);
+
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+
+  const shareUrl = useMemo(() => {
+    // Share the public profile route, not the editable /profile page
+    return typeof window !== 'undefined' && userProfile?.id
+      ? `${window.location.origin}/profile/${userProfile.id}`
+      : '';
+  }, [userProfile?.id]);
 
   // Consolidated loading and error states for the entire page
   const isLoading = isAuthLoading || isProfileLoading;
@@ -179,6 +190,13 @@ const ProfilePage: React.FC = () => {
                       <button
                         type="button"
                         className="inline-flex items-center justify-center gap-2 rounded-lg bg-gray-100 px-4 py-2.5 text-sm font-semibold text-gray-800 shadow-sm transition hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2"
+                        onClick={() => {
+                          if (!shareUrl) {
+                            toast.error('Profile link is not available yet');
+                            return;
+                          }
+                          setIsShareModalOpen(true);
+                        }}
                       >
                         <i className="fas fa-share-alt"></i>
                         <span className="whitespace-nowrap">Share</span>
@@ -237,6 +255,7 @@ const ProfilePage: React.FC = () => {
       {isEditModalOpen && (
         <EditProfileModal
           userProfile={userProfile}
+          onSuccess={() => refetchProfile()}
           onClose={() => setIsEditModalOpen(false)}
         />
       )}
@@ -255,6 +274,13 @@ const ProfilePage: React.FC = () => {
           onClose={() => setPasswordToast(null)}
         />
       )}
+
+      <ShareLinkModal
+        open={isShareModalOpen}
+        url={shareUrl}
+        title="Share your profile"
+        onClose={() => setIsShareModalOpen(false)}
+      />
     </AppLayout>
   );
 };

@@ -11,6 +11,7 @@ import { toDateOnly } from '@/lib/dates';
 interface EditProfileModalProps {
   userProfile: UserProfile; // Type is UserProfile
   onClose: () => void;
+  onSuccess?: () => void;
 }
 
 type UploadImageResponse = {
@@ -22,7 +23,7 @@ type UserProfileFormData = Omit<UpdateUserProfileDto, 'dateOfBirth'> & {
   dateOfBirth: string; 
 };
 
-const EditProfileModal: React.FC<EditProfileModalProps> = ({ userProfile, onClose }) => {
+const EditProfileModal: React.FC<EditProfileModalProps> = ({ userProfile, onClose, onSuccess }) => {
   const { updateProfile } = useUserProfile();
   const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
   const [formData, setFormData] = useState<UserProfileFormData>({
@@ -53,8 +54,8 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ userProfile, onClos
   }
 };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (e?: React.SyntheticEvent) => {
+    e?.preventDefault?.();
     setIsSaving(true);
     setError(null);
     try {
@@ -68,7 +69,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ userProfile, onClos
         const formData = new FormData();
         formData.append("file", profileImageFile);
         // const res = await postApi("/users/profile/upload_picture", { body: formData, isFormData: true });
-        const res: UploadImageResponse = await postApi(`/users/profile/upload_picture`, formData);
+        const res: UploadImageResponse = await postApi(`/Users/profile/upload_picture`, formData);
 
         if (!res) {
           throw new Error("Failed to upload profile picture");
@@ -77,6 +78,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ userProfile, onClos
         }
       }
       await updateProfile(dataToSend);
+      onSuccess?.();
       onClose();
     } catch (err: any) {
       setError(err.message || "Failed to save profile.");
@@ -90,11 +92,11 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ userProfile, onClos
       <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl my-8">
         <div className="flex justify-between items-center border-b p-4">
           <h2 className="text-2xl font-bold text-gray-800">Edit Your Profile</h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-800 text-2xl font-bold">&times;</button>
+          <button type="button" onClick={onClose} className="text-gray-500 hover:text-gray-800 text-2xl font-bold">&times;</button>
         </div>
         <div className="p-6">
           {error && <p className="text-red-500 mb-4">{error}</p>}
-          <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <form onSubmit={handleSubmit} noValidate className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Note: Username and Email are NOT editable in this modal as they belong to the core User table,
                 which is assumed to be managed by the authentication system or a separate account settings page. */}
             <div>
@@ -185,6 +187,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ userProfile, onClos
                 type="submit"
                 className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition-colors"
                 disabled={isSaving}
+                onClick={handleSubmit}
               >
                 {isSaving ? 'Saving...' : 'Save Changes'}
               </button>

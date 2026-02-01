@@ -1,7 +1,7 @@
 // app/register/page.tsx
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 // Assuming AppLayout is for authenticated parts of the app.
@@ -13,6 +13,7 @@ import Link from 'next/link';
 import LoadingSpinner from '../../components/UI/LoadingSpinner'; // Assuming this component exists
 import { useAuth } from '../../context/AuthContext'; // Assuming this context exists
 import { RegisterData, RegisterResponse } from '../../lib/types/user'; // Assuming this type exists
+import { validatePassword, DEFAULT_MIN_PASSWORD_LENGTH } from '@/lib/helpers/password';
 
 const RegisterPage: React.FC = () => {
   const [username, setUsername] = useState('');
@@ -32,23 +33,43 @@ const RegisterPage: React.FC = () => {
   //   await register({ username, email, password });
   // };
 
-   const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      // const res = await register('/auth/register', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ username, email, password }),
-      //   credentials: 'include', // Include cookies if needed
-      // });
-      const res = await register({username, email, password} as RegisterData);
-      
-      if (!res.success) throw new Error(res.message || 'Registration failed');
+    if (isLoading) return;
+
+    const normalizedEmail = email.trim();
+    const emailLooksValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail);
+    if (!emailLooksValid) {
+      return;
+    }
+
+    const passwordValidation = validatePassword(password, DEFAULT_MIN_PASSWORD_LENGTH);
+    if (!passwordValidation.isValid) {
+      // Let the inline password validation message handle this.
+      return;
+    }
+
+    const res = await register({ username, email: normalizedEmail, password } as RegisterData);
+    // Success navigation is handled inside AuthContext.register().
+    // If it fails, AuthContext.error is shown on this page.
+    if (res.success) {
       router.push('/complete-profile');
-    } catch (err: any) {
-      setError(err.message);
     }
   };
+
+  const passwordError = useMemo(() => {
+    if (!password) return null;
+    const result = validatePassword(password, DEFAULT_MIN_PASSWORD_LENGTH);
+    return result.isValid ? null : result.errorMessage ?? null;
+  }, [password]);
+
+  const emailError = useMemo(() => {
+    const normalizedEmail = email.trim();
+    if (!normalizedEmail) return null;
+    if (normalizedEmail.includes(' ')) return 'Email must not contain spaces.';
+    const emailLooksValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail);
+    return emailLooksValid ? null : 'Please enter a valid email address.';
+  }, [email]);
 
   // Show a loading spinner when registration is in progress
   if (isLoading) {
@@ -122,6 +143,9 @@ const RegisterPage: React.FC = () => {
                 className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                 placeholder="Email address"
               />
+              {emailError && (
+                <p className="text-xs text-red-500 mt-1">{emailError}</p>
+              )}
             </div>
             {/* Password Input */}
             <div> {/* No mb-4 here as it's the last input before the button */}
@@ -140,6 +164,13 @@ const RegisterPage: React.FC = () => {
                 className="appearance-none rounded-b-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                 placeholder="Password"
               />
+              {passwordError ? (
+                <p className="text-xs text-red-500 mt-1">{passwordError}</p>
+              ) : (
+                <p className="text-xs text-gray-500 mt-1">
+                  Must be at least {DEFAULT_MIN_PASSWORD_LENGTH} characters, no spaces, and include uppercase, lowercase, number, and special character.
+                </p>
+              )}
             </div>
           </div>
 
@@ -169,7 +200,7 @@ const RegisterPage: React.FC = () => {
             <button
               type="submit"
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              disabled={isLoading} // Disable button when loading
+              disabled={isLoading || !!emailError || !!passwordError} // Disable button when invalid/loading
             >
               <span className="absolute left-0 inset-y-0 flex items-center pl-3">
                 {/* Lock icon */}
@@ -205,7 +236,4 @@ const RegisterPage: React.FC = () => {
 };
 
 export default RegisterPage;
-function setError(message: any) {
-  throw new Error('Function not implemented.');
-}
 
