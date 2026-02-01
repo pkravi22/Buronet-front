@@ -32,9 +32,7 @@ export const NetworkCard: React.FC<NetworkCardProps> = ({ user, onConnectClick, 
         const disabled = !isConnected && pending;
         const label = isConnected
           ? 'Message'
-          : isRequestSent
-          ? 'Request Sent'
-          : isRequestPending
+          : pending
           ? 'Request Pending'
           : 'Connect';
 

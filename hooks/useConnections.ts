@@ -4,7 +4,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { get, postApi, remove } from '../lib/api'; // Import get, postApi, and remove from your API utility
 import { useAuth } from '../context/AuthContext'; // To get the current user ID
-import { ConnectionDto, ConnectionRequestDto, SuggestedUserDto, SendRequestDto, PopularUserDto, NetworkMetrics } from '../lib/types/connections';
+import { ConnectionDto, ConnectionRequestDto, SuggestedUserDto, PopularUserDto, NetworkMetrics } from '../lib/types/connections';
 import { log } from 'console';
 
 type SuggestedConnectionsMap = Record<string, SuggestedUserDto[]>;
@@ -121,33 +121,24 @@ export const useConnections = (options?: { includeOutgoingPending?: boolean }): 
   };
 
   const sendRequest = async (receiverId: string) => {
-    try {
-      console.log('Sending connection request to:', receiverId);
-      if (!user?.id) {
-        throw new Error('User not authenticated.');
-      }
-
-      const sendRequestDto: SendRequestDto = { ReceiverId: receiverId };
-      const res = await postApi('/connections/send-request', sendRequestDto);
-      console.log('Connection request sent successfully:', res);
-
+    const markRequestAsPendingLocally = () => {
       // Optimistic UI update: ensure receiver is marked as pending immediately.
       setPendingRequests((prev) => {
         const alreadyPending = prev.some(
-          (r) => r.status === 'Pending' && r.senderId === user.id && r.receiverId === receiverId
+          (r) => r.status === 'Pending' && r.senderId === user?.id && r.receiverId === receiverId
         );
         if (alreadyPending) return prev;
 
         return [
           {
             id: -Date.now(),
-            senderId: user.id,
+            senderId: user?.id ?? '',
             receiverId,
             sender: {
-              id: user.id,
-              username: user.username,
-              email: user.email,
-              firstName: user.username,
+              id: user?.id ?? '',
+              username: user?.username ?? '',
+              email: user?.email ?? '',
+              firstName: user?.username ?? '',
               lastName: '',
               profilePictureUrl: '',
               headline: '',
@@ -172,20 +163,20 @@ export const useConnections = (options?: { includeOutgoingPending?: boolean }): 
       if (options?.includeOutgoingPending) {
         setPendingOutgoingRequests((prev) => {
           const alreadyPending = prev.some(
-            (r) => r.status === 'Pending' && r.senderId === user.id && r.receiverId === receiverId
+            (r) => r.status === 'Pending' && r.senderId === user?.id && r.receiverId === receiverId
           );
           if (alreadyPending) return prev;
 
           return [
             {
               id: -Date.now(),
-              senderId: user.id,
+              senderId: user?.id ?? '',
               receiverId,
               sender: {
-                id: user.id,
-                username: user.username,
-                email: user.email,
-                firstName: user.username,
+                id: user?.id ?? '',
+                username: user?.username ?? '',
+                email: user?.email ?? '',
+                firstName: user?.username ?? '',
                 lastName: '',
                 profilePictureUrl: '',
                 headline: '',
@@ -206,12 +197,32 @@ export const useConnections = (options?: { includeOutgoingPending?: boolean }): 
           ];
         });
       }
+    };
 
-      refetchAll(); // Refetch all data to update the lists
+    try {
+      console.log('Sending connection request to:', receiverId);
+      if (!user?.id) {
+        throw new Error('User not authenticated.');
+      }
+
+      // Backend expects a raw Guid in the request body (not a DTO object).
+      // Sending a string here results in JSON like: "<guid>", which System.Text.Json can parse as Guid.
+      const res = await postApi('/connections/send-request', receiverId);
+      console.log('Connection request sent successfully:', res);
+
+      // Only update this card locally; avoid refetching all connection state.
+      markRequestAsPendingLocally();
     } catch (err: any) {
+      const message = (err?.message ?? '').toString();
+      // If the server says it's pending/already sent, treat it as a no-op success and just update the card.
+      const isPendingNoop = /(connection|request).*(pending)|pending.*(connection|request)|already\s+pending|already\s+sent/i.test(message);
+      if (isPendingNoop) {
+        markRequestAsPendingLocally();
+        return;
+      }
+
       clearError();
-      setError(err.message || "Failed to send connection request.");
-      // refetchAll();
+      setError(message || "Failed to send connection request.");
     }
   };
 

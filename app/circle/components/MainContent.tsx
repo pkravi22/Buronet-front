@@ -99,9 +99,7 @@ const NetworkCard: React.FC<NetworkCardProps> = ({ user, onConnectClick, isConne
         const disabled = !isConnected && pending;
         const label = isConnected
           ? 'Message'
-          : isRequestSent
-          ? 'Request Sent'
-          : isRequestPending
+          : pending
           ? 'Request Pending'
           : 'Connect';
 
@@ -136,30 +134,30 @@ const MainContent = () => {
   const [showLeftButton, setShowLeftButton] = useState(false);
   const [showRightButton, setShowRightButton] = useState(true);
     // Use the new useConnections hook to get data
-  const { suggestedConnections, networkMetrics, popularConnections, isLoading, error, sendRequest, clearError, pendingRequests } = useConnections();
+  const { suggestedConnections, networkMetrics, popularConnections, isLoading, error, sendRequest, clearError, pendingIncomingRequests, pendingOutgoingRequests } = useConnections({ includeOutgoingPending: true });
   const { user: authUser } = useAuth();
 
   const outgoingSet = useMemo(() => {
     const set = new Set<string>();
     if (!authUser?.id) return set;
-    for (const req of pendingRequests) {
+    for (const req of pendingOutgoingRequests) {
       if (req.status === 'Pending' && req.senderId === authUser.id) {
         set.add(req.receiverId);
       }
     }
     return set;
-  }, [pendingRequests, authUser?.id]);
+  }, [pendingOutgoingRequests, authUser?.id]);
 
   const incomingSet = useMemo(() => {
     const set = new Set<string>();
     if (!authUser?.id) return set;
-    for (const req of pendingRequests) {
+    for (const req of pendingIncomingRequests) {
       if (req.status === 'Pending' && req.receiverId === authUser.id) {
         set.add(req.senderId);
       }
     }
     return set;
-  }, [pendingRequests, authUser?.id]);
+  }, [pendingIncomingRequests, authUser?.id]);
 
   const [modalState, setModalState] = useState<{ isOpen: boolean; title: string; users: SuggestedUserDto[] }>({
     isOpen: false,
