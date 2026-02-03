@@ -25,11 +25,11 @@ import LoadingSpinner from '../../components/UI/LoadingSpinner'; // Our loading 
 import { format } from 'date-fns'; // For date formatting from backend ISO strings
 
 import { useAuth, withAuthRequired } from '../../context/AuthContext'; // Authentication context and HOC
-import TopBar from '@/components/TopBar';
 import { getProfileImageUrl } from '@/lib/helpers/profileImage';
 import { AlertModal } from '@/components/AlertModal';
 import { toast } from 'react-hot-toast';
 import ShareLinkModal from '@/components/UI/ShareLinkModal';
+import Link from 'next/link';
 
 const ProfilePage: React.FC = () => {
   // Get authentication status and profile data from our custom hooks
@@ -98,17 +98,26 @@ const ProfilePage: React.FC = () => {
   // --- Main Render Function: Display Dynamic Profile Data ---
   return (
     <AppLayout>
-      {/* <TopBar /> */}
-      <div className="min-h-screen bg-[#EEF0F4] py-8"> {/* Adjusted outer container for dynamic data */}
+      <div className="min-h-screen bg-[#EEF0F4] pb-8 pt-[80px] lg:pt-8"> {/* Account for fixed TopBar on small screens */}
         {/*
           The pt-[61px] and min-h-[calc(100vh-72px)] were likely to account for a fixed TopBar
           We're now using AppLayout which has a Navbar. So these might need adjustment based on Navbar height.
         */}
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <div className="mb-4">
+            <Link
+              href="/home"
+              className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-800 shadow-sm transition hover:bg-gray-50"
+            >
+              <span aria-hidden>←</span>
+              <span>Back Home</span>
+            </Link>
+          </div>
+
           <div className="flex flex-col lg:flex-row gap-8">
             {/* Left Column - Profile Card */}
             <div className="lg:w-1/3">
-              <div className="bg-white rounded-xl shadow-sm p-6 sticky top-24">
+              <div className="bg-white rounded-xl shadow-sm p-6 lg:sticky lg:top-24">
                 <div className="flex flex-col items-center">
                   <img
                     src={getProfileImageUrl(userProfile.profilePictureUrl)} // Dynamic photo

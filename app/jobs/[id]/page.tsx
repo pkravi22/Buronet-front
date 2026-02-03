@@ -21,6 +21,11 @@ const JobDetailsPage = ({ params }: JobDetailsPageProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isBookmarking, setIsBookmarking] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
+
+  useEffect(() => {
+    document.documentElement.classList.remove('restrict-scroll');
+    document.body.classList.remove('restrict-scroll');
+  }, []);
   
   // In a real app, you'd get the userId from an auth context
   const userId = user?.id;
@@ -101,16 +106,16 @@ const JobDetailsPage = ({ params }: JobDetailsPageProps) => {
     <div className="bg-[#EEF0F4] font-sans text-gray-800">
       <Navbar activeItem="Jobs" />
 
-      {/* THIS IS THE FIX: A main content wrapper with left padding on large screens */}
-      <main className="lg:pl-[284px]">
+      {/* Desktop: offset for fixed Navbar and keep a consistent right gutter */}
+      <main className="lg:pl-[284px] lg:pr-6">
         <TopBar />
         <div className="flex flex-col mt-8">
           <div className="min-h-[calc(100vh-72px)] bg-[#EEF0F4] pt-8 pb-24 lg:py-8 lg:pb-12">
-            <div className="max-w-7xl mx-auto px-6 lg:px-8">
+            <div className="w-full px-4 sm:px-6 lg:px-6">
               <div className="flex flex-col lg:flex-row gap-8">
                 {/* Left Column - Dynamic Overview */}
                 <div className="lg:w-1/3">
-                  <div className="bg-white rounded-xl shadow-sm p-6 sticky top-24">
+                  <div className="bg-white rounded-xl shadow-sm p-6 mt-8">
                     <div className="flex flex-col">
                       <div className="w-full flex justify-center mb-4">
                         <img

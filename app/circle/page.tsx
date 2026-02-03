@@ -3,11 +3,20 @@ import TopBar from '../../components/TopBar';
 import Navbar from '../../components/Navbar';
 import MainContent from './components/MainContent';
 import RightBar from './components/RightBar';
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import '../restrictScroll.css'
 
 export default function CirclePage() {
   const mainRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    document.documentElement.classList.add('restrict-scroll');
+    document.body.classList.add('restrict-scroll');
+    return () => {
+      document.documentElement.classList.remove('restrict-scroll');
+      document.body.classList.remove('restrict-scroll');
+    };
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col bg-[#EEF0F4] pb-6 mb-12 sm:mb-0">

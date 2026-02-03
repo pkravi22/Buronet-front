@@ -237,88 +237,89 @@ const setSidebarRef = (node: HTMLDivElement | null) => {
     router.push(`/messaging?userId=${otherUserId}`); // Pass the other user's ID as a query param
   };
 
-  if (isLoading) {
-    return <div className="p-6 text-center"><LoadingSpinner /></div>;
-  }
-  if (error) {
-    return <div className="p-6 text-red-500 text-center">{error}</div>;
-  }
-
   return (
-    <aside className="block pb-20 laptop:pb-0 xl:w-[260px] laptop:w-[20%] mr-6 ml-6 laptop:ml-0 shrink-0">
-      <div
-        ref={setSidebarRef}
-        className="
-          sticky
-          top-[80px]
-          max-h-[calc(100vh-100px)]
-          overflow-y-auto
-          scrollbar-hide
-        "
-      >
-      <div className="bg-white rounded-lg shadow-sm border border-[#E5E7EB] p-6">
-        <div className="mb-10">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-[#1F2937] font-medium">Pending Requests</h2>
-            <span className="text-[#6B7280] text-sm">{pendingRequests.length} requests</span>
-          </div>
-          <div className="space-y-4">
-            {pendingRequests.map((request) => (
-              <RequestCard
-                key={request.id}
-                request={request}
-                onAccept={acceptRequest}
-                onDecline={declineRequest}
-              />
-            ))}
-          </div>
-          <button className="w-full text-[#2563EB] font-medium mt-[40px] py-2 hover:bg-[#F3F4F6] rounded" onClick={() => router.push('/network/requests')}>
-            View All Requests
-          </button>
-        </div>
+  <aside className="block pb-20 laptop:pb-0 xl:w-[260px] laptop:w-[20%] mr-6 ml-6 laptop:ml-0 shrink-0">
+    <div
+      ref={setSidebarRef}
+      className="sticky top-[80px] max-h-[calc(100vh-100px)] overflow-y-auto scrollbar-hide"
+    >
+      {isLoading ? (
+        <div className="p-6 text-center"><LoadingSpinner /></div>
+      ) : error ? (
+        <div className="p-6 text-red-500 text-center">{error}</div>
+      ) : (
+        <>
+          <div className="bg-white rounded-lg shadow-sm border border-[#E5E7EB] p-6">
+            {/* Pending Requests */}
+            <div className="mb-10">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-[#1F2937] font-medium">Pending Requests</h2>
+                <span className="text-[#6B7280] text-sm">{pendingRequests.length} requests</span>
+              </div>
+              <div className="space-y-4">
+                {pendingRequests.map((request) => (
+                  <RequestCard
+                    key={request.id}
+                    request={request}
+                    onAccept={acceptRequest}
+                    onDecline={declineRequest}
+                  />
+                ))}
+              </div>
+              <button 
+                className="w-full text-[#2563EB] font-medium mt-[40px] py-2 hover:bg-[#F3F4F6] rounded" 
+                onClick={() => router.push('/network/requests')}
+              >
+                View All Requests
+              </button>
+            </div>
 
-        <div className="mt-6 mb-10">
-          <h2 className="text-[#1F2937] font-medium mb-4">Recent Connections</h2>
-          <div className="space-y-4">
-            {connections.map((connection) => (
-              <ConnectionCard
-                key={connection.id}
-                connection={connection}
-                onMessageClick={handleMessageClick} // Pass the handler
-                currentUserId={user?.id || null}
-              />
-            ))}
-          </div>
-        </div>
+            {/* Recent Connections */}
+            <div className="mt-6 mb-10">
+              <h2 className="text-[#1F2937] font-medium mb-4">Recent Connections</h2>
+              <div className="space-y-4">
+                {connections.map((connection) => (
+                  <ConnectionCard
+                    key={connection.id}
+                    connection={connection}
+                    onMessageClick={handleMessageClick}
+                    currentUserId={user?.id || null}
+                  />
+                ))}
+              </div>
+            </div>
 
-        <div className="mt-6">
-          <h2 className="text-[#1F2937] font-medium mb-4">Groups You Might Like</h2>
-          <div className="space-y-4">
-            {/* The logic for fetching and rendering groups would be here */}
-            {/* For now, just rendering static data or a placeholder */}
-            <div className="bg-[#F9FAFB] rounded-xl p-4 text-center text-gray-500">
-              Groups suggestions coming soon...
+            {/* Groups */}
+            <div className="mt-6">
+              <h2 className="text-[#1F2937] font-medium mb-4">Groups You Might Like</h2>
+              <div className="space-y-4">
+                <div className="bg-[#F9FAFB] rounded-xl p-4 text-center text-gray-500">
+                  Groups suggestions coming soon...
+                </div>
+              </div>
+              <button className="w-full text-[#2563EB] font-medium mt-[40px] py-2 hover:bg-[#F3F4F6] rounded">
+                Discover More Groups
+              </button>
             </div>
           </div>
-          <button className="w-full text-[#2563EB] font-medium mt-[40px] py-2 hover:bg-[#F3F4F6] rounded">
-            Discover More Groups
-          </button>
-        </div>
-      </div>
-      <div className="mt-6 pt-6 border-t border-[#E5E7EB] text-sm">
-          <div className="flex flex-wrap gap-x-4 gap-y-2 mb-4">
-            <a href="#" className="text-[#6B728B] hover:underline">About</a>
-            <a href="#" className="text-[#6B728B] hover:underline">Help Center</a>
-            <a href="#" className="text-[#6B728B] hover:underline">Privacy & Terms</a>
-            <a href="#" className="text-[#6B728B] hover:underline">Advertising</a>
-            <a href="#" className="text-[#6B728B] hover:underline">Business Services</a>
-            <a href="#" className="text-[#6B728B] hover:underline">Get the App</a>
+
+          {/* Footer Section - Now properly inside the fragment */}
+          <div className="mt-6 pt-6 border-t border-[#E5E7EB] text-sm">
+            <div className="flex flex-wrap gap-x-4 gap-y-2 mb-4">
+              <a href="#" className="text-[#6B728B] hover:underline">About</a>
+              <a href="#" className="text-[#6B728B] hover:underline">Help Center</a>
+              <a href="#" className="text-[#6B728B] hover:underline">Privacy & Terms</a>
+              <a href="#" className="text-[#6B728B] hover:underline">Advertising</a>
+              <a href="#" className="text-[#6B728B] hover:underline">Business Services</a>
+              <a href="#" className="text-[#6B728B] hover:underline">Get the App</a>
+            </div>
+            <p className="text-[#6B728B]">© 2025 Buronet</p>
           </div>
-          <p className="text-[#6B728B]">© 2025 Buronet</p>
-        </div>
-        </div>
-    </aside>
-  );
+        </>
+      )}
+    </div>
+  </aside>
+);
 };
 
 export default RightBar;

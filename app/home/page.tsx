@@ -8,7 +8,7 @@ import PostSectionOld from '../home/components/PostSectionOld';
 import PostSection from '../home/components/PostSection'; // Updated import for new PostSection
 import SiteLayout from '@/components/SiteLayout';
 import CreatePostModal from './components/CreatePostModal';
-import { useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import CreatePollModal from './components/CreatePollModal';
 import CreateByteModal from './components/CreateBytePostModal';
 import { useAuth } from '@/context/AuthContext';
@@ -29,6 +29,24 @@ const HomePage: React.FC = () => {
   const { user: authUser, isLoading: isAuthLoading } = useAuth(); 
   const { userProfile, isLoading: isProfileLoading } = useUserProfile(); 
   const mainRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    const body = document.body;
+
+    if (authUser) {
+      root.classList.add('restrict-scroll');
+      body.classList.add('restrict-scroll');
+    } else {
+      root.classList.remove('restrict-scroll');
+      body.classList.remove('restrict-scroll');
+    }
+
+    return () => {
+      root.classList.remove('restrict-scroll');
+      body.classList.remove('restrict-scroll');
+    };
+  }, [authUser]);
   
   // Combine loading state, especially if the home page relies on profile data
   const isLoading = isAuthLoading || (authUser && isProfileLoading);

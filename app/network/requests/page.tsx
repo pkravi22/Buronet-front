@@ -34,7 +34,7 @@ const RequestsPage = () => {
               <nav className="flex flex-col">
                 <Link href="/circle" className="px-4 py-3 flex items-center gap-3 text-gray-600 hover:bg-gray-50 transition-colors">
                   <ArrowLeft size={18} />
-                  <span className="text-sm font-medium">Back to Circle</span>
+                  <span className="text-sm font-medium">Back to My Circle</span>
                 </Link>
                 <div className="px-4 py-3 flex items-center justify-between text-blue-600 bg-blue-50/50 border-r-4 border-blue-600">
                   <div className="flex items-center gap-3">

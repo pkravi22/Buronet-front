@@ -1,5 +1,7 @@
-html, body {
 @media screen and (min-width: 1024px) {
+  html.restrict-scroll,
+  body.restrict-scroll {
     overflow: hidden;
+    height: 100%;
   }
 }

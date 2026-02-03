@@ -175,7 +175,7 @@ const ExamDetailsPage = ({ params }: ExamDetailsPageProps) => {
                 
                 {/* Left Column - Dynamic Overview */}
                 <div className="lg:w-1/3">
-                  <div className="bg-white rounded-xl shadow-sm p-6 sticky top-24">
+                  <div className="bg-white rounded-xl shadow-sm p-6 mt-8">
                     <div className="flex flex-col">
                       <div className="w-full flex justify-center mb-4">
                         <img
