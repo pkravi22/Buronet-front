@@ -41,7 +41,7 @@ const ExamAttemptsSection: React.FC<ExamAttemptsSectionProps> = ({ examAttempts,
   return (
     <UserProfileSection title="Exam Attempts" onAdd={canEdit ? handleAddClick : undefined}>
       {examAttempts.length === 0 ? (
-        <p className="text-gray-500 italic">No exam attempts added yet. Click "Add New" to add one.</p>
+        <p className="text-gray-500 italic">No exam attempts added yet.</p>
       ) : (
         <div className="space-y-4">
           {examAttempts.map((attempt) => (

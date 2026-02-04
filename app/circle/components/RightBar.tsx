@@ -28,7 +28,7 @@ const RequestCard = ({ request, onAccept, onDecline }: RequestCardProps) => (
           alt={request.sender.firstName || request.sender.username || "User"}
           width={36}
           height={36}
-          className="rounded-full"
+          className="rounded-full object-contain"
         />
         <div className="ml-3">
           <h3 className="text-[#1F2937] font-medium">{request.sender.firstName} {request.sender.lastName || request.sender.username}</h3>
@@ -58,6 +58,37 @@ const RequestCard = ({ request, onAccept, onDecline }: RequestCardProps) => (
   </div>
 );
 
+// SentRequestCard for outgoing requests
+interface SentRequestCardProps {
+  request: ConnectionRequestDto;
+}
+
+const SentRequestCard = ({ request }: SentRequestCardProps) => (
+  <div className="bg-[#F9FAFB] rounded-xl p-3">
+    <div className="flex justify-between items-start">
+      <div className="flex">
+        <Image
+          src={getProfileImageUrl(request.receiver.profilePictureUrl)}
+          alt={request.receiver.firstName || request.receiver.username || "User"}
+          width={36}
+          height={36}
+          className="rounded-full object-contain"
+        />
+        <div className="ml-3">
+          <h3 className="text-[#1F2937] font-medium">{request.receiver.firstName} {request.receiver.lastName || request.receiver.username}</h3>
+          <p className="text-[#6B7280] text-sm">{request.receiver.headline}</p>
+          <p className="text-[#9CA3AF] text-sm">{formatTimeAgo(request.createdAt)}</p>
+        </div>
+      </div>
+      <div className="flex items-center">
+        <span className="px-2 py-1 bg-gray-100 text-gray-500 text-xs rounded border border-gray-200">
+          Pending
+        </span>
+      </div>
+    </div>
+  </div>
+);
+
 // ConnectionCard now takes props from the DTO
 interface ConnectionCardProps {
   connection: ConnectionDto;
@@ -79,7 +110,7 @@ const ConnectionCard = ({ connection, onMessageClick, currentUserId }: Connectio
           alt="U"
           width={40}
           height={40}
-          className="rounded-full"
+          className="rounded-full object-cover"
         />
         <div className="ml-3">
           <h3 className="text-[#1F2937] font-medium">{otherUser.firstName} {otherUser.lastName}</h3>
@@ -126,7 +157,7 @@ const GroupCard = ({ name, memberCount, iconBgColor = "bg-[#DBE9FE]" }: GroupCar
 
 const RightBar = ({ scrollSourceRef }: { scrollSourceRef: React.RefObject<HTMLElement> }) => {
   // Use the new hook to get connections data
-  const { connections, pendingRequests, isLoading, error, acceptRequest, declineRequest } = useConnections();
+  const { connections, pendingRequests, pendingOutgoingRequests, isLoading, error, acceptRequest, declineRequest } = useConnections({ includeOutgoingPending: true });
   const { user } = useAuth(); // Get current user for logic
   const router = useRouter(); // For redirecting to messaging
   const sidebarRef = useRef<HTMLDivElement | null>(null) as React.MutableRefObject<HTMLDivElement | null>;
@@ -251,13 +282,13 @@ const setSidebarRef = (node: HTMLDivElement | null) => {
         <>
           <div className="bg-white rounded-lg shadow-sm border border-[#E5E7EB] p-6">
             {/* Pending Requests */}
-            <div className="mb-10">
+            <div className="mb-6">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-[#1F2937] font-medium">Pending Requests</h2>
                 <span className="text-[#6B7280] text-sm">{pendingRequests.length} requests</span>
               </div>
               <div className="space-y-4">
-                {pendingRequests.map((request) => (
+                {pendingRequests.slice(0, 3).map((request) => (
                   <RequestCard
                     key={request.id}
                     request={request}
@@ -266,13 +297,36 @@ const setSidebarRef = (node: HTMLDivElement | null) => {
                   />
                 ))}
               </div>
-              <button 
-                className="w-full text-[#2563EB] font-medium mt-[40px] py-2 hover:bg-[#F3F4F6] rounded" 
-                onClick={() => router.push('/network/requests')}
-              >
-                View All Requests
-              </button>
             </div>
+
+            {/* Sent Requests - NEW SECTION */}
+            {pendingOutgoingRequests.length > 0 && (
+              <div className="mb-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-[#1F2937] font-medium">Sent Requests</h2>
+                  <span className="text-[#6B7280] text-sm">{pendingOutgoingRequests.length} requests</span>
+                </div>
+                <div className="space-y-4">
+                  {pendingOutgoingRequests.slice(0, 3).map((request) => (
+                    <SentRequestCard
+                      key={request.id}
+                      request={request}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {(pendingRequests.length > 0 || pendingOutgoingRequests.length > 0) && (
+              <div className="mb-10">
+                <button 
+                  className="w-full text-[#2563EB] font-medium py-2 hover:bg-[#F3F4F6] rounded" 
+                  onClick={() => router.push('/network/requests')}
+                >
+                  View All Requests
+                </button>
+              </div>
+            )}
 
             {/* Recent Connections */}
             <div className="mt-6 mb-10">

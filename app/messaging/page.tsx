@@ -20,11 +20,9 @@ const MessagingPage = () => {
   return (
     <div className="min-h-screen bg-[#EEF0F4]">
           <MessagingIconNavbar />
-          <div className="pt-[1.5rem] mb-[4.5rem] laptop:mb-0 laptop:pt-0">
-            <MainContent />
-          </div>
+          <MainContent />
           <div className="block laptop:hidden">
-            <Navbar />
+            <Navbar activeItem="Messaging" />
           </div>
     </div>
   );

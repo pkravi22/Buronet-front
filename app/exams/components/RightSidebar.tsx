@@ -154,7 +154,7 @@ const RightSidebar = ({ scrollSourceRef }: { scrollSourceRef: React.RefObject<HT
   ];
 
   return (
-    <div className="block xl:w-[260px] laptop:w-[20%] mr-6 ml-6 laptop:ml-0 shrink-0">
+    <div className="block w-full max-w-[640px] mx-auto px-4 md:px-0 laptop:w-[20%] laptop:max-w-none laptop:px-0 laptop:ml-0 laptop:mr-6 xl:w-[260px] shrink-0">
       <div
         ref={setSidebarRef}
         className="

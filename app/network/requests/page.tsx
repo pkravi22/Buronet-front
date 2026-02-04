@@ -1,21 +1,28 @@
 "use client";
 
-import { User, Check, X, ArrowLeft, Clock, Settings, UserCheck, ShieldAlert } from 'lucide-react';
+import { User, Check, X, ArrowLeft, Clock, Settings, UserCheck, ShieldAlert, Send } from 'lucide-react';
 import { useConnections } from '@/hooks/useConnections';
 import LoadingSpinner from '@/components/UI/LoadingSpinner';
 import { AlertModal } from '@/components/AlertModal';
 import Link from 'next/link';
+import { formatTimeAgo } from '@/lib/dates';
+import { useState } from 'react';
 
 const RequestsPage = () => {
+  const [activeTab, setActiveTab] = useState<'received' | 'sent'>('received');
   const { 
     pendingRequests, 
+    pendingOutgoingRequests,
     networkMetrics,
     isLoading, 
     error, 
     acceptRequest, 
     declineRequest, 
     clearError 
-  } = useConnections();
+  } = useConnections({ includeOutgoingPending: true });
+
+  const sortedPendingRequests = [...pendingRequests].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  const sortedOutgoingRequests = [...pendingOutgoingRequests].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
   return (
     <div className="min-h-screen bg-[#F3F4F6]">
@@ -36,15 +43,48 @@ const RequestsPage = () => {
                   <ArrowLeft size={18} />
                   <span className="text-sm font-medium">Back to My Circle</span>
                 </Link>
-                <div className="px-4 py-3 flex items-center justify-between text-blue-600 bg-blue-50/50 border-r-4 border-blue-600">
+                
+                <button
+                  onClick={() => setActiveTab('received')}
+                  className={`px-4 py-3 flex items-center justify-between transition-colors ${
+                    activeTab === 'received' 
+                      ? 'text-blue-600 bg-blue-50/50 border-r-4 border-blue-600' 
+                      : 'text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
                   <div className="flex items-center gap-3">
                     <UserCheck size={18} />
-                    <span className="text-sm font-bold">Invitations</span>
+                    <span className={`text-sm ${activeTab === 'received' ? 'font-bold' : 'font-medium'}`}>Invitations</span>
                   </div>
-                  <span className="text-xs font-bold bg-blue-100 px-2 py-0.5 rounded-full">
-                    {pendingRequests.length}
-                  </span>
-                </div>
+                  {pendingRequests.length > 0 && (
+                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                      activeTab === 'received' ? 'bg-blue-100' : 'bg-gray-100 text-gray-600'
+                    }`}>
+                      {pendingRequests.length}
+                    </span>
+                  )}
+                </button>
+
+                <button
+                  onClick={() => setActiveTab('sent')}
+                  className={`px-4 py-3 flex items-center justify-between transition-colors ${
+                    activeTab === 'sent' 
+                      ? 'text-blue-600 bg-blue-50/50 border-r-4 border-blue-600' 
+                      : 'text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <Send size={18} />
+                    <span className={`text-sm ${activeTab === 'sent' ? 'font-bold' : 'font-medium'}`}>Sent Requests</span>
+                  </div>
+                  {pendingOutgoingRequests.length > 0 && (
+                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                      activeTab === 'sent' ? 'bg-blue-100' : 'bg-gray-100 text-gray-600'
+                    }`}>
+                      {pendingOutgoingRequests.length}
+                    </span>
+                  )}
+                </button>
               </nav>
             </div>
 
@@ -59,82 +99,141 @@ const RequestsPage = () => {
           </aside>
 
           {/* RIGHT CONTENT: The actual requests list */}
-          <main className="flex-1">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-              <div className="px-6 py-5 border-b flex justify-between items-center bg-white">
-                <h1 className="text-lg font-bold text-gray-900">
-                  Pending Invitations
-                </h1>
-              </div>
+          <main className="flex-1 space-y-6">
+            
+            {activeTab === 'received' && (
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <div className="px-6 py-5 border-b flex justify-between items-center bg-white">
+                  <h1 className="text-lg font-bold text-gray-900">
+                    Pending Invitations
+                  </h1>
+                </div>
 
-              {isLoading ? (
-                <div className="p-20 flex justify-center"><LoadingSpinner /></div>
-              ) : pendingRequests.length > 0 ? (
-                <div className="divide-y divide-gray-100">
-                  {pendingRequests.map((request) => (
-                    <div 
-                      key={request.id} 
-                      className="p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between hover:bg-gray-50 transition-colors group"
-                    >
-                      <div className="flex items-center gap-5">
-                        {/* Enlarged Desktop Avatar */}
-                        <div className="w-16 h-16 bg-gradient-to-br from-blue-50 to-blue-100 rounded-full flex items-center justify-center shrink-0 border border-blue-200 shadow-inner group-hover:scale-105 transition-transform">
-                          <User size={32} className="text-blue-500" />
-                        </div>
-                        
-                        <div className="flex flex-col">
-                          <span className="font-bold text-gray-900 text-lg hover:underline cursor-pointer">
-                            {request.sender?.firstName} {request.sender?.lastName}
-                          </span>
-                          <span className="text-gray-600 text-sm max-w-[400px] leading-relaxed">
-                            {request.sender?.headline || "No headline provided"}
-                          </span>
-                          <div className="flex items-center gap-4 mt-2">
-                             <div className="flex items-center gap-1 text-gray-400">
-                                <Clock size={12} />
-                                <span className="text-[11px]">2 days ago</span>
-                             </div>
-                             <span className="text-[11px] text-blue-600 font-medium">
-                               3 mutual connections
-                             </span>
+                {isLoading ? (
+                  <div className="p-20 flex justify-center"><LoadingSpinner /></div>
+                ) : sortedPendingRequests.length > 0 ? (
+                  <div className="divide-y divide-gray-100">
+                    {sortedPendingRequests.map((request) => (
+                      <div 
+                        key={request.id} 
+                        className="p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between hover:bg-gray-50 transition-colors group"
+                      >
+                        <div className="flex items-center gap-5">
+                          {/* Enlarged Desktop Avatar */}
+                          <div className="w-16 h-16 bg-gradient-to-br from-blue-50 to-blue-100 rounded-full flex items-center justify-center shrink-0 border border-blue-200 shadow-inner group-hover:scale-105 transition-transform">
+                            <User size={32} className="text-blue-500" />
+                          </div>
+                          
+                          <div className="flex flex-col">
+                            <span className="font-bold text-gray-900 text-lg hover:underline cursor-pointer">
+                              {request.sender?.firstName} {request.sender?.lastName}
+                            </span>
+                            <span className="text-gray-600 text-sm max-w-[400px] leading-relaxed">
+                              {request.sender?.headline || "No headline provided"}
+                            </span>
+                            <div className="flex items-center gap-4 mt-2">
+                              <div className="flex items-center gap-1 text-gray-400">
+                                  <Clock size={12} />
+                                  <span className="text-[11px]">{formatTimeAgo(request.createdAt)}</span>
+                              </div>
+                              <span className="text-[11px] text-blue-600 font-medium">
+                                3 mutual connections
+                              </span>
+                            </div>
                           </div>
                         </div>
-                      </div>
 
-                      {/* Action Buttons: Wider for Desktop */}
-                      <div className="flex items-center gap-4 mt-4 sm:mt-0 w-full sm:w-auto">
-                        <button 
-                          onClick={() => declineRequest(request.id)}
-                          className="flex-1 sm:flex-none px-5 py-2 text-gray-500 font-semibold hover:bg-gray-100 rounded-lg transition-all border border-transparent"
-                        >
-                          Ignore
-                        </button>
-                        <button 
-                          onClick={() => acceptRequest(request.id)}
-                          className="flex-1 sm:flex-none px-8 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-full transition-all shadow-md active:scale-95"
-                        >
-                          Accept
-                        </button>
+                        {/* Action Buttons: Wider for Desktop */}
+                        <div className="flex items-center gap-4 mt-4 sm:mt-0 w-full sm:w-auto">
+                          <button 
+                            onClick={() => declineRequest(request.id)}
+                            className="flex-1 sm:flex-none px-5 py-2 text-gray-500 font-semibold hover:bg-gray-100 rounded-lg transition-all border border-transparent"
+                          >
+                            Ignore
+                          </button>
+                          <button 
+                            onClick={() => acceptRequest(request.id)}
+                            className="flex-1 sm:flex-none px-8 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-full transition-all shadow-md active:scale-95"
+                          >
+                            Accept
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                /* Empty State */
-                <div className="p-20 text-center">
-                  <div className="bg-gray-50 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6">
-                     <User size={48} className="text-gray-300" />
+                    ))}
                   </div>
-                  <h3 className="text-gray-900 font-bold text-xl">No pending invitations</h3>
-                  <p className="text-gray-500 mt-2 max-w-[300px] mx-auto">
-                    Try searching for colleagues or classmates to grow your network.
-                  </p>
-                  <Link href="/circle" className="inline-block mt-8 px-8 py-3 bg-blue-600 text-white font-bold rounded-full hover:bg-blue-700 transition-shadow shadow-lg">
-                    Find People
-                  </Link>
+                ) : (
+                  /* Empty State */
+                  <div className="p-20 text-center">
+                    <div className="bg-gray-50 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6">
+                      <User size={48} className="text-gray-300" />
+                    </div>
+                    <h3 className="text-gray-900 font-bold text-xl">No pending invitations</h3>
+                    <p className="text-gray-500 mt-2 max-w-[300px] mx-auto">
+                      Try searching for colleagues or classmates to grow your network.
+                    </p>
+                    <Link href="/circle" className="inline-block mt-8 px-8 py-3 bg-blue-600 text-white font-bold rounded-full hover:bg-blue-700 transition-shadow shadow-lg">
+                      Find People
+                    </Link>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {activeTab === 'sent' && (
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <div className="px-6 py-5 border-b flex justify-between items-center bg-white">
+                  <h1 className="text-lg font-bold text-gray-900">
+                    Sent Requests
+                  </h1>
                 </div>
-              )}
-            </div>
+
+                {isLoading ? (
+                  <div className="p-20 flex justify-center"><LoadingSpinner /></div>
+                ) : sortedOutgoingRequests.length > 0 ? (
+                  <div className="divide-y divide-gray-100">
+                    {sortedOutgoingRequests.map((request) => (
+                      <div 
+                        key={request.id} 
+                        className="p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between hover:bg-gray-50 transition-colors group"
+                      >
+                        <div className="flex items-center gap-5">
+                          {/* Avatar */}
+                          <div className="w-16 h-16 bg-gradient-to-br from-blue-50 to-blue-100 rounded-full flex items-center justify-center shrink-0 border border-blue-200 shadow-inner group-hover:scale-105 transition-transform">
+                            <User size={32} className="text-blue-500" />
+                          </div>
+                          
+                          <div className="flex flex-col">
+                            <span className="font-bold text-gray-900 text-lg hover:underline cursor-pointer">
+                              {request.receiver?.firstName} {request.receiver?.lastName}
+                            </span>
+                            <span className="text-gray-600 text-sm max-w-[400px] leading-relaxed">
+                              {request.receiver?.headline || "No headline provided"}
+                            </span>
+                            <div className="flex items-center gap-4 mt-2">
+                              <div className="flex items-center gap-1 text-gray-400">
+                                  <Clock size={12} />
+                                  <span className="text-[11px]">{formatTimeAgo(request.createdAt)}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Status Badge */}
+                        <div className="flex items-center gap-4 mt-4 sm:mt-0 w-full sm:w-auto">
+                          <span className="px-5 py-2 bg-gray-100 text-gray-500 font-semibold rounded-lg border border-gray-200 cursor-default">
+                            Pending
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="p-10 text-center text-gray-400">
+                    No sent requests found.
+                  </div>
+                )}
+              </div>
+            )}
           </main>
         </div>
       </div>

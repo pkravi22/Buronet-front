@@ -96,28 +96,36 @@ const ProfilePage: React.FC = () => {
   }
 
   // --- Main Render Function: Display Dynamic Profile Data ---
+  // Override AppLayout default styles to ensure full-width background
+  const profileMainClassName = 'flex-1 overflow-y-auto bg-[#EEF0F4]';
+
   return (
-    <AppLayout>
-      <div className="min-h-screen bg-[#EEF0F4] pb-8 pt-[80px] lg:pt-8"> {/* Account for fixed TopBar on small screens */}
+    <AppLayout mainClassName={profileMainClassName}>
+      {/* 
+         Adjusted padding to account for fixed TopBar (~61px). 
+         On desktop, we need more padding since we removed the default lg:mt-16 from AppLayout.
+         Previously: 64px (margin) + 32px (padding) = 96px total top space.
+      */}
+      <div className="min-h-screen pb-8 pt-[80px] lg:pt-[96px]">
         {/*
           The pt-[61px] and min-h-[calc(100vh-72px)] were likely to account for a fixed TopBar
           We're now using AppLayout which has a Navbar. So these might need adjustment based on Navbar height.
         */}
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="mb-4">
-            <Link
-              href="/home"
+            <button
+              onClick={() => window.history.back()}
               className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-800 shadow-sm transition hover:bg-gray-50"
             >
               <span aria-hidden>←</span>
-              <span>Back Home</span>
-            </Link>
+              <span>Back</span>
+            </button>
           </div>
 
-          <div className="flex flex-col lg:flex-row gap-8">
+          <div className="flex flex-col lg:flex-row gap-8 justify-center">
             {/* Left Column - Profile Card */}
-            <div className="lg:w-1/3">
-              <div className="bg-white rounded-xl shadow-sm p-6 lg:sticky lg:top-24">
+            <div className="lg:w-[360px] lg:shrink-0">
+              <div className="bg-white rounded-xl shadow-sm p-6 lg:mt-2 lg:sticky lg:top-24">
                 <div className="flex flex-col items-center">
                   <img
                     src={getProfileImageUrl(userProfile.profilePictureUrl)} // Dynamic photo
@@ -226,7 +234,7 @@ const ProfilePage: React.FC = () => {
             </div>
 
             {/* Right Column - Information Cards */}
-            <div className="lg:w-[60%]">
+            <div className="flex-1 min-w-0">
               <div className="mb-8">
                 <h2 className="text-2xl font-bold text-gray-900">My Profile</h2>
                 <p className="text-gray-600 mt-1">Manage your profile information and track your progress</p>

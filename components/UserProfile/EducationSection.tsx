@@ -42,7 +42,7 @@ const EducationSection: React.FC<EducationSectionProps> = ({ education, canEdit 
   return (
     <UserProfileSection title="Education" onAdd={canEdit ? handleAddClick : undefined}>
       {education.length === 0 ? (
-        <p className="text-gray-500 italic">No education entries added yet. Click "Add New" to add one.</p>
+        <p className="text-gray-500 italic">No education entries added yet.</p>
       ) : (
         <div className="space-y-4">
           {education.map((edu) => (

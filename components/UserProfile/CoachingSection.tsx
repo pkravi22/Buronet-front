@@ -42,7 +42,7 @@ const CoachingSection: React.FC<CoachingSectionProps> = ({ coaching, canEdit = t
   return (
     <UserProfileSection title="Coaching" onAdd={canEdit ? handleAddClick : undefined}>
       {coaching.length === 0 ? (
-        <p className="text-gray-500 italic">No coaching entries added yet. Click "Add New" to add one.</p>
+        <p className="text-gray-500 italic">No coaching entries added yet.</p>
       ) : (
         <div className="space-y-4">
           {coaching.map((coach) => (

@@ -23,6 +23,9 @@ export const AuthRedirectHandler: React.FC<{ children: React.ReactNode }> = ({ c
   // Combined loading state: Wait for Auth check, AND if authenticated, wait for Profile check
   const isLoading = isAuthLoading || (user && isProfileLoading);
 
+  // Define public routes that should be accessible even during logout guard
+  const publicRoutes = ['/login', '/register', '/forgot-password', '/reset-password'];
+
   // Post-logout session monitor:
   // For 2 minutes after logout, keep forcing /home and keep clearing any token that reappears.
   useEffect(() => {
@@ -39,7 +42,8 @@ export const AuthRedirectHandler: React.FC<{ children: React.ReactNode }> = ({ c
         localStorage.removeItem('token');
       }
 
-      if (pathname !== '/home') {
+      // Allow navigation to public routes (login/register) even if guard is active
+      if (pathname !== '/home' && !publicRoutes.includes(pathname)) {
         router.replace('/home');
       }
     };
@@ -50,12 +54,11 @@ export const AuthRedirectHandler: React.FC<{ children: React.ReactNode }> = ({ c
   }, [pathname, router]);
 
   useEffect(() => {
-    const publicRoutes = ['/login', '/register', '/forgot-password', '/reset-password'];
     const isPublicRoute = publicRoutes.includes(pathname);
 
-    // 0. Logout guard override: during the guard window, always force navigation to /home.
+    // 0. Logout guard override: during the guard window, force navigation to /home unless on public route.
     if (isLogoutGuardActive()) {
-      if (pathname !== '/home') {
+      if (pathname !== '/home' && !isPublicRoute) {
         router.replace('/home');
       }
       return;

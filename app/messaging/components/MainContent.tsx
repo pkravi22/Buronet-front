@@ -31,7 +31,7 @@ const MessagingPage: React.FC = () => {
   // Keep the overall page background consistent and reserve space for the fixed TopBar.
   // The inner panel then uses `my-6` and `h-[calc(100vh-61px-3rem)]` so it matches the
   // left fixed navbar height.
-  const messagingMainClassName = 'flex-1 overflow-y-auto bg-[#EEF0F4] pt-[61px]';
+  const messagingMainClassName = 'flex-1 overflow-hidden bg-[#EEF0F4] pt-[61px]';
 
   const {
     conversations,
@@ -215,7 +215,7 @@ const MessagingPage: React.FC = () => {
         - Added responsive margins: `mx-2` (mobile) and `md:mx-8` (medium+).
         - Added `overflow-hidden` to prevent layout issues during screen transitions.
       */}
-      <div className="flex bg-white rounded-lg lg:shadow-sm border border-[#E5E7EB] p-2 my-6 mx-2 md:mx-6 laptop:mx-0 laptop:ml-[6.5rem] laptop:mr-6 h-[calc(100vh-61px-3rem)] overflow-hidden">
+      <div className="flex bg-white rounded-lg lg:shadow-sm border border-[#E5E7EB] p-2 my-2 laptop:my-6 mx-2 md:mx-6 laptop:mx-0 laptop:ml-[6.5rem] laptop:mr-6 h-[calc(100vh-61px-5rem)] laptop:h-[calc(100vh-61px-3rem)] overflow-hidden">
         {/* Recent Chats Sidebar:
           - Default (mobile): `w-full`, `flex` (visible)
           - Mobile (chat selected): `hidden`

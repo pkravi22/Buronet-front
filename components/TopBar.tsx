@@ -99,6 +99,12 @@ const TopBar = () => {
     }
   };
 
+  const getInitials = (firstName?: string | null, lastName?: string | null) => {
+    const f = firstName ? firstName.charAt(0).toUpperCase() : "";
+    const l = lastName ? lastName.charAt(0).toUpperCase() : "";
+    return f || l ? `${f}${l}` : "U";
+  };
+
   // Component to render the search results dropdown
   const SearchResultsDropdown = () => (
     <div className="absolute top-11 left-0 right-0 w-full md:w-[448px] bg-white rounded-lg shadow-xl border border-[#E5E7EB] max-h-96 overflow-y-auto z-50">
@@ -324,9 +330,17 @@ const TopBar = () => {
                     onClick={() => setShowProfile(!showProfile)}
                     className="flex items-center bg-[#F3F4F6] rounded-full h-[31px] px-1 border border-[#E5E7EB] hover:bg-gray-100 cursor-pointer"
                   >
-                    <div className="w-[25px] h-[25px] bg-gray-300 rounded-full flex items-center justify-center text-xs text-gray-600">
-                      U
-                    </div>
+                    {userProfile?.profilePictureUrl ? (
+                      <img
+                        src={userProfile.profilePictureUrl}
+                        alt="Profile"
+                        className="w-[25px] h-[25px] rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-[25px] h-[25px] bg-gray-300 rounded-full flex items-center justify-center text-xs text-gray-600 font-medium">
+                        {getInitials(userProfile?.firstName, userProfile?.lastName)}
+                      </div>
+                    )}
                     <img
                       src="/chevron-down.svg"
                       alt="Expand"
@@ -339,9 +353,17 @@ const TopBar = () => {
                     <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-[#E5E7EB] py-2">
                       <div className="px-4 py-2 border-b border-[#E5E7EB]">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center text-sm text-gray-600">
-                            U
-                          </div>
+                          {userProfile?.profilePictureUrl ? (
+                            <img
+                              src={userProfile.profilePictureUrl}
+                              alt="Profile"
+                              className="w-10 h-10 rounded-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center text-sm text-gray-600 font-medium">
+                              {getInitials(userProfile?.firstName, userProfile?.lastName)}
+                            </div>
+                          )}
                           <div>
                             <p className="font-medium text-[#1F2937]">{userProfile?.firstName}</p>
                             <p className="text-sm text-[#6B7280]">{userProfile?.lastName}</p>

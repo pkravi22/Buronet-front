@@ -78,9 +78,10 @@ interface PostCardProps {
   onPostUpdated?: (updatedPost: PostDto) => void;
   currentUserId: string | null;
   onDelete: (postId: number) => Promise<void>;
+  hideOpenAction?: boolean;
 }
 
-const PostCard: React.FC<PostCardProps> = ({ post: initialPost, onPostUpdated, currentUserId, onDelete }) => {
+const PostCard: React.FC<PostCardProps> = ({ post: initialPost, onPostUpdated, currentUserId, onDelete, hideOpenAction }) => {
   const { user } = useAuth();
   const { userProfile } = useUserProfile();
   const [post, setPost] = useState<PostDto>(initialPost);
@@ -358,13 +359,16 @@ const PostCard: React.FC<PostCardProps> = ({ post: initialPost, onPostUpdated, c
 
               {showMenu && (
                 <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-10">
-                  <Link
-                    href={`/posts/${post.id}`}
-                    onClick={handleOpenClick}
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  >
-                    <i className="fas fa-eye mr-2"></i> Open
-                  </Link>
+                  {/* Conditionally render "Open" link */}
+                  {!hideOpenAction && (
+                    <Link
+                      href={`/posts/${post.id}`}
+                      onClick={handleOpenClick}
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      <i className="fas fa-eye mr-2"></i> Open
+                    </Link>
+                  )}
 
                   <button
                     onClick={handleReportClick}

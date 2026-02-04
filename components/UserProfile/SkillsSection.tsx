@@ -41,7 +41,7 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({ skills, canEdit = true })
   return (
     <UserProfileSection title="Skills" onAdd={canEdit ? handleAddClick : undefined}>
       {skills.length === 0 ? (
-        <p className="text-gray-500 italic">No skills added yet. Click "Add New" to add one.</p>
+        <p className="text-gray-500 italic">No skills added yet.</p>
       ) : (
         <div className="flex flex-wrap gap-2">
           {skills.map((skill) => (

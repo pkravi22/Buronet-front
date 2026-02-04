@@ -41,7 +41,7 @@ const CommunityGroupsSection: React.FC<CommunityGroupsSectionProps> = ({ communi
   return (
     <UserProfileSection title="Community Groups" onAdd={canEdit ? handleAddClick : undefined}>
       {communityGroups.length === 0 ? (
-        <p className="text-gray-500 italic">No community groups added yet. Click "Add New" to add one.</p>
+        <p className="text-gray-500 italic">No community groups added yet.</p>
       ) : (
         <div className="space-y-4">
           {communityGroups.map((group) => (

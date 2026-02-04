@@ -29,6 +29,7 @@ const navItems: NavItem[] = [
 const isActivePath = (pathname: string | null, href: string) => {
   if (!pathname) return false;
   if (href === '/home') return pathname === '/home';
+  if (href === '/messaging') return pathname.startsWith('/messaging');
   return pathname === href || pathname.startsWith(`${href}/`);
 };
 
