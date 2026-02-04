@@ -64,6 +64,7 @@ const JobsPage = () => {
         */}
         <main ref={mainRef} className="w-full flex-1 px-4 sm:px-6 lg:w-[50%] overflow-y-auto h-[calc(100vh-100px)] scrollbar-hide">
           <MainContent />
+          <div className="lg:hidden h-20" />
         </main>
 
         {/* RightSidebar: Fixed width, but hide on smaller screens if necessary */}

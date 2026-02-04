@@ -88,6 +88,7 @@ const BytesPage = () => {
     <main className="flex-1 overflow-hidden mt-[61px] h-[calc(100vh-61px-2rem)]">
       <GlobalStyle />
       <VideoList />
+      <div className="lg:hidden h-24" />
     </main>
   </div>
 </div>

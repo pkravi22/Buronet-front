@@ -12,6 +12,7 @@ export default function MentorshipPage() {
         <Navbar activeItem="Mentorship" />
         <main className="flex-1 px-6 ml-6">
           <MainContent />
+          <div className="lg:hidden h-20" />
         </main>
         <RightBar />
       </div>

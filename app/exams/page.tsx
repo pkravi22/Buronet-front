@@ -29,6 +29,7 @@ const JobsPage = () => {
         {/* FIX: Remove width constraints for mobile flow, let it be full width */}
         <main ref={mainRef} className="w-full flex-1 px-4 sm:px-6 lg:w-[50%] overflow-y-auto h-[calc(100vh-100px)] scrollbar-hide">
           <MainContent />
+          <div className="lg:hidden h-20" />
         </main>
         
         <div className="fixed h-[21px] lg:hidden"></div> {/* Hide fixed height div on desktop */}

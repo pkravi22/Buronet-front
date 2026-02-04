@@ -20,6 +20,7 @@ const PageShell = ({ children }: { children: React.ReactNode }) => {
         <main className="flex-1 px-4 sm:px-6 lg:mx-1 overflow-y-auto h-[calc(100vh-100px)] scrollbar-hide">
           <div className="max-w-7xl mx-auto">
             {children}
+            <div className="lg:hidden h-20" />
           </div>
         </main>
         <div className="fixed h-[21px] lg:hidden"></div>

@@ -11,6 +11,7 @@ export default function TrendingPage() {
         <Navbar activeItem={"Home"} />
         <main className="flex-1 px-4 sm:px-6 lg:mx-1 overflow-y-auto h-[calc(100vh-100px)] scrollbar-hide">
           <MainContent />
+          <div className="lg:hidden h-20" />
         </main>
         <div className="fixed h-[21px] lg:hidden"></div>
       </div>

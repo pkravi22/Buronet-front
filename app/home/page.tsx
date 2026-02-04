@@ -105,6 +105,7 @@ const HomePage: React.FC = () => {
             {/* Using the new PostSection component */}  
             {/* <PostSectionOld /> */}
           </div>
+          <div className="lg:hidden h-20" />
         </main>
         <div className="fixed h-[21px] lg:hidden"></div> {/* Hide fixed height div on desktop */}
         <RightSidebar scrollSourceRef={mainRef} />
