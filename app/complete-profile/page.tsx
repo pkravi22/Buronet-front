@@ -24,6 +24,12 @@ const CompleteProfilePage: React.FC = () => {
   const { userProfile, isLoading: isProfileLoading } = useUserProfile(); 
   const router = useRouter();
 
+  // Cleanup potential restrict-scroll class from other pages
+  useEffect(() => {
+    document.documentElement.classList.remove('restrict-scroll');
+    document.body.classList.remove('restrict-scroll');
+  }, []);
+
   // State for form data, initialized with empty strings or undefined
   const [profileData, setProfileData] = useState<UpdateUserProfileDto>({
     firstName: '',
@@ -234,8 +240,8 @@ const CompleteProfilePage: React.FC = () => {
 
   // --- Main Render Function: Display Profile Completion Form ---
   return (
-    <div className="bg-gray-100 min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-2xl w-full space-y-8 bg-white p-8 rounded-lg shadow-lg">
+    <div className="bg-gray-100 min-h-screen flex flex-col py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-2xl w-full mx-auto my-auto space-y-8 bg-white p-8 rounded-lg shadow-lg">
         <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
           Complete Your Profile
         </h2>

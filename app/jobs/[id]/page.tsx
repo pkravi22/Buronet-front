@@ -74,7 +74,7 @@ const JobDetailsPage = ({ params }: JobDetailsPageProps) => {
           await remove(`/bookmarks/${userId}/job/${job?.id}`);
         } else {
           // Bookmark the job
-          await postApi(`/bookmarks/${userId}/job`, { jobId: job?.id });
+          await postApi(`/bookmarks/${userId}/job`, { Id: job?.id });
         }
       } catch (error) {
         console.error("Failed to update bookmark:", error);

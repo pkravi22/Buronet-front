@@ -8,9 +8,11 @@ import LoadingSpinner from './UI/LoadingSpinner';
 import { FiTrendingUp, FiMoreHorizontal } from 'react-icons/fi';
 import { FaFire } from 'react-icons/fa';
 import CountFormatter from '@/components/countFormatter';
+import {useRouter} from 'next/navigation';
 
 const TrendingNowSection = () => {
   const { tags, isLoading, isError } = useTrendingTags();
+  const router = useRouter();
 
   if (isLoading) {
     return (
@@ -19,6 +21,8 @@ const TrendingNowSection = () => {
       </div>
     );
   }
+
+  console.log('Trending tags:', tags);
 
   if (isError) {
     return (
@@ -50,7 +54,7 @@ const TrendingNowSection = () => {
         // </div>
         // <span className="text-gray-500 text-xs">{tag.totalPosts} posts</span>
         // </div>
-        <div className="bg-[#F9FAFD] rounded-xl p-3 mb-3" key={`TrendingNow-${index}`}>
+        <div className="bg-[#F9FAFD] rounded-xl p-3 mb-3 cursor-pointer" onClick={() => router.push(`/posts/${tag.mostRecentPost.id}`)} key={`TrendingNow-${index}`}>
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               <span className="text-[#6B728B] text-sm">#{tag.tagName}</span>
@@ -61,7 +65,6 @@ const TrendingNowSection = () => {
                 </div>
               )}
             </div>
-            <FiMoreHorizontal className="text-[#9CA3AF] w-3.5" />
           </div>
           <h3 className="text-[#1F2937] text-base font-medium mt-1 mb-2 leading-5">
             {tag.mostRecentPost.title}
