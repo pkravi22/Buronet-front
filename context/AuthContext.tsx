@@ -144,13 +144,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     
     try {
       // POST to backend login, expecting a { token: "...", userId: "...", username: "...", email: "..." } response
-      const response: { token: string; userId: string; username: string; email: string; } = await postApi('/auth/login', data);
+      const response: { token: string; userId: string; username: string; email: string; refreshToken?: string } = await postApi('/auth/login', data);
 
       if (response && response.token) {
         const token = response.token;
         // If a logout guard is active (e.g., user logged out in another tab), clear it on successful login.
         clearLogoutGuard();
         localStorage.setItem('token', token);
+        
+        // Handle Refresh Token
+        if (response.refreshToken) {
+          localStorage.setItem('refreshToken', response.refreshToken);
+        } else {
+          localStorage.removeItem('refreshToken');
+        }
+
         const decodedUser = jwtDecode<User>(token);
         setUser(decodedUser);
 
@@ -186,6 +194,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setLogoutGuard(2 * 60 * 1000);
 
       localStorage.removeItem('token'); // Clear token from storage
+      localStorage.removeItem('refreshToken'); // Clear refresh token
       setUser(null); // Clear user from context
       setUserProfile(null);
       setIsProfileError(false);

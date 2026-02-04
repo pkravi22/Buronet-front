@@ -80,6 +80,47 @@ export async function apiFetch<T>(
     // --- CRITICAL FIX END ---
 
     if (!response.ok) {
+        // Auto-refresh logic for 401 Unauthorized
+        if (response.status === 401 && !url.toLowerCase().includes('/auth/refresh') && typeof window !== 'undefined') {
+            const storedRefreshToken = localStorage.getItem('refreshToken');
+            if (storedRefreshToken) {
+                try {
+                    console.log("Token expired (401). Attempting refresh...");
+                    // Use a separate fetch to avoid circular dependencies or interceptor loops
+                    // Always use the main backend for auth operations
+                    const authBase = process.env.NEXT_PUBLIC_DOTNET_BACKEND_BASE || "http://localhost:3000/api";
+                    const refreshRes = await fetch(`${authBase}/auth/refresh`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ refreshToken: storedRefreshToken })
+                    });
+
+                    if (refreshRes.ok) {
+                        const refreshData = await refreshRes.json();
+                        if (refreshData.token) {
+                            console.log("Token refresh successful. Retrying original request.");
+                            localStorage.setItem('token', refreshData.token);
+                            // Update refresh token if provided (Rotation)
+                            if (refreshData.refreshToken) {
+                                localStorage.setItem('refreshToken', refreshData.refreshToken);
+                            }
+                            // Retry original request recursively with the new token
+                            return apiFetch<T>(url, config);
+                        }
+                    } else {
+                        console.warn("Refresh token invalid or expired. Clearing session.");
+                        localStorage.removeItem('token');
+                        localStorage.removeItem('refreshToken');
+                    }
+                } catch (refreshErr) {
+                    console.error("Error during token refresh:", refreshErr);
+                    // Clear tokens on error to be safe
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('refreshToken');
+                }
+            }
+        }
+
         // If response.ok is false (e.g., 400, 401, 500 status codes)
         let errorMessage = `API Error: ${response.status} ${response.statusText}`;
 

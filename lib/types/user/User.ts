@@ -12,6 +12,7 @@ export interface User { // Your core User type
 export interface LoginData {
   username: string; // Username or Email
   password: string;
+  rememberMe?: boolean;
 }
 
 export interface RegisterData {

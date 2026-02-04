@@ -247,19 +247,25 @@ const PostCard: React.FC<PostCardProps> = ({ post: initialPost, onPostUpdated, c
     if (isReporting) return;
     setIsReporting(true);
     try {
-      const data = await postApi<{ ok: boolean; error?: string; previewUrl?: string }>(
-        '/posts/report-post',
-        {
+      // Use direct fetch to the Next.js API route instead of postApi which points to external backend
+      const response = await fetch('/api/report-post', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
           postId: post.id,
           postUrl,
           message: reportMessage,
           reporter: user
             ? { id: user.id, email: user.email, username: user.username }
             : undefined,
-        }
-      );
+        }),
+      });
 
-      if (!data?.ok) {
+      const data = await response.json();
+
+      if (!response.ok || !data?.ok) {
         throw new Error(data?.error || 'Failed to send report');
       }
 

@@ -8,6 +8,7 @@ import { useAuth } from '../../context/AuthContext'; // <--- IMPORT useAuth
 export default function LoginPage() {
   const [username, setUsername] = useState(''); // Changed from setEmail to setUsername for consistency
   const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
   // Get state and methods from AuthContext
   const { login, user, isLoading, error: authError } = useAuth(); // <--- Get login, user, isLoading, error from useAuth
   const router = useRouter();
@@ -28,7 +29,7 @@ export default function LoginPage() {
         if (isLoading) return;
 
         // Call the login function from AuthContext
-        const success = await login({ username, password });
+        const success = await login({ username, password, rememberMe });
         
         // CRITICAL: If login was successful, immediately push to a protected page.
         // The AuthRedirectHandler will now take over on /profile.
@@ -76,7 +77,6 @@ export default function LoginPage() {
           <p className="text-red-500 text-center mb-4">{authError}</p>
         )}
         <form onSubmit={handleSubmit} className="mt-8 space-y-6">
-          <input type="hidden" name="remember" defaultValue="true" />
           <div className="rounded-md shadow-sm -space-y-px">
             <div className='mb-4'>
               <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
@@ -120,6 +120,8 @@ export default function LoginPage() {
                 id="remember-me"
                 name="remember-me"
                 type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
                 className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
               />
               <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
