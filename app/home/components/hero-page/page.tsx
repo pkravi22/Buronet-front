@@ -8,6 +8,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { get } from '@/lib/api';
 import type { Job } from '@/lib/types/jobs';
 import JobCard from '../../../jobs/components/JobCard';
+import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 
 export default function Home() {
 
@@ -25,6 +26,14 @@ export default function Home() {
   const [isJobsLoading, setIsJobsLoading] = useState(false);
   const [jobsError, setJobsError] = useState<string | null>(null);
 
+  // Modal State
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [allJobs, setAllJobs] = useState<Job[]>([]);
+  const [modalLoading, setModalLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const pageSize = 10;
+
     const handleLogin = () => {
       router.push('/login');
     }
@@ -32,6 +41,28 @@ export default function Home() {
     const handleJoin = () => {
       router.push('/register');
     }
+
+  const fetchAllJobs = async (page: number) => {
+    setModalLoading(true);
+    try {
+      // Assuming same endpoint structure as MainContent.tsx reference
+      const response = await get<any>(`/jobs/all?page=${page}&pageSize=${pageSize}`);
+      // Adjust according to actual API response structure if needed
+      setAllJobs(response.data || response);
+      setTotalPages(response.totalPages || 1);
+      setCurrentPage(page);
+    } catch (error) {
+      console.error("Failed to fetch all jobs", error);
+    } finally {
+      setModalLoading(false);
+    }
+  };
+
+  const handleOpenModal = () => {
+    setIsModalOpen(true);
+    fetchAllJobs(1);
+  };
+
 
   useEffect(() => {
     const fetchLatestJobs = async () => {
@@ -480,12 +511,12 @@ export default function Home() {
                     <h3 className="text-xl md:text-2xl font-bold text-content-light dark:text-content-dark text-center sm:text-left">
                       Latest Job Openings
                     </h3>
-                    <Link
-                      href="/jobs"
+                    <button
+                      onClick={handleOpenModal}
                       className="text-sm font-semibold text-primary hover:underline text-center sm:text-right"
                     >
                       View all jobs
-                    </Link>
+                    </button>
                   </div>
 
                   {isJobsLoading ? (
@@ -678,6 +709,59 @@ export default function Home() {
           </footer>
         </div>
       </div>
+      {isModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <div className="bg-white w-full max-w-4xl max-h-[90vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+            
+            {/* Header */}
+            <div className="p-6 border-b flex items-center justify-between">
+              <h2 className="text-xl font-bold text-gray-900">All Job Openings</h2>
+              <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-gray-100 rounded-full">
+                <X size={24} className="text-gray-500" />
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className="flex-1 overflow-y-auto p-6 bg-gray-50">
+              {modalLoading ? (
+                <div className="flex justify-center py-20">Loading...</div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {allJobs.map(job => (
+                    <JobCard
+                      key={job.id}
+                      job={job}
+                      isBookmarked={false} 
+                      onToggleBookmark={handleLatestJobBookmarkToggle}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Pagination Footer */}
+            <div className="p-4 border-t flex items-center justify-between bg-white">
+              <button
+                disabled={currentPage === 1 || modalLoading}
+                onClick={() => fetchAllJobs(currentPage - 1)}
+                className="flex items-center gap-1 px-4 py-2 border rounded-lg disabled:opacity-50"
+              >
+                <ChevronLeft size={16} /> Previous
+              </button>
+              
+              <span className="text-sm font-medium">Page {currentPage} of {totalPages}</span>
+
+              <button
+                disabled={currentPage === totalPages || modalLoading}
+                onClick={() => fetchAllJobs(currentPage + 1)}
+                className="flex items-center gap-1 px-4 py-2 border rounded-lg disabled:opacity-50"
+              >
+                Next <ChevronRight size={16} />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
