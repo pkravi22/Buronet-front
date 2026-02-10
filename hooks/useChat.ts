@@ -201,8 +201,8 @@ export const useChat = (): UseChatResult => {
             ? { 
                 ...conv, 
                 lastMessage: message, 
-                // Only increment unread count if it's NOT the currently selected chat
-                unreadCount: conv.id !== currentSelectedId ? (conv.unreadCount || 0) + 1 : conv.unreadCount 
+                // Only increment unread count if it's NOT the currently selected chat AND not sent by me
+                unreadCount: (conv.id !== currentSelectedId && message.senderId !== user?.id) ? (conv.unreadCount || 0) + 1 : conv.unreadCount  
             } 
             : conv
         ));

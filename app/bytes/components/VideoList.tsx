@@ -147,7 +147,14 @@ const VideoList = () => {
         </div>
         
         {isLoading ? (
-          <Loader2 className="w-10 h-10 text-white animate-spin" />
+          <div className="h-full flex items-center justify-center">
+            <Loader2 className="w-10 h-10 text-gray-600 animate-spin" />
+          </div>
+        ) : bytes.length === 0 ? (
+           <div className="h-full flex flex-col items-center justify-center text-gray-500">
+             <p className="text-xl font-semibold">No bytes available</p>
+             <p className="mt-2">There are no bytes to show in &quot;{activeFilter}&quot;.</p>
+           </div>
         ) : (
           <InfiniteScroll
               dataLength={bytes.length}

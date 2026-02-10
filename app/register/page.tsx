@@ -4,6 +4,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { Eye, EyeOff } from 'lucide-react';
 // Assuming AppLayout is for authenticated parts of the app.
 // For login/register pages, it's common to NOT use a global layout like AppLayout
 // unless it's specifically designed for unauthenticated pages too.
@@ -19,6 +20,8 @@ const RegisterPage: React.FC = () => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState(''); // Added email state
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { register, user, isLoading, error: authError } = useAuth();
   const router = useRouter();
 
@@ -35,7 +38,7 @@ const RegisterPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (isLoading) return;
+    if (isSubmitting) return;
 
     const normalizedEmail = email.trim();
     const emailLooksValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail);
@@ -49,7 +52,9 @@ const RegisterPage: React.FC = () => {
       return;
     }
 
+    setIsSubmitting(true);
     const res = await register({ username, email: normalizedEmail, password } as RegisterData);
+    setIsSubmitting(false);
     // Success navigation is handled inside AuthContext.register().
     // If it fails, AuthContext.error is shown on this page.
     if (res.success) {
@@ -153,17 +158,30 @@ const RegisterPage: React.FC = () => {
                 Password
                 <span className="text-red-500" aria-hidden="true"> *</span>
               </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                autoComplete="new-password" // Use 'new-password' for registration
-                required
-                className="appearance-none rounded-b-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Password"
-              />
+              <div className="relative">
+                <input
+                  id="password"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  autoComplete="new-password" // Use 'new-password' for registration
+                  required
+                  className="appearance-none rounded-b-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm pr-10"
+                  placeholder="Password"
+                />
+                <button
+                  type="button"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-500 focus:outline-none cursor-pointer z-20"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-5 w-5" aria-hidden="true" />
+                  ) : (
+                    <Eye className="h-5 w-5" aria-hidden="true" />
+                  )}
+                </button>
+              </div>
               {passwordError ? (
                 <p className="text-xs text-red-500 mt-1">{passwordError}</p>
               ) : (

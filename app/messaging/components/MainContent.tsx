@@ -341,7 +341,7 @@ const MessagingPage: React.FC = () => {
                         <span className="text-sm text-gray-500 truncate">
                           {chat.lastMessage?.content || 'No messages yet.'}
                         </span>
-                        {chat.unreadCount && chat.unreadCount > 0 && (
+                        {(chat.unreadCount || 0) > 0 && (
                           <span className="ml-2 bg-blue-600 text-white text-xs rounded-full px-2 py-0.5 font-semibold">
                             {chat.unreadCount}
                           </span>
@@ -396,8 +396,6 @@ const MessagingPage: React.FC = () => {
                     {getOtherParticipant(selectedConversation as ConversationDto)?.username || // Cast here
                       'Unknown Chat'}
                   </div>
-                  <div className="text-xs text-gray-400">Online</div>{' '}
-                  {/* Placeholder for online status */}
                 </div>
               </div>
               {/* Messages */}

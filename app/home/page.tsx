@@ -26,6 +26,7 @@ const HomePage: React.FC = () => {
   // State to trigger refetching of posts after a new post is created
   // This is passed as a key to PostSection to force it to re-render and refetch
   const [postsRefetchKey, setPostsRefetchKey] = useState(0);
+  const [postFilter, setPostFilter] = useState<'all' | 'mine'>('all'); // Add filter state
   const { user: authUser, isLoading: isAuthLoading } = useAuth(); 
   const { userProfile, isLoading: isProfileLoading } = useUserProfile(); 
   const mainRef = useRef<HTMLDivElement>(null);
@@ -101,14 +102,33 @@ const HomePage: React.FC = () => {
           <div className="">
             <DashboardCards />
             <InsightsSection onShareArticleClick={() => setIsCreatePostModalOpen(true)} onCreatePollClick={() => setIsCreatePollModalOpen(true)} onShareByteClick={() => setIsCreateByteModalOpen(true)} />
-            <PostSection postsRefetchKey={postsRefetchKey}/>
+            
+            {/* Mobile Filter */}
+            <div className="lg:hidden flex justify-center w-full px-4 sm:px-0">
+               <div className="mt-6 w-full max-w-[640px] bg-gray-200 p-1 rounded-lg flex">
+                  <button 
+                     onClick={() => setPostFilter('all')}
+                     className={`flex-1 py-1.5 text-sm font-semibold rounded-md transition-all ${postFilter === 'all' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                  >
+                     All Posts
+                  </button>
+                  <button 
+                     onClick={() => setPostFilter('mine')}
+                     className={`flex-1 py-1.5 text-sm font-semibold rounded-md transition-all ${postFilter === 'mine' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                  >
+                     My Posts
+                  </button>
+               </div>
+            </div>
+
+            <PostSection postsRefetchKey={postsRefetchKey} filterType={postFilter}/>
             {/* Using the new PostSection component */}  
             {/* <PostSectionOld /> */}
           </div>
           <div className="lg:hidden h-20" />
         </main>
         <div className="fixed h-[21px] lg:hidden"></div> {/* Hide fixed height div on desktop */}
-        <RightSidebar scrollSourceRef={mainRef} />
+        <RightSidebar scrollSourceRef={mainRef} activeFilter={postFilter} onFilterChange={setPostFilter} />
       </div>
       <CreatePostModal
         isOpen={isCreatePostModalOpen} // Controls modal visibility

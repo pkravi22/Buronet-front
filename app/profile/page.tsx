@@ -16,6 +16,7 @@ import CoachingSection from '../../components/UserProfile/CoachingSection';
 import PublicationsSection from '../../components/UserProfile/PublicationsSection';
 import ProjectsSection from '../../components/UserProfile/ProjectsSection';
 import CommunityGroupsSection from '../../components/UserProfile/CommunityGroupsSection';
+import { calculateAge } from '@/lib/dates';
 
 // Modals/Forms for editing profile data
 import EditProfileModal from '../../components/UserProfile/EditProfileModal';
@@ -149,21 +150,29 @@ const ProfilePage: React.FC = () => {
                     <p className="text-sm text-gray-600 leading-relaxed">{userProfile.bio || "No description available."}</p>
                   </div>
 
-                  {/* Basic Information - Mostly N/A as fields not in DTO */}
+                  {/* Basic Information - Updated based on request */}
                   <div className="w-full mb-6">
                     <h3 className="text-sm font-medium text-gray-700 mb-3">Basic Information</h3>
                     <div className="space-y-3">
                       <div className="flex items-start">
                         <div className="w-8 text-gray-400"><i className="fas fa-user-clock"></i></div>
-                        <div className="flex-1"><p className="text-sm text-gray-600">Age: N/A</p></div>
+                        <div className="flex-1">
+                          <p className="text-sm text-gray-600">
+                            Age: {calculateAge(userProfile.dateOfBirth) ? `${calculateAge(userProfile.dateOfBirth)} years` : "N/A"}
+                          </p>
+                        </div>
                       </div>
                       <div className="flex items-start">
                         <div className="w-8 text-gray-400"><i className="fas fa-map-marker-alt"></i></div>
-                        <div className="flex-1"><p className="text-sm text-gray-600">Location: {userProfile.city || "N/A"}, {userProfile.country || "N/A"}</p></div>
-                      </div>
-                      <div className="flex items-start">
-                        <div className="w-8 text-gray-400"><i className="fas fa-language"></i></div>
-                        <div className="flex-1"><p className="text-sm text-gray-600">Languages: N/A</p></div>
+                        <div className="flex-1">
+                          <p className="text-sm text-gray-600">
+                            Location: {[
+                              userProfile.city,
+                              userProfile.stateProvince,
+                              userProfile.country
+                            ].filter(Boolean).join(', ') || "N/A"}
+                          </p>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -180,7 +189,7 @@ const ProfilePage: React.FC = () => {
                         <div className="w-8 text-gray-400"><i className="fas fa-phone-alt"></i></div>
                         <div className="flex-1"><p className="text-sm text-gray-600">{userProfile.phoneNumber || "N/A"}</p></div>
                       </div>
-                      {/* LinkedIn and Twitter not in DTO, placeholder */}
+                      {/* LinkedIn and Twitter not in DTO, placeholder 
                       <div className="flex items-start">
                         <div className="w-8 text-gray-400"><i className="fab fa-linkedin"></i></div>
                         <div className="flex-1"><p className="text-sm text-gray-600">LinkedIn: N/A</p></div>
@@ -188,7 +197,7 @@ const ProfilePage: React.FC = () => {
                       <div className="flex items-start">
                         <div className="w-8 text-gray-400"><i className="fab fa-twitter"></i></div>
                         <div className="flex-1"><p className="text-sm text-gray-600">Twitter: N/A</p></div>
-                      </div>
+                      </div>*/}
                     </div>
                   </div>
 

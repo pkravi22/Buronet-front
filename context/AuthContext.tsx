@@ -4,7 +4,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { apiFetch, get, postApi } from '../lib/api';
 import { User, LoginData, RegisterData, UserProfile, RegisterResponse } from '../lib/types/user';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { jwtDecode } from 'jwt-decode'; // Ensure jwt-decode is installed: npm install jwt-decode
 import LoadingSpinner from '../components/UI/LoadingSpinner'; // Adjust path based on your project structure
 import { clearLogoutGuard, setLogoutGuard } from '../utils/auth';
@@ -35,6 +35,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true); // Start as true, becomes false after initial session check
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const pathname = usePathname();
+
+  // Clear authentication errors when the user navigates to a different page
+  useEffect(() => {
+    setError(null);
+  }, [pathname]);
 
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [isProfileLoading, setIsProfileLoading] = useState(false); // Manually managed loading
@@ -132,18 +138,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   useEffect(() => {
-    fetchCurrentUser();
+    // REMOVED: setIsLoading(true); // We don't want to trigger global loading state for login action
   }, []); // Run once on mount to check initial session status
 
   // --- Login Function ---
   const login = async (data: LoginData): Promise<boolean> => {
     console.log('login: Attempting login for username:', data.username);
-    setIsLoading(true); // Indicate login process is active
+    // REMOVED: setIsLoading(true);
     setError(null); // Clear previous errors
     console.log('login: Sending login request to backend with data:', data);
     
     try {
-      // POST to backend login, expecting a { token: "...", userId: "...", username: "...", email: "..." } response
+      // POST to backend login
       const response: { token: string; userId: string; username: string; email: string; refreshToken?: string } = await postApi('/auth/login', data);
 
       if (response && response.token) {
@@ -173,13 +179,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     } catch (err: any) {
       console.error('login: Login failed:', err);
-      setError(err.message || "Login failed. Please check your credentials.");
+      setError(err.message || "Login failed. Please check your credentials."); // Ensure we set the error
       localStorage.removeItem('token'); // Clear any invalid token
       setUser(null);
       return false;
     } finally {
       console.log('login: Login process complete.');
-      setIsLoading(false);
+      // REMOVED: setIsLoading(false);
     }
   };
 
@@ -221,7 +227,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // --- Register Function ---
   const register = async (data: RegisterData): Promise<RegisterResponse> => {
     console.log('register: Attempting registration for username:', data.username);
-    setIsLoading(true);
+    // REMOVED: setIsLoading(true);
     setError(null);
     try {
       // Assuming register endpoint returns token and user info upon success
@@ -253,7 +259,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       return {"success":false, "message": message} as RegisterResponse;
     } finally {
       console.log('register: Registration process complete.');
-      setIsLoading(false);
+      // REMOVED: setIsLoading(false);
     }
   };
 

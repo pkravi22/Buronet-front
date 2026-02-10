@@ -88,8 +88,9 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ userProfile, onClos
   };
 
   return (
-    <div className="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50 p-4 overflow-y-auto">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl my-8">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-gray-900 bg-opacity-75">
+      <div className="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+        <div className="relative transform overflow-hidden bg-white rounded-lg text-left shadow-xl transition-all w-full max-w-2xl my-8 sm:w-full">
         <div className="flex justify-between items-center border-b p-4">
           <h2 className="text-2xl font-bold text-gray-800">Edit Your Profile</h2>
           <button type="button" onClick={onClose} className="text-gray-500 hover:text-gray-800 text-2xl font-bold">&times;</button>
@@ -195,6 +196,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ userProfile, onClos
           </form>
         </div>
       </div>
+     </div>
     </div>
   );
 };

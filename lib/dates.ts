@@ -1,4 +1,4 @@
-import { format, formatDistanceToNow } from 'date-fns';
+import { format, formatDistanceToNow, differenceInYears } from 'date-fns';
 
 type DateLike = string | number | Date | null | undefined;
 
@@ -129,4 +129,10 @@ export function formatTimeAgo(value: DateLike): string {
   const date = parseUtcDateTime(value);
   if (!date) return 'N/A';
   return formatDistanceToNow(date, { addSuffix: true });
+}
+
+export function calculateAge(dob: DateLike): string | null {
+  const date = parseDateOnlyToLocalDate(dob);
+  if (!date) return null;
+  return differenceInYears(new Date(), date).toString();
 }

@@ -33,7 +33,13 @@ const SuggestedUser: React.FC<SuggestedUserProps> = ({ name, role, imageUrl }) =
   );
 };
 
-const RightSidebar = ({ scrollSourceRef }: { scrollSourceRef: React.RefObject<HTMLElement> }) => {
+interface RightSidebarProps {
+  scrollSourceRef: React.RefObject<HTMLElement>;
+  activeFilter?: 'all' | 'mine';
+  onFilterChange?: (filter: 'all' | 'mine') => void;
+}
+
+const RightSidebar = ({ scrollSourceRef, activeFilter, onFilterChange }: RightSidebarProps) => {
   // const [suggestedConnections, setSuggestedConnections] = useState<SuggestedUserDto[]>([]);
   const sidebarRef = useRef<HTMLDivElement>(null);
   const syncing = useRef(false);
@@ -95,6 +101,28 @@ const RightSidebar = ({ scrollSourceRef }: { scrollSourceRef: React.RefObject<HT
           scrollbar-hide
         "
       >
+      
+      {/* Feed Filter Widget */}
+      {onFilterChange && (
+        <div className="bg-white rounded-lg shadow-sm border border-[#E5E7EB] p-4 mb-6">
+          <h3 className="text-gray-900 font-bold mb-3 text-sm">Feed Filter</h3>
+          <div className="flex bg-gray-100 p-1 rounded-lg">
+            <button 
+                onClick={() => onFilterChange('all')}
+                className={`flex-1 py-1.5 text-xs font-semibold rounded-md transition-all ${activeFilter === 'all' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+            >
+                All Posts
+            </button>
+            <button 
+                onClick={() => onFilterChange('mine')}
+                className={`flex-1 py-1.5 text-xs font-semibold rounded-md transition-all ${activeFilter === 'mine' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+            >
+                My Posts
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="bg-white rounded-lg shadow-sm border border-[#E5E7EB] p-4 mb-6">
         <div className="flex items-center mb-4">
           <FiTrendingUp className="text-[#5E98FF] w-5 h-5" />

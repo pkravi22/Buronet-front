@@ -344,17 +344,18 @@ const CreatePollModal: React.FC<CreatePollModalProps> = ({ isOpen, onClose, onPo
 
   return (
     <div
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      className="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50"
       onClick={handleOverlayClick}
     >
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg p-6 relative">
-        <button
-          onClick={() => closeModal()}
-          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 focus:outline-none transition-colors"
-          aria-label="Close modal"
-        >
-          <FaTimes className="h-6 w-6" />
-        </button>
+      <div className="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+        <div className="relative transform overflow-hidden bg-white rounded-xl text-left shadow-2xl transition-all w-full max-w-lg sm:w-full p-6">
+          <button
+            onClick={() => closeModal()}
+            className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 focus:outline-none transition-colors"
+            aria-label="Close modal"
+          >
+            <FaTimes className="h-6 w-6" />
+          </button>
 
         <h2 className="text-xl font-semibold text-gray-800 mb-6 pb-2 border-b">
           Create a Poll
@@ -469,6 +470,7 @@ const CreatePollModal: React.FC<CreatePollModalProps> = ({ isOpen, onClose, onPo
           </div>
         </form>
       </div>
+     </div>
     </div>
   );
 };

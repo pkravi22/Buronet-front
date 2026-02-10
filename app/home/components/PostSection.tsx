@@ -11,11 +11,12 @@ import { useAuth } from '@/context/AuthContext'; // To get current user ID for d
 interface PostSectionProps {
   tag?: string; // Optional tag to filter posts
   postsRefetchKey: number; // Key from HomePage to force refetch
+  filterType?: 'all' | 'mine';
 }
 
-const PostSection: React.FC<PostSectionProps> = ({ tag, postsRefetchKey }) => {
+const PostSection: React.FC<PostSectionProps> = ({ tag, postsRefetchKey, filterType = 'all' }) => {
   // const { posts, isLoading, isError, refetchPosts } = usePosts(tag);
-  const { posts, isLoading, error } = usePosts();
+  const { posts, isLoading, error } = usePosts(filterType);
   const isError = error;
   const { user } = useAuth(); // Get the current user for delete permission checks
 

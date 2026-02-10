@@ -15,16 +15,19 @@ import { UserProfile } from '@/lib/types/user';
 
 // SWR keys for posts endpoints
 const ALL_POSTS_API_ROUTE = '/posts'; // For fetching all posts
+const MY_POSTS_API_ROUTE = '/posts/mine'; // For fetching my posts
 const SINGLE_POST_API_ROUTE = (postId: number) => `/posts/${postId}`; // For fetching a single post
 
-export function usePosts() {
+export function usePosts(filterType: 'all' | 'mine' = 'all') {
   const { user: currentUserProfile, isLoading: isAuthLoading } = useAuth(); // Get current user's full profile from AuthContext
 
   // --- Fetching All Posts (Feed) ---
   // This useSWR call fetches the list of all posts.
   // It doesn't depend on currentUserProfile?.id to be triggered, as posts can be viewed by anyone.
+  const endpoint = filterType === 'mine' ? MY_POSTS_API_ROUTE : ALL_POSTS_API_ROUTE;
+  
   const { data: posts, error: postsError, isLoading: isPostsLoading } = useSWR<PostDto[]>(
-    ALL_POSTS_API_ROUTE,
+    endpoint,
     get // Use the 'get' helper from lib/api.ts
   );
 
@@ -45,6 +48,9 @@ export function usePosts() {
         // We can confidently add it to the start of the list.
         return currentPosts ? [newPost, ...currentPosts] : [newPost];
       }, false); // 'false' tells SWR not to revalidate immediately after optimistic update
+      
+      // Also invalidate 'mine' route so if user switches they see it
+      mutate(MY_POSTS_API_ROUTE);
 
       // Revalidate in the background to confirm the data is consistent with the backend.
       mutate(ALL_POSTS_API_ROUTE);
@@ -53,6 +59,7 @@ export function usePosts() {
       console.error("Failed to create post:", err);
       // If the API call fails, revert the optimistic update or force a revalidation.
       mutate(ALL_POSTS_API_ROUTE);
+      mutate(MY_POSTS_API_ROUTE);
       throw err;
     }
   };

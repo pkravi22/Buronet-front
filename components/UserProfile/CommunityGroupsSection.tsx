@@ -65,7 +65,6 @@ const CommunityGroupsSection: React.FC<CommunityGroupsSectionProps> = ({ communi
                 </div>
               )}
               <h4 className="font-semibold text-lg text-gray-800">{group.groupName}</h4>
-              {group.url && <p className="text-blue-600 text-sm hover:underline"><a href={group.url} target="_blank" rel="noopener noreferrer">View Group</a></p>}
               {group.description && <p className="text-gray-700 mt-2 text-sm">{group.description}</p>}
             </div>
           ))}

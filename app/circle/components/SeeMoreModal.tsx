@@ -16,9 +16,10 @@ const SeeMoreModal: React.FC<SeeMoreModalProps> = ({ isOpen, onClose, title, use
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-            <div className="bg-[#EEF0F4] rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
-                {/* Modal Header */}
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/50">
+            <div className="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+                <div className="relative transform overflow-hidden bg-[#EEF0F4] rounded-xl text-left shadow-2xl transition-all w-full max-w-2xl sm:w-full flex flex-col max-h-[90vh]">
+                    {/* Modal Header */}
                 <div className="flex justify-between items-center p-4 bg-white border-b border-[#E5E7EB] sticky top-0 z-10">
                     <h2 className="text-xl font-semibold text-[#1F2937]">{title}</h2>
                     <button onClick={onClose} className="text-[#6B7280] hover:text-[#1F2937] p-2">
@@ -44,6 +45,7 @@ const SeeMoreModal: React.FC<SeeMoreModalProps> = ({ isOpen, onClose, title, use
                     ) : (
                         <p className="col-span-full text-center text-[#6B7280] py-8">No more profiles found in this category.</p>
                     )}
+                </div>
                 </div>
             </div>
         </div>

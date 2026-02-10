@@ -4,6 +4,7 @@ import React, { useMemo, useState } from 'react';
 import LoadingSpinner from '../UI/LoadingSpinner';
 import { postApi } from '@/lib/api';
 import { validatePassword } from '@/lib/helpers/password';
+import { Eye, EyeOff } from 'lucide-react';
 
 interface ChangePasswordModalProps {
   onClose: () => void;
@@ -94,8 +95,9 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ onClose, onSu
   };
 
   return (
-    <div className="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50 p-4 overflow-y-auto">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-lg my-8">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-gray-900 bg-opacity-75">
+      <div className="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+        <div className="relative transform overflow-hidden bg-white rounded-lg text-left shadow-xl transition-all w-full max-w-lg my-8 sm:w-full">
         <div className="flex justify-between items-center border-b p-4">
           <h2 className="text-2xl font-bold text-gray-800">Change Password</h2>
           <button
@@ -128,10 +130,10 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ onClose, onSu
                 <button
                   type="button"
                   onClick={() => setShowCurrent((v) => !v)}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-gray-500 hover:text-gray-700"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
                   tabIndex={-1}
                 >
-                  {showCurrent ? 'Hide' : 'Show'}
+                  {showCurrent ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
               </div>
               {fieldErrors.currentPassword && (
@@ -156,10 +158,10 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ onClose, onSu
                 <button
                   type="button"
                   onClick={() => setShowNew((v) => !v)}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-gray-500 hover:text-gray-700"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
                   tabIndex={-1}
                 >
-                  {showNew ? 'Hide' : 'Show'}
+                  {showNew ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
               </div>
               {fieldErrors.newPassword ? (
@@ -188,10 +190,10 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ onClose, onSu
                 <button
                   type="button"
                   onClick={() => setShowConfirm((v) => !v)}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-gray-500 hover:text-gray-700"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
                   tabIndex={-1}
                 >
-                  {showConfirm ? 'Hide' : 'Show'}
+                  {showConfirm ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
               </div>
               {fieldErrors.confirmNewPassword && (
@@ -226,6 +228,7 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ onClose, onSu
           </form>
         </div>
       </div>
+     </div>
     </div>
   );
 };

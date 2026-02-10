@@ -2,7 +2,8 @@
 
 "use client";
 
-import { TrendingUp, Clock, Briefcase, FileText, Bookmark, Bell, ChevronRight, Building2, Banknote, Shield, GraduationCap, Stethoscope, Landmark, ChevronLeft, X } from 'lucide-react';
+import { TrendingUp, Clock, Briefcase, FileText, Bookmark, Bell, ChevronRight, Building2, Banknote, Shield, GraduationCap, Stethoscope, Landmark, ChevronLeft, X, Plus } from 'lucide-react';
+import Link from 'next/link';
 import { useRef, useState, useEffect, useMemo } from 'react';
 import { get, remove, postApi } from '@/lib/api'; // Make sure this path is correct for your API helper
 import { Job, ApiResponse } from '@/lib/types/jobs'; // Make sure this path is correct for your types
@@ -297,12 +298,20 @@ const handleOpenModal = () => {
           <div className="mb-8">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-[#1F2937] font-semibold text-lg">Latest Job Openings</h2>
-              <button 
-                onClick={handleOpenModal}
-                className="text-[#3B82F6] text-sm flex items-center gap-1 hover:text-[#2563EB]"
-              >
-                View All<ChevronRight size={16} />
-              </button>
+              <div className="flex items-center gap-4">
+                {user?.isAdmin && (
+                  <Link href="/jobs/create" className="text-white bg-blue-600 hover:bg-blue-700 px-3 py-1.5 rounded-lg text-sm flex items-center gap-2 shadow-sm transition-all">
+                    <Plus size={16} />
+                    <span>Create Job</span>
+                  </Link>
+                )}
+                <button 
+                  onClick={handleOpenModal}
+                  className="text-[#3B82F6] text-sm flex items-center gap-1 hover:text-[#2563EB]"
+                >
+                  View All<ChevronRight size={16} />
+                </button>
+              </div>
             </div>
             {/* RESPONSIVE CHANGE: Added overflow-x-auto and scrollbar-hide to make tabs scroll on mobile */}
             <div className="flex items-center gap-2 border-b border-[#E5E7EB] pb-4 overflow-x-auto scrollbar-hide">

@@ -38,17 +38,18 @@ export default function ShareLinkModal({ open, url, title = 'Share', onClose }: 
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/30"
+      className="fixed inset-0 z-50 overflow-y-auto bg-black/30"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
       aria-label={title}
     >
-      <div
-        className="bg-white rounded-xl shadow-lg w-[90%] max-w-sm p-4"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <h3 className="text-sm font-semibold text-gray-900 mb-2">{title}</h3>
+      <div className="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+        <div
+          className="relative transform overflow-hidden bg-white rounded-xl text-left shadow-lg transition-all w-[90%] max-w-sm sm:w-full p-4"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <h3 className="text-sm font-semibold text-gray-900 mb-2">{title}</h3>
 
         <div className="flex items-center gap-2 bg-gray-100 rounded-lg p-2">
           <input
@@ -83,6 +84,7 @@ export default function ShareLinkModal({ open, url, title = 'Share', onClose }: 
           Close
         </button>
       </div>
+     </div>
     </div>
   );
 }
