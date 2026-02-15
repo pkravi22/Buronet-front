@@ -3,6 +3,8 @@
 
 import { NextResponse } from 'next/server';
 
+export const dynamic = 'force-dynamic';
+
 // Ensure this environment variable is correctly set in your .env.local
 // It should point directly to your .NET backend's base API URL (e.g., http://localhost:44349/api)
 const DOTNET_BACKEND_BASE_URL = process.env.NEXT_PUBLIC_DOTNET_BACKEND_BASE;

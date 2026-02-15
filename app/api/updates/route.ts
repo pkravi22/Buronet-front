@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import clientPromise from "@/lib/helpers/mongoDbHelper";
 
-// 👇 ADD THIS
 export const runtime = "nodejs";
+export const dynamic = 'force-dynamic';
 
 export async function GET(req: Request) {
   try {
