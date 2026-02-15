@@ -14,6 +14,25 @@ import { clearLogoutGuard, setLogoutGuard } from '../utils/auth';
 // Based on your backend's User model, 'id' is Guid, so it will be a string GUID on frontend.
 // (User interface is imported from '../lib/types/user')
 
+// ASP.NET Core JWT claim URIs
+const CLAIM_NAME_IDENTIFIER = 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier';
+const CLAIM_NAME = 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name';
+const CLAIM_EMAIL = 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress';
+
+/**
+ * Maps a decoded ASP.NET Core JWT (with full claim URIs) to a User object.
+ */
+function mapJwtClaimsToUser(decoded: any): User {
+  return {
+    id: decoded[CLAIM_NAME_IDENTIFIER] || decoded.sub || decoded.nameid || decoded.id || '',
+    username: decoded[CLAIM_NAME] || decoded.unique_name || decoded.username || '',
+    email: decoded[CLAIM_EMAIL] || decoded.email || '',
+    createdAt: '',
+    updatedAt: '',
+    isAdmin: decoded.isAdmin ?? decoded.role === 'Admin' ?? undefined,
+  };
+}
+
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
@@ -165,7 +184,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           localStorage.removeItem('refreshToken');
         }
 
-        const decodedUser = jwtDecode<User>(token);
+        const decoded = jwtDecode(token);
+        const decodedUser = mapJwtClaimsToUser(decoded);
         setUser(decodedUser);
 
         console.log('login: Login successful. Token received and user set in context:', decodedUser);
@@ -238,10 +258,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         localStorage.setItem('token', registerResponse.token);
         // Set user context directly with basic info from registration response
         // setUser({ id: registerResponse.userId, username: registerResponse.username, email: registerResponse.email, createdAt: '', updatedAt: '', isAdmin: false });
-        const decodedUser = jwtDecode<User>(registerResponse.token);
+        const decoded = jwtDecode(registerResponse.token);
+        const decodedUser = mapJwtClaimsToUser(decoded);
         setUser(decodedUser);
 
-        console.log('login: Login successful. Token received and user set in context:', decodedUser);
+        console.log('register: Registration successful. User set in context:', decodedUser);
         
         // CRITICAL: SYNCHRONOUS FETCH PROFILE
         await fetchAndSetProfile(decodedUser.id);
@@ -267,12 +288,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const token = localStorage.getItem('token');
     if (token) {
       try {
-        const decodedUser = jwtDecode<User>(token);
+        const decoded = jwtDecode(token);
+        const decodedUser = mapJwtClaimsToUser(decoded);
         setUser(decodedUser);
         
-        // CRITICAL: Call the synchronous fetch here
-        fetchAndSetProfile(decodedUser.id)
-            .finally(() => setIsLoading(false)); // Set auth loading to false only AFTER profile fetch attempt
+        // Fetch full user from API to replace JWT-based user, then fetch profile
+        fetchCurrentUser().then(() => {
+          fetchAndSetProfile(decodedUser.id);
+        }).finally(() => setIsLoading(false));
       } catch (e) {
         // ... (Error handling)
         setIsLoading(false);

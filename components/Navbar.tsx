@@ -1,6 +1,7 @@
 "use client";
 
 import React from 'react'; // Import React
+import { useUnreadMessages } from '@/context/UnreadMessagesContext';
 
 // --- Mock Implementations to Resolve Errors ---
 // In a real Next.js project, you would install `react-icons` and `next`
@@ -86,13 +87,15 @@ interface NavbarProps {
 }
 
 const Navbar = ({ activeItem }: NavbarProps) => {
+  const { totalUnreadCount } = useUnreadMessages();
+
   const navItems = [
     { icon: <FiHome size={20} />, text: 'Home', href: '/home' },
     { icon: <FiUsers size={20} />, text: 'My Circle', href: '/circle' },
     { icon: <FiVideo size={20} />, text: 'Bytes', href: '/bytes' },
     { icon: <FiBriefcase size={20} />, text: 'Jobs', href: '/jobs' },
     { icon: <FiBook size={20} />, text: 'Exams', href: '/exams' },
-    { icon: <FiMessageSquare size={20} />, text: 'Messaging', href: '/messaging'}
+    { icon: <FiMessageSquare size={20} />, text: 'Messaging', href: '/messaging', badge: totalUnreadCount > 0 ? totalUnreadCount : undefined }
   ];
 
   return (

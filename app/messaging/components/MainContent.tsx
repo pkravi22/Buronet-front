@@ -20,6 +20,7 @@ import { ConversationDto } from '@/lib/types/message';
 import { useChat } from '@/hooks/useChat';
 import { useConnections } from '@/hooks/useConnections';
 import { useAuth, withAuthRequired } from '@/context/AuthContext';
+import { useUnreadMessages } from '@/context/UnreadMessagesContext';
 import Navbar from '@/components/Navbar';
 import { formatTimeAgo } from '@/lib/dates';
 
@@ -48,6 +49,7 @@ const MessagingPage: React.FC = () => {
   } = useChat();
 
   const { user: currentUser } = useAuth(); // Get the current authenticated user from AuthContext
+  const { refetchUnreadCount } = useUnreadMessages();
 
   const { connections, isLoading: isLoadingConnections } = useConnections();
 
@@ -96,6 +98,8 @@ const MessagingPage: React.FC = () => {
   const handleSelectConversation = (conversationId: number) => {
     selectConversation(conversationId);
     setShowChatView(true);
+    // Sync the global unread count after marking this conversation as read
+    setTimeout(() => refetchUnreadCount(), 300);
   };
 
   const handleSendMessage = async (e: React.FormEvent) => {
@@ -119,10 +123,13 @@ const MessagingPage: React.FC = () => {
     return fullName || user?.username || 'Unknown User';
   };
 
+  // Normalize IDs (GUIDs) for case-insensitive comparison
+  const normalizeId = (id: string | undefined | null) => (id || '').toLowerCase();
+
   const connectionUsers = (connections || [])
     .map((c) => c.connectedUser)
     .filter(Boolean)
-    .filter((u: any) => u.id !== currentUser?.id);
+    .filter((u: any) => normalizeId(u.id) !== normalizeId(currentUser?.id));
 
   const filteredConnectionUsers = (() => {
     const q = normalizeForSearch(newChatQuery);
@@ -140,12 +147,14 @@ const MessagingPage: React.FC = () => {
     if (!targetUserId || !currentUser?.id) return;
 
     // If a 1:1 conversation already exists, open it instead of creating a duplicate
+    const normalizedCurrentId = normalizeId(currentUser.id);
+    const normalizedTargetId = normalizeId(targetUserId);
     const existing = conversations.find((c) => {
       const ids = (c.participants || [])
-        .map((p) => p.user?.id || p.userId)
-        .filter(Boolean) as string[];
+        .map((p) => normalizeId(p.user?.id || p.userId))
+        .filter(Boolean);
       return (
-        ids.length === 2 && ids.includes(currentUser.id) && ids.includes(targetUserId)
+        ids.length === 2 && ids.includes(normalizedCurrentId) && ids.includes(normalizedTargetId)
       );
     });
 
@@ -178,7 +187,16 @@ const MessagingPage: React.FC = () => {
   // Helper to get the other participant's info in a 1:1 chat
   const getOtherParticipant = (chat: ConversationDto) => {
     if (!chat || !chat.participants) return null; // Guard against undefined
-    return chat.participants.find((p) => p.user.id !== currentUser?.id)?.user;
+    return chat.participants.find((p) => normalizeId(p.user.id) !== normalizeId(currentUser?.id))?.user;
+  };
+
+  // Resolve a participant's display name using connections data (firstName + lastName),
+  // falling back to ChatUser.username if no connection match is found.
+  const getParticipantDisplayName = (chatUser: { id: string; username: string } | null | undefined): string => {
+    if (!chatUser) return 'Unknown User';
+    const conn = connectionUsers.find((u: any) => normalizeId(u.id) === normalizeId(chatUser.id));
+    if (conn) return getDisplayName(conn);
+    return chatUser.username || 'Unknown User';
   };
 
   // --- Conditional Rendering for Loading/Error States ---
@@ -329,7 +347,7 @@ const MessagingPage: React.FC = () => {
                     <div className="flex-1 min-w-0">
                       <div className="flex justify-between items-center">
                         <span className="font-medium truncate">
-                          {otherParticipant?.username || 'Unknown Chat'}
+                          {getParticipantDisplayName(otherParticipant)}
                         </span>
                         <span className="text-xs text-gray-400 ml-2 whitespace-nowrap">
                           {chat.lastMessage
@@ -385,16 +403,12 @@ const MessagingPage: React.FC = () => {
                       getOtherParticipant(selectedConversation as ConversationDto)?.avatar,
                     )
                   }
-                  alt={
-                    getOtherParticipant(selectedConversation as ConversationDto)?.username || // Cast here
-                    'Unknown User'
-                  }
+                  alt={getParticipantDisplayName(getOtherParticipant(selectedConversation as ConversationDto))}
                   className="w-10 h-10 rounded-full object-cover"
                 />
                 <div>
                   <div className="font-semibold">
-                    {getOtherParticipant(selectedConversation as ConversationDto)?.username || // Cast here
-                      'Unknown Chat'}
+                    {getParticipantDisplayName(getOtherParticipant(selectedConversation as ConversationDto))}
                   </div>
                 </div>
               </div>
@@ -417,18 +431,20 @@ const MessagingPage: React.FC = () => {
                       No messages in this conversation. Say hello!
                     </div>
                   ) : (
-                    messages.map((msg) => (
+                    messages.map((msg) => {
+                      const isOwnMessage = normalizeId(msg.senderId) === normalizeId(currentUser?.id);
+                      return (
                       <div
                         key={msg.id}
                         className={`flex ${
-                          msg.senderId === currentUser?.id
+                          isOwnMessage
                             ? 'justify-end'
                             : 'justify-start'
                         }`}
                       >
                         <div
                           className={`rounded-2xl px-4 py-2 max-w-xs break-words text-sm shadow-sm ${
-                            msg.senderId === currentUser?.id
+                            isOwnMessage
                               ? 'bg-blue-600 text-white rounded-br-md'
                               : 'bg-white text-gray-800 rounded-bl-md border border-gray-200'
                           }`}
@@ -436,7 +452,7 @@ const MessagingPage: React.FC = () => {
                           {msg.content}
                           <span className="block text-[10px] text-right mt-1 opacity-60">
                             {formatTimeAgo(msg.sentAt)}
-                            {msg.senderId === currentUser?.id && (
+                            {isOwnMessage && (
                               <CheckCircle
                                 size={12}
                                 className="inline ml-1 text-white"
@@ -445,7 +461,8 @@ const MessagingPage: React.FC = () => {
                           </span>
                         </div>
                       </div>
-                    ))
+                      );
+                    })
                   )}
                   {/* <div ref={messagesEndRef} /> */}
                 </div>

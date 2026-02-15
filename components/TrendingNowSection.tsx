@@ -54,7 +54,7 @@ const TrendingNowSection = () => {
         // </div>
         // <span className="text-gray-500 text-xs">{tag.totalPosts} posts</span>
         // </div>
-        <div className="bg-[#F9FAFD] rounded-xl p-3 mb-3 cursor-pointer" onClick={() => router.push(`/posts/${tag.mostRecentPost.id}`)} key={`TrendingNow-${index}`}>
+        <div className="bg-[#F9FAFD] rounded-xl p-3 mb-3 cursor-pointer" onClick={() => router.push(`/trending/${encodeURIComponent(tag.tagName)}`)} key={`TrendingNow-${index}`}>
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               <span className="text-[#6B728B] text-sm">#{tag.tagName}</span>

@@ -2,6 +2,7 @@
 'use client'; // This file is explicitly a Client Component
 
 import { AuthProvider } from '../context/AuthContext'; // AuthProvider is already a Client Component
+import { UnreadMessagesProvider } from '../context/UnreadMessagesContext';
 import React from 'react'; // Import React for JSX
 import { AuthRedirectHandler } from './authRedirectHandler'; // Import the AuthRedirectHandler component
 import { Toaster } from 'react-hot-toast';
@@ -16,9 +17,11 @@ export default function Providers({
     <div className="h-full flex flex-col">
       <Toaster position="top-right" />
       <AuthProvider>
+      <UnreadMessagesProvider>
       <AuthRedirectHandler>
       {children}
       </AuthRedirectHandler>
+      </UnreadMessagesProvider>
      </AuthProvider>
     </div>
   );

@@ -10,6 +10,7 @@ import {
   FiBook,
   FiMessageSquare,
 } from 'react-icons/fi';
+import { useUnreadMessages } from '@/context/UnreadMessagesContext';
 
 type NavItem = {
   href: string;
@@ -35,6 +36,7 @@ const isActivePath = (pathname: string | null, href: string) => {
 
 export default function MessagingIconNavbar() {
   const pathname = usePathname();
+  const { totalUnreadCount } = useUnreadMessages();
 
   return (
     <nav
@@ -47,6 +49,7 @@ export default function MessagingIconNavbar() {
         {navItems.map((item) => {
           const active = isActivePath(pathname, item.href);
           const Icon = item.icon;
+          const showBadge = item.href === '/messaging' && totalUnreadCount > 0;
 
           return (
             <li key={item.href}>
@@ -62,7 +65,14 @@ export default function MessagingIconNavbar() {
                   }`
                 }
               >
-                <Icon size={22} />
+                <div className="relative">
+                  <Icon size={22} />
+                  {showBadge && (
+                    <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] font-bold rounded-full h-4 min-w-[16px] flex items-center justify-center px-0.5">
+                      {totalUnreadCount > 99 ? '99+' : totalUnreadCount}
+                    </span>
+                  )}
+                </div>
               </Link>
             </li>
           );

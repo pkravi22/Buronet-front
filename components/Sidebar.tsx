@@ -4,8 +4,11 @@ import { BsPeople } from 'react-icons/bs';
 import { MdWorkOutline } from 'react-icons/md';
 import { RiVipCrownLine } from 'react-icons/ri';
 import { IoDocumentTextOutline } from 'react-icons/io5';
+import { useUnreadMessages } from '@/context/UnreadMessagesContext';
 
 const Sidebar = () => {
+  const { totalUnreadCount } = useUnreadMessages();
+
   return (
     <aside className="w-64 bg-white shadow-sm h-[calc(100vh-4rem)] sticky top-16">
       <div className="flex flex-col h-full">
@@ -39,6 +42,11 @@ const Sidebar = () => {
             <Link href="/messaging" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 text-gray-700 font-medium">
               <AiOutlineMessage className="text-xl" />
               <span>Messaging</span>
+              {totalUnreadCount > 0 && (
+                <span className="ml-auto bg-red-500 text-white text-xs rounded-full px-2 py-0.5 font-semibold">
+                  {totalUnreadCount > 99 ? '99+' : totalUnreadCount}
+                </span>
+              )}
             </Link>
           </div>
         </nav>
