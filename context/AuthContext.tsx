@@ -29,7 +29,7 @@ function mapJwtClaimsToUser(decoded: any): User {
     email: decoded[CLAIM_EMAIL] || decoded.email || '',
     createdAt: '',
     updatedAt: '',
-    isAdmin: decoded.isAdmin ?? decoded.role === 'Admin' ?? undefined,
+    isAdmin: decoded.isAdmin ?? (decoded.role === 'Admin' || undefined),
   };
 }
 
@@ -212,7 +212,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // --- Logout Function ---
   const logout = async () => {
     console.log('logout: Initiating logout process.');
-    setIsLoading(true);
     setError(null);
     try {
       // Force a 2-minute "logout guard" window so redirect logic cannot bounce back to /home.
@@ -233,15 +232,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       } catch (backendLogoutError: any) { 
         console.warn("logout: Backend logout endpoint failed (might be expected if token already cleared or endpoint doesn't exist/is unreachable):", backendLogoutError);
       }
-
-      router.replace('/home'); // Redirect to home after logout (avoid back-button returning to protected routes)
     } catch (err: any) {
       console.error('logout: Error during client-side logout process:', err);
       setError(err.message || "Logout failed.");
-    } finally {
-      console.log('logout: Logout process complete.');
-      setIsLoading(false);
     }
+
+    // Ensure isLoading is false BEFORE navigating so the destination page
+    // reads the final (null) user state instead of a stale one.
+    setIsLoading(false);
+    console.log('logout: Logout process complete. Navigating to /home.');
+
+    // Use a microtask to let React flush the null-user state before the
+    // navigation triggers a re-render of the target page.
+    await new Promise<void>((resolve) => setTimeout(resolve, 0));
+    router.replace('/home');
   };
 
   // --- Register Function ---

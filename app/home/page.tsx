@@ -17,6 +17,7 @@ import { useUserProfile } from '@/hooks/useUserProfile';
 import LoadingSpinner from '@/components/UI/LoadingSpinner';
 import '../restrictScroll.css';
 import { AuthRedirectHandler } from '@/components/authRedirectHandler';
+import { isLogoutGuardActive } from '@/utils/auth';
 
 const HomePage: React.FC = () => {
 
@@ -31,11 +32,15 @@ const HomePage: React.FC = () => {
   const { userProfile, isLoading: isProfileLoading } = useUserProfile(); 
   const mainRef = useRef<HTMLDivElement>(null);
 
+  // Treat the user as logged-out while the logout guard is active.
+  // This prevents stale React state from briefly showing the authenticated view.
+  const isLoggedIn = !!authUser && !isLogoutGuardActive();
+
   useEffect(() => {
     const root = document.documentElement;
     const body = document.body;
 
-    if (authUser) {
+    if (isLoggedIn) {
       root.classList.add('restrict-scroll');
       body.classList.add('restrict-scroll');
     } else {
@@ -47,10 +52,10 @@ const HomePage: React.FC = () => {
       root.classList.remove('restrict-scroll');
       body.classList.remove('restrict-scroll');
     };
-  }, [authUser]);
+  }, [isLoggedIn]);
   
   // Combine loading state, especially if the home page relies on profile data
-  const isLoading = isAuthLoading || (authUser && isProfileLoading);
+  const isLoading = isAuthLoading || (isLoggedIn && isProfileLoading);
 
   // CRITICAL: Conditional rendering based on loading and auth status
   if (isAuthLoading) {
@@ -63,7 +68,7 @@ const HomePage: React.FC = () => {
   }
   
   // If authenticated but profile is loading, show loading
-  if (authUser && isProfileLoading) {
+  if (isLoggedIn && isProfileLoading) {
     return (
       <div className="flex justify-center items-center min-h-screen bg-gray-100">
         <LoadingSpinner /> <span className="ml-2 text-gray-700">Loading user profile...</span>
@@ -71,8 +76,8 @@ const HomePage: React.FC = () => {
     );
   }
   
-  // If not authenticated, let the AuthRedirectHandler handle the redirect (assuming it's working)
- if(!authUser){
+  // If not authenticated (or logging out), show the public homepage
+ if(!isLoggedIn){
     // isLoading = false;
     return (
       <div>

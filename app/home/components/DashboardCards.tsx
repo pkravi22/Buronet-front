@@ -105,9 +105,9 @@ interface UpdateCardProps {
 // Data for the cards
 const updateData: UpdateCardProps[] = [
   { icon: <FaFire size={16} />, title: "Trending Topics", updates: 0, iconColor: "text-[#EF4444]", refLink: "/trending" },
-  { icon: <FaNewspaper size={16} />, title: "Current Affairs", updates: 49, iconColor: "text-[#3B82F6]", refLink: "/current-affairs" },
-  { icon: <FaLaptopCode size={16} />, title: "Exam Updates", updates: 74, iconColor: "text-[#22C55E]", refLink: "/exam-updates" },
-  { icon: <FaGraduationCap size={16} />, title: "Popular Profiles", updates: 62, iconColor: "text-[#A855F7]", refLink: "/circle" },
+  { icon: <FaNewspaper size={16} />, title: "Current Affairs", updates: 0, iconColor: "text-[#3B82F6]", refLink: "/current-affairs" },
+  { icon: <FaLaptopCode size={16} />, title: "Exam Updates", updates: 0, iconColor: "text-[#22C55E]", refLink: "/exam-updates" },
+  { icon: <FaGraduationCap size={16} />, title: "Popular Profiles", updates: 0, iconColor: "text-[#A855F7]", refLink: "/circle" },
 ];
 
 // Reusable component for desktop/tablet view

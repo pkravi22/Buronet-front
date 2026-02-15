@@ -29,7 +29,7 @@ export default function CirclePage() {
         <Navbar activeItem="My Circle" />
         
         {/* FIX: Remove width constraints for mobile flow, let it be full width */}
-        <main ref={mainRef} className="flex-1 px-4 sm:px-6 lg:w-[50%] overflow-y-auto h-[calc(100vh-100px)] scrollbar-hide mb-8">
+        <main ref={mainRef} className="w-full flex-1 px-4 sm:px-6 lg:w-[50%] overflow-y-auto h-[calc(100vh-100px)] scrollbar-hide">
           <MainContent />
           <div className="lg:hidden h-20" />
         </main>
