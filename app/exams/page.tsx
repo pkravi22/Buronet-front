@@ -22,20 +22,40 @@ const JobsPage = () => {
   return (
     <div className="min-h-screen flex flex-col bg-[#EEF0F4] pb-6 mb-12 sm:mb-0">
       <TopBar />
+      {/*         CRITICAL FIX: Use responsive padding/margin instead of fixed placeholder + fixed ml-6.
+        Use a grid/flex layout that handles the sidebar's presence correctly.
+        The content needs to shift left on mobile where the Navbar is hidden/collapsed.
+      */}
       <div className="flex flex-col lg:flex-row flex-1 pt-[80px]">
-         {/* Placeholder correctly collapses on smaller screens */}
-         <div className="hidden lg:block w-[20%] ml-6 xl:w-[270px] desktop:w-[260px] left-6 shrink-0" />
+        <div className="hidden lg:block w-[20%] ml-6 xl:w-[270px] desktop:w-[260px] left-6 shrink-0" />
         <Navbar activeItem="Exams" />
-        {/* FIX: Remove width constraints for mobile flow, let it be full width */}
-        <main ref={mainRef} className="w-full flex-1 px-4 sm:px-6 lg:w-[50%] overflow-y-auto h-[calc(100vh-100px)] scrollbar-hide">
+
+        {/* 1. On Mobile: This container is part of the normal page scroll.
+            2. On Desktop (lg): This container becomes a fixed-height scrollable area.
+        */}
+        <main 
+          ref={mainRef} 
+          className="w-full flex-1 px-4 sm:px-6 lg:w-[50%] lg:h-[calc(100vh-100px)] lg:overflow-y-auto scrollbar-hide"
+        >
           <MainContent />
+          
+          {/* This is the ONLY Sidebar call. 
+              - On Mobile: It appears here, at the bottom of MainContent.
+              - On Desktop: The lg:hidden class hides it here...
+          */}
+          <div className="lg:hidden mt-6">
+            <RightSidebar scrollSourceRef={mainRef} />
+          </div>
+
           <div className="lg:hidden h-20" />
         </main>
-        
-        <div className="fixed h-[21px] lg:hidden"></div> {/* Hide fixed height div on desktop */}
-        
-        {/* RightBar is rendered last in the JSX, so in flex-col mode, it flows naturally below MainContent. */}
-        <RightSidebar scrollSourceRef={mainRef} />
+
+        {/* - On Desktop: This shows the sidebar to the right of the main content.
+            - On Mobile: hidden ensures it doesn't double up.
+        */}
+        <div className="hidden lg:block">
+          <RightSidebar scrollSourceRef={mainRef} />
+        </div>
       </div>
     </div>
   );

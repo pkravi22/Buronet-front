@@ -1,28 +1,3 @@
-// "use client";
-
-// import Navbar from '../../components/Navbar';
-// import TopBar from '../../components/TopBar';
-// import MainContent from './components/MainContent';
-// import RightSidebar from './components/RightSidebar';
-
-// const JobsPage = () => {
-//   return (
-//     <div className="min-h-screen flex flex-col bg-[#EEF0F4] mb-6">
-//       <TopBar />
-//       <div className="flex flex-1 pt-[61px]">
-//         <div className="w-[239px]" /> {/* Placeholder for fixed navbar */}
-//         <Navbar activeItem="Jobs" />
-//         <main className="flex-1 px-6 ml-6">
-//           <MainContent />
-//         </main>
-//         <RightSidebar />
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default JobsPage; 
-
 "use client";
 
 import { useEffect, useRef } from 'react';
@@ -36,13 +11,25 @@ const JobsPage = () => {
   const mainRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    document.documentElement.classList.add('restrict-scroll');
-    document.body.classList.add('restrict-scroll');
-    return () => {
+  const handleResize = () => {
+    // Only restrict background scroll if screen is Desktop (e.g., > 1024px)
+    if (window.innerWidth >= 1024) {
+      document.documentElement.classList.add('restrict-scroll');
+      document.body.classList.add('restrict-scroll');
+    } else {
       document.documentElement.classList.remove('restrict-scroll');
       document.body.classList.remove('restrict-scroll');
-    };
-  }, []);
+    }
+  };
+
+  handleResize(); // Run on mount
+  window.addEventListener('resize', handleResize);
+  return () => {
+    window.removeEventListener('resize', handleResize);
+    document.documentElement.classList.remove('restrict-scroll');
+    document.body.classList.remove('restrict-scroll');
+  };
+}, []);
 
   return (
     <div className="min-h-screen flex flex-col bg-[#EEF0F4] pb-6 mb-12 sm:mb-0">
@@ -52,24 +39,35 @@ const JobsPage = () => {
         The content needs to shift left on mobile where the Navbar is hidden/collapsed.
       */}
       <div className="flex flex-col lg:flex-row flex-1 pt-[80px]">
-        {/* Placeholder correctly collapses on smaller screens */}
         <div className="hidden lg:block w-[20%] ml-6 xl:w-[270px] desktop:w-[260px] left-6 shrink-0" />
-        {/* Navbar: Fixed width on large screens, hidden on small screens (e.g., up to md) */}
-        <Navbar activeItem="Jobs" /> {/* Navbar should handle its own responsive hiding/showing */}
+        <Navbar activeItem="Jobs" />
 
-        {/* Main Content Area */}
-        {/*           NEW: Use a responsive margin *only* on large screens (lg:ml-[239px]) 
-          to account for the fixed-position Navbar. 
-          On small screens, MainContent will take up the full width. 
-        */}
-        <main ref={mainRef} className="w-full flex-1 px-4 sm:px-6 lg:w-[50%] overflow-y-auto h-[calc(100vh-100px)] scrollbar-hide">
+        {/* 1. On Mobile: This container is part of the normal page scroll.
+            2. On Desktop (lg): This container becomes a fixed-height scrollable area.
+        */}
+        <main 
+          ref={mainRef} 
+          className="w-full flex-1 px-4 sm:px-6 lg:w-[50%] lg:h-[calc(100vh-100px)] lg:overflow-y-auto scrollbar-hide"
+        >
           <MainContent />
+          
+          {/* This is the ONLY Sidebar call. 
+              - On Mobile: It appears here, at the bottom of MainContent.
+              - On Desktop: The lg:hidden class hides it here...
+          */}
+          <div className="lg:hidden mt-6">
+            <RightSidebar scrollSourceRef={mainRef} />
+          </div>
+
           <div className="lg:hidden h-20" />
         </main>
 
-        {/* RightSidebar: Fixed width, but hide on smaller screens if necessary */}
-        <div className="hidden fixed h-[21px] lg:hidden"></div>
-        <RightSidebar scrollSourceRef={mainRef} />
+        {/* - On Desktop: This shows the sidebar to the right of the main content.
+            - On Mobile: hidden ensures it doesn't double up.
+        */}
+        <div className="hidden lg:block">
+          <RightSidebar scrollSourceRef={mainRef} />
+        </div>
       </div>
     </div>
   );

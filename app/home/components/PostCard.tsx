@@ -645,9 +645,18 @@ const PostCard: React.FC<PostCardProps> = ({ post: initialPost, onPostUpdated, c
           className="flex-1 bg-transparent text-sm text-gray-700 outline-none"
         />
         <button
-          onClick={() => {
-            navigator.clipboard.writeText(postUrl);
-            toast.success("Link copied to clipboard");
+          onClick={async () => {
+            if (!postUrl) {
+              toast.error("Unable to copy link");
+              return;
+            }
+            try {
+              await navigator.clipboard.writeText(postUrl);
+              toast.success("Link copied to clipboard");
+            } catch (err) {
+              console.error("Failed to copy:", err);
+              toast.error("Failed to copy link");
+            }
           }}
           className="text-sm font-medium text-blue-600 hover:text-blue-700"
         >

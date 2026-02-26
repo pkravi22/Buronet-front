@@ -19,8 +19,8 @@ const ForgotPasswordPage: React.FC = () => {
         setError(null);
 
         try {
-            const response = await postApi<string>('/auth/forgot-password', { email });
-            setMessage(response);
+            const response = await postApi<{ message: string }>('/auth/forgot-password', { email });
+            setMessage(response.message || 'Check your email for reset instructions.');
         } catch (err: any) {
             setError(err.message || 'An error occurred. Please try again.');
         } finally {

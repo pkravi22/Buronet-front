@@ -72,52 +72,36 @@ const RightSidebar = ({ scrollSourceRef }: { scrollSourceRef: React.RefObject<HT
   const exams = useUpdates("EXAM", 5);
 
   useLayoutEffect(() => {
-        console.log(
-    "effect ran",
-    scrollSourceRef.current,
-    sidebarRef.current
-  );
     const mainEl = scrollSourceRef.current;
     const sideEl = sidebarRef.current;
     if (!mainEl || !sideEl) return;
-  
-    // const onScroll = () => {
-    //   sideEl.scrollTop = Math.min(
-    //     mainEl.scrollTop,
-    //     sideEl.scrollHeight - sideEl.clientHeight
-    //   );
-    // };
+
     const onMainScroll = () => {
-        console.log(
-          'main:',
-          mainEl.scrollTop,
-          'side:',
-          sideEl.scrollTop
-        );
-  
-        if (syncing.current) return;
-        syncing.current = true;
-  
-        const delta = mainEl.scrollTop - lastScrollTop.current;
-        lastScrollTop.current = mainEl.scrollTop;
-  
-        // Apply SAME pixel delta
-        const maxSideScroll =
-          sideEl.scrollHeight - sideEl.clientHeight;
-  
-        sideEl.scrollTop = Math.max(
-          0,
-          Math.min(sideEl.scrollTop + delta, maxSideScroll)
-        );
-  
-        requestAnimationFrame(() => {
-          syncing.current = false;
-        });
-      };
-  
+      // NEW: If we are on mobile, don't sync scrolls. 
+      // Let the browser handle natural page scrolling.
+      if (window.innerWidth < 1024) return; 
+
+      if (syncing.current) return;
+      syncing.current = true;
+
+      const delta = mainEl.scrollTop - lastScrollTop.current;
+      lastScrollTop.current = mainEl.scrollTop;
+
+      const maxSideScroll = sideEl.scrollHeight - sideEl.clientHeight;
+
+      sideEl.scrollTop = Math.max(
+        0,
+        Math.min(sideEl.scrollTop + delta, maxSideScroll)
+      );
+
+      requestAnimationFrame(() => {
+        syncing.current = false;
+      });
+    };
+
     mainEl.addEventListener("scroll", onMainScroll);
     return () => mainEl.removeEventListener("scroll", onMainScroll);
-  }, [sidebarRef.current]);
+  }, [scrollSourceRef]); // Added dependency for safety
   
   const setSidebarRef = (node: HTMLDivElement | null) => {
     if (!node) return;
@@ -158,10 +142,10 @@ const RightSidebar = ({ scrollSourceRef }: { scrollSourceRef: React.RefObject<HT
       <div
         ref={setSidebarRef}
         className="
-          sticky
-          top-[80px]
-          max-h-[calc(100vh-100px)]
-          overflow-y-auto
+          lg:sticky 
+          lg:top-[80px] 
+          lg:max-h-[calc(100vh-100px)] 
+          lg:overflow-y-auto 
           scrollbar-hide
         "
       >
