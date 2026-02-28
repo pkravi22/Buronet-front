@@ -102,6 +102,7 @@ const CreateByteModal: React.FC<CreateByteModalProps> = ({ isOpen, onClose, onBy
       cloudinaryFormData.append('signature', signatureResponse.signature);
       cloudinaryFormData.append('timestamp', signatureResponse.timestamp);
       cloudinaryFormData.append('api_key', signatureResponse.apiKey);
+      cloudinaryFormData.append('upload_preset', signatureResponse.uploadPreset);
       cloudinaryFormData.append('public_id', signatureResponse.publicId);
 
       const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/video/upload`;
@@ -147,8 +148,17 @@ const CreateByteModal: React.FC<CreateByteModalProps> = ({ isOpen, onClose, onBy
     setByteFile(null);
     setError(null);
     setIsSubmitting(false);
+    setVideoDuration(null);
     onClose();
-    };
+  };
+
+  const isUploadDisabled = () => {
+    if (isSubmitting || authLoading || !user || !byteFile) return true;
+    if (title.trim().length === 0 || description.trim().length === 0) return true;
+    if (videoDuration === null || videoDuration > MAX_VIDEO_DURATION) return true;
+    if (byteFile.size > MAX_VIDEO_SIZE) return true;
+    return false;
+  };
 
   if (!isOpen) return null;
 
@@ -219,8 +229,8 @@ const CreateByteModal: React.FC<CreateByteModalProps> = ({ isOpen, onClose, onBy
           </div>
           <button
             type="submit"
-            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg focus:outline-none focus:shadow-outline transition-colors flex items-center justify-center disabled:bg-indigo-400"
-            disabled={isSubmitting || !byteFile || title.trim().length === 0 || description.trim().length === 0}
+            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg focus:outline-none focus:shadow-outline transition-colors flex items-center justify-center disabled:bg-indigo-400 disabled:cursor-not-allowed"
+            disabled={isUploadDisabled()}
           >
             {isSubmitting ? (
               <>

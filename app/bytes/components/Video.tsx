@@ -1,9 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { styled } from "styled-components";
 import type { Byte } from "@/lib/types/Byte"; // Updated to use the new Byte type
-import { RiShareForwardFill } from "react-icons/ri";
-import { FaThumbsUp } from "react-icons/fa";
-import { MdInsertComment } from "react-icons/md";
 import {
   IoMdPause,
   IoMdPlay,
@@ -11,6 +8,7 @@ import {
   IoMdVolumeOff,
   IoMdClose,
 } from "react-icons/io";
+import { MdFullscreen, MdFullscreenExit } from "react-icons/md";
 import { toast } from "react-hot-toast";
 import { useRouter } from 'next/navigation';
 import { getProfileImageUrl } from '@/lib/helpers/profileImage';
@@ -85,8 +83,8 @@ const VideoStyled = styled.div`
     top: 0;
     width: 100%;
     margin-top: 4rem;
-    height: 80%;
-    max-height: 100dvh;
+    height: calc(100vh - 4rem - 6rem);
+    max-height: calc(100vh - 4rem - 6rem);
     aspect-ratio: 9 / 16;
     border-radius: 1rem;
     overflow: hidden;
@@ -97,15 +95,41 @@ const VideoStyled = styled.div`
       object-fit: cover;
     }
     @media screen and (min-width: 1024px) and (max-width: 1200px) {
-      height: 70%;
+      height: calc(100vh - 4rem - 6rem - 3rem);
       width: auto;
       margin-top: 5rem !important;
+      margin-bottom: 0;
+    }
+    @media screen and (max-width: 1023px) {
+      height: calc(100vh - 4rem - 6rem - 4rem);
+      margin-bottom: 0;
     }
     @media screen and (max-width: 600px) {
       width: 90% !important;
       margin-left: auto;
       margin-right: auto;
+      height: calc(100vh - 4rem - 6rem - 4rem);
+      margin-bottom: 0;
     }
+    @media screen and (min-width: 1600px) {
+      height: calc((100vh - 4rem - 6rem) / 1.2);
+    }
+  }
+
+  /* ================= FULLSCREEN VIDEO ================= */
+  .video.fullscreen {
+    position: fixed;
+    inset: 0;
+    width: auto;
+    height: 100%;
+    max-height: 100%;
+    margin: auto;
+    border-radius: 0;
+    aspect-ratio: 9 / 16;
+    z-index: 9998;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   /* ================= TOP ACTIONS ================= */
@@ -254,6 +278,7 @@ const Video = ({
   const isLiked = byte.likes.includes(currentUserId);
   const router = useRouter();
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(link);
@@ -264,6 +289,50 @@ const Video = ({
     navigator.clipboard.writeText(link);
     toast.success("Link copied to clipboard!");
   };
+
+  // Custom SVG Icons
+  const LikeIcon = ({ filled }: { filled: boolean }) => (
+    <svg
+      viewBox="0 0 24 24"
+      fill={filled ? "currentColor" : "none"}
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+    </svg>
+  );
+
+  const CommentIcon = () => (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+    </svg>
+  );
+
+  const ShareIcon = () => (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <circle cx="18" cy="5" r="3" />
+      <circle cx="6" cy="12" r="3" />
+      <circle cx="18" cy="19" r="3" />
+      <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+      <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+    </svg>
+  );
 
   useEffect(() => {
     const video = videoRef.current;
@@ -303,10 +372,45 @@ const Video = ({
     router.push(cleanPath);
   };
 
+  const handleFullscreen = () => {
+    setIsFullscreen(!isFullscreen);
+    if (!isFullscreen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+  };
+
+  useEffect(() => {
+    const handleEscapeKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isFullscreen) {
+        setIsFullscreen(false);
+        document.body.style.overflow = '';
+      }
+    };
+
+    window.addEventListener('keydown', handleEscapeKey);
+    return () => window.removeEventListener('keydown', handleEscapeKey);
+  }, [isFullscreen]);
+
   return (
     <>
+    {isFullscreen && (
+      <div
+        style={{
+          position: 'fixed',
+          inset: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.7)',
+          zIndex: 9997,
+        }}
+        onClick={() => {
+          setIsFullscreen(false);
+          document.body.style.overflow = '';
+        }}
+      />
+    )}
     <VideoStyled>
-      <div className="video">
+      <div className={`video ${isFullscreen ? 'fullscreen' : ''}`}>
         <video
           ref={videoRef}
           src={byte.submission.mediaUrl}
@@ -323,6 +427,9 @@ const Video = ({
           </button>
           <button onClick={(e) => { e.stopPropagation(); setMute(!mute); }}>
             {mute ? <IoMdVolumeOff /> : <IoMdVolumeHigh />}
+          </button>
+          <button onClick={(e) => { e.stopPropagation(); handleFullscreen(); }}>
+            {isFullscreen ? <MdFullscreenExit /> : <MdFullscreen />}
           </button>
         </div>
 
@@ -341,21 +448,21 @@ const Video = ({
               className={isLiked ? "liked" : ""}
               onClick={() => onLike(byte.id)}
             >
-              <FaThumbsUp />
+              <LikeIcon filled={isLiked} />
             </button>
             <span>{formatCount(byte.likes.length)}</span>
           </div>
 
           <div>
             <button onClick={() => onCommentClick(byte.id)}>
-              <MdInsertComment />
+              <CommentIcon />
             </button>
             <span>{formatCount(byte.commentCount)}</span>
           </div>
 
           <div>
             <button onClick={() => setIsShareModalOpen(true)}>
-              <RiShareForwardFill />
+              <ShareIcon />
             </button>
             <span>Share</span>
           </div>
