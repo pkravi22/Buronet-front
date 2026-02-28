@@ -139,7 +139,7 @@ const setSidebarRef = (node: HTMLDivElement | null) => {
   ];
 
   return (
-    <div className="block w-full max-w-[640px] mx-auto px-4 md:px-0 laptop:w-[20%] laptop:max-w-none laptop:px-0 laptop:ml-0 laptop:mr-6 xl:w-[260px] shrink-0">
+    <div className="block w-full max-w-[640px] mx-auto px-4 md:px-0 laptop:w-full laptop:max-w-none laptop:px-0 laptop:ml-0 laptop:mr-6 xl:w-[260px] shrink-0">
       <div
         ref={setSidebarRef}
         className="
@@ -151,7 +151,7 @@ const setSidebarRef = (node: HTMLDivElement | null) => {
         "
       >
       <div className="bg-white rounded-lg shadow-sm border border-[#E5E7EB] p-6">
-        <h2 className="text-[#1F2937] font-semibold text-lg mb-4">Recent Exam Updates</h2>
+        <h2 className="text-[#1F2937] font-semibold text-lg mb-4">Recent Job Updates</h2>
         
         {/* <div className="relative">
           {showLeftButton && (

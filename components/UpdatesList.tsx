@@ -24,7 +24,7 @@ const UpdatesList: React.FC<Props> = ({ title, updates }) => {
       {updates.map((update) => (
         <a
           key={update._id}
-          href={update.officialUrl}
+          href={`https://www.google.com/search?q=${encodeURIComponent(update.title)}`}
           target="_blank"
           rel="noopener noreferrer"
           className="block rounded-xl border border-gray-200 p-3 hover:bg-gray-50 transition"

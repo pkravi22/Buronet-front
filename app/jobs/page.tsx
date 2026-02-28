@@ -65,7 +65,7 @@ const JobsPage = () => {
         {/* - On Desktop: This shows the sidebar to the right of the main content.
             - On Mobile: hidden ensures it doesn't double up.
         */}
-        <div className="hidden lg:block">
+        <div className="hidden lg:block max-w-[640px] mx-auto px-4 md:px-0 laptop:w-[20%] laptop:max-w-none laptop:px-0 laptop:ml-0 laptop:mr-6 xl:w-[260px] shrink-0">
           <RightSidebar scrollSourceRef={mainRef} />
         </div>
       </div>
