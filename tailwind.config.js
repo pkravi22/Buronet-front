@@ -18,6 +18,7 @@ module.exports = {
         'sm-desktop': '1000px',
         'desktop': '1280px',
         'ultra': '1600px',
+        'xl-ultra': '2160px',
       },
       keyframes: {
         'slide-in-right': {

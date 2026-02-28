@@ -8,7 +8,7 @@ import { toDateOnly } from '@/lib/dates';
 
 interface EditExperienceFormProps {
   experience: UserExperience | null; // Null for new, object for edit
-  onClose: () => void;
+  onClose: (newExperience?: UserExperience) => void;
 }
 
 const EditExperienceForm: React.FC<EditExperienceFormProps> = ({ experience, onClose }) => {
@@ -38,14 +38,16 @@ const EditExperienceForm: React.FC<EditExperienceFormProps> = ({ experience, onC
         Object.entries(formData).map(([key, value]) => [key, value === '' ? null : value])
       );
 
+      let newExperience: UserExperience | undefined;
       if (experience) {
         // Editing existing experience
         await updateExperience(experience.id, dataToSend);
+        newExperience = { ...experience, ...dataToSend } as UserExperience;
       } else {
         // Adding new experience
-        await addExperience(dataToSend);
+        newExperience = await addExperience(dataToSend);
       }
-      onClose(); // Close modal on success
+      onClose(newExperience); // Close modal and pass the new/updated experience
     } catch (err: any) {
       setError(err.message || "Failed to save experience.");
     } finally {

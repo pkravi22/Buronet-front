@@ -8,11 +8,17 @@ export interface NetworkMetrics {
   pendingRequests: number;
   acceptedRequests: number;
   networkGrowth: number;
-  totalConnectionsTrend: number,
-  joinedGroups: number,
-  joinedGroupsTrend: number,
-  pendingRequestsTrend: number,
-  networkGrowthPercentage: number
+  totalConnectionsTrend: number;
+  joinedGroups: number;
+  joinedGroupsTrend: number;
+  pendingRequestsTrend: number;
+  networkGrowthPercentage: number;
+  connectionsThisMonth?: number;
+  groupsJoinedThisMonth?: number;
+  newConnectionsThisWeek?: number;
+  connectionsTrendText?: string;
+  pendingRequestsTrendText?: string;
+  networkGrowthTrendText?: string;
 }
 // Basic user info for display
 export interface UserForConnection {

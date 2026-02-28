@@ -1,9 +1,11 @@
 "use client";
 
 import { TrendingUp, Users, UserPlus, Clock, User } from 'lucide-react';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useConnections } from '@/hooks/useConnections'; // Import the new hook
 import { useAuth } from '@/context/AuthContext';
+import { useNotifications } from '@/hooks/useNotifications'; // Import notifications hook
+import { get } from '@/lib/api'; // Import get for API calls
 import { SuggestedUserDto } from '@/lib/types/connections'; // Import the new DTO
 import DashboardCards from '@/app/circle/components/DashboardCards';
 import LoadingSpinner from '@/components/UI/LoadingSpinner';
@@ -131,8 +133,24 @@ const NetworkCard: React.FC<NetworkCardProps> = ({ user, onConnectClick, isConne
 
 const MainContent = () => {
     // Use the new useConnections hook to get data
-  const { suggestedConnections, networkMetrics, popularConnections, isLoading, error, sendRequest, clearError, pendingIncomingRequests, pendingOutgoingRequests } = useConnections({ includeOutgoingPending: true });
+  const { suggestedConnections, popularConnections, isLoading, error, sendRequest, clearError, pendingIncomingRequests, pendingOutgoingRequests } = useConnections({ includeOutgoingPending: true });
   const { user: authUser } = useAuth();
+  const { unreadCount } = useNotifications(); // Get unread notification count
+  const [networkMetrics, setNetworkMetrics] = useState<any>(null);
+
+  // Fetch network dashboard stats from the new endpoint
+  useEffect(() => {
+    const fetchNetworkDashboard = async () => {
+      if (!authUser?.id) return;
+      try {
+        const response = await get<any>(`/Users/network/dashboard/${authUser.id}`);
+        setNetworkMetrics(response);
+      } catch (err) {
+        console.error("Failed to fetch network dashboard stats:", err);
+      }
+    };
+    fetchNetworkDashboard();
+  }, [authUser?.id]);
 
   // Show a maximum number of cards per breakpoint:
   // - mobile (< md): 2
@@ -186,11 +204,10 @@ const MainContent = () => {
   console.log('Suggested Connections:', suggestedConnections);
 
   const dashboardCards = [
-    { title: 'Total Connections', value: `${networkMetrics?.totalConnections}`, trend: `${networkMetrics?.totalConnectionsTrend}% this month`, icon: <Users size={16} />, iconColor: 'text-[#EF4444]', trendIcon: <TrendingUp size={12} />, trendColor: 'text-[#16A34A]', refLink: "network/requests?tab=connections" },
-    // { title: 'Joined Groups', value: `${networkMetrics?.joinedGroups}`, trend: `${networkMetrics?.joinedGroupsTrend} new this month`, icon: <Users size={16} />, iconColor: 'text-[#3B82F6]', trendIcon: <TrendingUp size={12} />, trendColor: 'text-[#16A34A]', refLink: "" },
-    { title: 'Joined Groups', value: `Coming Soon`, trend: `${networkMetrics?.joinedGroupsTrend} new this month`, icon: <Users size={16} />, iconColor: 'text-[#3B82F6]', trendIcon: null, trendColor: 'text-[#16A34A]', refLink: "" },
-    { title: 'Pending Requests', value: `${networkMetrics?.pendingRequests}`, trend: `${networkMetrics?.pendingRequestsTrend} new this week`, icon: <UserPlus size={16} />, iconColor: 'text-[#22C55E]', trendIcon: <Clock size={12} />, trendColor: 'text-[#F59E0B]', refLink: "/network/requests" },
-    { title: 'Network Growth', value: `${networkMetrics?.networkGrowth}`, trend: `${networkMetrics?.networkGrowthPercentage}% this month`, icon: <TrendingUp size={16} />, iconColor: 'text-[#A855F7]', trendIcon: <TrendingUp size={12} />, trendColor: 'text-[#16A34A]', refLink: "" }
+    { title: 'Total Connections', value: `${networkMetrics?.totalConnections || 0}`, trend: networkMetrics?.connectionsTrendText || `${networkMetrics?.connectionsThisMonth || 0} this month`, icon: <Users size={16} />, iconColor: 'text-[#EF4444]', trendIcon: <TrendingUp size={12} />, trendColor: 'text-[#16A34A]', refLink: "network/requests?tab=connections" },
+    { title: 'Joined Groups', value: `${networkMetrics?.joinedGroups || '_'}`, trend: networkMetrics?.joinedGroupsTrend ? `${networkMetrics.joinedGroupsTrend} new this month` : `Coming Soon!`, icon: <Users size={16} />, iconColor: 'text-[#3B82F6]', trendIcon: <TrendingUp size={12} />, trendColor: 'text-[#16A34A]', refLink: "" },
+    { title: 'Pending Requests', value: `${networkMetrics?.pendingRequests || 0}`, trend: networkMetrics?.pendingRequestsTrendText || `${networkMetrics?.newConnectionsThisWeek || 0} new this week`, icon: <UserPlus size={16} />, iconColor: 'text-[#22C55E]', trendIcon: <Clock size={12} />, trendColor: 'text-[#F59E0B]', refLink: "/network/requests" },
+    { title: 'Network Growth', value: `${networkMetrics?.networkGrowth || 0}`, trend: networkMetrics?.networkGrowthTrendText || `${networkMetrics?.networkGrowthPercentage || 0}% this week`, icon: <TrendingUp size={16} />, iconColor: 'text-[#A855F7]', trendIcon: <TrendingUp size={12} />, trendColor: 'text-[#16A34A]', refLink: "" }
   ];
 
   return (

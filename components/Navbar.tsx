@@ -106,7 +106,7 @@ const Navbar = ({ activeItem }: NavbarProps) => {
           hidden lg:block
           fixed top-[61px] ml-6 xl:w-[260px] lg-laptop:w-[20%] rounded-lg
           shadow-sm border border-[#E5E7EB] my-6
-          min-h-[calc(100vh-61px-3rem)] bg-white
+          min-h-[calc(100vh-61px-3rem)] ultra:min-h-[calc(90vh-61px-7rem)] xl-ultra:min-h-[calc(80vh-61px-10.5rem)] bg-white
         `}
       >
         <ul className="py-5">

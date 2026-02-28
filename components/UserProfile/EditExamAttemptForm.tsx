@@ -7,7 +7,7 @@ import { useUserProfile } from '../../hooks/useUserProfile';
 
 interface EditExamAttemptFormProps {
   examAttempt: UserExamAttempt | null;
-  onClose: () => void;
+  onClose: (newItem?: UserExamAttempt) => void;
 }
 
 const EditExamAttemptForm: React.FC<EditExamAttemptFormProps> = ({ examAttempt, onClose }) => {
@@ -38,12 +38,14 @@ const EditExamAttemptForm: React.FC<EditExamAttemptFormProps> = ({ examAttempt, 
         Object.entries(formData).map(([key, value]) => [key, value === '' ? null : value])
       ) as UpdateUserExamAttemptDto;
 
+      let savedItem: UserExamAttempt;
       if (examAttempt) {
         await updateExamAttempt(examAttempt.id, dataToSend);
+        savedItem = { ...examAttempt, ...dataToSend };
       } else {
-        await addExamAttempt(dataToSend);
+        savedItem = await addExamAttempt(dataToSend);
       }
-      onClose();
+      onClose(savedItem);
     } catch (err: any) {
       setError(err.message || "Failed to save exam attempt.");
     } finally {

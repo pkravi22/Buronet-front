@@ -9,10 +9,11 @@ import { useUserProfile } from '../../hooks/useUserProfile';
 
 interface SkillsSectionProps {
   skills: UserSkill[];
+  onSkillsChange?: (skills: UserSkill[]) => void;
   canEdit?: boolean;
 }
 
-const SkillsSection: React.FC<SkillsSectionProps> = ({ skills, canEdit = true }) => {
+const SkillsSection: React.FC<SkillsSectionProps> = ({ skills, onSkillsChange, canEdit = true }) => {
   const { deleteSkill } = useUserProfile();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingSkill, setEditingSkill] = useState<UserSkill | null>(null);
@@ -31,9 +32,27 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({ skills, canEdit = true })
     if (confirm("Are you sure you want to delete this skill?")) {
       try {
         await deleteSkill(skillId);
+        // Update local state immediately
+        if (onSkillsChange) {
+          onSkillsChange(skills.filter(s => s.id !== skillId));
+        }
         alert("Skill deleted successfully!");
       } catch (error: any) {
         alert(`Failed to delete skill: ${error.message}`);
+      }
+    }
+  };
+
+  const handleFormClose = (newSkill?: UserSkill) => {
+    setIsFormOpen(false);
+    // Update local state if a new skill was added
+    if (newSkill && onSkillsChange) {
+      if (editingSkill) {
+        // Update existing
+        onSkillsChange(skills.map(s => s.id === newSkill.id ? newSkill : s));
+      } else {
+        // Add new
+        onSkillsChange([...skills, newSkill]);
       }
     }
   };
@@ -73,7 +92,7 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({ skills, canEdit = true })
       {canEdit && isFormOpen && (
         <EditSkillForm
           skill={editingSkill}
-          onClose={() => setIsFormOpen(false)}
+          onClose={handleFormClose}
         />
       )}
     </UserProfileSection>

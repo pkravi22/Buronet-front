@@ -7,7 +7,7 @@ import { useUserProfile } from '../../hooks/useUserProfile';
 
 interface EditCommunityGroupFormProps {
   communityGroup: UserCommunityGroup | null;
-  onClose: () => void;
+  onClose: (newItem?: UserCommunityGroup) => void;
 }
 
 const EditCommunityGroupForm: React.FC<EditCommunityGroupFormProps> = ({ communityGroup, onClose }) => {
@@ -34,12 +34,14 @@ const EditCommunityGroupForm: React.FC<EditCommunityGroupFormProps> = ({ communi
         Object.entries(formData).map(([key, value]) => [key, value === '' ? null : value])
       ) as UpdateUserCommunityGroupDto;
 
+      let savedItem: UserCommunityGroup;
       if (communityGroup) {
         await updateCommunityGroup(communityGroup.id, dataToSend);
+        savedItem = { ...communityGroup, ...dataToSend };
       } else {
-        await addCommunityGroup(dataToSend);
+        savedItem = await addCommunityGroup(dataToSend);
       }
-      onClose();
+      onClose(savedItem);
     } catch (err: any) {
       setError(err.message || "Failed to save community group.");
     } finally {

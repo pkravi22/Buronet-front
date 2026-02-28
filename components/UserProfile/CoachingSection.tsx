@@ -11,12 +11,14 @@ import { formatDateOnly } from '@/lib/dates';
 interface CoachingSectionProps {
   coaching: UserCoaching[];
   canEdit?: boolean;
+  onCoachingChange?: (coaching: UserCoaching[]) => void;
 }
 
-const CoachingSection: React.FC<CoachingSectionProps> = ({ coaching, canEdit = true }) => {
+const CoachingSection: React.FC<CoachingSectionProps> = ({ coaching, canEdit = true, onCoachingChange }) => {
   const { deleteCoaching } = useUserProfile();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingCoaching, setEditingCoaching] = useState<UserCoaching | null>(null);
+  const [localCoaching, setLocalCoaching] = useState<UserCoaching[]>(coaching);
 
   const handleAddClick = () => {
     setEditingCoaching(null);
@@ -32,6 +34,9 @@ const CoachingSection: React.FC<CoachingSectionProps> = ({ coaching, canEdit = t
     if (confirm("Are you sure you want to delete this coaching entry?")) {
       try {
         await deleteCoaching(coachingId);
+        const updatedCoaching = localCoaching.filter(c => c.id !== coachingId);
+        setLocalCoaching(updatedCoaching);
+        onCoachingChange?.(updatedCoaching);
         alert("Coaching entry deleted successfully!");
       } catch (error: any) {
         alert(`Failed to delete coaching entry: ${error.message}`);
@@ -39,13 +44,24 @@ const CoachingSection: React.FC<CoachingSectionProps> = ({ coaching, canEdit = t
     }
   };
 
+  const handleFormClose = (newItem?: UserCoaching) => {
+    if (newItem) {
+      const updatedCoaching = editingCoaching
+        ? localCoaching.map(c => c.id === newItem.id ? newItem : c)
+        : [...localCoaching, newItem];
+      setLocalCoaching(updatedCoaching);
+      onCoachingChange?.(updatedCoaching);
+    }
+    setIsFormOpen(false);
+  };
+
   return (
     <UserProfileSection title="Coaching" onAdd={canEdit ? handleAddClick : undefined}>
-      {coaching.length === 0 ? (
+      {localCoaching.length === 0 ? (
         <p className="text-gray-500 italic">No coaching entries added yet.</p>
       ) : (
         <div className="space-y-4">
-          {coaching.map((coach) => (
+          {localCoaching.map((coach) => (
             <div key={coach.id} className="relative p-4 border rounded-lg bg-gray-50">
               {canEdit && (
                 <div className="absolute top-2 right-2 flex space-x-2">
@@ -79,7 +95,7 @@ const CoachingSection: React.FC<CoachingSectionProps> = ({ coaching, canEdit = t
       {canEdit && isFormOpen && (
         <EditCoachingForm
           coaching={editingCoaching}
-          onClose={() => setIsFormOpen(false)}
+          onClose={handleFormClose}
         />
       )}
     </UserProfileSection>

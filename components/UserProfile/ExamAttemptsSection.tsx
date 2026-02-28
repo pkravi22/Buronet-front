@@ -10,12 +10,14 @@ import { useUserProfile } from '../../hooks/useUserProfile';
 interface ExamAttemptsSectionProps {
   examAttempts: UserExamAttempt[];
   canEdit?: boolean;
+  onExamAttemptsChange?: (examAttempts: UserExamAttempt[]) => void;
 }
 
-const ExamAttemptsSection: React.FC<ExamAttemptsSectionProps> = ({ examAttempts, canEdit = true }) => {
+const ExamAttemptsSection: React.FC<ExamAttemptsSectionProps> = ({ examAttempts, canEdit = true, onExamAttemptsChange }) => {
   const { deleteExamAttempt } = useUserProfile();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingExamAttempt, setEditingExamAttempt] = useState<UserExamAttempt | null>(null);
+  const [localExamAttempts, setLocalExamAttempts] = useState<UserExamAttempt[]>(examAttempts);
 
   const handleAddClick = () => {
     setEditingExamAttempt(null);
@@ -31,6 +33,9 @@ const ExamAttemptsSection: React.FC<ExamAttemptsSectionProps> = ({ examAttempts,
     if (confirm("Are you sure you want to delete this exam attempt?")) {
       try {
         await deleteExamAttempt(attemptId);
+        const updatedAttempts = localExamAttempts.filter(a => a.id !== attemptId);
+        setLocalExamAttempts(updatedAttempts);
+        onExamAttemptsChange?.(updatedAttempts);
         alert("Exam attempt deleted successfully!");
       } catch (error: any) {
         alert(`Failed to delete exam attempt: ${error.message}`);
@@ -38,13 +43,24 @@ const ExamAttemptsSection: React.FC<ExamAttemptsSectionProps> = ({ examAttempts,
     }
   };
 
+  const handleFormClose = (newItem?: UserExamAttempt) => {
+    if (newItem) {
+      const updatedAttempts = editingExamAttempt
+        ? localExamAttempts.map(a => a.id === newItem.id ? newItem : a)
+        : [...localExamAttempts, newItem];
+      setLocalExamAttempts(updatedAttempts);
+      onExamAttemptsChange?.(updatedAttempts);
+    }
+    setIsFormOpen(false);
+  };
+
   return (
     <UserProfileSection title="Exam Attempts" onAdd={canEdit ? handleAddClick : undefined}>
-      {examAttempts.length === 0 ? (
+      {localExamAttempts.length === 0 ? (
         <p className="text-gray-500 italic">No exam attempts added yet.</p>
       ) : (
         <div className="space-y-4">
-          {examAttempts.map((attempt) => (
+          {localExamAttempts.map((attempt) => (
             <div key={attempt.id} className="relative p-4 border rounded-lg bg-gray-50">
               {canEdit && (
                 <div className="absolute top-2 right-2 flex space-x-2">
@@ -76,7 +92,7 @@ const ExamAttemptsSection: React.FC<ExamAttemptsSectionProps> = ({ examAttempts,
       {canEdit && isFormOpen && (
         <EditExamAttemptForm
           examAttempt={editingExamAttempt}
-          onClose={() => setIsFormOpen(false)}
+          onClose={handleFormClose}
         />
       )}
     </UserProfileSection>

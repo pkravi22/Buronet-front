@@ -1,7 +1,7 @@
 // app/profile/page.tsx
 'use client'; // This component uses React hooks and needs client-side interactivity
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import AppLayout from '../../components/AppLayout'; // Our main application layout
 import { useUserProfile } from '../../hooks/useUserProfile'; // Our custom hook to fetch user profile data
 import UserProfileHeader from '../../components/UserProfile/UserProfileHeader'; // Component for the left profile card
@@ -44,6 +44,30 @@ const ProfilePage: React.FC = () => {
   const [passwordToast, setPasswordToast] = useState<string | null>(null);
 
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+
+  // Local state for each profile section to enable real-time updates
+  const [experiences, setExperiences] = useState(userProfile?.experiences || []);
+  const [skills, setSkills] = useState(userProfile?.skills || []);
+  const [education, setEducation] = useState(userProfile?.education || []);
+  const [examAttempts, setExamAttempts] = useState(userProfile?.examAttempts || []);
+  const [coaching, setCoaching] = useState(userProfile?.coaching || []);
+  const [publications, setPublications] = useState(userProfile?.publications || []);
+  const [projects, setProjects] = useState(userProfile?.projects || []);
+  const [communityGroups, setCommunityGroups] = useState(userProfile?.communityGroups || []);
+
+  // Update local state when userProfile changes
+  useEffect(() => {
+    if (userProfile) {
+      setExperiences(userProfile.experiences || []);
+      setSkills(userProfile.skills || []);
+      setEducation(userProfile.education || []);
+      setExamAttempts(userProfile.examAttempts || []);
+      setCoaching(userProfile.coaching || []);
+      setPublications(userProfile.publications || []);
+      setProjects(userProfile.projects || []);
+      setCommunityGroups(userProfile.communityGroups || []);
+    }
+  }, [userProfile]);
 
   const shareUrl = useMemo(() => {
     // Share the public profile route, not the editable /profile page
@@ -250,28 +274,28 @@ const ProfilePage: React.FC = () => {
               </div>
 
               {/* Target Exams Card (using ExperienceSection component for dynamic data) */}
-              <ExperienceSection experiences={userProfile.experiences || []} />
+              <ExperienceSection experiences={experiences} onExperiencesChange={setExperiences} />
 
               {/* Skills Card (using SkillsSection component for dynamic data) */}
-              <SkillsSection skills={userProfile.skills || []} />
+              <SkillsSection skills={skills} onSkillsChange={setSkills} />
 
               {/* Education Card (using EducationSection component for dynamic data) */}
-              <EducationSection education={userProfile.education || []} />
+              <EducationSection education={education} onEducationChange={setEducation} />
 
               {/* Exam Attempts Card (using ExamAttemptsSection component for dynamic data) */}
-              <ExamAttemptsSection examAttempts={userProfile.examAttempts || []} />
+              <ExamAttemptsSection examAttempts={examAttempts} onExamAttemptsChange={setExamAttempts} />
 
               {/* Coaching Card (using CoachingSection component for dynamic data) */}
-              <CoachingSection coaching={userProfile.coaching || []} />
+              <CoachingSection coaching={coaching} onCoachingChange={setCoaching} />
 
               {/* Publications Card (using PublicationsSection component for dynamic data) */}
-              <PublicationsSection publications={userProfile.publications || []} />
+              <PublicationsSection publications={publications} onPublicationsChange={setPublications} />
 
               {/* Projects Card (using ProjectsSection component for dynamic data) */}
-              <ProjectsSection projects={userProfile.projects || []} />
+              <ProjectsSection projects={projects} onProjectsChange={setProjects} />
 
               {/* Community Groups Card (using CommunityGroupsSection component for dynamic data) */}
-              <CommunityGroupsSection communityGroups={userProfile.communityGroups || []} />
+              <CommunityGroupsSection communityGroups={communityGroups} onCommunityGroupsChange={setCommunityGroups} />
             </div>
           </div>
         </div>

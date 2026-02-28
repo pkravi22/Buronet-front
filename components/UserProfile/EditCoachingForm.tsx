@@ -8,7 +8,7 @@ import { toDateOnly } from '@/lib/dates';
 
 interface EditCoachingFormProps {
   coaching: UserCoaching | null;
-  onClose: () => void;
+  onClose: (newItem?: UserCoaching) => void;
 }
 
 const EditCoachingForm: React.FC<EditCoachingFormProps> = ({ coaching, onClose }) => {
@@ -36,12 +36,14 @@ const EditCoachingForm: React.FC<EditCoachingFormProps> = ({ coaching, onClose }
         Object.entries(formData).map(([key, value]) => [key, value === '' ? null : value])
       ) as UpdateUserCoachingDto;
 
+      let savedItem: UserCoaching;
       if (coaching) {
         await updateCoaching(coaching.id, dataToSend);
+        savedItem = { ...coaching, ...dataToSend };
       } else {
-        await addCoaching(dataToSend);
+        savedItem = await addCoaching(dataToSend);
       }
-      onClose();
+      onClose(savedItem);
     } catch (err: any) {
       setError(err.message || "Failed to save coaching entry.");
     } finally {

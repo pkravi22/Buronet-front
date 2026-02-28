@@ -10,10 +10,11 @@ import { formatDateOnly } from '@/lib/dates';
 
 interface ExperienceSectionProps {
   experiences: UserExperience[];
+  onExperiencesChange?: (experiences: UserExperience[]) => void;
   canEdit?: boolean;
 }
 
-const ExperienceSection: React.FC<ExperienceSectionProps> = ({ experiences, canEdit = true }) => {
+const ExperienceSection: React.FC<ExperienceSectionProps> = ({ experiences, onExperiencesChange, canEdit = true }) => {
   const { deleteExperience } = useUserProfile();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingExperience, setEditingExperience] = useState<UserExperience | null>(null);
@@ -32,9 +33,27 @@ const ExperienceSection: React.FC<ExperienceSectionProps> = ({ experiences, canE
     if (confirm("Are you sure you want to delete this experience?")) {
       try {
         await deleteExperience(experienceId);
+        // Update local state immediately
+        if (onExperiencesChange) {
+          onExperiencesChange(experiences.filter(e => e.id !== experienceId));
+        }
         alert("Experience deleted successfully!");
       } catch (error: any) {
         alert(`Failed to delete experience: ${error.message}`);
+      }
+    }
+  };
+
+  const handleFormClose = (newExperience?: UserExperience) => {
+    setIsFormOpen(false);
+    // Update local state if a new experience was added
+    if (newExperience && onExperiencesChange) {
+      if (editingExperience) {
+        // Update existing
+        onExperiencesChange(experiences.map(e => e.id === newExperience.id ? newExperience : e));
+      } else {
+        // Add new
+        onExperiencesChange([...experiences, newExperience]);
       }
     }
   };
@@ -79,7 +98,7 @@ const ExperienceSection: React.FC<ExperienceSectionProps> = ({ experiences, canE
       {canEdit && isFormOpen && (
         <EditExperienceForm
           experience={editingExperience} // Pass null for new, object for edit
-          onClose={() => setIsFormOpen(false)}
+          onClose={handleFormClose}
         />
       )}
     </UserProfileSection>

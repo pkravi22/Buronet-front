@@ -107,12 +107,12 @@ const JobDetailsPage = ({ params }: JobDetailsPageProps) => {
       <Navbar activeItem="Jobs" />
 
       {/* Desktop: offset for fixed Navbar and keep a consistent right gutter */}
-      <main className="lg:pl-[284px] lg:pr-6">
+      <main className="lg:pl-[284px]">
         <TopBar />
         <div className="flex flex-col mt-8">
           <div className="min-h-[calc(100vh-72px)] bg-[#EEF0F4] pt-8 pb-24 lg:py-8 lg:pb-12">
-            <div className="w-full px-4 sm:px-6 lg:px-6">
-              <div className="flex flex-col lg:flex-row gap-8">
+            <div className="w-full px-4 sm:px-6 lg:pl-6 lg:pr-0">
+              <div className="flex flex-col justify-center lg:flex-row gap-8">
                 {/* Left Column - Dynamic Overview */}
                 <div className="lg:w-1/3">
                   <div className="bg-white rounded-xl shadow-sm p-6 mt-8">

@@ -42,6 +42,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ userProfile, onClos
   });
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -54,8 +55,67 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ userProfile, onClos
   }
 };
 
+  // Validation function
+  const validateFields = (): boolean => {
+    const errors: Record<string, string> = {};
+
+    // First Name validation
+    if (!formData.firstName || formData.firstName.trim() === '') {
+      errors.firstName = 'First Name is required';
+    } else if (formData.firstName.trim().length < 2) {
+      errors.firstName = 'First Name must be at least 2 characters';
+    } else if (formData.firstName.trim().length > 50) {
+      errors.firstName = 'First Name must not exceed 50 characters';
+    }
+
+    // Last Name validation
+    if (!formData.lastName || formData.lastName.trim() === '') {
+      errors.lastName = 'Last Name is required';
+    } else if (formData.lastName.trim().length < 2) {
+      errors.lastName = 'Last Name must be at least 2 characters';
+    } else if (formData.lastName.trim().length > 50) {
+      errors.lastName = 'Last Name must not exceed 50 characters';
+    }
+
+    // Headline validation
+    if (!formData.headline || formData.headline.trim() === '') {
+      errors.headline = 'Headline is required';
+    } else if (formData.headline.trim().length < 5) {
+      errors.headline = 'Headline must be at least 5 characters';
+    } else if (formData.headline.trim().length > 160) {
+      errors.headline = 'Headline must not exceed 160 characters';
+    }
+
+    // Date of Birth validation
+    if (!formData.dateOfBirth || formData.dateOfBirth.trim() === '') {
+      errors.dateOfBirth = 'Date of Birth is required';
+    } else {
+      const dobDate = new Date(formData.dateOfBirth);
+      const today = new Date();
+      const age = today.getFullYear() - dobDate.getFullYear();
+      
+      if (dobDate > today) {
+        errors.dateOfBirth = 'Date of Birth cannot be in the future';
+      } else if (age < 13) {
+        errors.dateOfBirth = 'You must be at least 13 years old';
+      } else if (age > 120) {
+        errors.dateOfBirth = 'Please enter a valid date of birth';
+      }
+    }
+
+    setFieldErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const handleSubmit = async (e?: React.SyntheticEvent) => {
     e?.preventDefault?.();
+    
+    // Validate fields before submitting
+    if (!validateFields()) {
+      setError('Please fix the errors above before saving.');
+      return;
+    }
+
     setIsSaving(true);
     setError(null);
     try {
@@ -66,10 +126,10 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ userProfile, onClos
       // `dateOfBirth` is a date-only field; send as `YYYY-MM-DD` to avoid timezone drift.
       // Backend should treat this as a date-only value.
       if (profileImageFile) {
-        const formData = new FormData();
-        formData.append("file", profileImageFile);
+        const formDataImage = new FormData();
+        formDataImage.append("file", profileImageFile);
         // const res = await postApi("/users/profile/upload_picture", { body: formData, isFormData: true });
-        const res: UploadImageResponse = await postApi(`/Users/profile/upload_picture`, formData);
+        const res: UploadImageResponse = await postApi(`/Users/profile/upload_picture`, formDataImage);
 
         if (!res) {
           throw new Error("Failed to upload profile picture");
@@ -101,24 +161,28 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ userProfile, onClos
             {/* Note: Username and Email are NOT editable in this modal as they belong to the core User table,
                 which is assumed to be managed by the authentication system or a separate account settings page. */}
             <div>
-              <label htmlFor="firstName" className="block text-gray-700 text-sm font-bold mb-2">First Name</label>
-              <input type="text" id="firstName" name="firstName" value={formData.firstName || ''} onChange={handleChange} className="form-input" />
+              <label htmlFor="firstName" className="block text-gray-700 text-sm font-bold mb-2">First Name <span className="text-red-500">*</span></label>
+              <input type="text" id="firstName" name="firstName" value={formData.firstName || ''} onChange={handleChange} className={`form-input ${fieldErrors.firstName ? 'border-red-500' : ''}`} />
+              {fieldErrors.firstName && <p className="text-red-500 text-sm mt-1">{fieldErrors.firstName}</p>}
             </div>
             <div>
-              <label htmlFor="lastName" className="block text-gray-700 text-sm font-bold mb-2">Last Name</label>
-              <input type="text" id="lastName" name="lastName" value={formData.lastName || ''} onChange={handleChange} className="form-input" />
+              <label htmlFor="lastName" className="block text-gray-700 text-sm font-bold mb-2">Last Name <span className="text-red-500">*</span></label>
+              <input type="text" id="lastName" name="lastName" value={formData.lastName || ''} onChange={handleChange} className={`form-input ${fieldErrors.lastName ? 'border-red-500' : ''}`} />
+              {fieldErrors.lastName && <p className="text-red-500 text-sm mt-1">{fieldErrors.lastName}</p>}
             </div>
             <div className="md:col-span-2">
-              <label htmlFor="headline" className="block text-gray-700 text-sm font-bold mb-2">Headline</label>
-              <input type="text" id="headline" name="headline" value={formData.headline || ''} onChange={handleChange} className="form-input" />
+              <label htmlFor="headline" className="block text-gray-700 text-sm font-bold mb-2">Headline <span className="text-red-500">*</span></label>
+              <input type="text" id="headline" name="headline" value={formData.headline || ''} onChange={handleChange} className={`form-input ${fieldErrors.headline ? 'border-red-500' : ''}`} />
+              {fieldErrors.headline && <p className="text-red-500 text-sm mt-1">{fieldErrors.headline}</p>}
             </div>
             <div className="md:col-span-2">
               <label htmlFor="bio" className="block text-gray-700 text-sm font-bold mb-2">Bio</label>
               <textarea id="bio" name="bio" value={formData.bio || ''} onChange={handleChange} rows={3} className="form-textarea"></textarea>
             </div>
             <div>
-              <label htmlFor="dateOfBirth" className="block text-gray-700 text-sm font-bold mb-2">Date of Birth</label>
-              <input type="date" id="dateOfBirth" name="dateOfBirth" value={formData.dateOfBirth || ''} onChange={handleChange} className="form-input" />
+              <label htmlFor="dateOfBirth" className="block text-gray-700 text-sm font-bold mb-2">Date of Birth <span className="text-red-500">*</span></label>
+              <input type="date" id="dateOfBirth" name="dateOfBirth" value={formData.dateOfBirth || ''} onChange={handleChange} className={`form-input ${fieldErrors.dateOfBirth ? 'border-red-500' : ''}`} />
+              {fieldErrors.dateOfBirth && <p className="text-red-500 text-sm mt-1">{fieldErrors.dateOfBirth}</p>}
             </div>
             <div>
               <label htmlFor="phoneNumber" className="block text-gray-700 text-sm font-bold mb-2">Phone Number</label>

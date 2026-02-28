@@ -10,12 +10,14 @@ import { useUserProfile } from '../../hooks/useUserProfile';
 interface CommunityGroupsSectionProps {
   communityGroups: UserCommunityGroup[];
   canEdit?: boolean;
+  onCommunityGroupsChange?: (communityGroups: UserCommunityGroup[]) => void;
 }
 
-const CommunityGroupsSection: React.FC<CommunityGroupsSectionProps> = ({ communityGroups, canEdit = true }) => {
+const CommunityGroupsSection: React.FC<CommunityGroupsSectionProps> = ({ communityGroups, canEdit = true, onCommunityGroupsChange }) => {
   const { deleteCommunityGroup } = useUserProfile();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingCommunityGroup, setEditingCommunityGroup] = useState<UserCommunityGroup | null>(null);
+  const [localCommunityGroups, setLocalCommunityGroups] = useState<UserCommunityGroup[]>(communityGroups);
 
   const handleAddClick = () => {
     setEditingCommunityGroup(null);
@@ -31,6 +33,9 @@ const CommunityGroupsSection: React.FC<CommunityGroupsSectionProps> = ({ communi
     if (confirm("Are you sure you want to delete this community group?")) {
       try {
         await deleteCommunityGroup(groupId);
+        const updatedGroups = localCommunityGroups.filter(g => g.id !== groupId);
+        setLocalCommunityGroups(updatedGroups);
+        onCommunityGroupsChange?.(updatedGroups);
         alert("Community group deleted successfully!");
       } catch (error: any) {
         alert(`Failed to delete community group: ${error.message}`);
@@ -38,13 +43,24 @@ const CommunityGroupsSection: React.FC<CommunityGroupsSectionProps> = ({ communi
     }
   };
 
+  const handleFormClose = (newItem?: UserCommunityGroup) => {
+    if (newItem) {
+      const updatedGroups = editingCommunityGroup
+        ? localCommunityGroups.map(g => g.id === newItem.id ? newItem : g)
+        : [...localCommunityGroups, newItem];
+      setLocalCommunityGroups(updatedGroups);
+      onCommunityGroupsChange?.(updatedGroups);
+    }
+    setIsFormOpen(false);
+  };
+
   return (
     <UserProfileSection title="Community Groups" onAdd={canEdit ? handleAddClick : undefined}>
-      {communityGroups.length === 0 ? (
+      {localCommunityGroups.length === 0 ? (
         <p className="text-gray-500 italic">No community groups added yet.</p>
       ) : (
         <div className="space-y-4">
-          {communityGroups.map((group) => (
+          {localCommunityGroups.map((group) => (
             <div key={group.id} className="relative p-4 border rounded-lg bg-gray-50">
               {canEdit && (
                 <div className="absolute top-2 right-2 flex space-x-2">
@@ -74,7 +90,7 @@ const CommunityGroupsSection: React.FC<CommunityGroupsSectionProps> = ({ communi
       {canEdit && isFormOpen && (
         <EditCommunityGroupForm
           communityGroup={editingCommunityGroup}
-          onClose={() => setIsFormOpen(false)}
+          onClose={handleFormClose}
         />
       )}
     </UserProfileSection>

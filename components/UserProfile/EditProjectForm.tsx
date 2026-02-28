@@ -8,7 +8,7 @@ import { toDateOnly } from '@/lib/dates';
 
 interface EditProjectFormProps {
   project: UserProject | null;
-  onClose: () => void;
+  onClose: (newItem?: UserProject) => void;
 }
 
 const EditProjectForm: React.FC<EditProjectFormProps> = ({ project, onClose }) => {
@@ -37,12 +37,14 @@ const EditProjectForm: React.FC<EditProjectFormProps> = ({ project, onClose }) =
         Object.entries(formData).map(([key, value]) => [key, value === '' ? null : value])
       ) as UpdateUserProjectDto;
 
+      let savedItem: UserProject;
       if (project) {
         await updateProject(project.id, dataToSend);
+        savedItem = { ...project, ...dataToSend };
       } else {
-        await addProject(dataToSend);
+        savedItem = await addProject(dataToSend);
       }
-      onClose();
+      onClose(savedItem);
     } catch (err: any) {
       setError(err.message || "Failed to save project.");
     } finally {

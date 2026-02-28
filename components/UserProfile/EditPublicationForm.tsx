@@ -8,7 +8,7 @@ import { toDateOnly } from '@/lib/dates';
 
 interface EditPublicationFormProps {
   publication: UserPublication | null;
-  onClose: () => void;
+  onClose: (newItem?: UserPublication) => void;
 }
 
 const EditPublicationForm: React.FC<EditPublicationFormProps> = ({ publication, onClose }) => {
@@ -37,12 +37,14 @@ const EditPublicationForm: React.FC<EditPublicationFormProps> = ({ publication, 
         Object.entries(formData).map(([key, value]) => [key, value === '' ? null : value])
       ) as UpdateUserPublicationDto;
 
+      let savedItem: UserPublication;
       if (publication) {
         await updatePublication(publication.id, dataToSend);
+        savedItem = { ...publication, ...dataToSend };
       } else {
-        await addPublication(dataToSend);
+        savedItem = await addPublication(dataToSend);
       }
-      onClose();
+      onClose(savedItem);
     } catch (err: any) {
       setError(err.message || "Failed to save publication.");
     } finally {

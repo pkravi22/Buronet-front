@@ -10,10 +10,11 @@ import { formatDateOnly } from '@/lib/dates';
 
 interface EducationSectionProps {
   education: UserEducation[];
+  onEducationChange?: (education: UserEducation[]) => void;
   canEdit?: boolean;
 }
 
-const EducationSection: React.FC<EducationSectionProps> = ({ education, canEdit = true }) => {
+const EducationSection: React.FC<EducationSectionProps> = ({ education, onEducationChange, canEdit = true }) => {
   const { deleteEducation } = useUserProfile();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingEducation, setEditingEducation] = useState<UserEducation | null>(null);
@@ -32,9 +33,27 @@ const EducationSection: React.FC<EducationSectionProps> = ({ education, canEdit 
     if (confirm("Are you sure you want to delete this education entry?")) {
       try {
         await deleteEducation(educationId);
+        // Update local state immediately
+        if (onEducationChange) {
+          onEducationChange(education.filter(e => e.id !== educationId));
+        }
         alert("Education entry deleted successfully!");
       } catch (error: any) {
         alert(`Failed to delete education entry: ${error.message}`);
+      }
+    }
+  };
+
+  const handleFormClose = (newEducation?: UserEducation) => {
+    setIsFormOpen(false);
+    // Update local state if a new education was added
+    if (newEducation && onEducationChange) {
+      if (editingEducation) {
+        // Update existing
+        onEducationChange(education.map(e => e.id === newEducation.id ? newEducation : e));
+      } else {
+        // Add new
+        onEducationChange([...education, newEducation]);
       }
     }
   };
@@ -80,7 +99,7 @@ const EducationSection: React.FC<EducationSectionProps> = ({ education, canEdit 
       {canEdit && isFormOpen && (
         <EditEducationForm
           education={editingEducation}
-          onClose={() => setIsFormOpen(false)}
+          onClose={handleFormClose}
         />
       )}
     </UserProfileSection>

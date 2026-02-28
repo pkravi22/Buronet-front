@@ -11,12 +11,14 @@ import { formatDateOnly } from '@/lib/dates';
 interface ProjectsSectionProps {
   projects: UserProject[];
   canEdit?: boolean;
+  onProjectsChange?: (projects: UserProject[]) => void;
 }
 
-const ProjectsSection: React.FC<ProjectsSectionProps> = ({ projects, canEdit = true }) => {
+const ProjectsSection: React.FC<ProjectsSectionProps> = ({ projects, canEdit = true, onProjectsChange }) => {
   const { deleteProject } = useUserProfile();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<UserProject | null>(null);
+  const [localProjects, setLocalProjects] = useState<UserProject[]>(projects);
 
   const handleAddClick = () => {
     setEditingProject(null);
@@ -32,6 +34,9 @@ const ProjectsSection: React.FC<ProjectsSectionProps> = ({ projects, canEdit = t
     if (confirm("Are you sure you want to delete this project?")) {
       try {
         await deleteProject(projectId);
+        const updatedProjects = localProjects.filter(p => p.id !== projectId);
+        setLocalProjects(updatedProjects);
+        onProjectsChange?.(updatedProjects);
         alert("Project deleted successfully!");
       } catch (error: any) {
         alert(`Failed to delete project: ${error.message}`);
@@ -39,13 +44,24 @@ const ProjectsSection: React.FC<ProjectsSectionProps> = ({ projects, canEdit = t
     }
   };
 
+  const handleFormClose = (newItem?: UserProject) => {
+    if (newItem) {
+      const updatedProjects = editingProject
+        ? localProjects.map(p => p.id === newItem.id ? newItem : p)
+        : [...localProjects, newItem];
+      setLocalProjects(updatedProjects);
+      onProjectsChange?.(updatedProjects);
+    }
+    setIsFormOpen(false);
+  };
+
   return (
     <UserProfileSection title="Projects" onAdd={canEdit ? handleAddClick : undefined}>
-      {projects.length === 0 ? (
+      {localProjects.length === 0 ? (
         <p className="text-gray-500 italic">No projects added yet.</p>
       ) : (
         <div className="space-y-4">
-          {projects.map((project) => (
+          {localProjects.map((project) => (
             <div key={project.id} className="relative p-4 border rounded-lg bg-gray-50">
               {canEdit && (
                 <div className="absolute top-2 right-2 flex space-x-2">
@@ -80,7 +96,7 @@ const ProjectsSection: React.FC<ProjectsSectionProps> = ({ projects, canEdit = t
       {canEdit && isFormOpen && (
         <EditProjectForm
           project={editingProject}
-          onClose={() => setIsFormOpen(false)}
+          onClose={handleFormClose}
         />
       )}
     </UserProfileSection>

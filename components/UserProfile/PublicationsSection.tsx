@@ -11,12 +11,14 @@ import { formatDateOnly } from '@/lib/dates';
 interface PublicationsSectionProps {
   publications: UserPublication[];
   canEdit?: boolean;
+  onPublicationsChange?: (publications: UserPublication[]) => void;
 }
 
-const PublicationsSection: React.FC<PublicationsSectionProps> = ({ publications, canEdit = true }) => {
+const PublicationsSection: React.FC<PublicationsSectionProps> = ({ publications, canEdit = true, onPublicationsChange }) => {
   const { deletePublication } = useUserProfile();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingPublication, setEditingPublication] = useState<UserPublication | null>(null);
+  const [localPublications, setLocalPublications] = useState<UserPublication[]>(publications);
 
   const handleAddClick = () => {
     setEditingPublication(null);
@@ -32,6 +34,9 @@ const PublicationsSection: React.FC<PublicationsSectionProps> = ({ publications,
     if (confirm("Are you sure you want to delete this publication?")) {
       try {
         await deletePublication(publicationId);
+        const updatedPublications = localPublications.filter(p => p.id !== publicationId);
+        setLocalPublications(updatedPublications);
+        onPublicationsChange?.(updatedPublications);
         alert("Publication deleted successfully!");
       } catch (error: any) {
         alert(`Failed to delete publication: ${error.message}`);
@@ -39,13 +44,24 @@ const PublicationsSection: React.FC<PublicationsSectionProps> = ({ publications,
     }
   };
 
+  const handleFormClose = (newItem?: UserPublication) => {
+    if (newItem) {
+      const updatedPublications = editingPublication
+        ? localPublications.map(p => p.id === newItem.id ? newItem : p)
+        : [...localPublications, newItem];
+      setLocalPublications(updatedPublications);
+      onPublicationsChange?.(updatedPublications);
+    }
+    setIsFormOpen(false);
+  };
+
   return (
     <UserProfileSection title="Publications" onAdd={canEdit ? handleAddClick : undefined}>
-      {publications.length === 0 ? (
+      {localPublications.length === 0 ? (
         <p className="text-gray-500 italic">No publications added yet.</p>
       ) : (
         <div className="space-y-4">
-          {publications.map((pub) => (
+          {localPublications.map((pub) => (
             <div key={pub.id} className="relative p-4 border rounded-lg bg-gray-50">
               {canEdit && (
                 <div className="absolute top-2 right-2 flex space-x-2">
@@ -78,7 +94,7 @@ const PublicationsSection: React.FC<PublicationsSectionProps> = ({ publications,
       {canEdit && isFormOpen && (
         <EditPublicationForm
           publication={editingPublication}
-          onClose={() => setIsFormOpen(false)}
+          onClose={handleFormClose}
         />
       )}
     </UserProfileSection>

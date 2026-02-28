@@ -2,7 +2,7 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    domains: ['localhost','placehold.co', 'posterjack.ca','images.indianexpress.com'],
+    domains: ['localhost','placehold.co', 'posterjack.ca','images.indianexpress.com', 'res.cloudinary.com'],
     dangerouslyAllowSVG: true,
     contentDispositionType: 'attachment',
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",

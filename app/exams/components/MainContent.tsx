@@ -8,6 +8,7 @@ import { get, remove, postApi } from '@/lib/api'; // Make sure this path is corr
 import { Exam, ApiResponse } from '@/lib/types/exams'; // Make sure this path is correct for your types
 import ExamCard from '../components/ExamCard'; // Make sure this path is correct for your ExamCard component
 import { useAuth } from '@/context/AuthContext';
+import { useNotifications } from '@/hooks/useNotifications';
 
 interface bookmarksResponseType {
   id: String,
@@ -31,6 +32,10 @@ interface DashboardStats {
   totalActiveExams: number;
   newExamsToday: number;
   totalBookmarkedExams: number;
+  newExamsTodayTrend?: string;
+  totalApplications?: number;
+  applicationsInProgress?: number;
+  bookmarkedExamsTrend?: string;
 }
 
 interface DepartmentStats {
@@ -76,6 +81,7 @@ const MainContent = () => {
   const [dashboardStats, setDashboardStats] = useState<DashboardStats | null>(null);
   const [departmentStats, setDepartmentStats] = useState<DepartmentStats[]>([]);
   const { user } = useAuth(); // Assuming you have a useAuth hook to get the current user
+  const { unreadCount } = useNotifications(); // Get unread notification count
   const [activeTab, setActiveTab] = useState('All Exams');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [allExams, setAllExams] = useState<Exam[]>([]);
@@ -192,10 +198,10 @@ const MainContent = () => {
 
   // Static data for dashboard and departments
   const dashboardCards: DashboardCardProps[] = [
-    { title: 'Total Active Exams', value: dashboardStats?.totalActiveExams.toString() || '0', trend: '10 new today', icon: <Briefcase size={16} />, iconColor: 'text-[#EF4444]', trendIcon: <TrendingUp size={12} />, trendColor: 'text-[#16A34A]' },
-    { title: 'Total Applications', value: '0', trend: '5 in progress', icon: <FileText size={16} />, iconColor: 'text-[#3B82F6]', trendIcon: <Clock size={12} />, trendColor: 'text-[#F59E0B]' },
-    { title: 'Saved Exams', value: dashboardStats?.totalBookmarkedExams.toString() || '0', trend: 'updated Just now', icon: <Bookmark size={16} />, iconColor: 'text-[#22C55E]', trendIcon: <Clock size={12} />, trendColor: 'text-[#F59E0B]' },
-    { title: 'New Notifications', value: dashboardStats?.newExamsToday.toString() || '0', trend: '4 new alerts', icon: <Bell size={16} />, iconColor: 'text-[#A855F7]', trendIcon: <TrendingUp size={12} />, trendColor: 'text-[#16A34A]' }
+    { title: 'Total Active Exams', value: dashboardStats?.totalActiveExams.toString() || '0', trend: dashboardStats?.newExamsTodayTrend || `${dashboardStats?.newExamsToday || 0} new today`, icon: <Briefcase size={16} />, iconColor: 'text-[#EF4444]', trendIcon: <TrendingUp size={12} />, trendColor: 'text-[#16A34A]' },
+    { title: 'Total Applications', value: dashboardStats?.totalApplications?.toString() || '0', trend: dashboardStats?.applicationsInProgress ? `${dashboardStats.applicationsInProgress} in progress` : 'Coming Soon!', icon: <FileText size={16} />, iconColor: 'text-[#3B82F6]', trendIcon: <Clock size={12} />, trendColor: 'text-[#F59E0B]' },
+    { title: 'Saved Exams', value: dashboardStats?.totalBookmarkedExams.toString() || '0', trend: dashboardStats?.bookmarkedExamsTrend || 'updated Just now', icon: <Bookmark size={16} />, iconColor: 'text-[#22C55E]', trendIcon: <Clock size={12} />, trendColor: 'text-[#F59E0B]' },
+    { title: 'New Notifications', value: unreadCount.toString(), trend: `${unreadCount} new alerts`, icon: <Bell size={16} />, iconColor: 'text-[#A855F7]', trendIcon: <TrendingUp size={12} />, trendColor: 'text-[#16A34A]' }
   ];
 
   // const departments = [
