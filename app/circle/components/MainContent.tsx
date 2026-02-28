@@ -219,7 +219,7 @@ const MainContent = () => {
         error && <AlertModal duration={4000} message={error} type="error" onClose={clearError} />
       }
       <div className="flex justify-center w-full">
-        <div className="w-full max-w-6xl">
+        <div className="w-[640px]">
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
             {dashboardCards.map((card, index) => (
