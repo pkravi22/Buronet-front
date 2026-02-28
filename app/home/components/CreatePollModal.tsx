@@ -308,7 +308,7 @@ const CreatePollModal: React.FC<CreatePollModalProps> = ({ isOpen, onClose, onPo
       title: content, // Use content as the poll title
       content,
       imageUrl: imageUrl || null,
-      tags,
+      tagsJson: tags,
       isPoll: true,
       options: filteredOptions,
     };

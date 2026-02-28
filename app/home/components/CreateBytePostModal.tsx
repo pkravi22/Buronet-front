@@ -12,8 +12,7 @@ interface CreateByteModalProps {
   onBytePostCreated?: () => void;
 }
 
-const CLOUDINARY_CLOUD_NAME = 'db65bnadc'; 
-const CLOUDINARY_UPLOAD_PRESET = 'use_filename';
+const CLOUDINARY_CLOUD_NAME = 'db65bnadc';
 
 const CreateByteModal: React.FC<CreateByteModalProps> = ({ isOpen, onClose, onBytePostCreated }) => {
   const { user, userProfile, isLoading: authLoading } = useAuth();
@@ -46,20 +45,26 @@ const CreateByteModal: React.FC<CreateByteModalProps> = ({ isOpen, onClose, onBy
     e.preventDefault();
     if (isSubmitting || authLoading || !user || !byteFile) return;
 
-    // Check for placeholder credentials before uploading
-    // if (CLOUDINARY_CLOUD_NAME === 'YOUR_CLOUD_NAME' || CLOUDINARY_UPLOAD_PRESET === 'YOUR_UNSIGNED_UPLOAD_PRESET') {
-    //     setError('Cloudinary is not configured. Please update the placeholder values in the code.');
-    //     return;
-    // }
-
     setIsSubmitting(true);
     setError(null);
 
     try {
-      // Step 1: Upload the file to Cloudinary
+      // Step 1: Get signed upload credentials from backend
+      const signatureResponse = await postApi<any>('/cloudinary/get-signature', {
+        resourceType: 'video',
+      });
+
+      if (!signatureResponse || !signatureResponse.signature) {
+        throw new Error('Failed to get upload signature from server');
+      }
+
+      // Step 2: Upload the file to Cloudinary with signature
       const cloudinaryFormData = new FormData();
       cloudinaryFormData.append('file', byteFile);
-      cloudinaryFormData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+      cloudinaryFormData.append('signature', signatureResponse.signature);
+      cloudinaryFormData.append('timestamp', signatureResponse.timestamp);
+      cloudinaryFormData.append('api_key', signatureResponse.apiKey);
+      cloudinaryFormData.append('public_id', signatureResponse.publicId);
 
       const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/video/upload`;
       
@@ -77,7 +82,7 @@ const CreateByteModal: React.FC<CreateByteModalProps> = ({ isOpen, onClose, onBy
       // Create a thumbnail URL using Cloudinary transformations
       const thumbnailUrl = cloudinaryData.secure_url.replace(/\.mp4$/, '.jpg');
 
-      // Step 2: Send the URLs to your backend
+      // Step 3: Send the URLs to your backend
       const backendPayload = {
         Title: title,
         Description: description,

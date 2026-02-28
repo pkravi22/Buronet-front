@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { postApi } from '@/lib/api';
-import { CreatePostDto, UploadImageResponse } from '@/lib/types/post';
+import { postApi, put } from '@/lib/api';
+import { CreatePostDto, UpdatePostDto, PostDto } from '@/lib/types/post';
 import LoadingSpinner from '@/components/UI/LoadingSpinner';
 import { useAuth } from '@/context/AuthContext';
 import { getProfileImageUrl } from '@/lib/helpers/profileImage';
@@ -97,29 +97,69 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onPo
 
     const tagsArray = tagsInput.split(',').map(tag => tag.trim()).filter(tag => tag !== '');
 
-    const newPost: CreatePostDto = {
-      title: "",
-      content,
-      image: null,
-      tagsJson: tagsArray,
-      isPoll: false,
-    };
-
-    if (preview) {
-      const formData = new FormData();
-      formData.append("file", postImage!);
-      // const res = await postApi("/users/profile/upload_picture", { body: formData, isFormData: true });
-      const res: UploadImageResponse = await postApi(`/posts/upload_picture`, formData);
-
-      if (!res) {
-        throw new Error("Failed to upload post image");
-      } else {
-        newPost.image = res.profilePictureMediaId;
-      }
-    }
-
     try {
-      await postApi('/posts', newPost);
+      // Step 1: Create the post first (without image)
+      const newPost: CreatePostDto = {
+        title: title || content.substring(0, 50),
+        content,
+        image: null,
+        tagsJson: tagsArray,
+        isPoll: false,
+      };
+
+      const createdPost = await postApi<PostDto>('/posts', newPost);
+
+      // Step 2: If there's an image, upload to Cloudinary and update the post
+      if (preview && postImage && createdPost?.id) {
+        try {
+          // Get signed upload credentials from backend
+          const signatureResponse = await postApi<any>('/cloudinary/get-signature', {
+            resourceType: 'image',
+          });
+
+          if (!signatureResponse || !signatureResponse.signature) {
+            throw new Error('Failed to get upload signature from server');
+          }
+
+          // Upload to Cloudinary with signature
+          const cloudinaryFormData = new FormData();
+          cloudinaryFormData.append('file', postImage);
+          cloudinaryFormData.append('signature', signatureResponse.signature);
+          cloudinaryFormData.append('timestamp', signatureResponse.timestamp);
+          cloudinaryFormData.append('api_key', signatureResponse.apiKey);
+          cloudinaryFormData.append('upload_preset', signatureResponse.uploadPreset);
+          cloudinaryFormData.append('public_id', signatureResponse.publicId);
+
+          const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${signatureResponse.cloudName}/image/upload`;
+
+          const cloudinaryResponse = await fetch(cloudinaryUrl, {
+            method: 'POST',
+            body: cloudinaryFormData,
+          });
+
+          if (!cloudinaryResponse.ok) {
+            console.warn('Failed to upload image to Cloudinary, but post was created');
+            onClose();
+            onPostCreated?.();
+            return;
+          }
+
+          const cloudinaryData = await cloudinaryResponse.json();
+          const imageUrl = cloudinaryData.secure_url;
+
+          // Update post with image URL
+          const updateDto: UpdatePostDto = {
+            title: createdPost.title,
+            content: createdPost.content,
+            imageUrl: imageUrl,
+          };
+
+          await put(`/posts/${createdPost.id}`, updateDto);
+        } catch (imageErr) {
+          console.warn('Image upload failed, but post was created:', imageErr);
+        }
+      }
+
       onClose();
       onPostCreated?.();
     } catch (err: any) {
@@ -129,7 +169,6 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onPo
       setIsSubmitting(false);
     }
   };
-
   const handleCreatePollClick = () => {
     onClose(); // Close this modal
     onOpenCreatePoll?.(); // Open the poll modal
