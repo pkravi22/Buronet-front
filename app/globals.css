@@ -12,6 +12,12 @@ html {
   @media screen and (max-width: 1200px) {
     font-size: 12px !important;
   }
+  @media screen and (min-width: 2160px) {
+    zoom: 1.4;
+  }
+  @media screen and (min-width: 1600px) and (max-width: 2159px) {
+    zoom: 1.2;
+  }
 }
 
 @tailwind base;

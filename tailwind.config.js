@@ -17,6 +17,7 @@ module.exports = {
         'lg-laptop': '900px',
         'sm-desktop': '1000px',
         'desktop': '1280px',
+        'ultra': '1600px',
       },
       keyframes: {
         'slide-in-right': {
