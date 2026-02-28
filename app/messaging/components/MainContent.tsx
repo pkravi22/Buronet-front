@@ -2,15 +2,14 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
+import { useRouter } from 'next/navigation';
 // Import ChevronLeft for the back button
 import {
   Search,
   CheckCircle,
-  ChevronDown,
-  Paperclip,
-  Send,
   MessageSquarePlus,
   ChevronLeft,
+  Send,
 } from 'lucide-react';
 // Restore original imports
 import AppLayout from '@/components/AppLayout';
@@ -21,7 +20,6 @@ import { useChat } from '@/hooks/useChat';
 import { useConnections } from '@/hooks/useConnections';
 import { useAuth, withAuthRequired } from '@/context/AuthContext';
 import { useUnreadMessages } from '@/context/UnreadMessagesContext';
-import Navbar from '@/components/Navbar';
 import { formatTimeAgo } from '@/lib/dates';
 
 // --- Mock Interfaces (Removed) ---
@@ -33,6 +31,8 @@ const MessagingPage: React.FC = () => {
   // The inner panel then uses `my-6` and `h-[calc(100vh-61px-3rem)]` so it matches the
   // left fixed navbar height.
   const messagingMainClassName = 'flex-1 overflow-hidden bg-[#EEF0F4] pt-[61px]';
+
+  const router = useRouter();
 
   const {
     conversations,
@@ -58,6 +58,7 @@ const MessagingPage: React.FC = () => {
   const [isCreatingConversation, setIsCreatingConversation] = useState(false);
   const [newChatError, setNewChatError] = useState<string | null>(null);
   const [newChatQuery, setNewChatQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
 
   // const messagesEndRef = useRef<HTMLDivElement>(null);
   const initialErrorRef = useRef(false);
@@ -107,6 +108,12 @@ const MessagingPage: React.FC = () => {
     if (messageInput.trim() && selectedConversation) {
       await sendMessage(messageInput);
       setMessageInput('');
+    }
+  };
+
+  const handleNavigateToProfile = (userId: string | undefined) => {
+    if (userId) {
+      router.push(`/profile/${userId}`);
     }
   };
 
@@ -198,6 +205,17 @@ const MessagingPage: React.FC = () => {
     if (conn) return getDisplayName(conn);
     return chatUser.username || 'Unknown User';
   };
+
+  const filteredConversations = (() => {
+    const q = searchQuery.toLowerCase().trim();
+    if (!q) return conversations;
+    return conversations.filter((chat) => {
+      const otherParticipant = getOtherParticipant(chat);
+      const displayName = getParticipantDisplayName(otherParticipant);
+      const searchText = `${displayName} ${otherParticipant?.username || ''} ${chat.lastMessage?.content || ''}`.toLowerCase();
+      return searchText.includes(q);
+    });
+  })();
 
   // --- Conditional Rendering for Loading/Error States ---
   if (isLoadingConversations) {
@@ -308,26 +326,30 @@ const MessagingPage: React.FC = () => {
           <div className="p-3">
             <div className="relative">
               <input
+                id="search-text"
                 type="text"
                 placeholder="Search chats"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-10 pr-3 py-2 rounded-lg bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-200"
               />
               <Search
                 className="absolute left-3 top-2.5 text-gray-400"
                 size={18}
               />
+              <label htmlFor="search-text" className='text-gray-400 mt-2'>Enter at least 2 letters to search</label>
             </div>
           </div>
           <div
             className="flex-1 overflow-y-auto scrollbar-hide"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
-            {conversations.length === 0 ? (
+            {filteredConversations.length === 0 ? (
               <div className="p-4 text-gray-500 text-center">
-                No conversations yet. Start a new one!
+                {searchQuery ? 'No matching conversations found.' : 'No conversations yet. Start a new one!'}
               </div>
             ) : (
-              conversations.map((chat) => {
+              filteredConversations.map((chat) => {
                 const otherParticipant = getOtherParticipant(chat); // Cast here
                 return (
                   <div
@@ -397,20 +419,26 @@ const MessagingPage: React.FC = () => {
                   <ChevronLeft size={22} />
                 </button>
 
-                <img
-                  src={
-                    getProfileImageUrl(
-                      getOtherParticipant(selectedConversation as ConversationDto)?.avatar,
-                    )
-                  }
-                  alt={getParticipantDisplayName(getOtherParticipant(selectedConversation as ConversationDto))}
-                  className="w-10 h-10 rounded-full object-cover"
-                />
-                <div>
-                  <div className="font-semibold">
-                    {getParticipantDisplayName(getOtherParticipant(selectedConversation as ConversationDto))}
+                <button
+                  onClick={() => handleNavigateToProfile(getOtherParticipant(selectedConversation as ConversationDto)?.id)}
+                  className="flex items-center gap-3 hover:opacity-80 transition cursor-pointer"
+                  title="View profile"
+                >
+                  <img
+                    src={
+                      getProfileImageUrl(
+                        getOtherParticipant(selectedConversation as ConversationDto)?.avatar,
+                      )
+                    }
+                    alt={getParticipantDisplayName(getOtherParticipant(selectedConversation as ConversationDto))}
+                    className="w-10 h-10 rounded-full object-cover"
+                  />
+                  <div>
+                    <div className="font-semibold">
+                      {getParticipantDisplayName(getOtherParticipant(selectedConversation as ConversationDto))}
+                    </div>
                   </div>
-                </div>
+                </button>
               </div>
               {/* Messages */}
               <div

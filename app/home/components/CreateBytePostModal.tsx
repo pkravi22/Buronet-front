@@ -13,6 +13,9 @@ interface CreateByteModalProps {
 }
 
 const CLOUDINARY_CLOUD_NAME = 'db65bnadc';
+const MAX_VIDEO_SIZE = 10 * 1024 * 1024; // 10 MB
+const MAX_VIDEO_DURATION = 30; // 30 seconds
+const UPLOAD_SIZE_LIMIT = 50 * 1024 * 1024; // 50 MB for upload
 
 const CreateByteModal: React.FC<CreateByteModalProps> = ({ isOpen, onClose, onBytePostCreated }) => {
   const { user, userProfile, isLoading: authLoading } = useAuth();
@@ -21,6 +24,7 @@ const CreateByteModal: React.FC<CreateByteModalProps> = ({ isOpen, onClose, onBy
   const [description, setDescription] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [videoDuration, setVideoDuration] = useState<number | null>(null);
 
   const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) {
@@ -28,16 +32,50 @@ const CreateByteModal: React.FC<CreateByteModalProps> = ({ isOpen, onClose, onBy
     }
   };
 
+  const validateVideoFile = (file: File): string | null => {
+    // Check file size
+    if (file.size > UPLOAD_SIZE_LIMIT) {
+      return `File size exceeds 50 MB limit. Current size: ${(file.size / 1024 / 1024).toFixed(2)} MB`;
+    }
+
+    // Check file type
+    if (!file.type.startsWith('video/')) {
+      return 'Please select a valid video file.';
+    }
+
+    return null;
+  };
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
-      if (file.type.startsWith('video/')) {
-        setByteFile(file);
-        setError(null);
-      } else {
-        setError('Please select a valid video file.');
+      
+      const validationError = validateVideoFile(file);
+      if (validationError) {
+        setError(validationError);
         setByteFile(null);
+        return;
       }
+
+      // Check video duration
+      const video = document.createElement('video');
+      video.onloadedmetadata = () => {
+        if (video.duration > MAX_VIDEO_DURATION) {
+          setError(`Video duration exceeds 30 seconds limit. Current duration: ${Math.round(video.duration)}s`);
+          setByteFile(null);
+          setVideoDuration(null);
+        } else {
+          setByteFile(file);
+          setVideoDuration(video.duration);
+          setError(null);
+        }
+      };
+      video.onerror = () => {
+        setError('Unable to read video file. Please try another file.');
+        setByteFile(null);
+        setVideoDuration(null);
+      };
+      video.src = URL.createObjectURL(file);
     }
   };
 
@@ -146,7 +184,13 @@ const CreateByteModal: React.FC<CreateByteModalProps> = ({ isOpen, onClose, onBy
               required
               disabled={isSubmitting}
             />
-            {byteFile && <p className="mt-2 text-sm text-gray-600">Selected: {byteFile.name}</p>}
+            {byteFile && (
+              <div className="mt-2 text-sm text-gray-600">
+                <p>Selected: {byteFile.name}</p>
+                <p>Size: {(byteFile.size / 1024 / 1024).toFixed(2)} MB / 10 MB</p>
+                {videoDuration && <p>Duration: {Math.round(videoDuration)}s / 30s</p>}
+              </div>
+            )}
           </div>
           <div>
             <label htmlFor="byte-title" className="sr-only">Title</label>
