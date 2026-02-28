@@ -51,7 +51,7 @@ const EditSkillForm: React.FC<EditSkillFormProps> = ({ skill, onClose }) => {
       <div className="bg-white rounded-lg shadow-xl w-full max-w-md my-8">
         <div className="flex justify-between items-center border-b p-4">
           <h2 className="text-2xl font-bold text-gray-800">{skill ? 'Edit Skill' : 'Add New Skill'}</h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-800 text-2xl font-bold">&times;</button>
+          <button onClick={() => onClose()} className="text-gray-500 hover:text-gray-800 text-2xl font-bold">&times;</button>
         </div>
         <div className="p-6">
           {error && <p className="text-red-500 mb-4">{error}</p>}
@@ -74,7 +74,7 @@ const EditSkillForm: React.FC<EditSkillFormProps> = ({ skill, onClose }) => {
             <div className="flex justify-end space-x-4 mt-6">
               <button
                 type="button"
-                onClick={onClose}
+                onClick={() => onClose()}
                 className="bg-gray-300 text-gray-800 px-6 py-2 rounded-md hover:bg-gray-400 transition-colors"
                 disabled={isSaving}
               >
