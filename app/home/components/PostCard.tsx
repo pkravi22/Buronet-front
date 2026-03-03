@@ -651,8 +651,28 @@ const PostCard: React.FC<PostCardProps> = ({ post: initialPost, onPostUpdated, c
               return;
             }
             try {
-              await navigator.clipboard.writeText(postUrl);
-              toast.success("Link copied to clipboard");
+              // Check if clipboard API is available
+              if (navigator?.clipboard?.writeText) {
+                await navigator.clipboard.writeText(postUrl);
+                toast.success("Link copied to clipboard");
+              } else {
+                // Fallback for older browsers or non-HTTPS environments
+                const textArea = document.createElement('textarea');
+                textArea.value = postUrl;
+                textArea.style.position = 'fixed';
+                textArea.style.left = '-999999px';
+                document.body.appendChild(textArea);
+                textArea.select();
+                try {
+                  document.execCommand('copy');
+                  toast.success("Link copied to clipboard");
+                } catch (fallbackErr) {
+                  console.error("Fallback copy failed:", fallbackErr);
+                  toast.error("Failed to copy link");
+                } finally {
+                  document.body.removeChild(textArea);
+                }
+              }
             } catch (err) {
               console.error("Failed to copy:", err);
               toast.error("Failed to copy link");

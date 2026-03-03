@@ -51,7 +51,7 @@ const EditPostPage: React.FC<EditPostPageProps> = ({ params }) => {
     if (post) {
       setTitle(post.title || '');
       setContent(post.content);
-      setImageUrl(post.imageUrl || '');
+      setImageUrl(post.image || '');
     }
   }, [post]);
 
@@ -63,7 +63,7 @@ const EditPostPage: React.FC<EditPostPageProps> = ({ params }) => {
       const updatedPost: UpdatePostDto = {
         title,
         content,
-        imageUrl: imageUrl || null
+        image: imageUrl || null
       };
       await updatePost(postId, updatedPost);
       router.push(`/posts/${postId}`);
