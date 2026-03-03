@@ -62,7 +62,7 @@ export interface PostDto {
   userEmail: string; // Matches backend PostDto
   title: string;
   content: string;
-  imageUrl?: string;
+  image?: string;
   createdAt: string;
   updatedAt: string;
   likesCount: number; // Matches backend PostDto
@@ -85,7 +85,7 @@ export interface PostDto {
 export interface CreatePollDto {
   title: string;
   content: string;
-  imageUrl: string | null;
+  image: string | null;
   tagsJson: string[];
   isPoll: boolean;
   options: string[]; // Poll options
@@ -106,7 +106,7 @@ export interface CommentRequestDto {
 export interface UpdatePostDto {
   title: string;
   content: string;
-  imageUrl: string | null; // Can be null if not provided
+  image: string | null; // Can be null if not provided
 }
 
 export interface TagWithTotalCountDto {

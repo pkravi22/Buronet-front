@@ -7,22 +7,20 @@ import { CreatePostDto, UpdatePostDto, PostDto } from '@/lib/types/post';
 import LoadingSpinner from '@/components/UI/LoadingSpinner';
 import { useAuth } from '@/context/AuthContext';
 import { getProfileImageUrl } from '@/lib/helpers/profileImage';
-import { Rss, Image as ImageIcon, Briefcase, ChevronDown } from 'lucide-react'; // Import icons
+import { Image as ImageIcon } from 'lucide-react';
 import { useUserProfile } from '@/hooks/useUserProfile';
 
 interface CreatePostModalProps {
   isOpen: boolean;
   onClose: () => void;
   onPostCreated?: () => void;
-  onOpenCreatePoll?: () => void; // New prop to open the poll modal
 }
 
-const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onPostCreated, onOpenCreatePoll }) => {
+const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onPostCreated }) => {
   const { user, isLoading: authLoading } = useAuth();
-  const { userProfile, isLoading: isProfileLoading, isError: profileError } = useUserProfile();
+  const { userProfile } = useUserProfile();
   const [content, setContent] = useState('');
   const [title, setTitle] = useState('');
-  const [imageUrl, setImageUrl] = useState('');
   const [tagsInput, setTagsInput] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -32,14 +30,15 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onPo
   useEffect(() => {
     if (!isOpen) {
       setContent('');
-      setImageUrl('');
+      setTitle('');
       setTagsInput('');
       setError(null);
       setIsSubmitting(false);
       setPostImage(null);
+      if (preview) URL.revokeObjectURL(preview);
       setPreview(null);
     }
-  }, [isOpen]);
+  }, [isOpen, preview]);
 
   // Avoid leaking object URLs when user changes/removes the selected image.
   useEffect(() => {
@@ -88,20 +87,43 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onPo
     setPostImage(file);
   };
 
+  const handleRemoveImage = () => {
+    if (preview) URL.revokeObjectURL(preview);
+    setPreview(null);
+    setPostImage(null);
+    setError(null);
+    // Reset the file input
+    const fileInput = document.getElementById('profile-image-upload') as HTMLInputElement;
+    if (fileInput) fileInput.value = '';
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isSubmitting || authLoading || !user) return;
 
-    setIsSubmitting(true);
     setError(null);
+
+    // Validation: Title is mandatory
+    if (!title.trim()) {
+      setError('Title is required.');
+      return;
+    }
+
+    // Validation: Content is mandatory
+    if (!content.trim()) {
+      setError('Content is required.');
+      return;
+    }
+
+    setIsSubmitting(true);
 
     const tagsArray = tagsInput.split(',').map(tag => tag.trim()).filter(tag => tag !== '');
 
     try {
       // Step 1: Create the post first (without image)
       const newPost: CreatePostDto = {
-        title: title || content.substring(0, 50),
-        content,
+        title: title.trim(),
+        content: content.trim(),
         image: null,
         tagsJson: tagsArray,
         isPoll: false,
@@ -151,7 +173,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onPo
           const updateDto: UpdatePostDto = {
             title: createdPost.title,
             content: createdPost.content,
-            imageUrl: imageUrl,
+            image: imageUrl,
           };
 
           await put(`/posts/${createdPost.id}`, updateDto);
@@ -169,32 +191,30 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onPo
       setIsSubmitting(false);
     }
   };
-  const handleCreatePollClick = () => {
-    onClose(); // Close this modal
-    onOpenCreatePoll?.(); // Open the poll modal
-  };
 
   const closeModal = () => {
       setContent('');
-      setImageUrl('');
+      setTitle('');
       setTagsInput('');
       setError(null);
       setIsSubmitting(false);
+      setPostImage(null);
+      if (preview) URL.revokeObjectURL(preview);
+      setPreview(null);
       onClose();
   }
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50" onClick={handleOverlayClick}>
-      <div className="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-        <div className="relative transform overflow-hidden bg-white rounded-xl text-left shadow-2xl transition-all w-full max-w-lg sm:w-full flex flex-col h-[600px]">
+    <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-4" onClick={handleOverlayClick}>
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden">
         {/* Modal Header */}
-        <div className="px-6 py-4 border-b border-gray-200">
+        <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between shrink-0">
           <h2 className="text-xl font-semibold text-gray-900">Create a Post</h2>
           <button
             onClick={() => closeModal()}
-            className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 focus:outline-none"
+            className="text-gray-500 hover:text-gray-700 focus:outline-none"
             aria-label="Close modal"
           >
             <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -204,7 +224,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onPo
         </div>
 
         {/* User Info Section */}
-        <div className="flex items-center p-6 pb-2">
+        <div className="flex items-center px-6 py-4 border-b border-gray-100 shrink-0">
           <div className="w-12 h-12 shrink-0">
             <Image
               src={getProfileImageUrl(userProfile?.profilePictureUrl)}
@@ -215,45 +235,65 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onPo
             />
           </div>
           <div className="ml-3">
-            <h3 className="text-lg font-semibold text-gray-900">{userProfile?.firstName} {userProfile?.lastName}</h3>
-            <div className="flex items-center text-sm text-gray-500">
-              <span className="font-medium">{userProfile?.headline}</span>
-              {/* <ChevronDown size={16} className="ml-1" /> */}
-            </div>
+            <h3 className="text-base font-semibold text-gray-900">{userProfile?.firstName} {userProfile?.lastName}</h3>
+            <p className="text-sm text-gray-500">{userProfile?.headline}</p>
           </div>
         </div>
 
-        {/* Post Form - Main content area */}
-        <form onSubmit={handleSubmit} className="flex-1 flex flex-col p-6 pt-0">
+        {/* Post Form - Scrollable content area */}
+        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto flex flex-col">
+          <div className="px-6 py-4 space-y-4 flex-1">
            {/* Title Input */}
            <div>
              <label htmlFor="post-title" className="sr-only">Post Title</label>
+             <div className="flex items-center justify-between mb-1">
+               <span className="text-sm font-medium text-gray-700">Title</span>
+               <span className="text-xs text-red-500">*Required</span>
+             </div>
              <input
                id="post-title"
                type="text"
-               className="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 text-lg font-semibold"
+               className={`w-full p-3 border rounded-lg focus:ring-indigo-500 focus:border-indigo-500 text-lg font-semibold transition-colors ${
+                 title.trim() ? 'border-green-300 bg-green-50' : 'border-gray-300'
+               }`}
                placeholder="Title (e.g., 'Exciting New Project!')"
                value={title}
                onChange={(e) => setTitle(e.target.value)}
                required
                disabled={isSubmitting}
              />
+             {!title.trim() && (
+               <p className="text-xs text-red-500 mt-1">Title is required</p>
+             )}
            </div>
           {/* Content Textarea */}
-          <div className="flex-1 min-h-[150px]">
+          <div className="mt-4">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-sm font-medium text-gray-700">Content</span>
+              <span className="text-xs text-red-500">*Required</span>
+            </div>
             <textarea
-              className="w-full h-full p-2 text-lg border-none focus:ring-0 resize-none placeholder:text-gray-500"
+              className={`w-full h-32 p-2 border rounded-lg focus:ring-indigo-500 focus:border-indigo-500 resize-none placeholder:text-gray-500 transition-colors ${
+                content.trim() ? 'border-green-300 bg-green-50' : 'border-gray-300'
+              }`}
               placeholder="What do you want to talk about?"
               value={content}
               onChange={(e) => setContent(e.target.value)}
               required
               disabled={isSubmitting}
             ></textarea>
+            {!content.trim() && (
+              <p className="text-xs text-red-500 mt-1">Content is required</p>
+            )}
           </div>
           
           {/* Tags Input */}
           <div className="mt-4">
             <label htmlFor="post-tags" className="sr-only">Tags</label>
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-sm font-medium text-gray-700">Tags</span>
+              <span className="text-xs text-gray-500">Optional</span>
+            </div>
             <input
               id="post-tags"
               type="text"
@@ -267,25 +307,49 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onPo
 
           {/* Error Display */}
           {error && (
-            <p className="text-red-500 text-sm text-center mt-2">{error}</p>
+            <p className="text-red-500 text-sm text-center mt-2 bg-red-50 p-2 rounded">{error}</p>
           )}
 
-          {preview && (
-            <img
-              src={preview}
-              className="w-20 h-20 rounded-full object-cover"
-              alt="Preview"
-            />
-          )}
+          {/* Image Preview - Only 1 image allowed */}
+          <div className="mt-4">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium text-gray-700">Image</span>
+              <span className="text-xs text-gray-500">Optional</span>
+            </div>
+            {preview && (
+              <div className="relative w-fit">
+                <img
+                  src={preview}
+                  className="w-24 h-24 rounded-lg object-cover border border-gray-300"
+                  alt="Preview"
+                />
+                <button
+                  type="button"
+                  onClick={handleRemoveImage}
+                  className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 transition-colors shadow-md"
+                  title="Remove image"
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+                <p className="text-xs text-gray-500 mt-2">1 image selected (max 1 allowed)</p>
+              </div>
+            )}
+          </div>
 
           {/* Action Buttons Section */}
-          <div className="mt-auto pt-4 flex items-center justify-between border-t border-gray-200">
+          <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between shrink-0">
             {/* Left side icons */}
             <div className="flex items-center space-x-2">
               <label
                 htmlFor="profile-image-upload"
-                className="cursor-pointer p-2 rounded-full hover:bg-gray-100 text-gray-600 inline-flex items-center justify-center"
-                title="Add an image"
+                className={`cursor-pointer p-2 rounded-full inline-flex items-center justify-center transition-colors ${
+                  postImage 
+                    ? 'text-gray-300 cursor-not-allowed' 
+                    : 'text-gray-600 hover:bg-gray-100'
+                }`}
+                title={postImage ? "Only 1 image allowed" : "Add an image"}
               >
                 <ImageIcon size={20} />
               </label>
@@ -295,6 +359,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onPo
                 type="file"
                 accept="image/jpeg,image/png,image/webp,image/gif"
                 onChange={handleFileChange}
+                disabled={!!postImage}
                 className="hidden"
               />
               {/*<button
@@ -319,8 +384,8 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onPo
             {/* Submit Button */}
             <button
               type="submit"
-              className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-full transition-colors flex items-center justify-center"
-              disabled={isSubmitting || content.trim().length === 0}
+              className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-full transition-colors flex items-center justify-center disabled:bg-gray-400 disabled:cursor-not-allowed"
+              disabled={isSubmitting || !title.trim() || !content.trim()}
             >
               {isSubmitting ? (
                 <>
@@ -331,10 +396,10 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onPo
               )}
             </button>
           </div>
+          </div>
         </form>
       </div>
      </div>
-    </div>
   );
 };
 

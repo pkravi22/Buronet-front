@@ -508,10 +508,10 @@ const PostCard: React.FC<PostCardProps> = ({ post: initialPost, onPostUpdated, c
           ) : (
             <>
               <p className="mt-4 text-[#4B5563] text-base leading-6">{post.content}</p>
-              {post.imageUrl && (
+              {post.image && (
                 <div className="mt-6 bg-[#F9FAFB] rounded-lg p-2 sm:p-4">
                   <Image
-                    src={post.imageUrl}
+                    src={post.image}
                     alt={post.title}
                     width={560}
                     height={373}

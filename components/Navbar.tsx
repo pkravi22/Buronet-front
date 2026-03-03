@@ -100,9 +100,16 @@ const Navbar = ({ activeItem }: NavbarProps) => {
 
   return (
     <>
+      <style jsx>{`
+        @media (min-width: 1600px) {
+          nav.navbar-desktop {
+            zoom: 1 !important;
+          }
+        }
+      `}</style>
       {/* --- Desktop Sidebar (Visible on lg screens and up) --- */}
       <nav
-        className={`
+        className={`navbar-desktop
           hidden lg:block
           fixed top-[61px] ml-6 xl:w-[260px] lg-laptop:w-[20%] rounded-lg
           shadow-sm border border-[#E5E7EB] my-6

@@ -83,8 +83,27 @@ const CreateByteModal: React.FC<CreateByteModalProps> = ({ isOpen, onClose, onBy
     e.preventDefault();
     if (isSubmitting || authLoading || !user || !byteFile) return;
 
-    setIsSubmitting(true);
     setError(null);
+
+    // Validation: Title is mandatory
+    if (!title.trim()) {
+      setError('Title is required.');
+      return;
+    }
+
+    // Validation: Description is mandatory
+    if (!description.trim()) {
+      setError('Description is required.');
+      return;
+    }
+
+    // Validation: Video file is mandatory
+    if (!byteFile) {
+      setError('Video file is required.');
+      return;
+    }
+
+    setIsSubmitting(true);
 
     try {
       // Step 1: Get signed upload credentials from backend
@@ -123,8 +142,8 @@ const CreateByteModal: React.FC<CreateByteModalProps> = ({ isOpen, onClose, onBy
 
       // Step 3: Send the URLs to your backend
       const backendPayload = {
-        Title: title,
-        Description: description,
+        Title: title.trim(),
+        Description: description.trim(),
         MediaUrl: mediaUrl,
         ThumbnailUrl: thumbnailUrl,
         CreatorPic: getProfileImageUrl(userProfile?.profilePictureUrl),
@@ -154,7 +173,7 @@ const CreateByteModal: React.FC<CreateByteModalProps> = ({ isOpen, onClose, onBy
 
   const isUploadDisabled = () => {
     if (isSubmitting || authLoading || !user || !byteFile) return true;
-    if (title.trim().length === 0 || description.trim().length === 0) return true;
+    if (!title.trim() || !description.trim()) return true;
     if (videoDuration === null || videoDuration > MAX_VIDEO_DURATION) return true;
     if (byteFile.size > MAX_VIDEO_SIZE) return true;
     return false;
@@ -164,27 +183,26 @@ const CreateByteModal: React.FC<CreateByteModalProps> = ({ isOpen, onClose, onBy
 
   return (
     <div
-      className="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50"
+      className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-4"
       onClick={handleOverlayClick}
     >
-      <div className="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-        <div className="relative transform overflow-hidden bg-white rounded-xl text-left shadow-2xl transition-all w-full max-w-lg sm:w-full p-6">
-          <button
-            onClick={() => closeModal()}
-            className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 focus:outline-none"
-            aria-label="Close modal"
-          >
-            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        <h2 className="text-2xl font-bold text-gray-900 mb-6 border-b pb-3">Upload a Byte</h2>
-        {error && (
-          <p className="text-red-500 text-center mb-4 text-sm">{error}</p>
-        )}
-        <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden">
+        <button
+          onClick={() => closeModal()}
+          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 focus:outline-none"
+          aria-label="Close modal"
+        >
+          <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+        <h2 className="text-2xl font-bold text-gray-900 mb-6 border-b pb-3 px-6 pt-6 shrink-0">Upload a Byte</h2>
+        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto px-6 pb-6 space-y-4">
           <div>
-            <label htmlFor="byte-file" className="block text-sm font-medium text-gray-700">Video File</label>
+            <div className="flex items-center justify-between mb-2">
+              <label htmlFor="byte-file" className="block text-sm font-medium text-gray-700">Video File</label>
+              <span className="text-xs text-red-500">*Required</span>
+            </div>
             <input
               id="byte-file"
               type="file"
@@ -194,42 +212,66 @@ const CreateByteModal: React.FC<CreateByteModalProps> = ({ isOpen, onClose, onBy
               required
               disabled={isSubmitting}
             />
+            {!byteFile && (
+              <p className="text-xs text-red-500 mt-1">Video file is required</p>
+            )}
             {byteFile && (
-              <div className="mt-2 text-sm text-gray-600">
-                <p>Selected: {byteFile.name}</p>
-                <p>Size: {(byteFile.size / 1024 / 1024).toFixed(2)} MB / 10 MB</p>
-                {videoDuration && <p>Duration: {Math.round(videoDuration)}s / 30s</p>}
+              <div className="mt-2 text-sm text-green-600 bg-green-50 p-2 rounded">
+                <p>✓ Selected: {byteFile.name}</p>
+                <p>✓ Size: {(byteFile.size / 1024 / 1024).toFixed(2)} MB / 10 MB</p>
+                {videoDuration && <p>✓ Duration: {Math.round(videoDuration)}s / 30s</p>}
               </div>
             )}
           </div>
           <div>
-            <label htmlFor="byte-title" className="sr-only">Title</label>
+            <div className="flex items-center justify-between mb-2">
+              <label htmlFor="byte-title" className="sr-only">Title</label>
+              <span className="text-sm font-medium text-gray-700">Title</span>
+              <span className="text-xs text-red-500">*Required</span>
+            </div>
             <input
               id="byte-title"
               type="text"
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 text-lg font-semibold"
+              className={`w-full p-3 border rounded-lg focus:ring-indigo-500 focus:border-indigo-500 text-lg font-semibold transition-colors ${
+                title.trim() ? 'border-green-300 bg-green-50' : 'border-gray-300'
+              }`}
               placeholder="Title (e.g., 'My latest project in 60s!')"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               required
               disabled={isSubmitting}
             />
+            {!title.trim() && (
+              <p className="text-xs text-red-500 mt-1">Title is required</p>
+            )}
           </div>
           <div>
-            <label htmlFor="byte-description" className="sr-only">Description</label>
+            <div className="flex items-center justify-between mb-2">
+              <label htmlFor="byte-description" className="sr-only">Description</label>
+              <span className="text-sm font-medium text-gray-700">Description</span>
+              <span className="text-xs text-red-500">*Required</span>
+            </div>
             <textarea
               id="byte-description"
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 resize-y min-h-[100px]"
+              className={`w-full p-3 border rounded-lg focus:ring-indigo-500 focus:border-indigo-500 resize-y min-h-[100px] transition-colors ${
+                description.trim() ? 'border-green-300 bg-green-50' : 'border-gray-300'
+              }`}
               placeholder="What do you want to say about this byte?"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               required
               disabled={isSubmitting}
             ></textarea>
+            {!description.trim() && (
+              <p className="text-xs text-red-500 mt-1">Description is required</p>
+            )}
           </div>
+          {error && (
+            <p className="text-red-500 text-sm bg-red-50 p-2 rounded">{error}</p>
+          )}
           <button
             type="submit"
-            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg focus:outline-none focus:shadow-outline transition-colors flex items-center justify-center disabled:bg-indigo-400 disabled:cursor-not-allowed"
+            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg focus:outline-none focus:shadow-outline transition-colors flex items-center justify-center disabled:bg-gray-400 disabled:cursor-not-allowed"
             disabled={isUploadDisabled()}
           >
             {isSubmitting ? (
@@ -242,7 +284,6 @@ const CreateByteModal: React.FC<CreateByteModalProps> = ({ isOpen, onClose, onBy
           </button>
         </form>
       </div>
-     </div>
     </div>
   );
 };
