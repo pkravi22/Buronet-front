@@ -57,7 +57,7 @@ const CreatePollPage: React.FC = () => {
     const newPoll: CreatePollDto = {
       title,
       content,
-      imageUrl: imageUrl || null,
+      image: imageUrl || null,
       tagsJson: tags,
       options: filteredOptions,
       isPoll : true,
