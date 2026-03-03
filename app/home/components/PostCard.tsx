@@ -13,6 +13,10 @@ import { useRouter } from 'next/navigation';
 import { getProfileImageUrl } from '@/lib/helpers/profileImage';
 import { formatTimeAgo } from '@/lib/dates';
 
+type reportResponse = {
+  success: boolean;
+}
+
 // --- NEW COMPONENT FOR POLLS ---
 interface PollCardProps {
   poll: PostDto['poll'];
@@ -248,33 +252,21 @@ const PostCard: React.FC<PostCardProps> = ({ post: initialPost, onPostUpdated, c
     setIsReporting(true);
     try {
       // Use direct fetch to the Next.js API route instead of postApi which points to external backend
-      const response = await fetch('/api/report-post', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
+      const response:reportResponse = await postApi('/posts/report-post', {
           postId: post.id,
           postUrl,
           message: reportMessage,
           reporter: user
             ? { id: user.id, email: user.email, username: user.username }
-            : undefined,
-        }),
+            : undefined
       });
 
-      const data = await response.json();
-
-      if (!response.ok || !data?.ok) {
-        throw new Error(data?.error || 'Failed to send report');
+      if (!response.success) {
+        throw new Error('Failed to send report');
       }
 
       setShowReportModal(false);
       toast.success('Report sent. Thanks for helping keep Buronet safe.');
-
-      if (data?.previewUrl) {
-        console.log('Report email preview URL:', data.previewUrl);
-      }
     } catch (err: any) {
       console.error('Report failed:', err);
       toast.error(err?.message || 'Failed to send report');

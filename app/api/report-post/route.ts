@@ -54,8 +54,8 @@ export async function POST(req: Request) {
 
     const text = lines.join('\n');
 
-    const mailTo = process.env.REPORT_MAIL_TO || 'moderation@example.com';
-    const mailFrom = process.env.REPORT_MAIL_FROM || 'buronet-reports@example.com';
+    const mailTo = process.env.REPORT_MAIL_TO || 'admin@buronet.co.in';
+    const mailFrom = process.env.REPORT_MAIL_FROM || 'reporting.no-reply@buronet.co.in';
 
     const hasSmtpConfig = Boolean(
       process.env.REPORT_SMTP_HOST &&
