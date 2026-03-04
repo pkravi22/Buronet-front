@@ -12,6 +12,12 @@ import { MdFullscreen, MdFullscreenExit } from "react-icons/md";
 import { toast } from "react-hot-toast";
 import { useRouter } from 'next/navigation';
 import { getProfileImageUrl } from '@/lib/helpers/profileImage';
+import { useAuth } from '@/context/AuthContext';
+import { postApi } from '@/lib/api';
+
+type reportResponse = {
+  success: boolean;
+}
 
 // Add Modal Styled Component
 const ModalOverlay = styled.div`
@@ -279,6 +285,10 @@ const Video = ({
   const router = useRouter();
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [reportMessage, setReportMessage] = useState('');
+  const [isReporting, setIsReporting] = useState(false);
+  const { user } = useAuth();
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(link);
@@ -288,6 +298,36 @@ const Video = ({
   const handleShare = () => {
     navigator.clipboard.writeText(link);
     toast.success("Link copied to clipboard!");
+  };
+
+  const handleSubmitReport = async () => {
+    if (isReporting) return;
+    setIsReporting(true);
+    try {
+      const byteUrl = typeof window !== "undefined" ? `${window.location.origin}/bytes` : "/bytes";
+      
+      const response: reportResponse = await postApi('/posts/report-byte', {
+          postId: byte.id,
+          postUrl: byteUrl,
+          message: reportMessage,
+          reporter: user
+            ? { id: user.id, email: user.email, username: user.username }
+            : undefined,
+      });
+
+      if (!response.success) {
+        throw new Error('Failed to send report');
+      }
+
+      setIsReportModalOpen(false);
+      setReportMessage('');
+      toast.success('Report sent. Thanks for helping keep Buronet safe.');
+    } catch (err: any) {
+      console.error('Report failed:', err);
+      toast.error(err?.message || 'Failed to send report');
+    } finally {
+      setIsReporting(false);
+    }
   };
 
   // Custom SVG Icons
@@ -331,6 +371,21 @@ const Video = ({
       <circle cx="18" cy="19" r="3" />
       <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
       <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+    </svg>
+  );
+
+  const ReportIcon = () => (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M3 12a9 9 0 1 0 18 0 9 9 0 0 0-18 0" />
+      <path d="M12 8v4" />
+      <path d="M12 16h.01" />
     </svg>
   );
 
@@ -466,6 +521,13 @@ const Video = ({
             </button>
             <span>Share</span>
           </div>
+
+          <div>
+            <button onClick={() => setIsReportModalOpen(true)}>
+              <ReportIcon />
+            </button>
+            <span>Report</span>
+          </div>
         </div>
       </div>
     </VideoStyled>
@@ -482,6 +544,73 @@ const Video = ({
             <div className="link-box">
               <input readOnly value={link} />
               <button onClick={copyToClipboard}>Copy</button>
+            </div>
+          </ModalContent>
+        </ModalOverlay>
+      )}
+
+    {/* REPORT MODAL */}
+      {isReportModalOpen && (
+        <ModalOverlay onClick={() => setIsReportModalOpen(false)}>
+          <ModalContent onClick={(e) => e.stopPropagation()}>
+            <IoMdClose 
+              className="close-btn" 
+              size={24} 
+              onClick={() => setIsReportModalOpen(false)} 
+            />
+            <h3>Report Byte</h3>
+            <p style={{ fontSize: '0.85rem', color: '#6b7280', marginBottom: '1rem' }}>
+              This will email our moderators with the byte link automatically.
+            </p>
+            <textarea
+              value={reportMessage}
+              onChange={(e) => setReportMessage(e.target.value)}
+              placeholder="Add details (what's wrong with this byte?)"
+              style={{
+                width: '100%',
+                minHeight: '100px',
+                padding: '0.75rem',
+                border: '1px solid #d1d5db',
+                borderRadius: '0.5rem',
+                fontSize: '0.85rem',
+                fontFamily: 'inherit',
+                marginBottom: '1rem',
+                resize: 'vertical',
+              }}
+              disabled={isReporting}
+            />
+            <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
+              <button
+                onClick={() => setIsReportModalOpen(false)}
+                style={{
+                  padding: '0.5rem 1rem',
+                  backgroundColor: '#f3f4f6',
+                  color: '#374151',
+                  border: 'none',
+                  borderRadius: '0.5rem',
+                  cursor: 'pointer',
+                  fontSize: '0.85rem',
+                }}
+                disabled={isReporting}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSubmitReport}
+                style={{
+                  padding: '0.5rem 1rem',
+                  backgroundColor: 'rgb(var(--primary-color))',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '0.5rem',
+                  cursor: isReporting ? 'not-allowed' : 'pointer',
+                  fontSize: '0.85rem',
+                  opacity: isReporting ? 0.6 : 1,
+                }}
+                disabled={isReporting}
+              >
+                {isReporting ? 'Sending...' : 'Send Report'}
+              </button>
             </div>
           </ModalContent>
         </ModalOverlay>
