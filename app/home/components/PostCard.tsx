@@ -7,7 +7,7 @@ import { PostDto, CommentDto, CommentRequestDto, PollOptionDto, LikeDto } from '
 import { postApi } from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
-import { useUserProfile } from '@/hooks/useUserProfile';
+
 import { toast } from "react-hot-toast";
 import { useRouter } from 'next/navigation';
 import { getProfileImageUrl } from '@/lib/helpers/profileImage';
@@ -16,66 +16,6 @@ import { formatTimeAgo } from '@/lib/dates';
 type reportResponse = {
   success: boolean;
 }
-
-// --- NEW COMPONENT FOR POLLS ---
-interface PollCardProps {
-  poll: PostDto['poll'];
-  isPostOwner: boolean;
-  onVote: (optionId: number) => Promise<void>;
-  isVoting: boolean;
-  userHasVoted: boolean;
-  content: string;
-  user: any; // User object from AuthContext
-}
-
-const PollCard: React.FC<PollCardProps> = ({ poll, isPostOwner, onVote, isVoting, userHasVoted, content }) => {
-  if (!poll) return null;
-
-  return (
-    <div className="mt-4 space-y-3">
-      <p className="text-[#4B5563] text-base leading-6">
-        {content}
-      </p>
-      <div className="space-y-2 mt-4">
-        {poll.options.map((option) => {
-          const hasVoted = option.hasVoted;
-          const showResults = poll.totalVotes > 0 && (hasVoted || isPostOwner);
-          const percentage = showResults && poll.totalVotes > 0 ? (option.votes / poll.totalVotes) * 100 : 0;
-
-          return (
-            <div key={option.id} className="relative rounded-lg overflow-hidden">
-              <button
-                onClick={() => onVote(option.id)}
-                className={`w-full p-4 border rounded-lg text-sm text-left transition-colors duration-200
-                  ${hasVoted ? 'bg-blue-100 border-blue-400 text-blue-800 font-semibold' :
-                    'bg-gray-50 border-gray-300 text-gray-800 hover:bg-gray-100'}
-                  ${isVoting || hasVoted || userHasVoted ? 'cursor-not-allowed' : ''}`}
-                disabled={isVoting || hasVoted || userHasVoted}
-              >
-                <div 
-                  className="absolute inset-y-0 left-0 bg-blue-200 transition-width duration-500"
-                  style={{ width: `${percentage}%` }}
-                ></div>
-                <div className="relative z-10 flex justify-between items-center">
-                  <span>{option.text}</span>
-                  {showResults && (
-                    <span className={`${hasVoted ? 'text-blue-800' : 'text-gray-700'} font-semibold ml-2`}>
-                      {option.votes} ({percentage.toFixed(0)}%)
-                    </span>
-                  )}
-                </div>
-              </button>
-            </div>
-          );
-        })}
-      </div>
-      {poll.totalVotes > 0 && (
-        <p className="text-sm text-gray-500 mt-2 text-right">{poll.totalVotes} total votes</p>
-      )}
-    </div>
-  );
-};
-// --- END NEW COMPONENT ---
 
 interface PostCardProps {
   post: PostDto;
@@ -87,7 +27,6 @@ interface PostCardProps {
 
 const PostCard: React.FC<PostCardProps> = ({ post: initialPost, onPostUpdated, currentUserId, onDelete, hideOpenAction }) => {
   const { user } = useAuth();
-  const { userProfile } = useUserProfile();
   const [post, setPost] = useState<PostDto>(initialPost);
   const [commentInput, setCommentInput] = useState('');
   const [showCommentInput, setShowCommentInput] = useState(false);
@@ -200,7 +139,7 @@ const PostCard: React.FC<PostCardProps> = ({ post: initialPost, onPostUpdated, c
         const updatedOptions = prevPost.poll.options.map(option =>
           option.id === updatedOption.id
             ? { ...option, hasVoted: true, votes: option.votes + 1 }
-            : option
+            : { ...option, hasVoted: false }
         );
         const totalVotes = prevPost.poll.totalVotes + 1;
 
@@ -303,7 +242,6 @@ const PostCard: React.FC<PostCardProps> = ({ post: initialPost, onPostUpdated, c
   }, [showMenu]);
 
   const isPostOwner = currentUserId === post.userId;
-  const userHasVoted = post.isPoll && post.poll?.options.some(opt => opt.hasVoted);
 
   console.log("post on post card:", post);
 
@@ -463,13 +401,10 @@ const PostCard: React.FC<PostCardProps> = ({ post: initialPost, onPostUpdated, c
           {post.isPoll && post.poll ? (
             <div className="mt-4 space-y-3">
               <p className="text-[#4B5563] text-base leading-6">{post.content}</p>
-              {post.poll.options.map((option, index) => {
-                
+              {post.poll.options.map((option) => {
                 const hasVoted = option.hasVoted;
                 const showResults = post.poll!.totalVotes > 0 && (hasVoted || isPostOwner);
                 const percentage = showResults ? (option.votes / post.poll!.totalVotes) * 100 : 0;
-                console.log("showResults: ", showResults)
-                console.log("percentage: ", percentage)
                 return (
                   <div key={option.id} className="relative">
                     <button
@@ -565,8 +500,8 @@ const PostCard: React.FC<PostCardProps> = ({ post: initialPost, onPostUpdated, c
 
         {post.tags && post.tags.length > 0 && (
           <div className="mt-6 flex flex-wrap gap-2">
-            {post.tags.map((tag, index) => (
-              <span key={index} className="bg-[#F3F4F6] text-[#4B5563] text-sm px-3 py-1 rounded-lg">
+            {post.tags.map((tag) => (
+              <span key={tag} className="bg-[#F3F4F6] text-[#4B5563] text-sm px-3 py-1 rounded-lg">
                 #{tag}
               </span>
             ))}

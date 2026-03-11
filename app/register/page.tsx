@@ -68,6 +68,12 @@ const RegisterPage: React.FC = () => {
     return result.isValid ? null : result.errorMessage ?? null;
   }, [password]);
 
+  const usernameError = useMemo(() => {
+    if (!username) return null;
+    if (username.length > 20) return 'Username must not exceed 20 characters.';
+    return null;
+  }, [username]);
+
   const emailError = useMemo(() => {
     const normalizedEmail = email.trim();
     if (!normalizedEmail) return null;
@@ -124,12 +130,16 @@ const RegisterPage: React.FC = () => {
                 name="username"
                 type="text"
                 value={username}
-                onChange={e => setUsername(e.target.value)}
+                onChange={e => setUsername(e.target.value.slice(0, 20))}
+                maxLength={20}
                 autoComplete="username" // Use 'username' for username field
                 required
                 className="appearance-none rounded-t-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                 placeholder="Username"
               />
+              {usernameError && (
+                <p className="text-xs text-red-500 mt-1">{usernameError}</p>
+              )}
             </div>
             {/* Email Input */}
             <div className='mb-4'> {/* Each input div now manages its own bottom margin */}
@@ -218,7 +228,7 @@ const RegisterPage: React.FC = () => {
             <button
               type="submit"
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              disabled={isLoading || !!emailError || !!passwordError} // Disable button when invalid/loading
+              disabled={isLoading || !!emailError || !!passwordError || !!usernameError} // Disable button when invalid/loading
             >
               <span className="absolute left-0 inset-y-0 flex items-center pl-3">
                 {/* Lock icon */}

@@ -391,9 +391,9 @@ const CreatePollModal: React.FC<CreatePollModalProps> = ({ isOpen, onClose, onPo
                 rows={2}
                 disabled={isSubmitting}
               ></textarea>
-              {!content.trim() && (
+              {/* {!content.trim() && (
                 <p className="text-xs text-red-500 mt-1">Poll question is required</p>
-              )}
+              )} */}
             </div>
           </div>
 
@@ -428,9 +428,9 @@ const CreatePollModal: React.FC<CreatePollModalProps> = ({ isOpen, onClose, onPo
                 )}
               </div>
             ))}
-            {options.filter(o => o.trim()).length < 2 && (
+            {/* {options.filter(o => o.trim()).length < 2 && (
               <p className="text-xs text-red-500 mb-2">At least 2 options are required</p>
-            )}
+            )} */}
             {options.length < 4 && (
               <button
                 type="button"

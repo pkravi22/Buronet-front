@@ -269,7 +269,7 @@ const setSidebarRef = (node: HTMLDivElement | null) => {
   };
 
   return (
-  <aside className="block pb-20 laptop:pb-0 xl:w-[260px] laptop:w-[20%] mr-6 ml-6 laptop:ml-0 shrink-0">
+  <aside className="block pb-20 laptop:pb-0 xl:w-[260px] laptop:w-[100%] mr-6 ml-6 laptop:ml-0 shrink-0">
     <div
       ref={setSidebarRef}
       className="sticky top-[80px] max-h-[calc(100vh-100px)] overflow-y-auto scrollbar-hide"

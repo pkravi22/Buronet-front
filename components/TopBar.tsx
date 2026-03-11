@@ -12,6 +12,7 @@ import { SearchItemType, UnifiedSearchResultItem, SearchResultDto } from '@/lib/
 import { useSearch } from '@/hooks/useSearch';
 import { RiComputerFill } from 'react-icons/ri';
 import { useUserProfile } from '@/hooks/useUserProfile';
+import { getProfileImageUrl } from '@/lib/helpers/profileImage';
 
 const setItemLink = (results: SearchResultDto) => {
   results.results.forEach((item) => {
@@ -332,7 +333,7 @@ const TopBar = () => {
                   >
                     {userProfile?.profilePictureUrl ? (
                       <img
-                        src={userProfile.profilePictureUrl}
+                        src={getProfileImageUrl(userProfile.profilePictureUrl)}
                         alt="Profile"
                         className="w-[25px] h-[25px] rounded-full object-cover"
                       />
@@ -355,7 +356,7 @@ const TopBar = () => {
                         <div className="flex items-center gap-3">
                           {userProfile?.profilePictureUrl ? (
                             <img
-                              src={userProfile.profilePictureUrl}
+                              src={getProfileImageUrl(userProfile.profilePictureUrl)}
                               alt="Profile"
                               className="w-10 h-10 rounded-full object-cover"
                             />

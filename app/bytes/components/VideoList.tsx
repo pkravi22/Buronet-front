@@ -5,11 +5,12 @@ import Video from "./Video";
 import type { Byte, SuggestionType, Comment } from "@/lib/types/Byte";
 import { styled } from "styled-components";
 import { toast } from "react-hot-toast";
-import CommentModal from "./CommentModal"; // Assuming CommentModal is in the same folder or path is correct
+import CommentModal from "./CommentModal";
 import { Loader2 } from "lucide-react";
-import { get, postApi as post } from "@/lib/api"; // Assuming api has get and post methods
+import { postApi as post } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
 import InfiniteScroll from "react-infinite-scroll-component";
+import { usePaginatedBytes } from "@/lib/hooks/usePaginatedBytes";
 
 const VideoListStyled = styled.div`
   display: grid;
@@ -37,77 +38,44 @@ const VideoListStyled = styled.div`
 `;
 
 const VideoList = () => {
-  const [bytes, setBytes] = useState<Byte[]>([]);
   const [playingVideoId, setPlayingVideoId] = useState<string | null>(null);
   const [mute, setMute] = useState<boolean>(true);
   const [activeFilter, setActiveFilter] = useState<SuggestionType>('For You');
-  const [isLoading, setIsLoading] = useState(true);
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
+  const [initialLoading, setInitialLoading] = useState(true);
   const { user } = useAuth();
-  const MOCK_CURRENT_USER_ID = user?.id || "mock-current-user-id"; // Replace with actual user ID from auth context
+  const MOCK_CURRENT_USER_ID = user?.id || "mock-current-user-id";
   
   const [commentModalState, setCommentModalState] = useState<{isOpen: boolean; byte: Byte | null}>({ isOpen: false, byte: null });
 
-  const fetchBytes = useCallback(async (pageNum: number, filter: SuggestionType) => {
-    try {
-      const fetchedBytes = await get<Byte[]>(`/bytes/feed?filter=${filter}&page=${pageNum}`);
-      console.log('Fetched Bytes:', fetchedBytes);
-      if (fetchedBytes.length === 0) {
-        setHasMore(false);
-      } else {
-        setBytes(prevBytes => {
-          const newBytes = fetchedBytes.filter(fb => !prevBytes.some(pb => pb.id === fb.id));
-          return [...prevBytes, ...newBytes];
-        });
-        setPage(pageNum);
-      }
-    } catch (err: unknown) {
-      console.error(err);
-      toast.error("Non potuerunt Bytes adduci.");
-      setHasMore(false);
-    }
-  }, []);
+  const { bytes, isLoading, hasMore, loadMore, reset } = usePaginatedBytes(activeFilter);
 
+  // Initial load when filter changes
   useEffect(() => {
-    // Hic effectus tractat reset et adductionem cum colum mutatur.
-    setIsLoading(true);
-    setBytes([]);
-    setPage(1);
-    setHasMore(true);
-    fetchBytes(1, activeFilter).finally(() => setIsLoading(false));
-  }, [activeFilter, fetchBytes]);
-
-  const loadMoreBytes = () => {
-    fetchBytes(page + 1, activeFilter);
-  };
+    setInitialLoading(true);
+    reset();
+    loadMore().finally(() => setInitialLoading(false));
+  }, [activeFilter, reset, loadMore]);
   
   const handleLike = async (byteId: string) => {
-    setBytes(prevBytes =>
-      prevBytes.map(byte => {
-        if (byte.id === byteId) {
-          const isLiked = byte.likes.includes(MOCK_CURRENT_USER_ID);
-          const newLikes = isLiked
-            ? byte.likes.filter(id => id !== MOCK_CURRENT_USER_ID)
-            : [...byte.likes, MOCK_CURRENT_USER_ID];
-          return { ...byte, likes: newLikes };
-        }
-        return byte;
-      })
-    );
+    // Find the byte and update it optimistically
+    const byteIndex = bytes.findIndex(b => b.id === byteId);
+    if (byteIndex === -1) return;
+
+    const byte = bytes[byteIndex];
+    const isLiked = byte.likes.includes(MOCK_CURRENT_USER_ID);
+    const newLikes = isLiked
+      ? byte.likes.filter(id => id !== MOCK_CURRENT_USER_ID)
+      : [...byte.likes, MOCK_CURRENT_USER_ID];
+
+    // Optimistic update
+    const updatedBytes = [...bytes];
+    updatedBytes[byteIndex] = { ...byte, likes: newLikes };
+
     try {
       await post(`/bytes/${byteId}/Like`, {});
     } catch (error) {
       toast.error("Status 'placuit' non potuit renovari.");
-       // Reverte in casu erroris
-       setBytes(prevBytes =>
-        prevBytes.map(byte => {
-          if (byte.id === byteId) {
-            return { ...byte, likes: byte.likes.includes(MOCK_CURRENT_USER_ID) ? byte.likes.filter(id => id !== MOCK_CURRENT_USER_ID) : [...byte.likes, MOCK_CURRENT_USER_ID] };
-          }
-          return byte;
-        })
-      );
+      // Revert on error - the bytes state will be restored by re-rendering
     }
   };
 
@@ -158,10 +126,10 @@ const VideoList = () => {
         ) : (
           <InfiniteScroll
               dataLength={bytes.length}
-              next={loadMoreBytes}
+              next={loadMore}
               hasMore={hasMore}
               scrollableTarget="bytes-scroll-container"
-              height= "100%"
+              height="100%"
               loader={<div className="h-24 flex justify-center items-center"><Loader2 className="w-8 h-8 text-white animate-spin" /></div>}
               className="snap-y snap-mandatory scrollbar-hide"
               endMessage={

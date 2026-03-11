@@ -6,7 +6,6 @@ import {
   IoMdPlay,
   IoMdVolumeHigh,
   IoMdVolumeOff,
-  IoMdClose,
 } from "react-icons/io";
 import { MdFullscreen, MdFullscreenExit } from "react-icons/md";
 import { toast } from "react-hot-toast";
@@ -18,63 +17,6 @@ import { postApi } from '@/lib/api';
 type reportResponse = {
   success: boolean;
 }
-
-// Add Modal Styled Component
-const ModalOverlay = styled.div`
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.7);
-  display: grid;
-  place-items: center;
-  z-index: 9999;
-  padding: 1rem;
-`;
-
-const ModalContent = styled.div`
-  background: white;
-  padding: 2rem;
-  border-radius: 1rem;
-  width: 100%;
-  max-width: 400px;
-  position: relative;
-  color: black;
-
-  h3 { margin-bottom: 1rem; font-weight: bold; }
-  
-  .link-box {
-    display: flex;
-    gap: 0.5rem;
-    background: #f3f4f6;
-    padding: 0.5rem;
-    border-radius: 0.5rem;
-    border: 1px solid #e5e7eb;
-    
-    input {
-      flex: 1;
-      background: transparent;
-      border: none;
-      outline: none;
-      font-size: 0.85rem;
-      color: #374151;
-    }
-
-    button {
-      background: rgb(var(--primary-color));
-      color: white;
-      padding: 0.25rem 0.75rem;
-      border-radius: 0.25rem;
-      font-size: 0.8rem;
-    }
-  }
-
-  .close-btn {
-    position: absolute;
-    top: 0.75rem;
-    right: 0.75rem;
-    cursor: pointer;
-    color: #6b7280;
-  }
-`;
 
 const VideoStyled = styled.div`
   display: flex;
@@ -293,11 +235,6 @@ const Video = ({
   const copyToClipboard = () => {
     navigator.clipboard.writeText(link);
     toast.success("Link copied!");
-  };
-
-  const handleShare = () => {
-    navigator.clipboard.writeText(link);
-    toast.success("Link copied to clipboard!");
   };
 
   const handleSubmitReport = async () => {
@@ -533,87 +470,111 @@ const Video = ({
     </VideoStyled>
     {/* SHARE MODAL */}
       {isShareModalOpen && (
-        <ModalOverlay onClick={() => setIsShareModalOpen(false)}>
-          <ModalContent onClick={(e) => e.stopPropagation()}>
-            <IoMdClose 
-              className="close-btn" 
-              size={24} 
-              onClick={() => setIsShareModalOpen(false)} 
-            />
-            <h3>Share this Byte</h3>
-            <div className="link-box">
-              <input readOnly value={link} />
-              <button onClick={copyToClipboard}>Copy</button>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setIsShareModalOpen(false);
+          }}
+        >
+          <div className="bg-white w-full max-w-lg rounded-xl shadow-2xl overflow-hidden">
+            <div className="px-6 py-4 border-b flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-gray-900">Share this Byte</h3>
+              <button
+                onClick={() => setIsShareModalOpen(false)}
+                className="p-2 rounded hover:bg-gray-100 text-gray-600"
+                aria-label="Close share modal"
+              >
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
             </div>
-          </ModalContent>
-        </ModalOverlay>
+
+            <div className="px-6 py-4 space-y-3">
+              <div className="flex items-center gap-2 bg-gray-100 rounded-lg p-2">
+                <input
+                  type="text"
+                  readOnly
+                  value={link}
+                  className="flex-1 bg-transparent text-sm text-gray-700 outline-none"
+                />
+                <button
+                  onClick={copyToClipboard}
+                  className="text-sm font-medium text-blue-600 hover:text-blue-700 px-3 py-1"
+                >
+                  Copy
+                </button>
+              </div>
+            </div>
+
+            <div className="px-6 py-4 border-t flex items-center justify-end">
+              <button
+                type="button"
+                onClick={() => setIsShareModalOpen(false)}
+                className="text-sm text-gray-500 hover:text-gray-700"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
     {/* REPORT MODAL */}
       {isReportModalOpen && (
-        <ModalOverlay onClick={() => setIsReportModalOpen(false)}>
-          <ModalContent onClick={(e) => e.stopPropagation()}>
-            <IoMdClose 
-              className="close-btn" 
-              size={24} 
-              onClick={() => setIsReportModalOpen(false)} 
-            />
-            <h3>Report Byte</h3>
-            <p style={{ fontSize: '0.85rem', color: '#6b7280', marginBottom: '1rem' }}>
-              This will email our moderators with the byte link automatically.
-            </p>
-            <textarea
-              value={reportMessage}
-              onChange={(e) => setReportMessage(e.target.value)}
-              placeholder="Add details (what's wrong with this byte?)"
-              style={{
-                width: '100%',
-                minHeight: '100px',
-                padding: '0.75rem',
-                border: '1px solid #d1d5db',
-                borderRadius: '0.5rem',
-                fontSize: '0.85rem',
-                fontFamily: 'inherit',
-                marginBottom: '1rem',
-                resize: 'vertical',
-              }}
-              disabled={isReporting}
-            />
-            <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setIsReportModalOpen(false);
+          }}
+        >
+          <div className="bg-white w-full max-w-lg rounded-xl shadow-2xl overflow-hidden">
+            <div className="px-6 py-4 border-b flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-gray-900">Report Byte</h3>
               <button
                 onClick={() => setIsReportModalOpen(false)}
-                style={{
-                  padding: '0.5rem 1rem',
-                  backgroundColor: '#f3f4f6',
-                  color: '#374151',
-                  border: 'none',
-                  borderRadius: '0.5rem',
-                  cursor: 'pointer',
-                  fontSize: '0.85rem',
-                }}
+                className="p-2 rounded hover:bg-gray-100 text-gray-600"
+                aria-label="Close report modal"
+              >
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="px-6 py-4 space-y-3">
+              <p className="text-sm text-gray-600">
+                This will email our moderators with the byte link automatically.
+              </p>
+              <textarea
+                value={reportMessage}
+                onChange={(e) => setReportMessage(e.target.value)}
+                className="w-full text-black bg-transparent min-h-[120px] border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Add details (what's wrong with this byte?)"
+                disabled={isReporting}
+              />
+            </div>
+
+            <div className="px-6 py-4 border-t flex items-center justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setIsReportModalOpen(false)}
+                className="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700"
                 disabled={isReporting}
               >
                 Cancel
               </button>
               <button
+                type="button"
                 onClick={handleSubmitReport}
-                style={{
-                  padding: '0.5rem 1rem',
-                  backgroundColor: 'rgb(var(--primary-color))',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '0.5rem',
-                  cursor: isReporting ? 'not-allowed' : 'pointer',
-                  fontSize: '0.85rem',
-                  opacity: isReporting ? 0.6 : 1,
-                }}
+                className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-60"
                 disabled={isReporting}
               >
-                {isReporting ? 'Sending...' : 'Send Report'}
+                {isReporting ? 'Sending…' : 'Send Report'}
               </button>
             </div>
-          </ModalContent>
-        </ModalOverlay>
+          </div>
+        </div>
       )}
     </>
   );

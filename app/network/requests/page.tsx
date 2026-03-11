@@ -1,6 +1,6 @@
 "use client";
 
-import { User, Check, X, ArrowLeft, Clock, Settings, UserCheck, ShieldAlert, Send, Users } from 'lucide-react';
+import { User, ArrowLeft, Clock, UserCheck, Send, Users } from 'lucide-react';
 import { useConnections } from '@/hooks/useConnections';
 import LoadingSpinner from '@/components/UI/LoadingSpinner';
 import { AlertModal } from '@/components/AlertModal';
@@ -10,6 +10,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { get } from '@/lib/api';
 import { ConnectionDto } from '@/lib/types/connections';
+import { getProfileImageUrl } from '@/lib/helpers/profileImage';
 
 const RequestsPage = () => {
   const searchParams = useSearchParams();
@@ -184,9 +185,11 @@ const RequestsPage = () => {
                           </div>
                           
                           <div className="flex flex-col">
-                            <span className="font-bold text-gray-900 text-lg hover:underline cursor-pointer">
-                              {request.sender?.firstName} {request.sender?.lastName}
-                            </span>
+                            <Link href={`/profile/${request.sender?.id}`}>
+                              <span className="font-bold text-gray-900 text-lg hover:underline cursor-pointer">
+                                {request.sender?.firstName} {request.sender?.lastName}
+                              </span>
+                            </Link>
                             <span className="text-gray-600 text-sm max-w-[400px] leading-relaxed">
                               {request.sender?.headline || "No headline provided"}
                             </span>
@@ -262,9 +265,11 @@ const RequestsPage = () => {
                           </div>
                           
                           <div className="flex flex-col">
-                            <span className="font-bold text-gray-900 text-lg hover:underline cursor-pointer">
-                              {request.receiver?.firstName} {request.receiver?.lastName}
-                            </span>
+                            <Link href={`/profile/${request.receiver?.id}`}>
+                              <span className="font-bold text-gray-900 text-lg hover:underline cursor-pointer">
+                                {request.receiver?.firstName} {request.receiver?.lastName}
+                              </span>
+                            </Link>
                             <span className="text-gray-600 text-sm max-w-[400px] leading-relaxed">
                               {request.receiver?.headline || "No headline provided"}
                             </span>
@@ -315,7 +320,7 @@ const RequestsPage = () => {
                           <Link href={`/profile/${connection.connectedUserId}`}>
                             <div className="w-16 h-16 bg-gradient-to-br from-blue-50 to-blue-100 rounded-full flex items-center justify-center shrink-0 border border-blue-200 shadow-inner group-hover:scale-105 transition-transform overflow-hidden">
                                 {connection.connectedUserProfilePictureUrl ? (
-                                    <img src={connection.connectedUserProfilePictureUrl} alt="" className="w-full h-full object-cover" />
+                                    <img src={getProfileImageUrl(connection.connectedUserProfilePictureUrl)} alt="" className="w-full h-full object-cover" />
                                 ) : (
                                     <User size={32} className="text-blue-500" />
                                 )}

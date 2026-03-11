@@ -262,9 +262,9 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onPo
                required
                disabled={isSubmitting}
              />
-             {!title.trim() && (
+             {/* {!title.trim() && (
                <p className="text-xs text-red-500 mt-1">Title is required</p>
-             )}
+             )} */}
            </div>
           {/* Content Textarea */}
           <div className="mt-4">
@@ -282,9 +282,9 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onPo
               required
               disabled={isSubmitting}
             ></textarea>
-            {!content.trim() && (
+            {/* {!content.trim() && (
               <p className="text-xs text-red-500 mt-1">Content is required</p>
-            )}
+            )} */}
           </div>
           
           {/* Tags Input */}
