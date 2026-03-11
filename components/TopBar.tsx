@@ -376,6 +376,12 @@ const TopBar = () => {
                           <FiUser size={16} />
                           <span>Profile</span>
                         </Link>
+                        {user?.isAdmin && (
+                          <Link href="/admin" className="w-full px-4 py-2 text-left text-[#1F2937] hover:bg-gray-50 flex items-center gap-2" onClick={() => router.push('/admin')}>
+                            <FiSettings size={16} />
+                            <span>Admin Panel</span>
+                          </Link>
+                        )}
                         {/* <button className="w-full px-4 py-2 text-left text-[#1F2937] hover:bg-gray-50 flex items-center gap-2">
                           <FiSettings size={16} />
                           <span>Settings</span>
