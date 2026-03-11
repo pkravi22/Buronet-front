@@ -18,7 +18,7 @@ const MessagingPage = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#EEF0F4]">
+    <div className="h-screen ultra:h-[75vh] xl-ultra:h-[55vh] bg-[#EEF0F4]">
           <MessagingIconNavbar />
           <MainContent />
           <div className="block laptop:hidden">

@@ -22,8 +22,14 @@ const RegisterPage: React.FC = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isMounted, setIsMounted] = useState(false); // Track hydration
   const { register, user, isLoading, error: authError } = useAuth();
   const router = useRouter();
+
+  // Prevent hydration mismatch by only rendering after client-side hydration
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   // Handles the form submission for registration
   // const handleSubmit = async (e: React.FormEvent) => {
@@ -79,7 +85,7 @@ const RegisterPage: React.FC = () => {
   }, [email]);
 
   // Show a loading spinner when registration is in progress
-  if (isLoading) {
+  if (!isMounted || isLoading) {
     return (
       // Removed AppLayout as per typical auth page design.
       <div className="flex justify-center items-center min-h-screen bg-gray-100">

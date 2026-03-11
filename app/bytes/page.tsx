@@ -1,9 +1,9 @@
 "use client";
 
-import Navbar from '../../components/Navbar';
 import TopBar from '../../components/TopBar';
 import MainContent from './components/MainContent';
 import VideoList from './components/VideoList';
+import MessagingIconNavbar from '../messaging/components/MessagingIconNavbar';
 import { createGlobalStyle } from "styled-components";
 
 const GlobalStyle = createGlobalStyle`
@@ -75,24 +75,14 @@ const GlobalStyle = createGlobalStyle`
 
 const BytesPage = () => {
   return (
-    <div className="h-screen flex flex-col bg-[#EEF0F4] overflow-hidden">
-  <TopBar />
-
-  <div className="flex flex-1 overflow-hidden">
-    {/* Left spacer (desktop only) */}
-    <div className="hidden lg:block w-[245px] shrink-0" />
-
-    <Navbar activeItem="Bytes" />
-
-    {/* MAIN SCROLL AREA */}
-    <main className="flex-1 overflow-hidden mt-[61px] h-[calc(100vh-61px-2rem)]">
-      <GlobalStyle />
-      <VideoList />
-      <div className="lg:hidden h-24" />
-    </main>
-  </div>
-</div>
-
+    <div className="h-screen ultra:h-[calc((100vh/1.25) + 61px)] flex flex-col bg-[#EEF0F4] overflow-hidden">
+      <TopBar />
+      <MessagingIconNavbar />
+      <main className="mt-[61px]">
+        <GlobalStyle />
+        <VideoList />
+      </main>
+    </div>
   );
 };
 

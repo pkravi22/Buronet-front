@@ -12,9 +12,15 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false); // New local loading state
+  const [isMounted, setIsMounted] = useState(false); // Track hydration
   // Get state and methods from AuthContext
   const { login, user, isLoading, error: authError } = useAuth(); // <--- Get login, user, isLoading, error from useAuth
   const router = useRouter();
+
+  // Prevent hydration mismatch by only rendering after client-side hydration
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   // Redirect if already logged in (using useAuth's state)
   // ... (keep useEffect commented or logic as is)
@@ -32,7 +38,7 @@ export default function LoginPage() {
         // The AuthRedirectHandler will now take over on /profile.
         if (success) {
             // Optional: Get returnTo from query params, otherwise default to /profile
-            const returnTo = new URLSearchParams(window.location.search).get('returnTo') || '/profile';
+            const returnTo = new URLSearchParams(window.location.search).get('returnTo') || '/home';
             router.push(returnTo); 
         }
     };
@@ -40,7 +46,7 @@ export default function LoginPage() {
   // Show loading state ONLY if AuthContext is initializing (checking session)
   // We assume if isLoading is true AND we are not submitting locally, it's the initial check.
   // Note: AuthContext.isLoading is now ONLY true during initialization (fetchCurrentUser), not during login().
-  if (isLoading) {
+  if (!isMounted || isLoading) {
     return (
       <div className="bg-gray-100 min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full space-y-8 bg-white rounded-lg shadow-lg p-8">

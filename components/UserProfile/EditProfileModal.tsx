@@ -20,7 +20,8 @@ type UploadImageResponse = {
 }
 
 type UserProfileFormData = Omit<UpdateUserProfileDto, 'dateOfBirth'> & {
-  dateOfBirth: string; 
+  dateOfBirth: string;
+  username?: string;
 };
 
 const EditProfileModal: React.FC<EditProfileModalProps> = ({ userProfile, onClose, onSuccess }) => {
@@ -39,6 +40,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ userProfile, onClos
     stateProvince: userProfile.stateProvince || '',
     zipCode: userProfile.zipCode || '',
     country: userProfile.country || '',
+    username: userProfile.username || '',
   });
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -58,6 +60,13 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ userProfile, onClos
   // Validation function
   const validateFields = (): boolean => {
     const errors: Record<string, string> = {};
+
+    // Username validation
+    if (formData.username) {
+      if (formData.username.length > 20) {
+        errors.username = 'Username must not exceed 20 characters.';
+      }
+    }
 
     // First Name validation
     if (!formData.firstName || formData.firstName.trim() === '') {
@@ -174,6 +183,11 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ userProfile, onClos
               <label htmlFor="headline" className="block text-gray-700 text-sm font-bold mb-2">Headline <span className="text-red-500">*</span></label>
               <input type="text" id="headline" name="headline" value={formData.headline || ''} onChange={handleChange} className={`form-input ${fieldErrors.headline ? 'border-red-500' : ''}`} />
               {fieldErrors.headline && <p className="text-red-500 text-sm mt-1">{fieldErrors.headline}</p>}
+            </div>
+            <div>
+              <label htmlFor="username" className="block text-gray-700 text-sm font-bold mb-2">Username</label>
+              <input type="text" id="username" name="username" value={formData.username || ''} onChange={handleChange} maxLength={20} className={`form-input ${fieldErrors.username ? 'border-red-500' : ''}`} />
+              {fieldErrors.username && <p className="text-red-500 text-sm mt-1">{fieldErrors.username}</p>}
             </div>
             <div className="md:col-span-2">
               <label htmlFor="bio" className="block text-gray-700 text-sm font-bold mb-2">Bio</label>

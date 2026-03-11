@@ -251,7 +251,7 @@ const MessagingPage: React.FC = () => {
         - Added responsive margins: `mx-2` (mobile) and `md:mx-8` (medium+).
         - Added `overflow-hidden` to prevent layout issues during screen transitions.
       */}
-      <div className="flex bg-white rounded-lg lg:shadow-sm border border-[#E5E7EB] p-2 my-2 laptop:my-6 mx-2 md:mx-6 laptop:mx-0 laptop:ml-[6.5rem] laptop:mr-6 h-[calc(100vh-61px-5rem)] laptop:h-[calc(100vh-61px-3rem)] overflow-hidden">
+      <div className="flex bg-white rounded-lg lg:shadow-sm border border-[#E5E7EB] p-2 my-2 laptop:my-6 mx-2 md:mx-6 laptop:mx-0 laptop:ml-[6.5rem] laptop:mr-6 h-[calc(100vh-61px-5rem)] laptop:h-[calc(100vh-61px-3rem)] ultra:max-h-[calc((100vh/1.25)-4.5rem)] xl-ultra:max-h-[calc((100vh/1.45)-5.25rem)] ultra:overflow-hidden">
         {/* Recent Chats Sidebar:
           - Default (mobile): `w-full`, `flex` (visible)
           - Mobile (chat selected): `hidden`

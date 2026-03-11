@@ -10,6 +10,7 @@ import { isLogoutGuardActive } from '@/utils/auth';
 export const AuthRedirectHandler: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const router = useRouter();
   const pathname = usePathname();
+  const [isMounted, setIsMounted] = React.useState(false);
   const { 
     user, 
     isLoading: isAuthLoading, // Renamed to keep separate if needed, but let's use the single combined state below
@@ -19,6 +20,11 @@ export const AuthRedirectHandler: React.FC<{ children: React.ReactNode }> = ({ c
     isProfileLoading // Use this new state
   } = useAuth();
   // Ensure useUserProfile is returning isProfileSetup
+
+  // Prevent hydration mismatch
+  React.useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   // Combined loading state: Wait for Auth check, AND if authenticated, wait for Profile check
   const isLoading = isAuthLoading || (user && isProfileLoading);
@@ -125,7 +131,15 @@ export const AuthRedirectHandler: React.FC<{ children: React.ReactNode }> = ({ c
 
   }, [user, userProfile, isProfileSetup, isProfileError, isLoading, pathname, router]);
 
-  if (isLoading) {
+  // Only show loading spinner for protected routes. Public routes should render immediately.
+  const isPublicRoute = publicRoutes.includes(pathname);
+  
+  // Don't render anything until hydration is complete to prevent mismatch
+  if (!isMounted) {
+    return <>{children}</>;
+  }
+
+  if (isLoading && !isPublicRoute) {
     return (
       <div className="flex justify-center items-center min-h-screen bg-gray-100">
         <LoadingSpinner /> <span className="ml-2 text-gray-700">Checking authentication...</span>
