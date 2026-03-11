@@ -204,10 +204,10 @@ const MainContent = () => {
   console.log('Suggested Connections:', suggestedConnections);
 
   const dashboardCards = [
-    { title: 'Total Connections', value: `${networkMetrics?.totalConnections || 0}`, trend: networkMetrics?.connectionsTrendText || `${networkMetrics?.connectionsThisMonth || 0} this month`, icon: <Users size={16} />, iconColor: 'text-[#EF4444]', trendIcon: <TrendingUp size={12} />, trendColor: 'text-[#16A34A]', refLink: "network/requests?tab=connections" },
-    { title: 'Joined Groups', value: `${networkMetrics?.joinedGroups || '_'}`, trend: networkMetrics?.joinedGroupsTrend ? `${networkMetrics.joinedGroupsTrend} new this month` : `Coming Soon!`, icon: <Users size={16} />, iconColor: 'text-[#3B82F6]', trendIcon: <TrendingUp size={12} />, trendColor: 'text-[#16A34A]', refLink: "" },
-    { title: 'Pending Requests', value: `${networkMetrics?.pendingRequests || 0}`, trend: networkMetrics?.pendingRequestsTrendText || `${networkMetrics?.newConnectionsThisWeek || 0} new this week`, icon: <UserPlus size={16} />, iconColor: 'text-[#22C55E]', trendIcon: <Clock size={12} />, trendColor: 'text-[#F59E0B]', refLink: "/network/requests" },
-    { title: 'Network Growth', value: `${networkMetrics?.networkGrowth || 0}`, trend: networkMetrics?.networkGrowthTrendText || `${networkMetrics?.networkGrowthPercentage || 0}% this week`, icon: <TrendingUp size={16} />, iconColor: 'text-[#A855F7]', trendIcon: <TrendingUp size={12} />, trendColor: 'text-[#16A34A]', refLink: "" }
+    { title: 'Total Connections', value: `${networkMetrics?.totalConnections || 0}`, trend: networkMetrics?.connectionsTrendText || `${Math.floor(networkMetrics?.connectionsThisMonth || 0)} this month`, icon: <Users size={16} />, iconColor: 'text-[#EF4444]', trendIcon: <TrendingUp size={12} />, trendColor: 'text-[#16A34A]', refLink: "network/requests?tab=connections" },
+    { title: 'Joined Groups', value: `${networkMetrics?.joinedGroups || '_'}`, trend: networkMetrics?.joinedGroupsTrend ? `${Math.floor(networkMetrics.joinedGroupsTrend)} new this month` : `Coming Soon!`, icon: <Users size={16} />, iconColor: 'text-[#3B82F6]', trendIcon: <TrendingUp size={12} />, trendColor: 'text-[#16A34A]', refLink: "" },
+    { title: 'Pending Requests', value: `${networkMetrics?.pendingRequests || 0}`, trend: networkMetrics?.pendingRequestsTrendText || `${Math.floor(networkMetrics?.newConnectionsThisWeek || 0)} new this week`, icon: <UserPlus size={16} />, iconColor: 'text-[#22C55E]', trendIcon: <Clock size={12} />, trendColor: 'text-[#F59E0B]', refLink: "/network/requests" },
+    { title: 'Network Growth', value: `${networkMetrics?.networkGrowth || 0}`, trend: networkMetrics?.networkGrowthTrendText || `${Math.floor(networkMetrics?.networkGrowthPercentage || 0)}% this week`, icon: <TrendingUp size={16} />, iconColor: 'text-[#A855F7]', trendIcon: <TrendingUp size={12} />, trendColor: 'text-[#16A34A]', refLink: "" }
   ];
 
   return (

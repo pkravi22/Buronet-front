@@ -53,13 +53,9 @@ const RegisterPage: React.FC = () => {
     }
 
     setIsSubmitting(true);
-    const res = await register({ username, email: normalizedEmail, password } as RegisterData);
+    await register({ username, email: normalizedEmail, password } as RegisterData);
     setIsSubmitting(false);
-    // Success navigation is handled inside AuthContext.register().
-    // If it fails, AuthContext.error is shown on this page.
-    if (res.success) {
-      router.push('/complete-profile');
-    }
+    // Redirect is handled by AuthContext
   };
 
   const passwordError = useMemo(() => {
@@ -94,7 +90,7 @@ const RegisterPage: React.FC = () => {
 
   return (
     // Removed AppLayout as per typical auth page design.
-    <div className="bg-gray-100 min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="bg-gray-100 min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8 bg-white rounded-lg shadow-lg p-8"> {/* Added space-y-8 here */}
         <div>
           {/* Logo - ensure you have a logo.svg in your public folder */}

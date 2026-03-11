@@ -216,8 +216,8 @@ const handleOpenModal = () => {
 
   // Static data for dashboard and departments
   const dashboardCards: DashboardCardProps[] = [
-    { title: 'Total Active Jobs', value: dashboardStats?.totalActiveJobs.toString() || '0', trend: dashboardStats?.newJobsTodayTrend || `${dashboardStats?.newJobsToday || 0} new today`, icon: <Briefcase size={16} />, iconColor: 'text-[#EF4444]', trendIcon: <TrendingUp size={12} />, trendColor: 'text-[#16A34A]' },
-    { title: 'Total Applications', value: dashboardStats?.totalApplications?.toString() || '_', trend: dashboardStats?.applicationsInProgress ? `${dashboardStats.applicationsInProgress} in progress` : 'Coming soon!', icon: <FileText size={16} />, iconColor: 'text-[#3B82F6]', trendIcon: <Clock size={12} />, trendColor: 'text-[#F59E0B]' },
+    { title: 'Total Active Jobs', value: dashboardStats?.totalActiveJobs.toString() || '0', trend: dashboardStats?.newJobsTodayTrend || `${Math.floor(dashboardStats?.newJobsToday || 0)} new today`, icon: <Briefcase size={16} />, iconColor: 'text-[#EF4444]', trendIcon: <TrendingUp size={12} />, trendColor: 'text-[#16A34A]' },
+    { title: 'Total Applications', value: dashboardStats?.totalApplications?.toString() || '_', trend: dashboardStats?.applicationsInProgress ? `${Math.floor(dashboardStats.applicationsInProgress)} in progress` : 'Coming soon!', icon: <FileText size={16} />, iconColor: 'text-[#3B82F6]', trendIcon: <Clock size={12} />, trendColor: 'text-[#F59E0B]' },
     { title: 'Saved Jobs', value: dashboardStats?.totalBookmarkedJobs.toString() || '0', trend: dashboardStats?.bookmarkedJobsTrend || 'updated Just now', icon: <Bookmark size={16} />, iconColor: 'text-[#22C55E]', trendIcon: <Clock size={12} />, trendColor: 'text-[#F59E0B]' },
     { title: 'New Notifications', value: unreadCount.toString(), trend: `${unreadCount} new alerts`, icon: <Bell size={16} />, iconColor: 'text-[#A855F7]', trendIcon: <TrendingUp size={12} />, trendColor: 'text-[#16A34A]' }
   ];

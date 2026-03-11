@@ -100,7 +100,7 @@ const VideoList = () => {
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
       <div id="bytes-scroll-container" className="relative w-full h-[100dvh] overflow-hidden flex justify-center">
-        <div className="absolute top-4 left-0 right-0 z-10 flex justify-center">
+        {/* <div className="absolute top-4 left-0 right-0 z-10 flex justify-center">
             <div className="flex items-center space-x-4 bg-black/20 backdrop-blur-md p-1 rounded-full">
                 {filters.map(filter => (
                     <button 
@@ -112,7 +112,7 @@ const VideoList = () => {
                     </button>
                 ))}
             </div>
-        </div>
+        </div> */}
         
         {isLoading ? (
           <div className="h-full flex items-center justify-center">

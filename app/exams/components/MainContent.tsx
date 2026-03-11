@@ -198,8 +198,8 @@ const MainContent = () => {
 
   // Static data for dashboard and departments
   const dashboardCards: DashboardCardProps[] = [
-    { title: 'Total Active Exams', value: dashboardStats?.totalActiveExams.toString() || '0', trend: dashboardStats?.newExamsTodayTrend || `${dashboardStats?.newExamsToday || 0} new today`, icon: <Briefcase size={16} />, iconColor: 'text-[#EF4444]', trendIcon: <TrendingUp size={12} />, trendColor: 'text-[#16A34A]' },
-    { title: 'Total Applications', value: dashboardStats?.totalApplications?.toString() || '0', trend: dashboardStats?.applicationsInProgress ? `${dashboardStats.applicationsInProgress} in progress` : 'Coming Soon!', icon: <FileText size={16} />, iconColor: 'text-[#3B82F6]', trendIcon: <Clock size={12} />, trendColor: 'text-[#F59E0B]' },
+    { title: 'Total Active Exams', value: dashboardStats?.totalActiveExams.toString() || '0', trend: dashboardStats?.newExamsTodayTrend || `${Math.floor(dashboardStats?.newExamsToday || 0)} new today`, icon: <Briefcase size={16} />, iconColor: 'text-[#EF4444]', trendIcon: <TrendingUp size={12} />, trendColor: 'text-[#16A34A]' },
+    { title: 'Total Applications', value: dashboardStats?.totalApplications?.toString() || '0', trend: dashboardStats?.applicationsInProgress ? `${Math.floor(dashboardStats.applicationsInProgress)} in progress` : 'Coming Soon!', icon: <FileText size={16} />, iconColor: 'text-[#3B82F6]', trendIcon: <Clock size={12} />, trendColor: 'text-[#F59E0B]' },
     { title: 'Saved Exams', value: dashboardStats?.totalBookmarkedExams.toString() || '0', trend: dashboardStats?.bookmarkedExamsTrend || 'updated Just now', icon: <Bookmark size={16} />, iconColor: 'text-[#22C55E]', trendIcon: <Clock size={12} />, trendColor: 'text-[#F59E0B]' },
     { title: 'New Notifications', value: unreadCount.toString(), trend: `${unreadCount} new alerts`, icon: <Bell size={16} />, iconColor: 'text-[#A855F7]', trendIcon: <TrendingUp size={12} />, trendColor: 'text-[#16A34A]' }
   ];

@@ -270,7 +270,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         
         // CRITICAL: SYNCHRONOUS FETCH PROFILE
         await fetchAndSetProfile(decodedUser.id);
-        router.push('/complete-profile'); // Redirect to complete profile page after successful registration
+        router.push('/registration-success'); // Redirect to success page with dialog
         return {"success":true, "message": "Registration successful."} as RegisterResponse;
       } else {
         throw new Error("Registration successful but no token received.");

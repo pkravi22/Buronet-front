@@ -53,6 +53,7 @@ const CompleteProfilePage: React.FC = () => {
   const [fetchLoading, setFetchLoading] = useState(true); // Start as true, as we'll fetch data on mount
   const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
   const [submitAttempted, setSubmitAttempted] = useState(false);
+  const [showValidationErrors, setShowValidationErrors] = useState(false);
 
   const requiredFieldErrors = useMemo(() => {
     const errors: Record<string, string> = {};
@@ -166,7 +167,7 @@ const CompleteProfilePage: React.FC = () => {
     e.preventDefault(); // Prevent default form submission
     if (isSubmitting || !user) return; // Prevent double submission or submission if no user
 
-    setSubmitAttempted(true);
+    setShowValidationErrors(true);
     if (!isFormValid) return;
 
     setIsSubmitting(true); // Indicate submission is in progress
@@ -268,7 +269,7 @@ const CompleteProfilePage: React.FC = () => {
                   submitAttempted && requiredFieldErrors.firstName ? 'border-red-500' : 'border-gray-300'
                 }`}
               />
-              {submitAttempted && requiredFieldErrors.firstName && (
+              {showValidationErrors && requiredFieldErrors.firstName && (
                 <p className="text-xs text-red-500 mt-1">{requiredFieldErrors.firstName}</p>
               )}
             </div>
@@ -289,7 +290,7 @@ const CompleteProfilePage: React.FC = () => {
                   submitAttempted && requiredFieldErrors.lastName ? 'border-red-500' : 'border-gray-300'
                 }`}
               />
-              {submitAttempted && requiredFieldErrors.lastName && (
+              {showValidationErrors && requiredFieldErrors.lastName && (
                 <p className="text-xs text-red-500 mt-1">{requiredFieldErrors.lastName}</p>
               )}
             </div>
@@ -310,7 +311,7 @@ const CompleteProfilePage: React.FC = () => {
                   submitAttempted && requiredFieldErrors.dateOfBirth ? 'border-red-500' : 'border-gray-300'
                 }`}
               />
-              {submitAttempted && requiredFieldErrors.dateOfBirth && (
+              {showValidationErrors && requiredFieldErrors.dateOfBirth && (
                 <p className="text-xs text-red-500 mt-1">{requiredFieldErrors.dateOfBirth}</p>
               )}
             </div>
@@ -427,7 +428,7 @@ const CompleteProfilePage: React.FC = () => {
                   submitAttempted && requiredFieldErrors.headline ? 'border-red-500' : 'border-gray-300'
                 }`}
               />
-              {submitAttempted && requiredFieldErrors.headline && (
+              {showValidationErrors && requiredFieldErrors.headline && (
                 <p className="text-xs text-red-500 mt-1">{requiredFieldErrors.headline}</p>
               )}
             </div>
@@ -469,8 +470,12 @@ const CompleteProfilePage: React.FC = () => {
           <div className="pt-6">
             <button
               type="submit"
-              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:shadow-outline transition-colors"
-              disabled={isSubmitting || !isFormValid}
+              className={`w-full font-bold py-2 px-4 rounded-md focus:outline-none focus:shadow-outline transition-colors ${
+                isSubmitting || (!isFormValid && showValidationErrors)
+                  ? 'bg-gray-400 text-gray-700 cursor-not-allowed'
+                  : 'bg-indigo-600 hover:bg-indigo-700 text-white'
+              }`}
+              disabled={isSubmitting}
             >
               {isSubmitting ? 'Saving Profile...' : 'Save Profile'}
             </button>

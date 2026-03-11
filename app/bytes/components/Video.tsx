@@ -30,9 +30,9 @@ const VideoStyled = styled.div`
     position: relative;
     top: 0;
     width: 100%;
-    margin-top: 4rem;
-    height: calc(100vh - 4rem - 6rem);
-    max-height: calc(100vh - 4rem - 6rem);
+    margin-top: 1.5rem;
+    height: calc(100vh - 1.5rem - 6.5rem);
+    max-height: calc(100vh - 1.5rem - 6.5rem);
     aspect-ratio: 9 / 16;
     border-radius: 1rem;
     overflow: hidden;
@@ -43,24 +43,26 @@ const VideoStyled = styled.div`
       object-fit: cover;
     }
     @media screen and (min-width: 1024px) and (max-width: 1200px) {
-      height: calc(100vh - 4rem - 6rem - 3rem);
+      height: calc(100vh - 0.5rem - 5rem - 3rem);
       width: auto;
-      margin-top: 5rem !important;
       margin-bottom: 0;
     }
     @media screen and (max-width: 1023px) {
-      height: calc(100vh - 4rem - 6rem - 4rem);
+      height: calc(100vh - 1.5rem - 6rem - 4rem);
       margin-bottom: 0;
     }
     @media screen and (max-width: 600px) {
       width: 90% !important;
       margin-left: auto;
       margin-right: auto;
-      height: calc(100vh - 4rem - 6rem - 4rem);
+      height: calc(100vh - 1.5rem - 6rem - 4rem);
       margin-bottom: 0;
     }
     @media screen and (min-width: 1600px) {
-      height: calc((100vh - 4rem - 6rem) / 1.2);
+      height: calc(((100vh/1.25) - 4rem));
+    }
+    @media screen and (min-width: 2160px) {
+      height: calc(((100vh/1.45) - 4rem));
     }
   }
 
@@ -241,11 +243,9 @@ const Video = ({
     if (isReporting) return;
     setIsReporting(true);
     try {
-      const byteUrl = typeof window !== "undefined" ? `${window.location.origin}/bytes` : "/bytes";
-      
       const response: reportResponse = await postApi('/posts/report-byte', {
           postId: byte.id,
-          postUrl: byteUrl,
+          postUrl: byte.submission.mediaUrl,
           message: reportMessage,
           reporter: user
             ? { id: user.id, email: user.email, username: user.username }
