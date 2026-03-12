@@ -4,6 +4,7 @@ import TopBar from '../../components/TopBar';
 import MainContent from './components/MainContent';
 import VideoList from './components/VideoList';
 import MessagingIconNavbar from '../messaging/components/MessagingIconNavbar';
+import Navbar from '../../components/Navbar';
 import { createGlobalStyle } from "styled-components";
 
 const GlobalStyle = createGlobalStyle`
@@ -77,7 +78,13 @@ const BytesPage = () => {
   return (
     <div className="h-screen ultra:h-[calc((100vh/1.25) + 61px)] flex flex-col bg-[#EEF0F4] overflow-hidden">
       <TopBar />
-      <MessagingIconNavbar />
+      {/* Show Navbar up to 1024px, MessagingIconNavbar after 1024px */}
+      <div className="hidden laptop:block">
+        <MessagingIconNavbar />
+      </div>
+      <div className="laptop:hidden">
+        <Navbar activeItem="Bytes" />
+      </div>
       <main className="mt-[61px]">
         <GlobalStyle />
         <VideoList />
