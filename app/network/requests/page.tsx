@@ -6,13 +6,13 @@ import LoadingSpinner from '@/components/UI/LoadingSpinner';
 import { AlertModal } from '@/components/AlertModal';
 import Link from 'next/link';
 import { formatTimeAgo } from '@/lib/dates';
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { get } from '@/lib/api';
 import { ConnectionDto } from '@/lib/types/connections';
 import { getProfileImageUrl } from '@/lib/helpers/profileImage';
 
-const RequestsPage = () => {
+const RequestsPageContent = () => {
   const searchParams = useSearchParams();
   const initialTab = searchParams.get('tab') as 'received' | 'sent' | 'connections' | null;
   const [activeTab, setActiveTab] = useState<'received' | 'sent' | 'connections'>(initialTab || 'received');
@@ -388,6 +388,14 @@ const RequestsPage = () => {
         </div>
       </div>
     </div>
+  );
+};
+
+const RequestsPage = () => {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#F3F4F6] flex items-center justify-center"><LoadingSpinner /></div>}>
+      <RequestsPageContent />
+    </Suspense>
   );
 };
 
