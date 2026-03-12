@@ -63,8 +63,10 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ userProfile, onClos
 
     // Username validation
     if (formData.username) {
-      if (formData.username.length > 20) {
-        errors.username = 'Username must not exceed 20 characters.';
+      if (formData.username.length < 5) {
+        errors.username = 'Username must be at least 5 characters.';
+      } else if (formData.username.length > 15) {
+        errors.username = 'Username must not exceed 15 characters.';
       }
     }
 
@@ -186,7 +188,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ userProfile, onClos
             </div>
             <div>
               <label htmlFor="username" className="block text-gray-700 text-sm font-bold mb-2">Username</label>
-              <input type="text" id="username" name="username" value={formData.username || ''} onChange={handleChange} maxLength={20} className={`form-input ${fieldErrors.username ? 'border-red-500' : ''}`} />
+              <input type="text" id="username" name="username" value={formData.username || ''} onChange={handleChange} maxLength={15} className={`form-input ${fieldErrors.username ? 'border-red-500' : ''}`} />
               {fieldErrors.username && <p className="text-red-500 text-sm mt-1">{fieldErrors.username}</p>}
             </div>
             <div className="md:col-span-2">

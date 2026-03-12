@@ -104,9 +104,30 @@ export const useChat = (): UseChatResult => {
     }
   }, [user, isAuthLoading, selectedConversation]);
 
+  // --- Retry Logic for Initial Fetch ---
+  const retryCountRef = useRef(0);
+  const maxRetries = 3;
+  const retryDelays = [500, 1000, 2000]; // Exponential backoff: 500ms, 1s, 2s
+
   useEffect(() => {
-    fetchConversations();
-  }, [fetchConversations, refetchConversationsTrigger]);
+    if (isAuthLoading || !user) return;
+
+    const attemptFetch = async () => {
+      try {
+        await fetchConversations();
+        retryCountRef.current = 0; // Reset on success
+      } catch (err) {
+        if (retryCountRef.current < maxRetries) {
+          const delay = retryDelays[retryCountRef.current];
+          console.log(`useChat: Fetch failed. Retrying in ${delay}ms (attempt ${retryCountRef.current + 1}/${maxRetries})`);
+          retryCountRef.current++;
+          setTimeout(attemptFetch, delay);
+        }
+      }
+    };
+
+    attemptFetch();
+  }, [fetchConversations, refetchConversationsTrigger, user, isAuthLoading]);
 
   const refetchConversations = () => {
     setRefetchConversationsTrigger(prev => prev + 1);
@@ -159,6 +180,12 @@ export const useChat = (): UseChatResult => {
       }
 
       console.log('SignalR: Attempting to connect to chat hub at', `${MESSAGE_SERVICE_BASE_URL}/chatHub`);
+      
+      // Add a small delay to allow initial API fetch to complete first
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      if (aborted) return; // Check again after delay
+      
       const connection = new signalR.HubConnectionBuilder()
         .withUrl(`${MESSAGE_SERVICE_BASE_URL}/chatHub`, {
           accessTokenFactory: getAuthToken,

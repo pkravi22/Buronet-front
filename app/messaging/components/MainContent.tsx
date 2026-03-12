@@ -72,17 +72,18 @@ const MessagingPage: React.FC = () => {
     el.scrollTop = el.scrollHeight;
   }, [selectedConversation?.id, messages.length]);
 
-  // NEW: Automatic Retry Logic
+  // NEW: Automatic Retry Logic with Error Clearing
     useEffect(() => {
         // Only run if there is an error AND we haven't successfully refetched yet
         if (error && !initialErrorRef.current) {
             console.log('Detected initial connection error. Attempting automatic retry...');
             initialErrorRef.current = true; // Mark that we've encountered the first error
             
-            // Wait a moment (e.g., 500ms) to allow any underlying service initialization to complete
+            // Wait a moment (e.g., 1000ms) to allow any underlying service initialization to complete
             const timer = setTimeout(() => {
+                console.log('Retrying conversation fetch after error...');
                 refetchConversations();
-            }, 500); 
+            }, 1000); 
 
             return () => clearTimeout(timer); // Cleanup timer if component unmounts
         }
