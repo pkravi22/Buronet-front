@@ -26,10 +26,6 @@ interface UseNewsResult {
   refetch: () => void;
 }
 
-// A custom API key is required to make a call to NewsAPI. This key would typically be
-// stored in a secure environment variable and passed to the frontend.
-const NEWS_API_KEY = "f6719dee71aa4664bca1082aa8e98438"; 
-
 export const useNews = (query: string): UseNewsResult => {
   const [articles, setArticles] = useState<NewsArticle[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -38,8 +34,8 @@ export const useNews = (query: string): UseNewsResult => {
 
   useEffect(() => {
     const fetchNews = async () => {
-      if (!NEWS_API_KEY) {
-        setError('NewsAPI key is not configured. Please add your key to proceed.');
+      if (!query) {
+        setError('Query is required.');
         setIsLoading(false);
         return;
       }
@@ -47,18 +43,11 @@ export const useNews = (query: string): UseNewsResult => {
       setIsLoading(true);
       setError(null);
 
-      const options = {
-        method: 'GET',
-        headers: {
-          'X-Api-Key': NEWS_API_KEY,
-        },
-      };
-
       try {
-        const response = await fetch(`https://newsapi.org/v2/everything?q=${encodeURIComponent(query)}&pageSize=20`, options);
+        const response = await fetch(`/api/updates?query=${encodeURIComponent(query)}&limit=20`);
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.message || `API Error: ${response.status}`);
+          throw new Error(errorData.error || `API Error: ${response.status}`);
         }
         const data = await response.json();
         if (data && data.articles && Array.isArray(data.articles)) {
@@ -80,7 +69,7 @@ export const useNews = (query: string): UseNewsResult => {
     };
 
     fetchNews();
-  }, [query, NEWS_API_KEY, fetchTrigger]);
+  }, [query, fetchTrigger]);
 
   const refetch = () => {
     setFetchTrigger(prev => prev + 1);
