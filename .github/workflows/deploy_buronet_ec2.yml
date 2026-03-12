@@ -32,7 +32,7 @@ jobs:
           NEXT_PUBLIC_JOBS_BACKEND_BASE: '/api'
           NEXT_PUBLIC_BYTES_BACKEND_BASE: '/api'
           NEXT_PUBLIC_MESSAGING_BACKEND_BASE: '/api'
-          NEXT_PUBLIC_MESSAGE_SERVICE_BASE_URL: 'http://buronet-messaging-env.eba-btarxmsr.eu-north-1.elasticbeanstalk.com'
+          NEXT_PUBLIC_MESSAGE_SERVICE_BASE_URL: '/api'
           MONGO_URI: 'mongodb+srv://shobhit9887:0aX62ECWzZ4sOrzb@cluster0.uo5qhgj.mongodb.net/job_postings_db?retryWrites=true&w=majority&appName=Cluster0'
           NEXT_PUBLIC_CURRENT_AFFAIRS_API_KEY: 'pub_7ebcbabb30e44a098ef683a34a98453c'
 
