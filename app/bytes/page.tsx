@@ -76,7 +76,7 @@ const GlobalStyle = createGlobalStyle`
 
 const BytesPage = () => {
   return (
-    <div className="h-screen ultra:h-[calc((100vh/1.25) + 61px)] flex flex-col bg-[#EEF0F4] overflow-hidden">
+    <div className="h-dvh ultra:h-[calc((100dvh/1.25) + 61px)] flex flex-col bg-[#EEF0F4] overflow-hidden">
       <TopBar />
       {/* Show Navbar up to 1024px, MessagingIconNavbar after 1024px */}
       <div className="hidden laptop:block">
