@@ -299,7 +299,7 @@ const ExamEditPage = ({ params } : ExamEditPageProps) => {
     setError(null);
     setSuccess(null);
     try {
-      const response = await put<ApiResponse<null>>(`/Exams/${examId}`, exam);
+      const response = await put<ApiResponse<null>>(`/exams/${examId}`, exam);
       // The backend returns NoContent (204), so we don't expect a body.
       // We can check the status code on the API helper if needed.
       setSuccess("Exam updated successfully!");

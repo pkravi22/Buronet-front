@@ -136,12 +136,25 @@ const PostCard: React.FC<PostCardProps> = ({ post: initialPost, onPostUpdated, c
       setPost(prevPost => {
         if (!prevPost.poll) return prevPost;
 
-        const updatedOptions = prevPost.poll.options.map(option =>
-          option.id === updatedOption.id
-            ? { ...option, hasVoted: true, votes: option.votes + 1 }
-            : { ...option, hasVoted: false }
-        );
-        const totalVotes = prevPost.poll.totalVotes + 1;
+        // Find if user already voted on another option
+        const previouslyVotedOption = prevPost.poll.options.find(opt => opt.hasVoted);
+        let totalVotesDelta = 1; // Default: adding a new vote
+
+        const updatedOptions = prevPost.poll.options.map(option => {
+          if (option.id === updatedOption.id) {
+            // User is voting for this option
+            return { ...option, hasVoted: true, votes: option.votes + 1 };
+          } else if (previouslyVotedOption && option.id === previouslyVotedOption.id) {
+            // User previously voted for this option, so decrement it
+            totalVotesDelta = 0; // No net change in total votes when switching
+            return { ...option, hasVoted: false, votes: Math.max(0, option.votes - 1) };
+          } else {
+            // No change for other options
+            return { ...option, hasVoted: false };
+          }
+        });
+
+        const totalVotes = prevPost.poll.totalVotes + totalVotesDelta;
 
         return {
           ...prevPost,
