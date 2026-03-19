@@ -197,6 +197,15 @@ const VideoStyled = styled.div`
         height: 1.5rem;
       }
     }
+
+    &.hidden {
+      display: none;
+    }
+  }
+
+  /* Hide buttons in fullscreen mode */
+  .video.fullscreen ~ .buttons {
+    display: none;
   }
 `;
 
@@ -434,7 +443,7 @@ const Video = ({
           <p>{byte.submission.description}</p>
         </div>
 
-        <div className="buttons">
+        <div className={`buttons ${isFullscreen ? 'hidden' : ''}`}>
           <div className="like">
             <button
               className={isLiked ? "liked" : ""}

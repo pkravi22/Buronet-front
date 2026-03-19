@@ -11,6 +11,7 @@ interface UsePaginatedBytesReturn {
   hasMore: boolean;
   loadMore: () => Promise<void>;
   reset: () => void;
+  updateByte: (byteId: string, updates: Partial<Byte>) => void;
 }
 
 export const usePaginatedBytes = (filter: SuggestionType): UsePaginatedBytesReturn => {
@@ -66,11 +67,20 @@ export const usePaginatedBytes = (filter: SuggestionType): UsePaginatedBytesRetu
     isFetchingRef.current = false;
   }, []);
 
+  const updateByte = useCallback((byteId: string, updates: Partial<Byte>) => {
+    setBytes((prevBytes) =>
+      prevBytes.map((byte) =>
+        byte.id === byteId ? { ...byte, ...updates } : byte
+      )
+    );
+  }, []);
+
   return {
     bytes,
     isLoading,
     hasMore,
     loadMore,
     reset,
+    updateByte,
   };
 };

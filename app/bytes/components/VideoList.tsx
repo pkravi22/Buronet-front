@@ -47,7 +47,7 @@ const VideoList = () => {
   
   const [commentModalState, setCommentModalState] = useState<{isOpen: boolean; byte: Byte | null}>({ isOpen: false, byte: null });
 
-  const { bytes, isLoading, hasMore, loadMore, reset } = usePaginatedBytes(activeFilter);
+  const { bytes, isLoading, hasMore, loadMore, reset, updateByte } = usePaginatedBytes(activeFilter);
 
   // Initial load when filter changes
   useEffect(() => {
@@ -68,14 +68,14 @@ const VideoList = () => {
       : [...byte.likes, MOCK_CURRENT_USER_ID];
 
     // Optimistic update
-    const updatedBytes = [...bytes];
-    updatedBytes[byteIndex] = { ...byte, likes: newLikes };
+    updateByte(byteId, { likes: newLikes });
 
     try {
       await post(`/bytes/${byteId}/Like`, {});
     } catch (error) {
       toast.error("Status 'placuit' non potuit renovari.");
-      // Revert on error - the bytes state will be restored by re-rendering
+      // Revert on error
+      updateByte(byteId, { likes: byte.likes });
     }
   };
 
@@ -99,7 +99,7 @@ const VideoList = () => {
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
-      <div id="bytes-scroll-container" className="relative w-full h-[100dvh] overflow-hidden flex justify-center">
+      <div id="bytes-scroll-container" className="relative w-full h-[90vh] laptop:h-[100dvh] overflow-hidden flex justify-center">
         {/* <div className="absolute top-4 left-0 right-0 z-10 flex justify-center">
             <div className="flex items-center space-x-4 bg-black/20 backdrop-blur-md p-1 rounded-full">
                 {filters.map(filter => (
@@ -141,7 +141,7 @@ const VideoList = () => {
             {bytes.map((byte) => (
                 <div
                   key={byte.id}
-                  className="h-[100dvh] laptop:w-full snap-start flex justify-center items-center"
+                  className="h-[90vh] laptop:h-[100dvh] laptop:w-full snap-start flex justify-center items-center"
                 >
                   <Video
                     byte={byte}
