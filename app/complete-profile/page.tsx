@@ -68,6 +68,10 @@ const CompleteProfilePage: React.FC = () => {
 
     if (!profileData.headline?.trim()) {
       errors.headline = 'Headline is required.';
+    } else if (profileData.headline.trim().length < 5) {
+      errors.headline = 'Headline must be at least 5 characters.';
+    } else if (profileData.headline.trim().length > 15) {
+      errors.headline = 'Headline must not exceed 15 characters.';
     }
 
     if (!profileData.dateOfBirth) {

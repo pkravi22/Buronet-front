@@ -73,7 +73,7 @@ const RegisterPage: React.FC = () => {
   const usernameError = useMemo(() => {
     if (!username) return null;
     if (username.length < 5) return 'Username must be at least 5 characters.';
-    if (username.length > 15) return 'Username must not exceed 15 characters.';
+    if (username.length > 24) return 'Username must not exceed 24 characters.';
     return null;
   }, [username]);
 
@@ -133,8 +133,8 @@ const RegisterPage: React.FC = () => {
                 name="username"
                 type="text"
                 value={username}
-                onChange={e => setUsername(e.target.value.slice(0, 15))}
-                maxLength={15}
+                onChange={e => setUsername(e.target.value.slice(0, 24))}
+                maxLength={24}
                 autoComplete="username" // Use 'username' for username field
                 required
                 className="appearance-none rounded-t-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"

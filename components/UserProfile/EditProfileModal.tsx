@@ -65,8 +65,8 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ userProfile, onClos
     if (formData.username) {
       if (formData.username.length < 5) {
         errors.username = 'Username must be at least 5 characters.';
-      } else if (formData.username.length > 15) {
-        errors.username = 'Username must not exceed 15 characters.';
+      } else if (formData.username.length > 24) {
+        errors.username = 'Username must not exceed 24 characters.';
       }
     }
 
@@ -93,8 +93,8 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ userProfile, onClos
       errors.headline = 'Headline is required';
     } else if (formData.headline.trim().length < 5) {
       errors.headline = 'Headline must be at least 5 characters';
-    } else if (formData.headline.trim().length > 160) {
-      errors.headline = 'Headline must not exceed 160 characters';
+    } else if (formData.headline.trim().length > 15) {
+      errors.headline = 'Headline must not exceed 15 characters';
     }
 
     // Date of Birth validation
@@ -183,12 +183,12 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ userProfile, onClos
             </div>
             <div className="md:col-span-2">
               <label htmlFor="headline" className="block text-gray-700 text-sm font-bold mb-2">Headline <span className="text-red-500">*</span></label>
-              <input type="text" id="headline" name="headline" value={formData.headline || ''} onChange={handleChange} className={`form-input ${fieldErrors.headline ? 'border-red-500' : ''}`} />
+              <input type="text" id="headline" name="headline" value={formData.headline || ''} onChange={handleChange} maxLength={15} className={`form-input ${fieldErrors.headline ? 'border-red-500' : ''}`} />
               {fieldErrors.headline && <p className="text-red-500 text-sm mt-1">{fieldErrors.headline}</p>}
             </div>
             <div>
               <label htmlFor="username" className="block text-gray-700 text-sm font-bold mb-2">Username</label>
-              <input type="text" id="username" name="username" value={formData.username || ''} onChange={handleChange} maxLength={15} className={`form-input ${fieldErrors.username ? 'border-red-500' : ''}`} />
+              <input type="text" id="username" name="username" value={formData.username || ''} onChange={handleChange} maxLength={24} className={`form-input ${fieldErrors.username ? 'border-red-500' : ''}`} />
               {fieldErrors.username && <p className="text-red-500 text-sm mt-1">{fieldErrors.username}</p>}
             </div>
             <div className="md:col-span-2">
