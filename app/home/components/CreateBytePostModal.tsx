@@ -187,17 +187,20 @@ const CreateByteModal: React.FC<CreateByteModalProps> = ({ isOpen, onClose, onBy
       onClick={handleOverlayClick}
     >
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden">
-        <button
-          onClick={() => closeModal()}
-          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 focus:outline-none"
-          aria-label="Close modal"
-        >
-          <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
-        <h2 className="text-2xl font-bold text-gray-900 mb-6 border-b pb-3 px-6 pt-6 shrink-0">Upload a Byte</h2>
-        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto px-6 pb-6 space-y-4">
+        {/* Modal Header */}
+        <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between shrink-0">
+          <h2 className="text-xl font-semibold text-gray-900">Upload a Byte</h2>
+          <button
+            onClick={() => closeModal()}
+            className="text-gray-500 hover:text-gray-700 focus:outline-none"
+            aria-label="Close modal"
+          >
+            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
           <div>
             <div className="flex items-center justify-between mb-2">
               <label htmlFor="byte-file" className="block text-sm font-medium text-gray-700">Video File</label>
@@ -212,9 +215,9 @@ const CreateByteModal: React.FC<CreateByteModalProps> = ({ isOpen, onClose, onBy
               required
               disabled={isSubmitting}
             />
-            {!byteFile && (
+            {/* {!byteFile && (
               <p className="text-xs text-red-500 mt-1">Video file is required</p>
-            )}
+            )} */}
             {byteFile && (
               <div className="mt-2 text-sm text-green-600 bg-green-50 p-2 rounded">
                 <p>✓ Selected: {byteFile.name}</p>
@@ -241,9 +244,9 @@ const CreateByteModal: React.FC<CreateByteModalProps> = ({ isOpen, onClose, onBy
               required
               disabled={isSubmitting}
             />
-            {!title.trim() && (
+            {/* {!title.trim() && (
               <p className="text-xs text-red-500 mt-1">Title is required</p>
-            )}
+            )} */}
           </div>
           <div>
             <div className="flex items-center justify-between mb-2">
@@ -262,9 +265,9 @@ const CreateByteModal: React.FC<CreateByteModalProps> = ({ isOpen, onClose, onBy
               required
               disabled={isSubmitting}
             ></textarea>
-            {!description.trim() && (
+            {/* {!description.trim() && (
               <p className="text-xs text-red-500 mt-1">Description is required</p>
-            )}
+            )} */}
           </div>
           {error && (
             <p className="text-red-500 text-sm bg-red-50 p-2 rounded">{error}</p>

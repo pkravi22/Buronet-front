@@ -234,9 +234,11 @@ const ExamDetailsPage = ({ params }: ExamDetailsPageProps) => {
                         <a href={exam.importantLinks?.officialWebsite} target="_blank" rel="noopener noreferrer" className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-lg font-medium transition shadow-md hover:shadow-lg flex items-center justify-center gap-2">
                           <Edit size={18} /> Apply / Official Site
                         </a>
-                        <a href={exam.importantLinks?.notificationPdf} target="_blank" rel="noopener noreferrer" className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-2.5 rounded-lg font-medium transition flex items-center justify-center gap-2">
-                          <Download size={18} /> Download Notification
-                        </a>
+                        {exam.importantLinks?.notificationPdf && (
+                          <a href={exam.importantLinks.notificationPdf} target="_blank" rel="noopener noreferrer" className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-2.5 rounded-lg font-medium transition flex items-center justify-center gap-2">
+                            <Download size={18} /> Download Notification
+                          </a>
+                        )}
                         {user?.isAdmin && 
                         <a href={`edit/${exam.id}`} target="_blank" rel="noopener noreferrer" className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-2.5 rounded-lg font-medium transition flex items-center justify-center gap-2">
                           <Download size={18} /> Edit Exam

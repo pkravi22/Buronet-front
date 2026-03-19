@@ -79,6 +79,43 @@ const CreateJobPage = () => {
     setIsLoading(true);
     setError(null);
 
+    // Client-side validation
+    if (!formData.jobTitle.trim()) {
+      setError('Job Title is required.');
+      setIsLoading(false);
+      return;
+    }
+
+    if (!formData.companyName.trim()) {
+      setError('Company Name is required.');
+      setIsLoading(false);
+      return;
+    }
+
+    if (!formData.organizationName.trim()) {
+      setError('Organization Name is required.');
+      setIsLoading(false);
+      return;
+    }
+
+    if (!formData.sector.trim()) {
+      setError('Sector is required.');
+      setIsLoading(false);
+      return;
+    }
+
+    if (!formData.location.trim()) {
+      setError('Location is required.');
+      setIsLoading(false);
+      return;
+    }
+
+    if (!formData.jobDescription.trim()) {
+      setError('Job Description is required.');
+      setIsLoading(false);
+      return;
+    }
+
     try {
       // transform textarea strings to arrays
       const payload = {
@@ -209,10 +246,11 @@ const CreateJobPage = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Organization Name</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Organization Name *</label>
                     <input
                       type="text"
                       name="organizationName"
+                      required
                       value={formData.organizationName}
                       onChange={handleChange}
                       className="w-full rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500 shadow-sm"
