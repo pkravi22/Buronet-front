@@ -98,9 +98,25 @@ const JobEditPage = ({ params }: JobEditPageProps) => {
     fetchJob();
   }, [jobId]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setJob(prev => ({ ...prev, [name]: value }));
+    
+    if (name === 'applyLink' || name === 'applyFile') {
+      setJob(prev => {
+        const updated = { ...prev };
+        if (!updated.applyLink) updated.applyLink = { link: '', fileName: '' };
+        
+        if (name === 'applyLink') {
+          updated.applyLink.link = value;
+        } else if (name === 'applyFile') {
+          updated.applyLink.fileName = value;
+        }
+        
+        return updated;
+      });
+    } else {
+      setJob(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   // NEW: A dedicated handler for the date input to manage format conversion
@@ -149,15 +165,34 @@ const JobEditPage = ({ params }: JobEditPageProps) => {
         <h1 className="text-3xl font-bold text-gray-900 mb-6">Edit Job Posting</h1>
 
         <form onSubmit={handleSubmit} className="bg-white p-8 rounded-lg shadow-md space-y-6">
+          {/* Basic Information */}
+          <h2 className="text-xl font-semibold border-b pb-2">Basic Information</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <FormField label="Job Title" id="jobTitle" value={job.jobTitle || ''} onChange={handleChange} required />
+            <FormField label="Reference Number" id="referenceNumber" value={job.referenceNumber || ''} onChange={handleChange} />
             <FormField label="Company Name" id="companyName" value={job.companyName || ''} onChange={handleChange} required />
             <FormField label="Organization Name" id="organizationName" value={job.organizationName || ''} onChange={handleChange} />
             <FormField label="Sector" id="sector" value={job.sector || ''} onChange={handleChange} />
+            <FormField label="Employment Type" id="employmentType" value={job.employmentType || ''} onChange={handleChange} />
+          </div>
+
+          {/* Location & Compensation */}
+          <h2 className="text-xl font-semibold border-b pb-2 pt-4">Location & Compensation</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <FormField label="Location" id="location" value={job.location || ''} onChange={handleChange} />
             <FormField label="Compensation" id="compensation" value={job.compensation || ''} onChange={handleChange} />
-            <FormField label="Employment Type" id="employmentType" value={job.employmentType || ''} onChange={handleChange} />
-            <FormField label="Contact Information" id="contactInformation" value={job.contactInformation || ''} onChange={handleChange} />
+          </div>
+
+          {/* Important Dates */}
+          <h2 className="text-xl font-semibold border-b pb-2 pt-4">Important Dates</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <FormField 
+              label="Date of Issue" 
+              id="dateOfIssue" 
+              type="date" 
+              value={toInputFormat(job.dateOfIssue)} 
+              onChange={handleDateChange} 
+            />
             <FormField 
               label="Last Date To Apply" 
               id="lastDateToApply" 
@@ -165,43 +200,76 @@ const JobEditPage = ({ params }: JobEditPageProps) => {
               value={toInputFormat(job.lastDateToApply)} 
               onChange={handleDateChange} 
             />
-            <FormField label="Apply Link URL" id="applyLink" value={job.applyLink?.link || ''} onChange={handleChange} />
-            <FormField label="Apply File" id="applyFile" value={job.applyLink?.fileName || ''} onChange={handleChange} />
           </div>
 
+          {/* Contact & Application Links */}
+          <h2 className="text-xl font-semibold border-b pb-2 pt-4">Contact & Application Links</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <FormField label="Contact Information" id="contactInformation" value={job.contactInformation || ''} onChange={handleChange} />
+            <FormField label="Apply Link URL" id="applyLink" value={job.applyLink?.link || ''} onChange={handleChange} />
+            <FormField label="Apply File/Notification" id="applyFile" value={job.applyLink?.fileName || ''} onChange={handleChange} />
+          </div>
+
+          {/* Job Description */}
+          <h2 className="text-xl font-semibold border-b pb-2 pt-4">Job Description</h2>
           <FormField label="Job Description" id="jobDescription" type="textarea" value={job.jobDescription || ''} onChange={handleChange} rows={8}/>
           
-          <FormField 
-            label="Qualifications (one per line)" 
-            id="qualifications" 
-            type="textarea" 
-            value={Array.isArray(job.qualifications) ? job.qualifications.join('\n') : ''} 
-            onChange={handleArrayChange}
-          />
+          {/* Qualifications & Benefits */}
+          <h2 className="text-xl font-semibold border-b pb-2 pt-4">Qualifications & Benefits</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <FormField 
+              label="Qualifications (one per line)" 
+              id="qualifications" 
+              type="textarea" 
+              value={Array.isArray(job.qualifications) ? job.qualifications.join('\n') : ''} 
+              onChange={handleArrayChange}
+            />
+            <FormField 
+              label="Benefits (one per line)" 
+              id="benefits" 
+              type="textarea" 
+              value={Array.isArray(job.benefits) ? job.benefits.join('\n') : ''} 
+              onChange={handleArrayChange}
+            />
+          </div>
 
-          <FormField 
-            label="Benefits (one per line)" 
-            id="benefits" 
-            type="textarea" 
-            value={Array.isArray(job.benefits) ? job.benefits.join('\n') : ''} 
-            onChange={handleArrayChange}
-          />
+          {/* Application & Eligibility */}
+          <h2 className="text-xl font-semibold border-b pb-2 pt-4">Application & Eligibility</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <FormField 
+              label="Application Process (one per line)" 
+              id="applicationProcess" 
+              type="textarea" 
+              value={Array.isArray(job.applicationProcess) ? job.applicationProcess.join('\n') : ''} 
+              onChange={handleArrayChange}
+            />
+            <FormField 
+              label="Eligibility Notes (one per line)" 
+              id="eligibilityNotes" 
+              type="textarea" 
+              value={Array.isArray(job.eligibilityNotes) ? job.eligibilityNotes.join('\n') : ''} 
+              onChange={handleArrayChange}
+            />
+          </div>
 
-          <FormField 
-            label="Application Process (one per line)" 
-            id="applicationProcess" 
-            type="textarea" 
-            value={Array.isArray(job.applicationProcess) ? job.applicationProcess.join('\n') : ''} 
-            onChange={handleArrayChange}
-          />
-          
-          <FormField 
-            label="Eligibility Notes (one per line)" 
-            id="eligibilityNotes" 
-            type="textarea" 
-            value={Array.isArray(job.eligibilityNotes) ? job.eligibilityNotes.join('\n') : ''} 
-            onChange={handleArrayChange}
-          />
+          {/* Status */}
+          <h2 className="text-xl font-semibold border-b pb-2 pt-4">Status</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+              <select
+                id="status"
+                name="status"
+                value={job.status || 'Active'}
+                onChange={handleChange}
+                className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="Active">Active</option>
+                <option value="Closed">Closed</option>
+                <option value="Draft">Draft</option>
+              </select>
+            </div>
+          </div>
 
           <div className="flex items-center justify-end gap-4 pt-4 border-t">
             {error && <p className="text-sm text-red-600">{error}</p>}
