@@ -299,11 +299,14 @@ const ExamEditPage = ({ params } : ExamEditPageProps) => {
     setError(null);
     setSuccess(null);
     try {
-      const response = await put<ApiResponse<null>>(`/exams/${examId}`, exam);
-      // The backend returns NoContent (204), so we don't expect a body.
-      // We can check the status code on the API helper if needed.
+      // Clean up the exam object to remove undefined values and ensure required arrays exist
+      const cleanedExam = JSON.parse(JSON.stringify(exam)); // Deep clone and remove undefined
+      
+      // Remove originalExtraction - it has null id which causes backend validation to fail
+      delete cleanedExam.originalExtraction;
+      
+      const response = await put<ApiResponse<null>>(`/exams/${examId}`, cleanedExam);
       setSuccess("Exam updated successfully!");
-      // Optionally, redirect after a short delay
       setTimeout(() => router.push(`/exams/${examId}`), 1500);
     } catch (err) {
       setError("Failed to update exam. Please try again.");
