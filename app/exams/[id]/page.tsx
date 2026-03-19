@@ -43,7 +43,7 @@ const ExamDetailsPage = ({ params }: ExamDetailsPageProps) => {
       setIsLoading(true);
       try {
         // Fetch main exam details
-        const examResponse = await get<ApiResponse<Exam>>(`/Exams/${examId}`);
+        const examResponse = await get<ApiResponse<Exam>>(`/exams/${examId}`);
         // if (examResponse.success) {
           setExam(examResponse as any); // Kept as per your original code
         // } else {
@@ -171,7 +171,7 @@ const ExamDetailsPage = ({ params }: ExamDetailsPageProps) => {
         <div className="flex flex-col mt-8">
           <div className="min-h-[calc(100vh-72px)] bg-[#EEF0F4] pt-8 pb-24 lg:py-8 lg:pb-12">
             <div className="max-w-7xl mx-auto px-6 lg:px-8">
-              <div className="flex flex-col lg:flex-row gap-8">
+              <div className="flex flex-col justify-center lg:flex-row gap-8">
                 
                 {/* Left Column - Dynamic Overview */}
                 <div className="lg:w-1/3">
