@@ -64,6 +64,7 @@ const MessagingPage: React.FC = () => {
   const initialErrorRef = useRef(false);
   const [showChatView, setShowChatView] = useState(false);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const [showError, setShowError] = useState(false);
 
   useLayoutEffect(() => {
     const el = messagesContainerRef.current;
@@ -76,6 +77,7 @@ const MessagingPage: React.FC = () => {
     if (error && !initialErrorRef.current) {
       console.log('Detected initial connection error. Attempting automatic retry...');
       initialErrorRef.current = true;
+      setShowError(false); // Don't show error immediately
       
       const timer = setTimeout(() => {
         console.log('Retrying conversation fetch after error...');
@@ -85,6 +87,18 @@ const MessagingPage: React.FC = () => {
       return () => clearTimeout(timer);
     }
   }, [error, refetchConversations]);
+
+  // Show error UI only if error persists after 2 seconds
+  useEffect(() => {
+    if (error && initialErrorRef.current) {
+      const timer = setTimeout(() => {
+        setShowError(true);
+      }, 2000);
+      return () => clearTimeout(timer);
+    } else {
+      setShowError(false);
+    }
+  }, [error]);
 
 
 
@@ -225,7 +239,7 @@ const MessagingPage: React.FC = () => {
     );
   }
 
-  if (error) {
+  if (error && showError) {
     return (
       <AppLayout mainClassName={messagingMainClassName}>
         <div className="text-red-600 text-center py-8">

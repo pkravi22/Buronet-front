@@ -181,8 +181,8 @@ export const useChat = (): UseChatResult => {
 
       console.log('SignalR: Attempting to connect to chat hub at', `${MESSAGE_SERVICE_BASE_URL}/chatHub`);
       
-      // Add a small delay to allow initial API fetch to complete first
-      await new Promise(resolve => setTimeout(resolve, 100));
+      // Add delay to allow service initialization and API fetch to complete first
+      await new Promise(resolve => setTimeout(resolve, 800));
       
       if (aborted) return; // Check again after delay
       
@@ -190,7 +190,7 @@ export const useChat = (): UseChatResult => {
         .withUrl(`${MESSAGE_SERVICE_BASE_URL}/chatHub`, {
           accessTokenFactory: getAuthToken,
         })
-        .withAutomaticReconnect()
+        .withAutomaticReconnect([300, 1000, 3000, 5000]) // Exponential backoff: 300ms, 1s, 3s, 5s
         .build();
 
       // 🚨 FIX APPLIED HERE: Use selectedConversationIdRef.current
