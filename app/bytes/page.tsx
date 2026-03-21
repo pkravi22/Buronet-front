@@ -83,17 +83,15 @@ const BytesPage = () => {
       <div className="hidden laptop:block">
         <MessagingIconNavbar />
       </div>
-      {/* Mobile layout: 3-part division */}
-      <div className="laptop:hidden h-dvh flex flex-col bg-[#EEF0F4] overflow-hidden">
-        {/* TopBar spacing */}
-        <div className="h-[61px]"></div>
-        {/* Main content area - fills remaining space minus navbar */}
+      {/* Mobile layout: navbar part of document flow */}
+      <div className="laptop:hidden h-dvh flex flex-col bg-[#EEF0F4] overflow-hidden pt-[61px]">
+        {/* Main content area - fills remaining space after topbar and navbar */}
         <main className="flex-1 overflow-hidden">
           <GlobalStyle />
           <VideoList />
         </main>
-        {/* Navbar spacing */}
-        <div className="h-16"></div>
+        {/* Mobile navbar - part of normal flow, not fixed */}
+        <BytesNavbar activeItem="Bytes" />
       </div>
       {/* Desktop layout */}
       <div className="hidden laptop:block h-dvh ultra:h-[calc((100dvh/1.25) + 61px)] flex flex-col bg-[#EEF0F4] overflow-hidden">
@@ -101,10 +99,6 @@ const BytesPage = () => {
           <GlobalStyle />
           <VideoList />
         </main>
-      </div>
-      {/* Mobile navbar - fixed at bottom */}
-      <div className="laptop:hidden fixed bottom-0 left-0 right-0 z-50">
-        <BytesNavbar activeItem="Bytes" />
       </div>
     </>
   );
