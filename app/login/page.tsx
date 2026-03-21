@@ -79,7 +79,20 @@ export default function LoginPage() {
         </div>
         {/* Display authentication errors */}
         {authError && ( // <--- Use authError from useAuth
-          <p className="text-red-500 text-center mb-4">{authError}</p>
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+            <p className="text-red-700 text-center mb-2">{authError}</p>
+            {authError.includes('Email not confirmed') && (
+              <div className="mt-3 pt-3 border-t border-red-200">
+                <p className="text-sm text-red-600 mb-2">Didn't receive the confirmation email?</p>
+                <Link
+                  href={`/check-email?email=${encodeURIComponent(username)}`}
+                  className="block w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-md transition-colors text-center text-sm"
+                >
+                  Resend Confirmation Email
+                </Link>
+              </div>
+            )}
+          </div>
         )}
         <form onSubmit={handleSubmit} className="mt-8 space-y-6">
           <div className="rounded-md shadow-sm -space-y-px">

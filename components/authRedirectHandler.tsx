@@ -30,7 +30,7 @@ export const AuthRedirectHandler: React.FC<{ children: React.ReactNode }> = ({ c
   const isLoading = isAuthLoading || (user && isProfileLoading);
 
   // Define public routes that should be accessible even during logout guard
-  const publicRoutes = ['/login', '/register', '/forgot-password', '/reset-password', '/registration-success'];
+  const publicRoutes = ['/login', '/register', '/forgot-password', '/reset-password', '/registration-success', '/check-email', '/confirm-email'];
 
   // Post-logout session monitor:
   // For 2 minutes after logout, keep forcing /home and keep clearing any token that reappears.

@@ -45,6 +45,8 @@ interface AuthContextType {
   isProfileError: boolean;
   isProfileSetup: boolean;
   refetchProfile: () => Promise<void>;
+  verifyEmail: (token: string) => Promise<boolean>;
+  resendConfirmationEmail: (email: string) => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -251,40 +253,86 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // --- Register Function ---
   const register = async (data: RegisterData): Promise<RegisterResponse> => {
     console.log('register: Attempting registration for username:', data.username);
-    // REMOVED: setIsLoading(true);
-    setError(null);
+    setError(null); // Clear any previous errors
     try {
-      // Assuming register endpoint returns token and user info upon success
-      const registerResponse: { token: string; userId: string; username: string; email: string; } = await postApi('/auth/register', data);
+      // Call register endpoint - backend now sends confirmation email instead of returning token
+      const registerResponse: any = await postApi('/auth/register', data);
+      
+      console.log('register: Backend response:', registerResponse);
 
-      if (registerResponse && registerResponse.token) {
-        console.log('register: Registration successful. Token received.');
-        localStorage.setItem('token', registerResponse.token);
-        // Set user context directly with basic info from registration response
-        // setUser({ id: registerResponse.userId, username: registerResponse.username, email: registerResponse.email, createdAt: '', updatedAt: '', isAdmin: false });
-        const decoded = jwtDecode(registerResponse.token);
-        const decodedUser = mapJwtClaimsToUser(decoded);
-        setUser(decodedUser);
-
-        console.log('register: Registration successful. User set in context:', decodedUser);
+      // Backend returns just a message on success, treat any non-error response as success
+      // If we got here without an exception, it's a success
+      if (registerResponse && registerResponse.message) {
+        console.log('register: Registration successful. Confirmation email sent.');
         
-        // CRITICAL: SYNCHRONOUS FETCH PROFILE
-        await fetchAndSetProfile(decodedUser.id);
-        router.push('/registration-success'); // Redirect to success page with dialog
-        return {"success":true, "message": "Registration successful."} as RegisterResponse;
+        // Don't set error, just return success
+        setError(null);
+        
+        return { "success": true, "message": registerResponse.message } as RegisterResponse;
       } else {
-        throw new Error("Registration successful but no token received.");
+        throw new Error("Registration failed - no response from server.");
       }
     } catch (err: any) {
       console.error('register: Registration failed:', err);
       const message = err?.message || "Registration failed.";
       setError(message);
-      localStorage.removeItem('token'); // Clear any potential token/state from failed attempt
-      setUser(null);
-      return {"success":false, "message": message} as RegisterResponse;
+      return { "success": false, "message": message } as RegisterResponse;
     } finally {
       console.log('register: Registration process complete.');
-      // REMOVED: setIsLoading(false);
+    }
+  };
+
+  // --- Verify Email Function ---
+  const verifyEmail = async (token: string): Promise<boolean> => {
+    console.log('verifyEmail: Attempting email verification with token');
+    setError(null);
+    try {
+      const response: { token: string; userId: string; username: string; email: string; refreshToken?: string } = await postApi('/auth/confirm-email', { token });
+
+      if (response && response.token) {
+        console.log('verifyEmail: Email verification successful. Token received.');
+        localStorage.setItem('token', response.token);
+        
+        if (response.refreshToken) {
+          localStorage.setItem('refreshToken', response.refreshToken);
+        }
+
+        const decoded = jwtDecode(response.token);
+        const decodedUser = mapJwtClaimsToUser(decoded);
+        setUser(decodedUser);
+
+        console.log('verifyEmail: User set in context:', decodedUser);
+        
+        // Fetch profile after email verification
+        await fetchAndSetProfile(decodedUser.id);
+        return true;
+      } else {
+        throw new Error("Email verification successful but no token received.");
+      }
+    } catch (err: any) {
+      console.error('verifyEmail: Email verification failed:', err);
+      setError(err.message || "Email verification failed.");
+      return false;
+    }
+  };
+
+  // --- Resend Confirmation Email Function ---
+  const resendConfirmationEmail = async (email: string): Promise<boolean> => {
+    console.log('resendConfirmationEmail: Attempting to resend confirmation email to:', email);
+    setError(null);
+    try {
+      const response: { success: boolean; message?: string } = await postApi('/auth/resend-confirmation-email', { email });
+
+      if (response && response.success) {
+        console.log('resendConfirmationEmail: Confirmation email resent successfully.');
+        return true;
+      } else {
+        throw new Error(response?.message || "Failed to resend confirmation email.");
+      }
+    } catch (err: any) {
+      console.error('resendConfirmationEmail: Failed to resend confirmation email:', err);
+      setError(err.message || "Failed to resend confirmation email.");
+      return false;
     }
   };
 
@@ -323,6 +371,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         isProfileError,       // NEW
         isProfileSetup,       // NEW
         refetchProfile,       // NEW
+        verifyEmail,          // NEW
+        resendConfirmationEmail, // NEW
       }}
     >
       {children}

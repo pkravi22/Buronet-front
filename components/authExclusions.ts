@@ -4,4 +4,6 @@ export const authExclusions: string[] = [
   '/login',
   '/register',
   '/forgot-password',
+  '/check-email',
+  '/confirm-email',
 ];

@@ -23,24 +23,13 @@ const RegisterPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isMounted, setIsMounted] = useState(false); // Track hydration
-  const { register, user, isLoading, error: authError } = useAuth();
+  const { register, isLoading, error: authError } = useAuth();
   const router = useRouter();
 
   // Prevent hydration mismatch by only rendering after client-side hydration
   useEffect(() => {
     setIsMounted(true);
   }, []);
-
-  // Handles the form submission for registration
-  // const handleSubmit = async (e: React.FormEvent) => {
-  //   e.preventDefault(); // Prevent default form submission behavior
-
-  //   // If registration is already in progress, do nothing
-  //   if (isLoading) return;
-
-  //   // Call the register function from AuthContext with collected data
-  //   await register({ username, email, password });
-  // };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,9 +48,20 @@ const RegisterPage: React.FC = () => {
     }
 
     setIsSubmitting(true);
-    await register({ username, email: normalizedEmail, password } as RegisterData);
+    const result = await register({ username, email: normalizedEmail, password } as RegisterData);
+    
+    console.log('Register result:', result);
+    
+    // If registration was successful, redirect to check-email page
+    if (result && result.success) {
+      console.log('Registration successful, redirecting to check-email');
+      const emailParam = encodeURIComponent(normalizedEmail);
+      router.push(`/check-email?email=${emailParam}`);
+    } else {
+      console.log('Registration failed or no success flag');
+    }
+    
     setIsSubmitting(false);
-    // Redirect is handled by AuthContext
   };
 
   const passwordError = useMemo(() => {
@@ -230,26 +230,32 @@ const RegisterPage: React.FC = () => {
           <div>
             <button
               type="submit"
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              disabled={isLoading || !!emailError || !!passwordError || !!usernameError} // Disable button when invalid/loading
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+              disabled={isSubmitting || !!emailError || !!passwordError || !!usernameError} // Disable button when invalid/loading
             >
               <span className="absolute left-0 inset-y-0 flex items-center pl-3">
-                {/* Lock icon */}
-                <svg
-                  className="h-5 w-5 text-indigo-500 group-hover:text-indigo-400"
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
-                    clipRule="evenodd"
-                  />
-                </svg>
+                {isSubmitting ? (
+                  <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                ) : (
+                  <svg
+                    className="h-5 w-5 text-indigo-500 group-hover:text-indigo-400"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                )}
               </span>
-              {isLoading ? 'Registering...' : 'Sign up'} {/* Button text changes based on loading state */}
+              {isSubmitting ? 'Registering...' : 'Sign up'} {/* Button text changes based on loading state */}
             </button>
           </div>
         </form>

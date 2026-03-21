@@ -5,6 +5,7 @@ export interface User { // Your core User type
   createdAt: string;
   updatedAt: string;
   isAdmin: boolean | undefined;
+  isEmailConfirmed?: boolean; // Email confirmation status
   // PasswordHash and PasswordSalt are NOT here for security
 }
 
