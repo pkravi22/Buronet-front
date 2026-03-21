@@ -6,6 +6,8 @@ import Link from 'next/link';
 import LoadingSpinner from '@/components/UI/LoadingSpinner';
 import { postApi } from '@/lib/api';
 
+export const dynamic = 'force-dynamic';
+
 const CheckEmailPage: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
