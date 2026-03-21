@@ -103,7 +103,7 @@ const HomePage: React.FC = () => {
         {/* Placeholder is now hidden on small screens and visible on large screens */}
         {/* <div className="hidden lg:block lg:w-[239px] shrink-0" /> */}
         {/* <Navbar activeItem="Home" /> */}
-        <main ref={mainRef} className="flex-1 px-4 sm:px-6 lg:mx-1 overflow-y-auto h-[calc(100vh-100px)] scrollbar-hide"> {/* Margin is now responsive */}
+        <main ref={mainRef} className="flex-1 px-4 sm:px-6 lg:mx-1 overflow-y-auto h-[calc(100vh-100px)] ultra:h-[calc(83.2vh-100px)] xl-ultra:h-[calc(71.3vh-100px)] scrollbar-hide"> {/* Margin is now responsive */}
           <div className="">
             <DashboardCards />
             <InsightsSection onShareArticleClick={() => setIsCreatePostModalOpen(true)} onCreatePollClick={() => setIsCreatePollModalOpen(true)} onShareByteClick={() => setIsCreateByteModalOpen(true)} />

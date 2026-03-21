@@ -41,7 +41,7 @@ export default function MessagingIconNavbar() {
   return (
     <nav
       className={
-        'hidden laptop:block fixed top-[61px] left-6 my-6 w-16 rounded-lg shadow-sm border border-[#E5E7EB] bg-white min-h-[calc(100vh-61px-3rem)] ultra:max-h-[calc((100vh/1.25)-4rem)] xl-ultra:max-h-[calc((100vh/1.45)-4rem)] z-40'
+        'hidden laptop:block fixed top-[61px] left-6 my-6 w-16 rounded-lg shadow-sm border border-[#E5E7EB] bg-white h-[calc(100vh-61px-3rem)] ultra:h-[calc((100vh/1.25)-4rem)] xl-ultra:h-[calc((100vh/1.45)-4rem)] z-40'
       }
       aria-label="Primary"
     >
