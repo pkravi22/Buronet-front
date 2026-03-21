@@ -26,6 +26,22 @@ interface UseChatResult {
 
 var MESSAGE_SERVICE_BASE_URL = process.env.NEXT_PUBLIC_MESSAGE_SERVICE_BASE_URL || '';
 
+// For SignalR, use relative path to go through the same proxy as REST API
+// This ensures mobile and desktop both work consistently
+const getSignalRUrl = () => {
+  // If MESSAGE_SERVICE_BASE_URL is an absolute URL, convert to relative path
+  if (MESSAGE_SERVICE_BASE_URL.startsWith('http')) {
+    try {
+      const url = new URL(MESSAGE_SERVICE_BASE_URL);
+      return url.pathname || '';
+    } catch {
+      return '';
+    }
+  }
+  // If empty or relative, return as-is (will be just /chatHub)
+  return MESSAGE_SERVICE_BASE_URL;
+};
+
 export const useChat = (): UseChatResult => {
   const { user, isLoading: isAuthLoading } = useAuth();
   const connectionRef = useRef<signalR.HubConnection | null>(null);
@@ -180,7 +196,7 @@ export const useChat = (): UseChatResult => {
         return;
       }
 
-      console.log('SignalR: Attempting to connect to chat hub at', `${MESSAGE_SERVICE_BASE_URL}/chatHub`);
+      console.log('SignalR: Attempting to connect to chat hub at', `${getSignalRUrl()}/chatHub`);
       
       // Add delay to allow service initialization and API fetch to complete first
       await new Promise(resolve => setTimeout(resolve, 800));
@@ -188,7 +204,7 @@ export const useChat = (): UseChatResult => {
       if (aborted) return; // Check again after delay
       
       const connection = new signalR.HubConnectionBuilder()
-        .withUrl(`${MESSAGE_SERVICE_BASE_URL}/chatHub`, {
+        .withUrl(`${getSignalRUrl()}/chatHub`, {
           accessTokenFactory: getAuthToken,
         })
         .withAutomaticReconnect([300, 1000, 3000, 5000]) // Exponential backoff: 300ms, 1s, 3s, 5s
