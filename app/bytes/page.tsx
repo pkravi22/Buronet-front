@@ -5,6 +5,7 @@ import MainContent from './components/MainContent';
 import VideoList from './components/VideoList';
 import MessagingIconNavbar from '../messaging/components/MessagingIconNavbar';
 import Navbar from '../../components/Navbar';
+import BytesNavbar from './components/BytesNavbar';
 import { createGlobalStyle } from "styled-components";
 
 const GlobalStyle = createGlobalStyle`
@@ -76,20 +77,36 @@ const GlobalStyle = createGlobalStyle`
 
 const BytesPage = () => {
   return (
-    <div className="h-dvh ultra:h-[calc((100dvh/1.25) + 61px)] flex flex-col bg-[#EEF0F4] overflow-hidden">
+    <>
       <TopBar />
       {/* Show Navbar up to 1024px, MessagingIconNavbar after 1024px */}
       <div className="hidden laptop:block">
         <MessagingIconNavbar />
       </div>
-      <div className="laptop:hidden">
-        <Navbar activeItem="Bytes" />
+      {/* Mobile layout: 3-part division */}
+      <div className="laptop:hidden h-dvh flex flex-col bg-[#EEF0F4] overflow-hidden">
+        {/* TopBar spacing */}
+        <div className="h-[61px]"></div>
+        {/* Main content area - fills remaining space minus navbar */}
+        <main className="flex-1 overflow-hidden">
+          <GlobalStyle />
+          <VideoList />
+        </main>
+        {/* Navbar spacing */}
+        <div className="h-16"></div>
       </div>
-      <main className="mt-[61px]">
-        <GlobalStyle />
-        <VideoList />
-      </main>
-    </div>
+      {/* Desktop layout */}
+      <div className="hidden laptop:block h-dvh ultra:h-[calc((100dvh/1.25) + 61px)] flex flex-col bg-[#EEF0F4] overflow-hidden">
+        <main className="mt-[61px]">
+          <GlobalStyle />
+          <VideoList />
+        </main>
+      </div>
+      {/* Mobile navbar - fixed at bottom */}
+      <div className="laptop:hidden fixed bottom-0 left-0 right-0 z-50">
+        <BytesNavbar activeItem="Bytes" />
+      </div>
+    </>
   );
 };
 

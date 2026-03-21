@@ -99,7 +99,7 @@ const VideoList = () => {
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
-      <div id="bytes-scroll-container" className="relative w-full h-[90dvh] laptop:h-[100dvh] overflow-hidden flex justify-center">
+      <div id="bytes-scroll-container" className="relative w-full h-full laptop:h-[100dvh] overflow-hidden flex justify-center">
         {/* <div className="absolute top-4 left-0 right-0 z-10 flex justify-center">
             <div className="flex items-center space-x-4 bg-black/20 backdrop-blur-md p-1 rounded-full">
                 {filters.map(filter => (
@@ -141,7 +141,7 @@ const VideoList = () => {
             {bytes.map((byte) => (
                 <div
                   key={byte.id}
-                  className="h-[90dvh] laptop:h-[100dvh] ultra:h-[calc(100dvh - (61px*0.2))] xl-ultra:h-[calc(100dvh - (61px*0.4))] laptop:w-full snap-start flex justify-center items-center"
+                  className="h-full laptop:h-[100dvh] ultra:h-[calc(100dvh - (61px*0.2))] xl-ultra:h-[calc(100dvh - (61px*0.4))] laptop:w-full snap-start flex justify-center items-center"
                 >
                   <Video
                     byte={byte}
