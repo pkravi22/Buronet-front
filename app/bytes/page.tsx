@@ -84,7 +84,7 @@ const BytesPage = () => {
         <MessagingIconNavbar />
       </div>
       {/* Mobile layout: navbar part of document flow */}
-      <div className="laptop:hidden h-dvh flex flex-col bg-[#EEF0F4] overflow-hidden pt-[61px]">
+      <div className="laptop:hidden h-dvh flex flex-col bg-[#EEF0F4] overflow-hidden pt-[61px] pb-16">
         {/* Main content area - fills remaining space after topbar and navbar */}
         <main className="flex-1 overflow-hidden">
           <GlobalStyle />
