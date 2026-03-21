@@ -15,14 +15,14 @@ import { usePaginatedBytes } from "@/lib/hooks/usePaginatedBytes";
 const VideoListStyled = styled.div`
   display: grid;
   place-items: center;
-  min-height: 80vh;
-  max-height: 80vh;
+  min-height: 100%;
+  max-height: 100%;
   .video-list {
     display: grid;
     place-items: center;
     gap: 1rem;
     scroll-snap-type: y mandatory;
-    max-height: calc(100vh - 4rem);
+    max-height: 100%;
     @media (min-width: 768px) {
       & {
         gap: 2rem;
