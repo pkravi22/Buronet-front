@@ -83,12 +83,12 @@ export const useChat = (): UseChatResult => {
     }
 
     setIsLoadingConversations(true);
-    setError(null);
     try {
       const fetchedConversations = await get<ConversationDto[]>('/conversations');
       console.log('useChat: Fetched conversations via API:', fetchedConversations);
       setConversations(fetchedConversations);
-         if (selectedConversation) {
+      setError(null); // Clear error on success
+      if (selectedConversation) {
         const currentConvExists = fetchedConversations.some(conv => conv.id === selectedConversation.id);
         if (!currentConvExists) {
             setSelectedConversation(fetchedConversations.length > 0 ? fetchedConversations[0] : null);
@@ -106,8 +106,8 @@ export const useChat = (): UseChatResult => {
 
   // --- Retry Logic for Initial Fetch ---
   const retryCountRef = useRef(0);
-  const maxRetries = 3;
-  const retryDelays = [500, 1000, 2000]; // Exponential backoff: 500ms, 1s, 2s
+  const maxRetries = 2;
+  const retryDelays = [300, 800]; // Exponential backoff: 300ms, 800ms
 
   useEffect(() => {
     if (isAuthLoading || !user) return;
