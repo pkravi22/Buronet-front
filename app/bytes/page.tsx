@@ -84,14 +84,18 @@ const BytesPage = () => {
         <MessagingIconNavbar />
       </div>
       {/* Mobile layout: navbar part of document flow */}
-      <div className="laptop:hidden flex flex-col bg-[#EEF0F4] overflow-hidden" style={{ height: '100dvh' }}>
-        {/* Main content area - calculate height: 100dvh - topbar(61px) - navbar(64px) */}
-        <main style={{ height: 'calc(100dvh - 61px - 64px)', overflow: 'hidden' }}>
+      <div className="laptop:hidden flex flex-col bg-[#EEF0F4] gap-2" style={{ height: '100dvh' }}>
+        {/* TopBar spacing - already fixed at top */}
+        <div style={{ height: '61px' }}></div>
+        {/* Main content area - fills remaining space */}
+        <main className="flex-1 overflow-hidden rounded-lg mx-2">
           <GlobalStyle />
           <VideoList />
         </main>
         {/* Mobile navbar - part of normal flow, not fixed */}
-        <BytesNavbar activeItem="Bytes" />
+        <div className="mx-2">
+          <BytesNavbar activeItem="Bytes" />
+        </div>
       </div>
       {/* Desktop layout */}
       <div className="hidden laptop:block h-dvh ultra:h-[calc((100dvh/1.25) + 61px)] flex flex-col bg-[#EEF0F4] overflow-hidden">
