@@ -106,8 +106,8 @@ export const useChat = (): UseChatResult => {
 
   // --- Retry Logic for Initial Fetch ---
   const retryCountRef = useRef(0);
-  const maxRetries = 2;
-  const retryDelays = [300, 800]; // Exponential backoff: 300ms, 800ms
+  const maxRetries = 3;
+  const retryDelays = [500, 1500, 3000]; // Exponential backoff: 500ms, 1.5s, 3s
 
   useEffect(() => {
     if (isAuthLoading || !user) return;

@@ -64,7 +64,6 @@ const MessagingPage: React.FC = () => {
   const initialErrorRef = useRef(false);
   const [showChatView, setShowChatView] = useState(false);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
-  const [showError, setShowError] = useState(false);
 
   useLayoutEffect(() => {
     const el = messagesContainerRef.current;
@@ -72,12 +71,11 @@ const MessagingPage: React.FC = () => {
     el.scrollTop = el.scrollHeight;
   }, [selectedConversation?.id, messages.length]);
 
-  // Automatic Retry Logic: Retry on initial error with exponential backoff
+  // Automatic Retry Logic: Silently retry on initial error
   useEffect(() => {
     if (error && !initialErrorRef.current) {
       console.log('Detected initial connection error. Attempting automatic retry...');
       initialErrorRef.current = true;
-      setShowError(false); // Don't show error immediately
       
       const timer = setTimeout(() => {
         console.log('Retrying conversation fetch after error...');
@@ -87,25 +85,6 @@ const MessagingPage: React.FC = () => {
       return () => clearTimeout(timer);
     }
   }, [error, refetchConversations]);
-
-  // Show error UI only if error persists after 2 seconds
-  useEffect(() => {
-    if (error && initialErrorRef.current) {
-      const timer = setTimeout(() => {
-        setShowError(true);
-      }, 2000);
-      return () => clearTimeout(timer);
-    } else {
-      setShowError(false);
-    }
-  }, [error]);
-
-  // Reset error tracking when user manually clicks retry
-  const handleRetry = () => {
-    initialErrorRef.current = false;
-    setShowError(false);
-    refetchConversations();
-  };
 
 
 
@@ -246,13 +225,17 @@ const MessagingPage: React.FC = () => {
     );
   }
 
-  if (error && showError) {
+  // Only show error if it persists after retries (5+ seconds)
+  if (error) {
     return (
       <AppLayout mainClassName={messagingMainClassName}>
         <div className="text-red-600 text-center py-8">
           <p>Error loading messaging service: {error as string}</p>
           <button
-            onClick={handleRetry}
+            onClick={() => {
+              initialErrorRef.current = false;
+              refetchConversations();
+            }}
             className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
           >
             Retry
