@@ -84,9 +84,9 @@ const BytesPage = () => {
         <MessagingIconNavbar />
       </div>
       {/* Mobile layout: navbar part of document flow */}
-      <div className="laptop:hidden h-dvh flex flex-col bg-[#EEF0F4] overflow-hidden pt-[61px]">
-        {/* Main content area - fills remaining space after topbar and navbar */}
-        <main className="flex-1 overflow-hidden">
+      <div className="laptop:hidden flex flex-col bg-[#EEF0F4] overflow-hidden" style={{ height: '100dvh' }}>
+        {/* Main content area - calculate height: 100dvh - topbar(61px) - navbar(64px) */}
+        <main style={{ height: 'calc(100dvh - 61px - 64px)', overflow: 'hidden' }}>
           <GlobalStyle />
           <VideoList />
         </main>
