@@ -100,6 +100,13 @@ const MessagingPage: React.FC = () => {
     }
   }, [error]);
 
+  // Reset error tracking when user manually clicks retry
+  const handleRetry = () => {
+    initialErrorRef.current = false;
+    setShowError(false);
+    refetchConversations();
+  };
+
 
 
 
@@ -245,7 +252,7 @@ const MessagingPage: React.FC = () => {
         <div className="text-red-600 text-center py-8">
           <p>Error loading messaging service: {error as string}</p>
           <button
-            onClick={refetchConversations}
+            onClick={handleRetry}
             className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
           >
             Retry

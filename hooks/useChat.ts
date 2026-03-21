@@ -130,6 +130,7 @@ export const useChat = (): UseChatResult => {
   }, [fetchConversations, refetchConversationsTrigger, user, isAuthLoading]);
 
   const refetchConversations = () => {
+    setError(null); // Clear error immediately when retry is triggered
     setRefetchConversationsTrigger(prev => prev + 1);
   };
 
