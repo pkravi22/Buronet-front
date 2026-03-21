@@ -15,25 +15,34 @@ import { usePaginatedBytes } from "@/lib/hooks/usePaginatedBytes";
 const VideoListStyled = styled.div`
   display: grid;
   place-items: center;
-  width: 100%;
-  height: 100%;
+  min-height: 80vh;
+  max-height: 80vh;
   .video-list {
     display: grid;
     place-items: center;
     gap: 1rem;
     scroll-snap-type: y mandatory;
-    width: 100%;
-    height: 100%;
+    max-height: calc(100vh - 4rem);
     @media (min-width: 768px) {
       & {
         gap: 2rem;
       }
     }
     & > div:first-child {
-      margin-top: 0;
+      margin-top: 1rem;
     }
     & .video {
       scroll-snap-align: center;
+    }
+  }
+  @media screen and (max-width: 1023px) {
+    min-height: 100%;
+    max-height: 100%;
+    .video-list {
+      max-height: 100%;
+      & > div:first-child {
+        margin-top: 0;
+      }
     }
   }
 `;

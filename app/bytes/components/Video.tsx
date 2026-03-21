@@ -30,9 +30,9 @@ const VideoStyled = styled.div`
     position: relative;
     top: 0;
     width: 100%;
-    margin-top: 0;
-    height: 100%;
-    max-height: 100%;
+    margin-top: 1.5rem;
+    height: calc(100vh - 1.5rem - 6.5rem);
+    max-height: calc(100vh - 1.5rem - 6.5rem);
     aspect-ratio: 9 / 16;
     border-radius: 1rem;
     overflow: hidden;
@@ -49,6 +49,7 @@ const VideoStyled = styled.div`
     }
     @media screen and (max-width: 1023px) {
       height: 100%;
+      margin-top: 0;
       margin-bottom: 0;
     }
     @media screen and (max-width: 600px) {
@@ -56,6 +57,7 @@ const VideoStyled = styled.div`
       margin-left: auto;
       margin-right: auto;
       height: 100%;
+      margin-top: 0;
       margin-bottom: 0;
     }
     @media screen and (min-width: 1600px) {
