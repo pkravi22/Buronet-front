@@ -1,26 +1,18 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import React, { useState, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import LoadingSpinner from '@/components/UI/LoadingSpinner';
 import { postApi } from '@/lib/api';
 
-export const dynamic = 'force-dynamic';
-
-const CheckEmailPage: React.FC = () => {
-  const router = useRouter();
+const CheckEmailContent: React.FC = () => {
   const searchParams = useSearchParams();
   const email = searchParams.get('email');
 
   const [isResending, setIsResending] = useState(false);
   const [resendMessage, setResendMessage] = useState('');
   const [resendError, setResendError] = useState('');
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
 
   const handleResendEmail = async () => {
     if (!email) {
@@ -47,10 +39,6 @@ const CheckEmailPage: React.FC = () => {
       setIsResending(false);
     }
   };
-
-  if (!isMounted) {
-    return null;
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-100 flex items-center justify-center px-4 py-12">
@@ -105,7 +93,7 @@ const CheckEmailPage: React.FC = () => {
             <p className="font-semibold text-amber-900 mb-2 text-sm">💡 Tip:</p>
             <ul className="text-xs text-amber-800 space-y-1">
               <li>• Check your spam or junk folder if you don't see the email</li>
-              <li>• The link will expire in 1 week</li>
+              <li>• The link will expire in 24 hours</li>
               <li>• You can request a new link below if needed</li>
             </ul>
           </div>
@@ -162,6 +150,14 @@ const CheckEmailPage: React.FC = () => {
         </p>
       </div>
     </div>
+  );
+};
+
+const CheckEmailPage: React.FC = () => {
+  return (
+    <Suspense fallback={<div className="flex justify-center items-center min-h-screen"><LoadingSpinner /></div>}>
+      <CheckEmailContent />
+    </Suspense>
   );
 };
 

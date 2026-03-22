@@ -1,29 +1,20 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import LoadingSpinner from '@/components/UI/LoadingSpinner';
 import { postApi } from '@/lib/api';
 
-export const dynamic = 'force-dynamic';
-
-const ConfirmEmailPage: React.FC = () => {
+const ConfirmEmailContent: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
 
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [message, setMessage] = useState('Verifying your email...');
-  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (!isMounted) return;
-
     const verifyEmail = async () => {
       if (!token) {
         setStatus('error');
@@ -64,11 +55,7 @@ const ConfirmEmailPage: React.FC = () => {
     };
 
     verifyEmail();
-  }, [isMounted, token]);
-
-  if (!isMounted) {
-    return null;
-  }
+  }, [token]);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
@@ -133,6 +120,14 @@ const ConfirmEmailPage: React.FC = () => {
         )}
       </div>
     </div>
+  );
+};
+
+const ConfirmEmailPage: React.FC = () => {
+  return (
+    <Suspense fallback={<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"><LoadingSpinner /></div>}>
+      <ConfirmEmailContent />
+    </Suspense>
   );
 };
 
