@@ -70,7 +70,7 @@ export default function LoginPage() {
         <div>
           <img
             className="mx-auto h-12 w-auto"
-            src="/Logo.png" // Replace with your actual logo path
+            src="https://res.cloudinary.com/db65bnadc/image/upload/v1774283069/bgvvq08zbwrh0rulsgyf.png" // Replace with your actual logo path
             alt="Buronet Logo"
           />
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
