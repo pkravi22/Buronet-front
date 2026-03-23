@@ -112,12 +112,15 @@ export default function Home() {
           <header className="relative flex items-center lg:grid lg:grid-cols-[1fr_auto_1fr] border-b border-solid border-border-light dark:border-border-dark pl-4 pr-2 sm:px-6 lg:px-10 py-3">
             <div className="flex items-center gap-3 text-content-light dark:text-content-dark justify-self-start">
               <div className="h-8 w-8 text-primary">
-                <svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                {/* <svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
                   <path
                     d="M44 11.2727C44 14.0109 39.8386 16.3957 33.69 17.6364C39.8386 18.877 44 21.2618 44 24C44 26.7382 39.8386 29.123 33.69 30.3636C39.8386 31.6043 44 33.9891 44 36.7273C44 40.7439 35.0457 44 24 44C12.9543 44 4 40.7439 4 36.7273C4 33.9891 8.16144 31.6043 14.31 30.3636C8.16144 29.123 4 26.7382 4 24C4 21.2618 8.16144 18.877 14.31 17.6364C8.16144 16.3957 4 14.0109 4 11.2727C4 7.25611 12.9543 4 24 4C35.0457 4 44 7.25611 44 11.2727Z"
                     fill="currentColor"
                   ></path>
-                </svg>
+                </svg> */}
+                <div className="flex items-center justify-center w-9 h-9">
+                    <img src="https://res.cloudinary.com/db65bnadc/image/upload/v1774285480/kuyt6i9zfwihtmfebyxm.jpg" alt="Buronet Logo" className="w-7 h-7" />
+                </div>
               </div>
               <h2 className="text-xl font-bold">Buronet</h2>
             </div>
@@ -253,12 +256,12 @@ export default function Home() {
           <main className="flex flex-1 flex-col items-center py-5">
             <div className="w-full max-w-6xl px-4 sm:px-6 lg:px-8">
               <section
-                className="relative flex min-h-[480px] flex-col items-center justify-center gap-6 rounded-xl bg-cover bg-center bg-no-repeat p-4 text-center"
+                className="relative flex min-h-[480px] flex-col items-center justify-center gap-6 rounded-xl bg-cover bg-center bg-no-repeat p-4 text-center before:absolute before:inset-0 before:bg-black/50 before:rounded-xl"
                 style={{
-                  backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.5) 100%), url('https://img.freepik.com/premium-vector/university-campus-building-vector-illustration-college-building_781755-156.jpg')`,
+                  backgroundImage: `url('https://res.cloudinary.com/db65bnadc/image/upload/v1774285269/aywrkv58b20xfsufr5kc.jpg')`,
                 }}
               >
-                <div className="flex flex-col gap-4 max-w-3xl">
+                <div className="relative z-10 flex flex-col gap-4 max-w-3xl">
                   <h1 className="text-white text-4xl md:text-5xl font-black tracking-tighter">
                     Connect, Learn, and Succeed in the Public Sector
                   </h1>
@@ -268,7 +271,7 @@ export default function Home() {
                     collaborate, and rise together.
                   </p>
                 </div>
-                <button onClick={handleJoin} className="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-6 bg-primary text-white text-base font-bold leading-normal tracking-wide hover:bg-primary/90 transition-colors">
+                <button onClick={handleJoin} className="relative z-10 flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-6 bg-primary text-white text-base font-bold leading-normal tracking-wide hover:bg-primary/90 transition-colors">
                   <span className="truncate">Join Now</span>
                 </button>
               </section>
