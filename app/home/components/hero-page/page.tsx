@@ -110,20 +110,14 @@ export default function Home() {
         <div className="layout-container flex min-h-full flex-col">
           {/* Header */}
           <header className="relative flex items-center lg:grid lg:grid-cols-[1fr_auto_1fr] border-b border-solid border-border-light dark:border-border-dark pl-4 pr-2 sm:px-6 lg:px-10 py-3">
-            <div className="flex items-center gap-3 text-content-light dark:text-content-dark justify-self-start">
-              <div className="h-8 w-8 text-primary">
-                {/* <svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-                  <path
-                    d="M44 11.2727C44 14.0109 39.8386 16.3957 33.69 17.6364C39.8386 18.877 44 21.2618 44 24C44 26.7382 39.8386 29.123 33.69 30.3636C39.8386 31.6043 44 33.9891 44 36.7273C44 40.7439 35.0457 44 24 44C12.9543 44 4 40.7439 4 36.7273C4 33.9891 8.16144 31.6043 14.31 30.3636C8.16144 29.123 4 26.7382 4 24C4 21.2618 8.16144 18.877 14.31 17.6364C8.16144 16.3957 4 14.0109 4 11.2727C4 7.25611 12.9543 4 24 4C35.0457 4 44 7.25611 44 11.2727Z"
-                    fill="currentColor"
-                  ></path>
-                </svg> */}
-                <div className="flex items-center justify-center w-9 h-9">
-                    <img src="https://res.cloudinary.com/db65bnadc/image/upload/v1774285480/kuyt6i9zfwihtmfebyxm.jpg" alt="Buronet Logo" className="w-7 h-7" />
+            <div className="flex items-center gap-2 cursor-pointer" onClick={() => router.push('/home')}>
+                    <div className="flex items-center justify-center w-9 h-9">
+                        <img src="/Logo.PNG" alt="Buronet Logo" className="w-7 h-7" />
+                    </div>
+                    <span className="hidden sm:block text-xl font-semibold bg-gradient-to-b from-[#488AFF] to-[#2563EB] text-transparent bg-clip-text">
+                        Buronet
+                    </span>
                 </div>
-              </div>
-              <h2 className="text-xl font-bold">Buronet</h2>
-            </div>
             <nav className="hidden lg:flex items-center gap-8 justify-self-center">
               {navLinks.map((item) => (
                 <Link
