@@ -23,13 +23,20 @@ const CLAIM_EMAIL = 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/email
  * Maps a decoded ASP.NET Core JWT (with full claim URIs) to a User object.
  */
 function mapJwtClaimsToUser(decoded: any): User {
+  // Check for isAdmin in multiple possible locations
+  const isAdmin = decoded.isAdmin === true || 
+                  decoded.isAdmin === 'true' ||
+                  decoded.role === 'Admin' ||
+                  decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] === 'Admin' ||
+                  false;
+  
   return {
     id: decoded[CLAIM_NAME_IDENTIFIER] || decoded.sub || decoded.nameid || decoded.id || '',
     username: decoded[CLAIM_NAME] || decoded.unique_name || decoded.username || '',
     email: decoded[CLAIM_EMAIL] || decoded.email || '',
     createdAt: '',
     updatedAt: '',
-    isAdmin: decoded.isAdmin ?? (decoded.role === 'Admin' || undefined),
+    isAdmin: isAdmin,
   };
 }
 
@@ -137,6 +144,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       console.log('fetchCurrentUser: Attempting backend token verification via GET /Users/user');
       const currentUser = await get<User>('/auth/profile'); // Call the /Users/user endpoint for basic user info
       console.log("fetchCurrentUser: Backend verification successful. Current user fetched: ", currentUser);
+      console.log("fetchCurrentUser: User isAdmin property:", currentUser.isAdmin);
+      
+      // Preserve isAdmin from current user state if backend doesn't return it
+      const currentIsAdmin = user?.isAdmin;
+      if (currentIsAdmin && !currentUser.isAdmin) {
+        currentUser.isAdmin = currentIsAdmin;
+        console.log('fetchCurrentUser: Preserved isAdmin from current user state:', currentIsAdmin);
+      }
+      
       setUser(currentUser); // Set user if fetch is successful
     } catch (err: any) {
       // If 401, the token is invalid or expired. Clear it.
@@ -188,6 +204,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
         const decoded = jwtDecode(token);
         const decodedUser = mapJwtClaimsToUser(decoded);
+        console.log('login: Decoded JWT claims:', decoded);
+        console.log('login: Mapped user object:', decodedUser);
         setUser(decodedUser);
 
         console.log('login: Login successful. Token received and user set in context:', decodedUser);
@@ -345,6 +363,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser(decodedUser);
         
         // Fetch full user from API to replace JWT-based user, then fetch profile
+        // Pass the decodedUser so we can preserve isAdmin if backend doesn't return it
         fetchCurrentUser().then(() => {
           fetchAndSetProfile(decodedUser.id);
         }).finally(() => setIsLoading(false));

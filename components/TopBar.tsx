@@ -34,6 +34,8 @@ const TopBar = () => {
   const [showProfile, setShowProfile] = useState(false);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+  const [isUserAdmin, setIsUserAdmin] = useState(false);
 
    // --- NEW STATE FOR SEARCH ---
   const [searchQuery, setSearchQuery] = useState('');
@@ -53,6 +55,12 @@ const TopBar = () => {
         isLoading: isNotifLoading, 
         markAsRead 
     } = useNotifications();
+
+  // --- PREVENT HYDRATION MISMATCH ---
+  useEffect(() => {
+    setIsMounted(true);
+    setIsUserAdmin(user?.isAdmin ?? false);
+  }, [user?.isAdmin]);
 
   // --- SEARCH LOGIC (Debounced Effect) ---
   useEffect(() => {
@@ -376,7 +384,7 @@ const TopBar = () => {
                           <FiUser size={16} />
                           <span>Profile</span>
                         </Link>
-                        {user?.isAdmin && (
+                        {isUserAdmin && (
                           <Link href="/admin" className="w-full px-4 py-2 text-left text-[#1F2937] hover:bg-gray-50 flex items-center gap-2" onClick={() => router.push('/admin')}>
                             <FiSettings size={16} />
                             <span>Admin Panel</span>
