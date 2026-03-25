@@ -13,9 +13,8 @@ interface CreateByteModalProps {
 }
 
 const CLOUDINARY_CLOUD_NAME = 'db65bnadc';
-const MAX_VIDEO_SIZE = 10 * 1024 * 1024; // 10 MB
+const MAX_VIDEO_SIZE = 20 * 1024 * 1024; // 20 MB
 const MAX_VIDEO_DURATION = 30; // 30 seconds
-const UPLOAD_SIZE_LIMIT = 50 * 1024 * 1024; // 50 MB for upload
 
 const CreateByteModal: React.FC<CreateByteModalProps> = ({ isOpen, onClose, onBytePostCreated }) => {
   const { user, userProfile, isLoading: authLoading } = useAuth();
@@ -34,8 +33,8 @@ const CreateByteModal: React.FC<CreateByteModalProps> = ({ isOpen, onClose, onBy
 
   const validateVideoFile = (file: File): string | null => {
     // Check file size
-    if (file.size > UPLOAD_SIZE_LIMIT) {
-      return `File size exceeds 50 MB limit. Current size: ${(file.size / 1024 / 1024).toFixed(2)} MB`;
+    if (file.size > MAX_VIDEO_SIZE) {
+      return `File size exceeds 20 MB limit. Current size: ${(file.size / 1024 / 1024).toFixed(2)} MB`;
     }
 
     // Check file type
@@ -221,7 +220,7 @@ const CreateByteModal: React.FC<CreateByteModalProps> = ({ isOpen, onClose, onBy
             {byteFile && (
               <div className="mt-2 text-sm text-green-600 bg-green-50 p-2 rounded">
                 <p>✓ Selected: {byteFile.name}</p>
-                <p>✓ Size: {(byteFile.size / 1024 / 1024).toFixed(2)} MB / 10 MB</p>
+                <p>✓ Size: {(byteFile.size / 1024 / 1024).toFixed(2)} MB / 20 MB</p>
                 {videoDuration && <p>✓ Duration: {Math.round(videoDuration)}s / 30s</p>}
               </div>
             )}

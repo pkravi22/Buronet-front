@@ -3,7 +3,7 @@ import { Byte, SuggestionType } from '@/lib/types/Byte';
 import { get } from '@/lib/api';
 
 const BATCH_SIZE = 10;
-const MAX_BYTES_IN_MEMORY = 30;
+const MAX_BYTES_IN_MEMORY = 50;
 
 interface UsePaginatedBytesReturn {
   bytes: Byte[];
@@ -21,6 +21,7 @@ export const usePaginatedBytes = (filter: SuggestionType): UsePaginatedBytesRetu
 
   const pageRef = useRef(1);
   const isFetchingRef = useRef(false);
+  const totalFetchedRef = useRef(0);
 
   const loadMore = useCallback(async () => {
     if (isFetchingRef.current || !hasMore) return;
@@ -35,20 +36,17 @@ export const usePaginatedBytes = (filter: SuggestionType): UsePaginatedBytesRetu
 
       if (fetchedBytes.length === 0) {
         setHasMore(false);
-      } else {
-        setBytes((prevBytes) => {
-          // Combine new bytes with existing ones
-          const combined = [...prevBytes, ...fetchedBytes];
-
-          // Keep only the last MAX_BYTES_IN_MEMORY bytes (remove oldest)
-          if (combined.length > MAX_BYTES_IN_MEMORY) {
-            return combined.slice(combined.length - MAX_BYTES_IN_MEMORY);
-          }
-
-          return combined;
-        });
-
+      } else if (fetchedBytes.length < BATCH_SIZE) {
+        // Last page - fewer items than batch size
+        setBytes((prevBytes) => [...prevBytes, ...fetchedBytes]);
+        setHasMore(false);
         pageRef.current += 1;
+        totalFetchedRef.current += fetchedBytes.length;
+      } else {
+        // Normal page - add bytes without removing old ones
+        setBytes((prevBytes) => [...prevBytes, ...fetchedBytes]);
+        pageRef.current += 1;
+        totalFetchedRef.current += fetchedBytes.length;
       }
     } catch (err) {
       console.error('Failed to fetch bytes:', err);

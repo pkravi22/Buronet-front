@@ -63,8 +63,9 @@ const VideoList = () => {
   useEffect(() => {
     setInitialLoading(true);
     reset();
+    // Load initial batch
     loadMore().finally(() => setInitialLoading(false));
-  }, [activeFilter, reset, loadMore]);
+  }, [activeFilter]);
   
   const handleLike = async (byteId: string) => {
     // Find the byte and update it optimistically
