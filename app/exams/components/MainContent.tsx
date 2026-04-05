@@ -2,7 +2,8 @@
 
 "use client";
 
-import { TrendingUp, Clock, Briefcase, FileText, Bookmark, Bell, ChevronRight, Building2, Banknote, Shield, GraduationCap, Stethoscope, Landmark, ChevronLeft, X } from 'lucide-react';
+import { TrendingUp, Clock, Briefcase, FileText, Bookmark, Bell, ChevronRight, Building2, Banknote, Shield, GraduationCap, Stethoscope, Landmark, ChevronLeft, X, Plus } from 'lucide-react';
+import Link from 'next/link';
 import { useRef, useState, useEffect, useMemo } from 'react';
 import { get, remove, postApi } from '@/lib/api'; // Make sure this path is correct for your API helper
 import { Exam, ApiResponse } from '@/lib/types/exams'; // Make sure this path is correct for your types
@@ -253,7 +254,8 @@ const MainContent = () => {
   return (
     <div className="flex-1">
       <div className="flex justify-center w-full">
-        <div className="w-[640px]">
+        {/* RESPONSIVE CHANGE: Replaced fixed w-[640px] with w-full max-w-[640px] and added responsive padding */}
+        <div className="w-full max-w-[640px] px-4 md:px-0">
           {/* Dashboard Cards Section */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
             {dashboardCards.map((card, index) => (
@@ -282,15 +284,23 @@ const MainContent = () => {
           <div className="mb-8">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-[#1F2937] font-semibold text-lg">Latest Exam Openings</h2>
-              <button
-                onClick={handleOpenModal}
-                className="text-[#3B82F6] text-sm flex items-center gap-1 hover:text-[#2563EB]"
-              >
-                View All<ChevronRight size={16} />
-              </button>
+              <div className="flex items-center gap-4">
+                {user?.isAdmin && (
+                  <Link href="/exams/create" className="text-white bg-blue-600 hover:bg-blue-700 px-3 py-1.5 rounded-lg text-sm flex items-center gap-2 shadow-sm transition-all">
+                    <Plus size={16} />
+                    <span>Create Exam</span>
+                  </Link>
+                )}
+                <button
+                  onClick={handleOpenModal}
+                  className="text-[#3B82F6] text-sm flex items-center gap-1 hover:text-[#2563EB]"
+                >
+                  View All<ChevronRight size={16} />
+                </button>
+              </div>
             </div>
             {/* KEY CHANGE 4: Functional Tabs */}
-            <div className="flex items-center gap-2 border-b border-[#E5E7EB] pb-4">
+            <div className="flex items-center gap-2 border-b border-[#E5E7EB] pb-4 overflow-x-auto scrollbar-hide">
               {examTabs.map(tab => (
                 <button
                   key={tab.id}
