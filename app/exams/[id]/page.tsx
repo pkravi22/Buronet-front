@@ -231,7 +231,7 @@ const ExamDetailsPage = ({ params }: ExamDetailsPageProps) => {
                       </div>
                       <div className="flex w-full flex-col space-y-3">
                         {/* Bookmark logic removed, but can be added if needed */}
-                        <a href={exam.importantLinks?.officialWebsite} target="_blank" rel="noopener noreferrer" className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-lg font-medium transition shadow-md hover:shadow-lg flex items-center justify-center gap-2">
+                        <a href={exam.importantLinks?.officialWebsite?.startsWith('http') ? exam.importantLinks.officialWebsite : `https://${exam.importantLinks?.officialWebsite}`} target="_blank" rel="noopener noreferrer" className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-lg font-medium transition shadow-md hover:shadow-lg flex items-center justify-center gap-2">
                           <Edit size={18} /> Apply / Official Site
                         </a>
                         {exam.importantLinks?.notificationPdf && (
@@ -355,7 +355,7 @@ const ExamDetailsPage = ({ params }: ExamDetailsPageProps) => {
                                 </a>
                             )}
                             {exam.importantLinks?.officialWebsite && (
-                                <a href={exam.importantLinks.officialWebsite} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between bg-gray-50 rounded-lg p-4 hover:bg-blue-50 transition cursor-pointer">
+                                <a href={exam.importantLinks.officialWebsite.startsWith('http') ? exam.importantLinks.officialWebsite : `https://${exam.importantLinks.officialWebsite}`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between bg-gray-50 rounded-lg p-4 hover:bg-blue-50 transition cursor-pointer">
                                     <div className="flex items-center"><Globe size={18} className="text-blue-500 mr-3" /><span className="text-gray-800">Official Website</span></div>
                                     <LucideLink size={16} className="text-gray-400" />
                                 </a>
