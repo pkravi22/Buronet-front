@@ -41,6 +41,8 @@ const VideoStyled = styled.div`
       width: 100%;
       height: 100%;
       object-fit: cover;
+      -webkit-user-select: none;
+      user-select: none;
     }
     @media screen and (min-width: 1024px) and (max-width: 1200px) {
       height: calc(100vh - 0.5rem - 5rem - 3rem);
@@ -51,6 +53,9 @@ const VideoStyled = styled.div`
       height: 100%;
       margin-top: 0;
       margin-bottom: 0;
+      video {
+        -webkit-touch-callout: none;
+      }
     }
     @media screen and (max-width: 600px) {
       width: 90% !important;
@@ -59,6 +64,9 @@ const VideoStyled = styled.div`
       height: 100%;
       margin-top: 0;
       margin-bottom: 0;
+      video {
+        -webkit-touch-callout: none;
+      }
     }
     @media screen and (min-width: 1600px) {
       height: calc(((100vh/1.25) - 4rem));
@@ -422,6 +430,8 @@ const Video = ({
           loop
           muted={mute}
           onClick={() => setPlay(!play)}
+          playsInline
+          webkit-playsinline="true"
         />
 
         <div className="video-actions">
