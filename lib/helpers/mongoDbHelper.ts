@@ -1,29 +1,30 @@
 import { MongoClient } from "mongodb";
 
-const uri = process.env.MONGO_URI!;
-const options = {};
-
-let client: MongoClient;
-let clientPromise: Promise<MongoClient>;
-
-if (!process.env.MONGO_URI) {
-  throw new Error("Please add MONGO_URI to environment variables");
-}
-
 declare global {
   // eslint-disable-next-line no-var
   var _mongoClientPromise: Promise<MongoClient> | undefined;
 }
 
-if (process.env.NODE_ENV === "development") {
-  if (!global._mongoClientPromise) {
-    client = new MongoClient(uri, options);
-    global._mongoClientPromise = client.connect();
+// Use a deferred Promise so the MONGO_URI check only rejects at await-time,
+// never throws synchronously at module-import time.
+// This allows Next.js to statically analyse force-dynamic routes without crashing.
+const clientPromise: Promise<MongoClient> = new Promise((resolve, reject) => {
+  const uri = process.env.MONGO_URI;
+  if (!uri) {
+    reject(new Error("MONGO_URI environment variable is not set"));
+    return;
   }
-  clientPromise = global._mongoClientPromise;
-} else {
-  client = new MongoClient(uri, options);
-  clientPromise = client.connect();
-}
+
+  if (process.env.NODE_ENV === "development") {
+    if (!global._mongoClientPromise) {
+      const client = new MongoClient(uri);
+      global._mongoClientPromise = client.connect();
+    }
+    global._mongoClientPromise!.then(resolve).catch(reject);
+  } else {
+    const client = new MongoClient(uri);
+    client.connect().then(resolve).catch(reject);
+  }
+});
 
 export default clientPromise;

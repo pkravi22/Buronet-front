@@ -1,764 +1,1066 @@
-'use client'
-
-import Link from 'next/link';
-import Head from 'next/head';
+'use client';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
 
-import { get } from '@/lib/api';
-import type { Job } from '@/lib/types/jobs';
-import JobCard from '../../../jobs/components/JobCard';
-import { X, ChevronLeft, ChevronRight } from 'lucide-react';
+const GoogleFonts = () => (
+  <style suppressHydrationWarning>{`
+
+    :root {
+      --brand: #0096c7;
+      --brand-dark: #007aa3;
+      --brand-deeper: #005f80;
+      --brand-light: #e0f4fb;
+      --brand-lighter: #f0fafd;
+      --ink: #0d1e2c;
+      --ink-muted: #3d5166;
+      --ink-soft: #6b8499;
+      --surface: #ffffff;
+      --surface-2: #f5f8fa;
+      --surface-3: #eef4f7;
+      --border: rgba(0,150,199,0.12);
+      --border-strong: rgba(0,150,199,0.25);
+    }
+
+    .buronet-root * {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    .buronet-root {
+      background: #ffffff;
+      color: var(--ink);
+      overflow-x: hidden;
+    }
+
+    /* Animations */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(32px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    @keyframes slideRight {
+      from { opacity: 0; transform: translateX(-24px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes scaleIn {
+      from { opacity: 0; transform: scale(0.92); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+    @keyframes counterUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes shimmer {
+      0%   { background-position: -200% center; }
+      100% { background-position: 200% center; }
+    }
+    @keyframes pulse-ring {
+      0%   { transform: scale(1); opacity: 0.6; }
+      100% { transform: scale(1.5); opacity: 0; }
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-8px); }
+    }
+
+    .animate-fade-up   { animation: fadeUp 0.7s cubic-bezier(.22,.68,0,1.2) both; }
+    .animate-fade-in   { animation: fadeIn 0.6s ease both; }
+    .animate-slide-r   { animation: slideRight 0.6s cubic-bezier(.22,.68,0,1.2) both; }
+    .animate-scale-in  { animation: scaleIn 0.55s cubic-bezier(.22,.68,0,1.2) both; }
+    .delay-1 { animation-delay: 0.1s; }
+    .delay-2 { animation-delay: 0.2s; }
+    .delay-3 { animation-delay: 0.3s; }
+    .delay-4 { animation-delay: 0.4s; }
+    .delay-5 { animation-delay: 0.5s; }
+    .delay-6 { animation-delay: 0.6s; }
+    .delay-7 { animation-delay: 0.7s; }
+    .delay-8 { animation-delay: 0.8s; }
+
+    /* Navbar */
+    .buronet-nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      height: 72px;
+      display: flex; align-items: center; justify-content: space-between;
+      transition: box-shadow 0.3s;
+    }
+    .buronet-nav.scrolled { box-shadow: 0 2px 24px rgba(0,150,199,0.1); }
+    .nav-logo-wrap {
+      display: flex; align-items: center; gap: 0.5rem; cursor: pointer;
+    }
+    .nav-logo-img {
+      width: 28px; height: 28px;
+    }
+    .nav-logo {
+      font-size: 1.8rem; font-weight: 800;
+      color: var(--brand);
+      letter-spacing: -0.5px;
+    }
+    .nav-links { display: flex; gap: 2rem; align-items: center; }
+    .nav-links a {
+      font-size: 1.05rem; font-weight: 600; color: var(--ink-muted);
+      text-decoration: none; transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--brand); }
+    .nav-cta { display: flex; gap: 0.75rem; align-items: center; }
+    .btn-ghost {
+      padding: 0.55rem 1.25rem; border-radius: 8px; font-size: 1rem;
+      font-weight: 600; color: var(--ink); background: transparent;
+      border: 1.5px solid var(--border-strong); cursor: pointer;
+      transition: all 0.2s; font-family: inherit;
+    }
+    .btn-ghost:hover { border-color: var(--brand); color: var(--brand); }
+    .btn-primary {
+      padding: 0.55rem 1.35rem; border-radius: 8px; font-size: 1rem;
+      font-weight: 600; color: #fff; background: var(--brand);
+      border: none; cursor: pointer; transition: all 0.2s; font-family: inherit;
+    }
+    .btn-primary:hover { background: var(--brand-dark); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,150,199,0.3); }
+
+    /* Mobile hamburger button */
+    .nav-hamburger {
+      display: none; align-items: center; justify-content: center;
+      width: 40px; height: 40px; border-radius: 8px; border: none;
+      background: transparent; cursor: pointer; color: var(--ink);
+      transition: background 0.2s;
+    }
+    .nav-hamburger:hover { background: var(--surface-2); }
+
+    /* Mobile off-canvas menu */
+    .mobile-overlay {
+      display: none; position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,0,0,0.4);
+      opacity: 0; transition: opacity 0.2s;
+    }
+    .mobile-overlay.open { opacity: 1; }
+    .mobile-drawer {
+      position: fixed; inset-y: 0; right: 0; z-index: 201;
+      width: 300px; max-width: 85vw;
+      background: #fff; border-left: 1px solid var(--border);
+      box-shadow: -4px 0 32px rgba(0,0,0,0.12);
+      transform: translateX(100%); transition: transform 0.3s cubic-bezier(.22,.68,0,1.2);
+      display: flex; flex-direction: column;
+    }
+    .mobile-drawer.open { transform: translateX(0); }
+    .mobile-drawer-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 1.25rem; border-bottom: 1px solid var(--border);
+    }
+    .mobile-drawer-head p { font-weight: 700; font-size: 1.05rem; color: var(--ink); }
+    .mobile-drawer-body { flex: 1; overflow-y: auto; padding: 1rem 1.25rem; }
+    .mobile-nav-section-label {
+      font-size: 0.8rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.7px; color: var(--ink-soft); padding: 0.5rem 0.75rem;
+      background: var(--surface-2); border-radius: 6px; margin-bottom: 0.5rem;
+    }
+    .mobile-nav-link {
+      display: block; padding: 0.7rem 0.75rem; border-radius: 8px;
+      font-size: 1rem; font-weight: 600; color: var(--ink);
+      text-decoration: none; transition: background 0.15s;
+    }
+    .mobile-nav-link:hover { background: var(--surface-2); color: var(--brand); }
+    .mobile-actions { margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 0.5rem; }
+    .btn-mobile-primary {
+      width: 100%; padding: 0.75rem; border-radius: 8px; border: none;
+      background: var(--brand); color: #fff;
+      font-size: 1rem; font-weight: 700; cursor: pointer; font-family: inherit;
+      transition: background 0.2s;
+    }
+    .btn-mobile-primary:hover { background: var(--brand-dark); }
+    .btn-mobile-ghost {
+      width: 100%; padding: 0.75rem; border-radius: 8px;
+      border: 1.5px solid var(--border-strong); background: transparent;
+      color: var(--ink); font-size: 1rem; font-weight: 600;
+      cursor: pointer; font-family: inherit; transition: all 0.2s;
+    }
+    .btn-mobile-ghost:hover { border-color: var(--brand); color: var(--brand); }
+
+    /* Hero */
+    .hero-section {
+      min-height: 100vh;
+      padding-top: 72px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+      gap: 0;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-bg-accent {
+      position: absolute; top: -120px; right: -80px;
+      width: 600px; height: 600px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(0,150,199,0.06) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-bg-dots {
+      position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+      background-image: radial-gradient(circle, rgba(0,150,199,0.08) 1px, transparent 1px);
+      background-size: 32px 32px;
+      pointer-events: none;
+      opacity: 0.6;
+    }
+    .hero-left {
+      padding: 5rem 3rem 5rem 4rem;
+      position: relative; z-index: 2;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: var(--brand-light); color: var(--brand-deeper);
+      padding: 0.35rem 0.9rem; border-radius: 100px;
+      font-size: 0.9rem; font-weight: 600; letter-spacing: 0.3px;
+      margin-bottom: 1.5rem;
+      border: 1px solid rgba(0,150,199,0.2);
+    }
+    .badge-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--brand); position: relative;
+    }
+    .badge-dot::after {
+      content: ''; position: absolute; inset: -3px;
+      border-radius: 50%; background: rgba(0,150,199,0.3);
+      animation: pulse-ring 1.5s ease-out infinite;
+    }
+    .hero-title {
+      font-size: clamp(2.5rem, 4.5vw, 3.6rem);
+      font-weight: 800; line-height: 1.1;
+      color: var(--ink); letter-spacing: -1.5px; margin-bottom: 0.5rem;
+    }
+    .hero-title-accent {
+      font-family: 'Instrument Serif', serif;
+      font-style: italic; color: var(--brand);
+      font-weight: 400; font-size: clamp(2.8rem, 5vw, 4rem);
+      display: block; letter-spacing: -1px;
+    }
+    .hero-sub {
+      font-size: 1.15rem; color: var(--ink-muted); line-height: 1.7;
+      margin-bottom: 2rem; max-width: 440px; font-weight: 400;
+    }
+    .hero-actions { display: flex; gap: 0.875rem; flex-wrap: wrap; margin-bottom: 3rem; }
+    .btn-hero-primary {
+      padding: 0.8rem 1.75rem; border-radius: 10px; font-size: 1.05rem;
+      font-weight: 700; color: #fff; background: var(--brand);
+      border: none; cursor: pointer; transition: all 0.25s; font-family: inherit;
+      box-shadow: 0 4px 20px rgba(0,150,199,0.35);
+    }
+    .btn-hero-primary:hover {
+      background: var(--brand-dark); transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(0,150,199,0.4);
+    }
+    .btn-hero-outline {
+      padding: 0.8rem 1.75rem; border-radius: 10px; font-size: 1.05rem;
+      font-weight: 600; color: var(--ink); background: transparent;
+      border: 1.5px solid rgba(13,30,44,0.18); cursor: pointer;
+      transition: all 0.25s; font-family: inherit;
+    }
+    .btn-hero-outline:hover { border-color: var(--brand); color: var(--brand); }
+    .hero-stats {
+      display: flex; gap: 2rem; align-items: center;
+    }
+    .stat-item { text-align: left; }
+    .stat-value {
+      font-size: 1.65rem; font-weight: 800; color: var(--ink);
+      letter-spacing: -0.5px; line-height: 1;
+    }
+    .stat-label { font-size: 0.88rem; color: var(--ink-soft); font-weight: 500; margin-top: 2px; }
+    .stat-div { width: 1px; height: 36px; background: var(--border-strong); }
+
+    /* Hero Image Side */
+    .hero-right {
+      position: relative; height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      overflow: visible;
+    }
+    .hero-image-wrap {
+      position: relative; width: 100%; height: 100%;
+      overflow: hidden;
+    }
+    .hero-image-wrap img {
+      width: 100%; height: 100%; object-fit: cover;
+      filter: brightness(0.88) saturate(1.1);
+    }
+    .hero-image-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(105deg, rgba(0,150,199,0.15) 0%, transparent 60%);
+    }
+    .hero-floating-card {
+      position: absolute; bottom: 2.5rem; left: -2rem;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(12px);
+      border-radius: 14px; padding: 1rem 1.25rem;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+      border: 1px solid var(--border);
+      min-width: 200px; animation: float 3s ease-in-out infinite;
+    }
+    .floating-card-label {
+      font-size: 0.85rem; font-weight: 600; color: var(--ink-soft);
+      text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 0.3rem;
+    }
+    .floating-card-value {
+      font-size: 1.5rem; font-weight: 800; color: var(--brand);
+    }
+    .floating-card-sub { font-size: 0.88rem; color: var(--ink-soft); }
+    .hero-floating-card-2 {
+      position: absolute; top: 8rem; left: -1.5rem;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(12px);
+      border-radius: 14px; padding: 0.875rem 1.1rem;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+      border: 1px solid var(--border);
+      animation: float 3.5s ease-in-out infinite 0.8s;
+    }
+    .badge-success {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      font-size: 0.9rem; font-weight: 700; color: #0a8c5a;
+    }
+    .dot-success { width: 8px; height: 8px; border-radius: 50%; background: #12b76a; }
+
+    /* Section commons */
+    .section { padding: 6rem 4rem; }
+    .section-sm { padding: 4.5rem 4rem; }
+    .section-bg-alt { background: var(--surface-2); }
+    .section-tag {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      font-size: 0.85rem; font-weight: 700; color: var(--brand);
+      text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 0.75rem;
+    }
+    .section-tag::before {
+      content: ''; display: block; width: 20px; height: 2px;
+      background: var(--brand); border-radius: 2px;
+    }
+    .section-title {
+      font-size: clamp(1.9rem, 3vw, 2.6rem); font-weight: 800;
+      color: var(--ink); letter-spacing: -0.8px; margin-bottom: 0.75rem; line-height: 1.15;
+    }
+    .section-sub {
+      font-size: 1.1rem; color: var(--ink-muted); line-height: 1.7;
+      max-width: 520px; font-weight: 400;
+    }
+
+    /* Features bento */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: auto auto;
+      gap: 1rem;
+      margin-top: 3rem;
+    }
+    .feat-card {
+      background: var(--surface); border-radius: 16px;
+      border: 1px solid var(--border); padding: 1.75rem;
+      transition: all 0.3s cubic-bezier(.22,.68,0,1.2);
+      cursor: pointer; position: relative; overflow: hidden;
+    }
+    .feat-card::before {
+      content: ''; position: absolute; inset: 0; border-radius: 16px;
+      background: linear-gradient(135deg, rgba(0,150,199,0.04) 0%, transparent 60%);
+      opacity: 0; transition: opacity 0.3s;
+    }
+    .feat-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,150,199,0.12); border-color: var(--border-strong); }
+    .feat-card:hover::before { opacity: 1; }
+    .feat-card.featured {
+      background: var(--ink); color: #fff;
+      grid-column: span 2;
+    }
+    .feat-card.featured .feat-desc { color: rgba(255,255,255,0.65); }
+    .feat-card.featured .feat-icon-wrap { background: rgba(255,255,255,0.1); }
+    .feat-card.tall { grid-row: span 2; }
+    .feat-icon-wrap {
+      width: 44px; height: 44px; border-radius: 12px;
+      background: var(--brand-light); display: flex;
+      align-items: center; justify-content: center;
+      margin-bottom: 1.25rem;
+      font-size: 1.3rem;
+    }
+    .feat-title {
+      font-size: 1.15rem; font-weight: 700; color: var(--ink);
+      margin-bottom: 0.4rem;
+    }
+    .feat-card.featured .feat-title { color: #fff; }
+    .feat-desc { font-size: 0.95rem; color: var(--ink-muted); line-height: 1.6; }
+    .feat-link {
+      display: inline-flex; align-items: center; gap: 0.35rem;
+      font-size: 0.92rem; font-weight: 600; color: var(--brand);
+      margin-top: 1rem; text-decoration: none;
+      transition: gap 0.2s;
+    }
+    .feat-card.featured .feat-link { color: rgba(255,255,255,0.8); }
+    .feat-link:hover { gap: 0.55rem; }
+    .feat-chip {
+      display: inline-block; background: rgba(0,150,199,0.15); color: var(--brand);
+      font-size: 0.8rem; font-weight: 700; padding: 0.25rem 0.6rem;
+      border-radius: 100px; margin-bottom: 0.75rem;
+      text-transform: uppercase; letter-spacing: 0.5px;
+    }
+
+    /* Opportunities */
+    .opportunities-header {
+      display: flex; align-items: flex-end;
+      justify-content: space-between; margin-bottom: 2.5rem;
+    }
+    .view-all-link {
+      font-size: 0.95rem; font-weight: 600; color: var(--brand);
+      text-decoration: none; display: flex; align-items: center; gap: 0.3rem;
+      transition: gap 0.2s;
+    }
+    .view-all-link:hover { gap: 0.5rem; }
+    .jobs-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem;
+    }
+    .job-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 16px; padding: 1.5rem;
+      transition: all 0.3s cubic-bezier(.22,.68,0,1.2);
+      position: relative; overflow: hidden;
+    }
+    .job-card::after {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: var(--brand); transform: scaleX(0); transform-origin: left;
+      transition: transform 0.3s;
+    }
+    .job-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,150,199,0.1); border-color: var(--border-strong); }
+    .job-card:hover::after { transform: scaleX(1); }
+    .job-source-tag {
+      font-size: 0.8rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.8px; padding: 0.25rem 0.6rem;
+      border-radius: 6px; display: inline-block; margin-bottom: 0.85rem;
+    }
+    .tag-upsc { background: #e8f4ff; color: #1a5fa0; }
+    .tag-psc  { background: #fff3e0; color: #b06000; }
+    .tag-ssc  { background: #e8f5e9; color: #2e7d32; }
+    .job-title { font-size: 1.1rem; font-weight: 700; color: var(--ink); margin-bottom: 0.3rem; line-height: 1.3; }
+    .job-org   { font-size: 0.92rem; color: var(--ink-soft); margin-bottom: 1rem; }
+    .job-meta  { display: flex; flex-direction: column; gap: 0.45rem; margin-bottom: 1.25rem; }
+    .job-meta-item { display: flex; align-items: center; gap: 0.45rem; font-size: 0.92rem; color: var(--ink-muted); }
+    .job-meta-icon { width: 16px; text-align: center; opacity: 0.6; }
+    .job-deadline { display: flex; align-items: center; gap: 0.35rem; font-size: 0.88rem; font-weight: 600; }
+    .deadline-urgent { color: #d92d20; }
+    .deadline-normal { color: var(--ink-soft); }
+    .btn-apply {
+      width: 100%; padding: 0.6rem; border-radius: 8px;
+      font-size: 0.95rem; font-weight: 700; cursor: pointer;
+      background: transparent; border: 1.5px solid var(--brand);
+      color: var(--brand); font-family: inherit;
+      transition: all 0.2s;
+    }
+    .btn-apply:hover { background: var(--brand); color: #fff; }
+
+    /* Why Buronet */
+    .why-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem;
+      margin-top: 3rem;
+    }
+    .why-card {
+      text-align: center; padding: 2rem 1.5rem;
+      border-radius: 16px; border: 1px solid var(--border);
+      background: var(--surface);
+      transition: all 0.3s;
+    }
+    .why-card:hover { transform: translateY(-6px); box-shadow: 0 16px 40px rgba(0,150,199,0.1); border-color: var(--border-strong); }
+    .why-icon-circle {
+      width: 64px; height: 64px; border-radius: 50%;
+      background: var(--brand-light);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 1.25rem; font-size: 1.6rem;
+      transition: all 0.3s;
+    }
+    .why-card:hover .why-icon-circle {
+      background: var(--brand); transform: scale(1.1);
+    }
+    .why-title { font-size: 1.35rem; font-weight: 700; color: var(--ink); margin-bottom: 0.5rem; }
+    .why-desc { font-size: 0.975rem; color: var(--ink-muted); line-height: 1.65; }
+
+    /* Deadline + Updates */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+    .panel {
+      background: var(--surface); border-radius: 16px;
+      border: 1px solid var(--border); padding: 1.75rem;
+    }
+    .panel-title { font-size: 1.1rem; font-weight: 800; color: var(--ink); margin-bottom: 1.25rem; }
+    .deadline-row {
+      display: flex; align-items: center; gap: 1rem;
+      padding: 0.875rem 0; border-bottom: 1px solid var(--border);
+    }
+    .deadline-row:last-child { border-bottom: none; }
+    .date-badge {
+      min-width: 52px; text-align: center;
+      background: var(--brand-light); border-radius: 10px;
+      padding: 0.5rem; border: 1px solid rgba(0,150,199,0.2);
+    }
+    .date-month { font-size: 0.8rem; font-weight: 700; color: var(--brand); text-transform: uppercase; letter-spacing: 0.5px; }
+    .date-day   { font-size: 1.25rem; font-weight: 800; color: var(--ink); line-height: 1.1; }
+    .deadline-info { flex: 1; }
+    .deadline-name  { font-size: 0.95rem; font-weight: 700; color: var(--ink); }
+    .deadline-status { font-size: 0.85rem; color: var(--ink-soft); margin-top: 0.15rem; }
+    .bell-btn {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: var(--surface-2); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all 0.2s; font-size: 0.9rem;
+    }
+    .bell-btn:hover { background: var(--brand-light); border-color: var(--brand); }
+    .update-chip {
+      font-size: 0.8rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.5px; padding: 0.18rem 0.5rem;
+      border-radius: 4px; display: inline-block; margin-bottom: 0.3rem;
+    }
+    .chip-rec  { background: #dcfce7; color: #166534; }
+    .chip-pol  { background: #e0f2fe; color: #0369a1; }
+    .update-row { padding: 0.75rem 0; border-bottom: 1px solid var(--border); }
+    .update-row:last-child { border-bottom: none; }
+    .update-title { font-size: 0.95rem; font-weight: 600; color: var(--ink); line-height: 1.4; margin-bottom: 0.25rem; }
+    .update-time  { font-size: 0.85rem; color: var(--ink-soft); }
+
+    /* FAQ */
+    .faq-list { max-width: 720px; margin: 2.5rem auto 0; }
+    .faq-item {
+      border: 1px solid var(--border); border-radius: 12px;
+      margin-bottom: 0.75rem; overflow: hidden;
+      transition: border-color 0.2s;
+    }
+    .faq-item.open { border-color: var(--border-strong); }
+    .faq-q {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.1rem 1.25rem; cursor: pointer;
+      font-size: 1.05rem; font-weight: 600; color: var(--ink);
+      background: var(--surface); user-select: none;
+      gap: 1rem;
+    }
+    .faq-chevron {
+      width: 24px; height: 24px; border-radius: 6px;
+      background: var(--surface-2); display: flex;
+      align-items: center; justify-content: center;
+      font-size: 0.8rem; transition: all 0.3s; flex-shrink: 0;
+    }
+    .faq-item.open .faq-chevron {
+      background: var(--brand); color: #fff; transform: rotate(180deg);
+    }
+    .faq-a {
+      max-height: 0; overflow: hidden;
+      transition: max-height 0.4s cubic-bezier(.4,0,.2,1), padding 0.3s;
+      font-size: 0.95rem; color: var(--ink-muted); line-height: 1.7;
+      padding: 0 1.25rem; background: var(--surface-2);
+    }
+    .faq-item.open .faq-a { max-height: 200px; padding: 1rem 1.25rem; }
+
+    /* CTA */
+    .cta-section {
+      margin: 0 4rem 5rem;
+      background: var(--ink);
+      border-radius: 24px; padding: 5rem 4rem;
+      text-align: center; position: relative; overflow: hidden;
+    }
+    .cta-bg {
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 30% 50%, rgba(0,150,199,0.25) 0%, transparent 60%),
+                  radial-gradient(ellipse at 70% 50%, rgba(0,150,199,0.15) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .cta-title {
+      font-size: clamp(2rem, 4vw, 3rem); font-weight: 800;
+      color: #fff; letter-spacing: -1px; margin-bottom: 0.75rem;
+    }
+    .cta-title span { color: var(--brand); }
+    .cta-sub { font-size: 1.1rem; color: rgba(255,255,255,0.6); margin-bottom: 2rem; }
+    .btn-cta {
+      display: inline-block; padding: 0.9rem 2.5rem;
+      border-radius: 10px; font-size: 1.1rem; font-weight: 700;
+      color: var(--ink); background: #fff;
+      border: none; cursor: pointer; font-family: inherit;
+      transition: all 0.25s;
+    }
+    .btn-cta:hover { background: var(--brand-light); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,150,199,0.3); }
+
+    /* Footer */
+    .footer {
+      background: var(--ink); padding: 3.5rem 4rem 2rem;
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+    .footer-grid {
+      display: grid; grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 3rem; margin-bottom: 3rem;
+    }
+    .footer-logo { font-size: 1.3rem; font-weight: 800; color: var(--brand); margin-bottom: 0.75rem; }
+    .footer-desc { font-size: 0.92rem; color: rgba(255,255,255,0.45); line-height: 1.7; }
+    .footer-col-title { font-size: 0.9rem; font-weight: 700; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 1rem; }
+    .footer-links { list-style: none; }
+    .footer-links li { margin-bottom: 0.6rem; }
+    .footer-links a { font-size: 0.95rem; color: rgba(255,255,255,0.55); text-decoration: none; transition: color 0.2s; }
+    .footer-links a:hover { color: #fff; }
+    .footer-bottom {
+      border-top: 1px solid rgba(255,255,255,0.08);
+      padding-top: 1.5rem; display: flex;
+      align-items: center; justify-content: space-between;
+    }
+    .footer-copy { font-size: 0.88rem; color: rgba(255,255,255,0.3); }
+    .social-links { display: flex; gap: 0.75rem; }
+    .social-btn {
+      width: 32px; height: 32px; border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.12);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.9rem; color: rgba(255,255,255,0.5);
+      cursor: pointer; transition: all 0.2s;
+    }
+    .social-btn:hover { border-color: var(--brand); color: var(--brand); }
+
+    /* Scroll reveal */
+    .reveal { opacity: 0; transform: translateY(28px); transition: all 0.7s cubic-bezier(.22,.68,0,1.2); }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+    .reveal-delay-4 { transition-delay: 0.4s; }
+
+    @media (max-width: 1024px) {
+      .hero-section { grid-template-columns: 1fr; }
+      .hero-right { display: none; }
+      .hero-left { padding: 4rem 2rem; }
+      .features-grid { grid-template-columns: 1fr 1fr; }
+      .feat-card.featured { grid-column: span 2; }
+      .jobs-grid { grid-template-columns: 1fr 1fr; }
+      .why-grid { grid-template-columns: 1fr 1fr; }
+      .two-col { grid-template-columns: 1fr; }
+      .cta-section { margin: 0 2rem 4rem; padding: 3.5rem 2rem; }
+      .section { padding: 4rem 2rem; }
+      .section-sm { padding: 3rem 2rem; }
+      .footer { padding: 3rem 2rem 2rem; }
+      .footer-grid { grid-template-columns: 1fr 1fr; gap: 2rem; }
+    }
+
+    @media (min-width: 641px) and (max-width: 1023px) {
+      .nav-links { display: none; }
+      .nav-hamburger { display: flex; }
+      .nav-cta .btn-ghost, .nav-cta .btn-primary { display: none; }
+    }
+
+    @media (max-width: 640px) {
+      .nav-links { display: none; }
+      .nav-cta .btn-ghost, .nav-cta .btn-primary { display: none; }
+      .nav-hamburger { display: flex; }
+      .features-grid { grid-template-columns: 1fr; }
+      .feat-card.featured { grid-column: span 1; }
+      .jobs-grid { grid-template-columns: 1fr; }
+      .why-grid { grid-template-columns: 1fr; }
+      .footer-grid { grid-template-columns: 1fr; }
+      .hero-stats { flex-wrap: wrap; gap: 1rem; }
+      .stat-div { display: none; }
+      .hero-left { padding: 3rem 1.25rem 4rem; }
+    }
+  `}</style>
+);
+
+const faqs = [
+  {
+    q: 'Is Buronet affiliated with any government body?',
+    a: 'Buronet is an independent professional network and is not affiliated with any government organization. We source verified job listings from official government portals including UPSC, State PSCs, and SSC.',
+  },
+  {
+    q: 'How do you verify job alerts?',
+    a: 'Every job listing on Buronet is cross-referenced against official government recruitment portals. Our team manually verifies each posting before it goes live, ensuring 100% accuracy.',
+  },
+  {
+    q: 'Is the platform free to use?',
+    a: 'Core features including job listings, exam calendar, and community access are completely free. Premium features like 1-on-1 mentorship and advanced analytics are available under our Pro subscription.',
+  },
+  {
+    q: 'How does the peer community work?',
+    a: 'Our community connects verified aspirants and current civil servants. You can share preparation strategies, ask questions, join study groups, and build meaningful connections with people on the same journey.',
+  },
+];
+
+const whyItems = [
+  { icon: '🛡️', title: 'Verified Networking', desc: 'Connect with real candidates and serving officers through our ID-verified system, ensuring every connection is authentic and meaningful.' },
+  { icon: '📰', title: 'Informative Bytes', desc: 'Stay current with policy changes, exam analyses, and civil services news curated and distilled into quick, actionable reads.' },
+  { icon: '🔔', title: 'Smart Job Alerts', desc: 'Personalised notifications tuned to your exam preferences, location, and career goals — so you never miss a critical opportunity.' },
+];
 
 export default function Home() {
-
   const router = useRouter();
-
+  const [scrolled, setScrolled] = useState(false);
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  const navLinks = [
-    { label: 'Home', href: '#' },
-    { label: 'Jobs', href: '/jobs' },
-    { label: 'About Us', href: '#' },
-  ];
-
-  const [jobs, setJobs] = useState<Job[]>([]);
-  const [isJobsLoading, setIsJobsLoading] = useState(false);
-  const [jobsError, setJobsError] = useState<string | null>(null);
-
-  // Modal State
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [allJobs, setAllJobs] = useState<Job[]>([]);
-  const [modalLoading, setModalLoading] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const pageSize = 10;
-
-    const handleLogin = () => {
-      router.push('/login');
-    }
-
-    const handleJoin = () => {
-      router.push('/register');
-    }
-
-  const fetchAllJobs = async (page: number) => {
-    setModalLoading(true);
-    try {
-      // Assuming same endpoint structure as MainContent.tsx reference
-      const response = await get<any>(`/jobs/all?page=${page}&pageSize=${pageSize}`);
-      // Adjust according to actual API response structure if needed
-      setAllJobs(response.data || response);
-      setTotalPages(response.totalPages || 1);
-      setCurrentPage(page);
-    } catch (error) {
-      console.error("Failed to fetch all jobs", error);
-    } finally {
-      setModalLoading(false);
-    }
-  };
-
-  const handleOpenModal = () => {
-    setIsModalOpen(true);
-    fetchAllJobs(1);
-  };
-
+  const revealRefs = useRef<(HTMLElement | null)[]>([]);
 
   useEffect(() => {
-    const fetchLatestJobs = async () => {
-      setIsJobsLoading(true);
-      setJobsError(null);
-      try {
-        const response = await get<Job[]>('/jobs/job-home');
-        setJobs(response);
-      } catch (err) {
-        const message = err instanceof Error ? err.message : 'Failed to load jobs';
-        setJobsError(message);
-      } finally {
-        setIsJobsLoading(false);
-      }
-    };
-
-    fetchLatestJobs();
+    const onScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', onScroll);
+    return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  const latestJobs = useMemo(() => {
-    const toTime = (job: Job) => {
-      const value = job.createdDate || job.updatedDate || job.dateOfIssue;
-      const timestamp = value ? new Date(value).getTime() : NaN;
-      return Number.isFinite(timestamp) ? timestamp : 0;
-    };
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }),
+      { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }
+    );
+    revealRefs.current.forEach(el => el && observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
 
-    return [...jobs].sort((a, b) => toTime(b) - toTime(a)).slice(0, 3);
-  }, [jobs]);
-
-  const handleLatestJobBookmarkToggle = () => {
-    router.push('/login');
-  };
-
-  const closeMobileMenu = () => setIsMobileMenuOpen(false);
+  const addRef = (el: HTMLElement | null, i: number) => { revealRefs.current[i] = el; };
+  const goLogin = () => router.push('/login');
+  const goRegister = () => router.push('/register');
 
   return (
-    <>
-      <Head>
-        <title>Buronet - Connect, Learn, Succeed</title>
-        <meta name="description" content="Raise your employability with Buronet. Join India's dedicated community of aspirants and professionals — network, collaborate, and rise together." />
-        <link rel="icon" href="data:image/x-icon;base64," type="image/x-icon" />
-      </Head>
+    <div className="buronet-root">
+      <GoogleFonts />
 
-      <div className="relative flex h-[100dvh] w-full flex-col group/design-root overflow-x-hidden overflow-y-auto">
-        <div className="layout-container flex min-h-full flex-col">
-          {/* Header */}
-          <header className="relative flex items-center lg:grid lg:grid-cols-[1fr_auto_1fr] border-b border-solid border-border-light dark:border-border-dark pl-4 pr-2 sm:px-6 lg:px-10 py-3">
-            <div className="flex items-center gap-2 cursor-pointer" onClick={() => router.push('/home')}>
-                    <div className="flex items-center justify-center w-9 h-9">
-                        <img src="/Logo.PNG" alt="Buronet Logo" className="w-7 h-7" />
-                    </div>
-                    <span className="hidden sm:block text-xl font-semibold bg-gradient-to-b from-[#488AFF] to-[#2563EB] text-transparent bg-clip-text">
-                        Buronet
-                    </span>
-                </div>
-            <nav className="hidden lg:flex items-center gap-8 justify-self-center">
-              {navLinks.map((item) => (
-                <Link
-                  key={item.label}
-                  href={item.href}
-                  className="text-sm font-medium text-content-light dark:text-content-dark hover:text-primary dark:hover:text-primary"
-                >
-                  {item.label}
-                </Link>
-              ))}
-            </nav>
-            <div className="ml-auto flex items-center gap-2 lg:ml-0 lg:justify-self-end">
-              {/* Desktop actions */}
-              <div className="hidden lg:flex items-center gap-2">
-                <button onClick={handleJoin} className="hidden sm:flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-sm font-bold leading-normal tracking-wide hover:bg-primary/90 transition-colors">
-                  <span className="truncate">Join Now</span>
-                </button>
-                <button onClick={handleLogin} className="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-accent-light dark:bg-accent-dark text-content-light dark:text-content-dark text-sm font-bold leading-normal tracking-wide hover:bg-border-light dark:hover:bg-border-dark transition-colors">
-                  <span className="truncate">Login</span>
-                </button>
-              </div>
+      {/* ===== Responsive Public Navbar ===== */}
+      <nav className={`buronet-nav${scrolled ? ' scrolled' : ''}`}>
+        {/* Logo */}
+        <div className="nav-logo-wrap" onClick={goLogin}>
+          <img src="/Logo.PNG" alt="Buronet Logo" className="nav-logo-img" />
+          <span className="nav-logo">Buronet</span>
+        </div>
 
-              {/* Mobile menu toggle (kept on far right) */}
-              <button
-                type="button"
-                onClick={() => setIsMobileMenuOpen((v) => !v)}
-                aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
-                aria-expanded={isMobileMenuOpen}
-                className="inline-flex items-center justify-center rounded-lg h-10 w-10 text-content-light dark:text-content-dark hover:bg-border-light/40 dark:hover:bg-border-dark/40 transition-colors lg:hidden"
-              >
-                {isMobileMenuOpen ? (
-                  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M18 6L6 18" />
-                    <path d="M6 6l12 12" />
-                  </svg>
-                ) : (
-                  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M4 6h16" />
-                    <path d="M4 12h16" />
-                    <path d="M4 18h16" />
-                  </svg>
-                )}
-              </button>
-            </div>
+        {/* Desktop links */}
+        <div className="nav-links">
+          <a href="#hero" onClick={(e) => { e.preventDefault(); document.getElementById('hero')?.scrollIntoView({ behavior: 'smooth' }); }}>Home</a>
+          <a href="#jobs" onClick={(e) => { e.preventDefault(); document.getElementById('jobs')?.scrollIntoView({ behavior: 'smooth' }); }}>Jobs</a>
+          <a href="#community" onClick={(e) => { e.preventDefault(); document.getElementById('community')?.scrollIntoView({ behavior: 'smooth' }); }}>Community</a>
+          <a href="#resources" onClick={(e) => { e.preventDefault(); document.getElementById('resources')?.scrollIntoView({ behavior: 'smooth' }); }}>Resources</a>
+        </div>
 
-            {/* Mobile off-canvas menu (slides in from the right) */}
-            <div className="lg:hidden">
-              <div
-                className={`fixed inset-0 z-40 bg-black/40 transition-opacity duration-200 ${
-                  isMobileMenuOpen ? 'opacity-100' : 'pointer-events-none opacity-0'
-                }`}
-                onClick={closeMobileMenu}
-              />
-              <aside
-                className={`fixed inset-y-0 right-0 z-50 w-[320px] max-w-[85vw] bg-white dark:bg-accent-dark shadow-xl border-l border-solid border-border-light dark:border-border-dark transform transition-transform duration-300 ${
-                  isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full pointer-events-none'
-                }`}
-                aria-hidden={!isMobileMenuOpen}
-              >
-                <div className="h-full flex flex-col">
-                  <div className="flex items-center justify-between px-4 py-3 border-b border-solid border-border-light dark:border-border-dark bg-white">
-                    <p className="text-base font-bold text-gray-900">Menu</p>
-                    <button
-                      type="button"
-                      onClick={closeMobileMenu}
-                      aria-label="Close menu"
-                      className="inline-flex items-center justify-center rounded-lg h-10 w-10 text-gray-900 hover:bg-gray-100 transition-colors"
-                    >
-                      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M18 6L6 18" />
-                        <path d="M6 6l12 12" />
-                      </svg>
-                    </button>
-                  </div>
+        {/* Desktop CTA + Mobile hamburger */}
+        <div className="nav-cta">
+          <button className="btn-ghost" onClick={goLogin}>Login</button>
+          <button className="btn-primary" onClick={goRegister}>Join Now</button>
+          <button
+            className="nav-hamburger"
+            aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
+            onClick={() => setIsMobileMenuOpen(v => !v)}
+          >
+            {isMobileMenuOpen ? (
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M18 6L6 18" /><path d="M6 6l12 12" />
+              </svg>
+            ) : (
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M4 6h16" /><path d="M4 12h16" /><path d="M4 18h16" />
+              </svg>
+            )}
+          </button>
+        </div>
+      </nav>
 
-                  <div className="flex-1 overflow-y-auto px-4 py-4 bg-white">
-                    <div className="flex flex-col gap-2">
-                      <div className="rounded-lg bg-gray-50 px-3 py-2">
-                        <p className="text-[11px] font-bold uppercase tracking-wide text-gray-700">
-                        Navigation
-                        </p>
-                      </div>
-                      <div className="flex flex-col">
-                        {navLinks.map((item) => (
-                          <Link
-                            key={`mobile-${item.label}`}
-                            href={item.href}
-                            onClick={closeMobileMenu}
-                            className="rounded-lg px-3 py-2 text-sm font-semibold text-gray-900 hover:bg-gray-100"
-                          >
-                            {item.label}
-                          </Link>
-                        ))}
-                      </div>
-                    </div>
+      {/* Mobile overlay */}
+      <div
+        className={`mobile-overlay${isMobileMenuOpen ? ' open' : ''}`}
+        style={{ display: isMobileMenuOpen ? 'block' : 'none' }}
+        onClick={() => setIsMobileMenuOpen(false)}
+      />
 
-                    <div className="mt-6 pt-4 border-t border-solid border-border-light dark:border-border-dark">
-                      <div className="rounded-lg bg-gray-50 px-3 py-2">
-                        <p className="text-[11px] font-bold uppercase tracking-wide text-gray-700">
-                          Actions
-                        </p>
-                      </div>
-                      <div className="mt-3 grid grid-cols-1 gap-2">
-                        <button
-                          onClick={() => {
-                            closeMobileMenu();
-                            handleJoin();
-                          }}
-                          className="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-11 px-4 bg-gray-100 text-gray-900 text-sm font-bold leading-normal tracking-wide hover:bg-gray-200 transition-colors"
-                        >
-                          <span className="truncate">Join Now</span>
-                        </button>
-                        <button
-                          onClick={() => {
-                            closeMobileMenu();
-                            handleLogin();
-                          }}
-                          className="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-11 px-4 bg-white text-gray-900 text-sm font-bold leading-normal tracking-wide border border-gray-300 hover:bg-gray-50 transition-colors"
-                        >
-                          <span className="truncate">Login</span>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </aside>
-            </div>
-          </header>
-
-          <main className="flex flex-1 flex-col items-center py-5">
-            <div className="w-full max-w-6xl px-4 sm:px-6 lg:px-8">
-              <section
-                className="relative flex min-h-[480px] flex-col items-center justify-center gap-6 rounded-xl bg-cover bg-center bg-no-repeat p-4 text-center before:absolute before:inset-0 before:bg-black/50 before:rounded-xl"
-                style={{
-                  backgroundImage: `url('https://res.cloudinary.com/db65bnadc/image/upload/v1774285269/aywrkv58b20xfsufr5kc.jpg')`,
-                }}
-              >
-                <div className="relative z-10 flex flex-col gap-4 max-w-3xl">
-                  <h1 className="text-white text-4xl md:text-5xl font-black tracking-tighter">
-                    Connect, Learn, and Succeed in the Public Sector
-                  </h1>
-                  <p className="text-white/90 text-base md:text-lg font-normal leading-normal">
-                    Raise your employability with Buronet. Join India's dedicated
-                    community of aspirants and professionals — network,
-                    collaborate, and rise together.
-                  </p>
-                </div>
-                <button onClick={handleJoin} className="relative z-10 flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-6 bg-primary text-white text-base font-bold leading-normal tracking-wide hover:bg-primary/90 transition-colors">
-                  <span className="truncate">Join Now</span>
-                </button>
-              </section>
-
-              {/* Why Choose Buronet */}
-              <section className="py-16 sm:py-20">
-                <div className="text-center mb-12">
-                  <h2 className="text-3xl md:text-4xl font-bold text-content-light dark:text-content-dark tracking-tight">
-                    Why Choose Buronet?
-                  </h2>
-                  <p className="mt-4 text-lg text-subtle-light dark:text-subtle-dark max-w-3xl mx-auto">
-                    Your launchpad to career success. Join India's verified
-                    aspirant network. Get real-time job alerts, peer collaboration
-                    tools, and strategic insights—all in one trusted platform.
-                  </p>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                  <div className="flex flex-col gap-4 rounded-xl border border-border-light dark:border-border-dark bg-background-light dark:bg-accent-dark p-6 text-center items-center">
-                    <div className="text-primary">
-                      <svg fill="currentColor" height="36px" viewBox="0 0 256 256" width="36px" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M117.25,157.92a60,60,0,1,0-66.5,0A95.83,95.83,0,0,0,3.53,195.63a8,8,0,1,0,13.4,8.74,80,80,0,0,1,134.14,0,8,8,0,0,0,13.4-8.74A95.83,95.83,0,0,0,117.25,157.92ZM40,108a44,44,0,1,1,44,44A44.05,44.05,0,0,1,40,108Zm210.14,98.7a8,8,0,0,1-11.07-2.33A79.83,79.83,0,0,0,172,168a8,8,0,0,1,0-16,44,44,0,1,0-16.34-84.87,8,8,0,1,1-5.94-14.85,60,60,0,0,1,55.53,105.64,95.83,95.83,0,0,1,47.22,37.71A8,8,0,0,1,250.14,206.7Z"></path>
-                      </svg>
-                    </div>
-                    <h3 className="text-lg font-bold text-content-light dark:text-content-dark">
-                      Verified Networking
-                    </h3>
-                    <p className="text-sm text-subtle-light dark:text-subtle-dark">
-                      Build connections that matter. Network with verified
-                      aspirants, serving professionals, and serious peers in a
-                      trusted environment.
-                    </p>
-                  </div>
-                  <div className="flex flex-col gap-4 rounded-xl border border-border-light dark:border-border-dark bg-background-light dark:bg-accent-dark p-6 text-center items-center">
-                    <div className="text-primary">
-                      <svg fill="currentColor" height="36px" viewBox="0 0 256 256" width="36px" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M119.76,217.94A8,8,0,0,1,112,224a8.13,8.13,0,0,1-2-.24l-32-8a8,8,0,0,1-2.5-1.11l-24-16a8,8,0,1,1,8.88-13.31l22.84,15.23,30.66,7.67A8,8,0,0,1,119.76,217.94Zm132.69-96.46a15.89,15.89,0,0,1-8,9.25l-23.68,11.84-55.08,55.09a8,8,0,0,1-7.6,2.1l-64-16a8.06,8.06,0,0,1-2.71-1.25L35.86,142.87,11.58,130.73a16,16,0,0,1-7.16-21.46L29.27,59.58h0a16,16,0,0,1,21.46-7.16l22.06,11,53-15.14a8,8,0,0,1,4.4,0l53,15.14,22.06-11a16,16,0,0,1,21.46,7.16l24.85,49.69A15.9,15.9,0,0,1,252.45,121.48Zm-46.18,12.94L179.06,80H147.24L104,122c12.66,8.09,32.51,10.32,50.32-7.63a8,8,0,0,1,10.68-.61l34.41,27.57Zm-187.54-18,17.69,8.85L61.27,75.58,43.58,66.73ZM188,152.66l-27.71-22.19c-19.54,16-44.35,18.11-64.91,5a16,16,0,0,1-2.72-24.82.6.6,0,0,1,.08-.08L137.6,67.06,128,64.32,77.58,78.73,50.21,133.46l49.2,35.15,58.14,14.53Zm49.24-36.24L212.42,66.73l-17.69,8.85,24.85,49.69Z"></path>
-                      </svg>
-                    </div>
-                    <h3 className="text-lg font-bold text-content-light dark:text-content-dark">
-                      Informative Bytes
-                    </h3>
-                    <p className="text-sm text-subtle-light dark:text-subtle-dark">
-                      Share and gain knowledge about various job and exam-related
-                      queries through informative Bytes.
-                    </p>
-                  </div>
-                  <div className="flex flex-col gap-4 rounded-xl border border-border-light dark:border-border-dark bg-background-light dark:bg-accent-dark p-6 text-center items-center">
-                    <div className="text-primary">
-                      <svg fill="currentColor" height="36px" viewBox="0 0 256 256" width="36px" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M128,88a40,40,0,1,0,40,40A40,40,0,0,0,128,88Zm0,64a24,24,0,1,1,24-24A24,24,0,0,1,128,152ZM240,56H16a8,8,0,0,0-8,8V192a8,8,0,0,0,8,8H240a8,8,0,0,0,8-8V64A8,8,0,0,0,240,56ZM193.65,184H62.35A56.78,56.78,0,0,0,24,145.65v-35.3A56.78,56.78,0,0,0,62.35,72h131.3A56.78,56.78,0,0,0,232,110.35v35.3A56.78,56.78,0,0,0,193.65,184ZM232,93.37A40.81,40.81,0,0,1,210.63,72H232ZM45.37,72A40.81,40.81,0,0,1,24,93.37V72ZM24,162.63A40.81,40.81,0,0,1,45.37,184H24ZM210.63,184A40.81,40.81,0,0,1,232,162.63V184Z"></path>
-                      </svg>
-                    </div>
-                    <h3 className="text-lg font-bold text-content-light dark:text-content-dark">
-                      Recent Job & Exam Updates
-                    </h3>
-                    <p className="text-sm text-subtle-light dark:text-subtle-dark">
-                      Your centralized hub for all government job and exam
-                      notifications. Get accurate, real-time alerts instantly.
-                    </p>
-                  </div>
-                </div>
-              </section>
-
-              {/* Who is Buronet For */}
-              <section className="py-16 sm:py-20">
-                <div className="text-center mb-12">
-                  <h2 className="text-3xl md:text-4xl font-bold text-content-light dark:text-content-dark tracking-tight">
-                    Who is Buronet For?
-                  </h2>
-                  <p className="mt-4 text-lg text-subtle-light dark:text-subtle-dark max-w-3xl mx-auto">
-                    Buronet is for every Indian building their future through
-                    competitive exams and jobs. It's where serious aspirants,
-                    verified professionals, and top rankers connect to share
-                    knowledge and opportunities.
-                  </p>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                  <div className="flex flex-col gap-4 rounded-xl border border-border-light dark:border-border-dark bg-background-light dark:bg-accent-dark p-6 text-center items-center">
-                    <div className="text-primary">
-                      <svg fill="currentColor" height="36px" viewBox="0 0 256 256" width="36px" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M226.53,56.41l-96-32a8,8,0,0,0-5.06,0l-96,32A8,8,0,0,0,24,64v80a8,8,0,0,0,16,0V75.1L73.59,86.29a64,64,0,0,0,20.65,88.05c-18,7.06-33.56,19.83-44.94,37.29a8,8,0,1,0,13.4,8.74C77.77,197.25,101.57,184,128,184s50.23,13.25,65.3,36.37a8,8,0,0,0,13.4-8.74c-11.38-17.46-27-30.23-44.94-37.29a64,64,0,0,0,20.65-88l44.12-14.7a8,8,0,0,0,0-15.18ZM176,120A48,48,0,1,1,89.35,91.55l36.12,12a8,8,0,0,0,5.06,0l36.12-12A47.89,47.89,0,0,1,176,120ZM128,87.57,57.3,64,128,40.43,198.7,64Z"></path>
-                      </svg>
-                    </div>
-                    <h3 className="text-lg font-bold text-content-light dark:text-content-dark">
-                      Aspiring Students
-                    </h3>
-                    <p className="text-sm text-subtle-light dark:text-subtle-dark">
-                      Get a head start with guidance from experienced mentors and
-                      access to relevant job opportunities.
-                    </p>
-                  </div>
-                  <div className="flex flex-col gap-4 rounded-xl border border-border-light dark:border-border-dark bg-background-light dark:bg-accent-dark p-6 text-center items-center">
-                    <div className="text-primary">
-                      <svg fill="currentColor" height="36px" viewBox="0 0 256 256" width="36px" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M216,56H176V48a24,24,0,0,0-24-24H104A24,24,0,0,0,80,48v8H40A16,16,0,0,0,24,72V200a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V72A16,16,0,0,0,216,56ZM96,48a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96ZM216,72v41.61A184,184,0,0,1,128,136a184.07,184.07,0,0,1-88-22.38V72Zm0,128H40V131.64A200.19,200.19,0,0,0,128,152a200.25,200.25,0,0,0,88-20.37V200ZM104,112a8,8,0,0,1,8-8h32a8,8,0,0,1,0,16H112A8,8,0,0,1,104,112Z"></path>
-                      </svg>
-                    </div>
-                    <h3 className="text-lg font-bold text-content-light dark:text-content-dark">
-                      Experienced Professionals
-                    </h3>
-                    <p className="text-sm text-subtle-light dark:text-subtle-dark">
-                      Expand your network, share your expertise, and find new
-                      career challenges within the public sector.
-                    </p>
-                  </div>
-                  <div className="flex flex-col gap-4 rounded-xl border border-border-light dark:border-border-dark bg-background-light dark:bg-accent-dark p-6 text-center items-center">
-                    <div className="text-primary">
-                      <svg fill="currentColor" height="36px" viewBox="0 0 256 256" width="36px" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M230.92,212c-15.23-26.33-38.7-45.21-66.09-54.16a72,72,0,1,0-73.66,0C63.78,166.78,40.31,185.66,25.08,212a8,8,0,1,0,13.85,8c18.84-32.56,52.14-52,89.07-52s70.23,19.44,89.07,52a8,8,0,1,0,13.85-8ZM72,96a56,56,0,1,1,56,56A56.06,56.06,0,0,1,72,96Z"></path>
-                      </svg>
-                    </div>
-                    <h3 className="text-lg font-bold text-content-light dark:text-content-dark">
-                      Career Changers
-                    </h3>
-                    <p className="text-sm text-subtle-light dark:text-subtle-dark">
-                      Transition smoothly into a government career with support
-                      from mentors and access to exclusive job listings.
-                    </p>
-                  </div>
-                </div>
-              </section>
-
-              {/* Connect with Community */}
-              <section className="py-16 sm:py-20 bg-accent-light dark:bg-accent-dark rounded-xl">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center px-4 sm:px-8">
-                  <div className="text-center md:text-left">
-                    <h2 className="text-3xl md:text-4xl font-bold text-content-light dark:text-content-dark tracking-tight">
-                      Connect with Our Community
-                    </h2>
-                    <p className="mt-4 text-lg text-subtle-light dark:text-subtle-dark max-w-md mx-auto md:mx-0">
-                      Have questions? Get instant answers from our vibrant
-                      community of aspirants and professionals.
-                    </p>
-                    <button className="mt-8 flex min-w-[120px] max-w-[240px] w-full sm:w-auto cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-6 bg-primary text-white text-base font-bold leading-normal tracking-wide hover:bg-primary/90 transition-colors mx-auto md:mx-0">
-                      <span className="truncate">Chat Now</span>
-                    </button>
-                  </div>
-                  <div className="flex justify-center">
-                    <img
-                      alt="Community members interacting"
-                      className="rounded-lg object-cover w-full max-w-md h-64"
-                      src="https://lh3.googleusercontent.com/aida-public/AB6AXuCj_wsnMUfc2SDToxEfNLrqhTwcg59kQzLY6iG46zaZ54m4cKEd5jpZAf88HHu5-ZICDIg-gTUizqAE7A_mK2XYGXGAKaYbv5qsW1y_Bx-iXDqguDUm3F4vocIZrbMTGZTclZSdmzEfSD7kuZDO0tv6dthFsviH3qDo2PMee2pzq1mEhlIsnizch_PeHDViYCtZ6p3JQmYHFSF2SbXpgHPlV2T6SfZG_bBq1Mw1-wV-qtbNm2uLmCTFaLnN6P920k6CdsdVjNqCwVVy"
-                    />
-                  </div>
-                </div>
-              </section>
-
-              {/* Study Zone */}
-              <section className="py-16 sm:py-20">
-                <div className="text-center mb-12">
-                  <h2 className="text-3xl md:text-4xl font-bold text-content-light dark:text-content-dark tracking-tight">
-                    Designate a Dedicated Study Zone
-                  </h2>
-                  <p className="mt-4 text-lg text-subtle-light dark:text-subtle-dark max-w-3xl mx-auto">
-                    Create a quiet and organized study space for focused work and
-                    quick access to current affairs.
-                  </p>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-                  <div className="flex justify-center">
-                    <img
-                      alt="A quiet and organized study space with a laptop, books, and a lamp."
-                      className="rounded-lg object-cover w-full max-w-md h-80"
-                      src="https://lh3.googleusercontent.com/aida-public/AB6AXuCzrbhZbZxddaQfsdsbK0YFhY4QfKgShaLjrIT6rGdGrhRmBW2a1SIBML5lCbwb_GmcoQTWbE-0_kOVWiGm954xjiqlL0piCoUyVu0Tr0j1fgbBeeRmxkIEo9ABQHL9SIH91juENbkVLPLCgK2XVT5nVTOCdEO2pXX5KkaOn1z2PnqLY0_5fJ4X96T7xNZZOtIgsaZWW7LcRsQr9IbZi6_GrzF1SDs1CXdMcv9rMO4ZqzSAhNdxc7BLV67ftmFl1Q5ifucuYVKGNIjO"
-                    />
-                  </div>
-                  <div className="flex flex-col gap-6 text-center md:text-left">
-                    <div className="flex items-start gap-4">
-                      <div className="text-primary pt-1">
-                        <svg fill="currentColor" height="24px" viewBox="0 0 256 256" width="24px" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M128,24a104,104,0,1,0,104,104A104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm45.66-125.66a8,8,0,0,1,0,11.31l-48,48a8,8,0,0,1-11.32,0l-24-24a8,8,0,0,1,11.32-11.31L112,132.69l42.34-42.35A8,8,0,0,1,173.66,90.34Z"></path>
-                        </svg>
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-semibold text-content-light dark:text-content-dark">
-                          Enhanced Focus
-                        </h3>
-                        <p className="text-subtle-light dark:text-subtle-dark">
-                          A designated study area minimizes distractions, allowing
-                          for deeper concentration and more effective learning.
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-4">
-                      <div className="text-primary pt-1">
-                        <svg fill="currentColor" height="24px" viewBox="0 0 256 256" width="24px" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M128,24a104,104,0,1,0,104,104A104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm45.66-125.66a8,8,0,0,1,0,11.31l-48,48a8,8,0,0,1-11.32,0l-24-24a8,8,0,0,1,11.32-11.31L112,132.69l42.34-42.35A8,8,0,0,1,173.66,90.34Z"></path>
-                        </svg>
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-semibold text-content-light dark:text-content-dark">
-                          Better Problem-Solving
-                        </h3>
-                        <p className="text-subtle-light dark:text-subtle-dark">
-                          An organized space helps in structuring thoughts and
-                          approaching complex problems with a clear mind.
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-4">
-                      <div className="text-primary pt-1">
-                        <svg fill="currentColor" height="24px" viewBox="0 0 256 256" width="24px" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M128,24a104,104,0,1,0,104,104A104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm45.66-125.66a8,8,0,0,1,0,11.31l-48,48a8,8,0,0,1-11.32,0l-24-24a8,8,0,0,1,11.32-11.31L112,132.69l42.34-42.35A8,8,0,0,1,173.66,90.34Z"></path>
-                        </svg>
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-semibold text-content-light dark:text-content-dark">
-                          Stay Updated
-                        </h3>
-                        <p className="text-subtle-light dark:text-subtle-dark">
-                          Keep current affairs materials at hand for quick
-                          reference and to stay informed on the latest
-                          developments.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </section>
-
-              {/* Start Journey */}
-              <section className="py-16 sm:py-20">
-                <div className="text-center mb-12">
-                  <h2 className="text-3xl md:text-4xl font-bold text-content-light dark:text-content-dark tracking-tight">
-                    Start Your Journey with Buronet
-                  </h2>
-                  <p className="mt-4 text-lg text-subtle-light dark:text-subtle-dark max-w-3xl mx-auto">
-                    Join a network of dedicated professionals and aspirants. Your
-                    path to a successful government career begins here.
-                  </p>
-                </div>
-                <div className="flex justify-center gap-4 flex-wrap">
-                  <button onClick={handleJoin} className="flex min-w-[140px] max-w-[240px] grow cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-6 bg-primary text-white text-base font-bold leading-normal tracking-wide hover:bg-primary/90 transition-colors">
-                    <span className="truncate">Join the Community</span>
-                  </button>
-                </div>
-
-                <div className="mt-12">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
-                    <h3 className="text-xl md:text-2xl font-bold text-content-light dark:text-content-dark text-center sm:text-left">
-                      Latest Job Openings
-                    </h3>
-                    <button
-                      onClick={handleOpenModal}
-                      className="text-sm font-semibold text-primary hover:underline text-center sm:text-right"
-                    >
-                      View all jobs
-                    </button>
-                  </div>
-
-                  {isJobsLoading ? (
-                    <div className="text-center text-subtle-light dark:text-subtle-dark">Loading latest jobs…</div>
-                  ) : jobsError ? (
-                    <div className="text-center text-red-600">{jobsError}</div>
-                  ) : latestJobs.length === 0 ? (
-                    <div className="text-center text-subtle-light dark:text-subtle-dark">No jobs found.</div>
-                  ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {latestJobs.map((job) => (
-                        <JobCard
-                          key={job.id ?? `${job.jobTitle}-${job.createdDate}`}
-                          job={job}
-                          isBookmarked={false}
-                          onToggleBookmark={handleLatestJobBookmarkToggle}
-                        />
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </section>
-
-              {/* Community Feed */}
-              <section className="py-16 sm:py-20">
-                <div className="text-center mb-12">
-                  <h2 className="text-3xl md:text-4xl font-bold text-content-light dark:text-content-dark tracking-tight">
-                    Community Feed
-                  </h2>
-                </div>
-                <div className="grid grid-cols-1 gap-8">
-                  <div className="flex flex-col sm:flex-row gap-4">
-                    <div
-                      className="w-full sm:w-48 md:w-56 flex-none bg-center bg-no-repeat aspect-video sm:aspect-square bg-cover rounded-lg"
-                      style={{
-                        backgroundImage: `url('https://lh3.googleusercontent.com/aida-public/AB6AXuBBC6jqf3qXvD_IFb6jRIbvGQNPWsefjBmh7v2czMZAT6kIIQhqKtzI2MGpJnbXie0bc8JNeZ8d6KYXla96Hqrtr9SYPzgjchhGuZrxfnurJVFT6Ybsia7EFZzWwfG6VDlj212MIkSq9fgBiuDIMpVDrIONlUWA58lnySyCCoDUQgAYxgofKhif6b0nVtKqP0nGVCRmvCpggaA1o15hNLJXVhfEebwCU2t8gZtChYRRReN_rxn1J6MHEHB_78XRQbKrRnFiRalnCITB')`,
-                      }}
-                    ></div>
-                    <div className="flex-1">
-                      <p className="text-content-light dark:text-content-dark text-base font-medium leading-normal">
-                        Aspirant's Journey
-                      </p>
-                      <p className="text-subtle-light dark:text-subtle-dark text-sm font-normal leading-normal">
-                        Follow Rahul's journey as he prepares for the Civil
-                        Services Examination.
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex flex-col-reverse sm:flex-row gap-4">
-                    <div>
-                      <p className="text-content-light dark:text-content-dark text-base font-medium leading-normal">
-                        Success Story
-                      </p>
-                      <p className="text-subtle-light dark:text-subtle-dark text-sm font-normal leading-normal">
-                        Read about Priya's success in securing a position in the
-                        Ministry of Finance.
-                      </p>
-                    </div>
-                    <div
-                      className="w-full sm:w-48 md:w-56 flex-none bg-center bg-no-repeat aspect-video sm:aspect-square bg-cover rounded-lg"
-                      style={{
-                        backgroundImage: `url('https://lh3.googleusercontent.com/aida-public/AB6AXuCrEhfkSXmJR2OospF1v-3K5ofYN7JTTalHwVTYq7dV0IdkZogTkj8PUJB7_vx1QULVi33oANYTujv4TFdI_PXRdRUdq0yIYMpzPkKdeK3VbTCjfVh0CMHZymUH4NZnL8JGgy08KFNTBnpkW0-lkl9Nw9mSxHLLZ4jGtBVboe-Bj0i0u6j793bau1-LqC5cv9gtsbS7pmCXug3KHA3xjoEZCeg_qglVP_lr3qJeb-5PGBhDsea6-k8iFHmmyKNI76lLcz4Ts2dOBjl6')`,
-                      }}
-                    ></div>
-                  </div>
-                  <div className="flex flex-col sm:flex-row gap-4">
-                    <div
-                      className="w-full sm:w-48 md:w-56 flex-none bg-center bg-no-repeat aspect-video sm:aspect-square bg-cover rounded-lg"
-                      style={{
-                        backgroundImage: `url('https://lh3.googleusercontent.com/aida-public/AB6AXuCt1doZMEZ90Vzj-lgVYKw7OO6dPTqIr7WzuodAIW-dkWewShC-LileoYEfU6q5IWXksByw1YFpZKcsot5gU_-vlkq3Q9g1R8xyXtBHLg_LHUbXpnk4wLqMFn9PoUNiFjM9bxmFPhuchtCx0Mp4pKGNk9KPzz-P17vFTx1cPBoDlTTE7wFbsa67K1Vx8aPUwVsbyzRYqbPlzwilm3YVB41YB3CXIIaIMlbvBlhfdn1Z6S6_C40LsYzTcJj2Wby3hP97lCAsXJTfqrId')`,
-                      }}
-                    ></div>
-                    <div>
-                      <p className="text-content-light dark:text-content-dark text-base font-medium leading-normal">
-                        Career Advice
-                      </p>
-                      <p className="text-subtle-light dark:text-subtle-dark text-sm font-normal leading-normal">
-                        Get expert advice on navigating the government job
-                        application process.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </section>
-
-              {/* FAQ */}
-              <section className="py-16 sm:py-20">
-                <div className="text-center mb-12">
-                  <h2 className="text-3xl md:text-4xl font-bold text-content-light dark:text-content-dark tracking-tight">
-                    Frequently Asked Questions
-                  </h2>
-                </div>
-                <div className="max-w-3xl mx-auto flex flex-col gap-3">
-                  <details className="flex flex-col rounded-lg border border-border-light dark:border-border-dark bg-accent-light dark:bg-accent-dark px-6 py-2 group">
-                    <summary className="flex cursor-pointer items-center justify-between gap-6 py-2">
-                      <p className="text-content-light dark:text-content-dark font-medium">
-                        How does Buronet work?
-                      </p>
-                      <div className="text-subtle-light dark:text-subtle-dark group-open:rotate-180 transition-transform">
-                        <svg fill="currentColor" height="20px" viewBox="0 0 256 256" width="20px" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z"></path>
-                        </svg>
-                      </div>
-                    </summary>
-                    <p className="text-subtle-light dark:text-subtle-dark text-sm pb-3">
-                      Buronet connects you with verified professionals for
-                      mentorship, provides exclusive job listings, and offers a
-                      community platform to network with fellow government job
-                      aspirants.
-                    </p>
-                  </details>
-                  <details className="flex flex-col rounded-lg border border-border-light dark:border-border-dark bg-accent-light dark:bg-accent-dark px-6 py-2 group">
-                    <summary className="flex cursor-pointer items-center justify-between gap-6 py-2">
-                      <p className="text-content-light dark:text-content-dark font-medium">
-                        What types of mentorship are available?
-                      </p>
-                      <div className="text-subtle-light dark:text-subtle-dark group-open:rotate-180 transition-transform">
-                        <svg fill="currentColor" height="20px" viewBox="0 0 256 256" width="20px" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z"></path>
-                        </svg>
-                      </div>
-                    </summary>
-                    <p className="text-subtle-light dark:text-subtle-dark text-sm pb-3">
-                      We offer one-on-one mentorship, group sessions, and mock
-                      interviews with experienced professionals from various
-                      government sectors to help you prepare effectively.
-                    </p>
-                  </details>
-                  <details className="flex flex-col rounded-lg border border-border-light dark:border-border-dark bg-accent-light dark:bg-accent-dark px-6 py-2 group">
-                    <summary className="flex cursor-pointer items-center justify-between gap-6 py-2">
-                      <p className="text-content-light dark:text-content-dark font-medium">
-                        How can I find job opportunities?
-                      </p>
-                      <div className="text-subtle-light dark:text-subtle-dark group-open:rotate-180 transition-transform">
-                        <svg fill="currentColor" height="20px" viewBox="0 0 256 256" width="20px" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z"></path>
-                        </svg>
-                      </div>
-                    </summary>
-                    <p className="text-subtle-light dark:text-subtle-dark text-sm pb-3">
-                      Our platform features a dedicated job board with exclusive
-                      and verified listings for government positions. You can
-                      filter and search for jobs based on your preferences and
-                      qualifications.
-                    </p>
-                  </details>
-                </div>
-              </section>
-            </div>
-          </main>
-
-          {/* Footer */}
-          <footer className="bg-accent-light dark:bg-accent-dark text-center py-10 px-4 sm:px-6">
-            <div className="max-w-6xl mx-auto flex flex-col gap-6">
-              <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-4">
-                <a className="text-subtle-light dark:text-subtle-dark hover:text-primary dark:hover:text-primary text-sm font-medium" href="#">
-                  About Us
-                </a>
-                <a className="text-subtle-light dark:text-subtle-dark hover:text-primary dark:hover:text-primary text-sm font-medium" href="#">
-                  Contact
-                </a>
-                <a className="text-subtle-light dark:text-subtle-dark hover:text-primary dark:hover:text-primary text-sm font-medium" href="#">
-                  Privacy Policy
-                </a>
-                <a className="text-subtle-light dark:text-subtle-dark hover:text-primary dark:hover:text-primary text-sm font-medium" href="#">
-                  Terms of Service
-                </a>
-              </div>
-              <div className="flex justify-center gap-6">
-                <a className="text-subtle-light dark:text-subtle-dark hover:text-primary dark:hover:text-primary" href="#">
-                  <svg fill="currentColor" height="24px" viewBox="0 0 256 256" width="24px" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M247.39,68.94A8,8,0,0,0,240,64H209.57A48.66,48.66,0,0,0,168.1,40a46.91,46.91,0,0,0-33.75,13.7A47.9,47.9,0,0,0,120,88v6.09C79.74,83.47,46.81,50.72,46.46,50.37a8,8,0,0,0-13.65,4.92c-4.31,47.79,9.57,79.77,22,98.18a110.93,110.93,0,0,0,21.88,24.2c-15.23,17.53-39.21,26.74-39.47,26.84a8,8,0,0,0-3.85,11.93c.75,1.12,3.75,5.05,11.08,8.72C53.51,229.7,65.48,232,80,232c70.67,0,129.72-54.42,135.75-124.44l29.91-29.9A8,8,0,0,0,247.39,68.94Zm-45,29.41a8,8,0,0,0-2.32,5.14C196,166.58,143.28,216,80,216c-10.56,0-18-1.4-23.22-3.08,11.51-6.25,27.56-17,37.88-32.48A8,8,0,0,0,92,169.08c-.47-.27-43.91-26.34-44-96,16,13,45.25,33.17,78.67,38.79A8,8,0,0,0,136,104V88a32,32,0,0,1,9.6-22.92A30.94,30.94,0,0,1,167.9,56c12.66.16,24.49,7.88,29.44,19.21A8,8,0,0,0,204.67,80h16Z"></path>
-                  </svg>
-                </a>
-                <a className="text-subtle-light dark:text-subtle-dark hover:text-primary dark:hover:text-primary" href="#">
-                  <svg fill="currentColor" height="24px" viewBox="0 0 256 256" width="24px" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm8,191.63V152h24a8,8,0,0,0,0-16H136V112a16,16,0,0,1,16-16h16a8,8,0,0,0,0-16H152a32,32,0,0,0-32,32v24H96a8,8,0,0,0,0,16h24v63.63a88,88,0,1,1,16,0Z"></path>
-                  </svg>
-                </a>
-                <a className="text-subtle-light dark:text-subtle-dark hover:text-primary dark:hover:text-primary" href="#">
-                  <svg fill="currentColor" height="24px" viewBox="0 0 256 256" width="24px" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M128,80a48,48,0,1,0,48,48A48.05,48.05,0,0,0,128,80Zm0,80a32,32,0,1,1,32-32A32,32,0,0,1,128,160ZM176,24H80A56.06,56.06,0,0,0,24,80v96a56.06,56.06,0,0,0,56,56h96a56.06,56.06,0,0,0,56-56V80A56.06,56.06,0,0,0,176,24Zm40,152a40,40,0,0,1-40,40H80a40,40,0,0,1-40-40V80A40,40,0,0,1,80,40h96a40,40,0,0,1,40,40ZM192,76a12,12,0,1,1-12-12A12,12,0,0,1,192,76Z"></path>
-                  </svg>
-                </a>
-              </div>
-              <p className="text-subtle-light dark:text-subtle-dark text-sm">
-                ©️ 2024 Buronet. All rights reserved.
-              </p>
-            </div>
-          </footer>
+      {/* Mobile drawer */}
+      <div className={`mobile-drawer${isMobileMenuOpen ? ' open' : ''}`}>
+        <div className="mobile-drawer-head">
+          <p>Menu</p>
+          <button
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--ink)' }}
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M18 6L6 18" /><path d="M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <div className="mobile-drawer-body">
+          <div className="mobile-nav-section-label">Navigation</div>
+          <a className="mobile-nav-link" href="#hero" onClick={(e) => { e.preventDefault(); setIsMobileMenuOpen(false); document.getElementById('hero')?.scrollIntoView({ behavior: 'smooth' }); }}>Home</a>
+          <a className="mobile-nav-link" href="#jobs" onClick={(e) => { e.preventDefault(); setIsMobileMenuOpen(false); document.getElementById('jobs')?.scrollIntoView({ behavior: 'smooth' }); }}>Jobs</a>
+          <a className="mobile-nav-link" href="#community" onClick={(e) => { e.preventDefault(); setIsMobileMenuOpen(false); document.getElementById('community')?.scrollIntoView({ behavior: 'smooth' }); }}>Community</a>
+          <a className="mobile-nav-link" href="#resources" onClick={(e) => { e.preventDefault(); setIsMobileMenuOpen(false); document.getElementById('resources')?.scrollIntoView({ behavior: 'smooth' }); }}>Resources</a>
+          <div className="mobile-actions">
+            <button className="btn-mobile-primary" onClick={() => { setIsMobileMenuOpen(false); goRegister(); }}>Join Now</button>
+            <button className="btn-mobile-ghost" onClick={() => { setIsMobileMenuOpen(false); goLogin(); }}>Login</button>
+          </div>
         </div>
       </div>
-      {isModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="bg-white w-full max-w-4xl max-h-[90vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden">
-            
-            {/* Header */}
-            <div className="p-6 border-b flex items-center justify-between">
-              <h2 className="text-xl font-bold text-gray-900">All Job Openings</h2>
-              <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-gray-100 rounded-full">
-                <X size={24} className="text-gray-500" />
-              </button>
+
+      {/* Hero */}
+      <section id="hero" className="hero-section">
+        <div className="hero-bg-dots" />
+        <div className="hero-bg-accent" />
+
+        <div className="hero-left">
+          <div className="hero-badge animate-fade-up">
+            <span className="badge-dot" /> India's #1 Government Career Network
+          </div>
+
+          <h1 className="hero-title animate-fade-up delay-1">
+            Empowering India's
+            <span className="hero-title-accent">Next Generation</span>
+            of Civil Servants
+          </h1>
+
+          <p className="hero-sub animate-fade-up delay-2">
+            Buronet bridges the gap between your ambition and government stability. Access verified job alerts, real-time exam updates, and a thriving community of aspirants.
+          </p>
+
+          <div className="hero-actions animate-fade-up delay-3">
+            <button className="btn-hero-primary" onClick={goRegister}>Join Free →</button>
+            <button className="btn-hero-outline" onClick={goLogin}>Explore Jobs</button>
+          </div>
+
+          <div className="hero-stats animate-fade-up delay-4">
+            <div className="stat-item">
+              <div className="stat-value">12k+</div>
+              <div className="stat-label">Active Jobs</div>
             </div>
-
-            {/* Body */}
-            <div className="flex-1 overflow-y-auto p-6 bg-gray-50">
-              {modalLoading ? (
-                <div className="flex justify-center py-20">Loading...</div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {allJobs.map(job => (
-                    <JobCard
-                      key={job.id}
-                      job={job}
-                      isBookmarked={false} 
-                      onToggleBookmark={handleLatestJobBookmarkToggle}
-                    />
-                  ))}
-                </div>
-              )}
+            <div className="stat-div" />
+            <div className="stat-item">
+              <div className="stat-value">85%</div>
+              <div className="stat-label">Success Rate</div>
             </div>
-
-            {/* Pagination Footer */}
-            <div className="p-4 border-t flex items-center justify-between bg-white">
-              <button
-                disabled={currentPage === 1 || modalLoading}
-                onClick={() => fetchAllJobs(currentPage - 1)}
-                className="flex items-center gap-1 px-4 py-2 border rounded-lg disabled:opacity-50"
-              >
-                <ChevronLeft size={16} /> Previous
-              </button>
-              
-              <span className="text-sm font-medium">Page {currentPage} of {totalPages}</span>
-
-              <button
-                disabled={currentPage === totalPages || modalLoading}
-                onClick={() => fetchAllJobs(currentPage + 1)}
-                className="flex items-center gap-1 px-4 py-2 border rounded-lg disabled:opacity-50"
-              >
-                Next <ChevronRight size={16} />
-              </button>
+            <div className="stat-div" />
+            <div className="stat-item">
+              <div className="stat-value">500k+</div>
+              <div className="stat-label">Aspirants</div>
             </div>
           </div>
         </div>
-      )}
-    </>
+
+        <div className="hero-right animate-scale-in delay-2">
+          <div className="hero-image-wrap">
+            <img
+              src="https://images.unsplash.com/photo-1568992688065-536aad8a12f6?w=900&q=85&auto=format&fit=crop"
+              alt="Professional government workspace"
+            />
+            <div className="hero-image-overlay" />
+          </div>
+
+          <div className="hero-floating-card animate-fade-up delay-5">
+            <div className="floating-card-label">New Listings Today</div>
+            <div className="floating-card-value">247</div>
+            <div className="floating-card-sub">Across UPSC, PSC & SSC</div>
+          </div>
+
+          <div className="hero-floating-card-2 animate-fade-up delay-6">
+            <div className="badge-success">
+              <span className="dot-success" />
+              Live Updates Active
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Bento */}
+      <section id="features" className="section">
+        <div ref={el => addRef(el as HTMLElement, 0)} className="reveal">
+          <div className="section-tag">Platform Features</div>
+          <h2 className="section-title">Everything you need to succeed</h2>
+          <p className="section-sub">One platform to track jobs, prep smarter, and connect with people who get it.</p>
+        </div>
+
+        <div className="features-grid">
+          <div ref={el => addRef(el as HTMLElement, 1)} className="feat-card reveal reveal-delay-1">
+            <div className="feat-chip">Live Updates</div>
+            <div className="feat-icon-wrap">📋</div>
+            <div className="feat-title">Live Job Openings</div>
+            <div className="feat-desc">Latest notifications from UPSC, State PSCs, and SSC — verified and posted in real time.</div>
+            <a href="#" className="feat-link" onClick={(e) => { e.preventDefault(); goLogin(); }}>Browse Jobs →</a>
+          </div>
+
+          <div ref={el => addRef(el as HTMLElement, 2)} className="feat-card reveal reveal-delay-2">
+            <div className="feat-icon-wrap">👥</div>
+            <div className="feat-title">Peer Community</div>
+            <div className="feat-desc">Share preparation strategies and forge meaningful connections with fellow aspirants.</div>
+            <a href="#" className="feat-link" onClick={(e) => { e.preventDefault(); goRegister(); }}>Join Now →</a>
+          </div>
+
+          <div ref={el => addRef(el as HTMLElement, 3)} className="feat-card tall reveal reveal-delay-3">
+            <div className="feat-icon-wrap">🗓️</div>
+            <div className="feat-title">Exam Calendar</div>
+            <div className="feat-desc">Never miss a deadline. Our integrated tracker keeps every important date on your radar — admit cards, results, interviews, and more.</div>
+            <a href="#" className="feat-link" onClick={(e) => { e.preventDefault(); goLogin(); }}>View Calendar →</a>
+          </div>
+
+          <div ref={el => addRef(el as HTMLElement, 4)} className="feat-card featured reveal reveal-delay-4">
+            <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
+              <div>
+                <div className="feat-chip">Premium</div>
+                <div className="feat-title">Expert Mentorship</div>
+                <div className="feat-desc">Direct guidance from IAS/IPS officers and top educators who have been there and done it.</div>
+                <a href="#" className="feat-link" onClick={(e) => { e.preventDefault(); goLogin(); }}>Learn More →</a>
+              </div>
+              <div style={{ flexShrink: 0, width: 80, height: 80, borderRadius: 16, background: 'rgba(0,150,199,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.5rem' }}>🎓</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Featured Opportunities */}
+      <section id="jobs" className="section section-bg-alt">
+        <div ref={el => addRef(el as HTMLElement, 5)} className="reveal opportunities-header">
+          <div>
+            <div className="section-tag">Opportunities</div>
+            <h2 className="section-title">Featured Job Openings</h2>
+            <p className="section-sub">Handpicked vacancies from top government sectors.</p>
+          </div>
+          <a href="#" className="view-all-link" onClick={(e) => { e.preventDefault(); goLogin(); }}>View All →</a>
+        </div>
+
+        <div className="jobs-grid">
+          {[
+            { tag: 'UPSC', tagClass: 'tag-upsc', title: 'Assistant Director (Technical)', org: 'Union Public Service Commission', location: 'New Delhi, Delhi', salary: '₹78,800 – ₹2,09,200', deadline: '4 days', urgent: true },
+            { tag: 'STATE PSC', tagClass: 'tag-psc', title: 'Lecturer Recruitment (Mechanical)', org: 'State Public Service Commission', location: 'Lucknow, UP', salary: '₹56,100 – ₹1,77,500', deadline: '12 days', urgent: false },
+            { tag: 'SSC', tagClass: 'tag-ssc', title: 'Multi Tasking Staff (MTS) 2024', org: 'Staff Selection Commission', location: 'All India', salary: '₹18,000 – ₹56,900', deadline: '25 days', urgent: false },
+          ].map((job, i) => (
+            <div key={i} ref={el => addRef(el as HTMLElement, 6 + i)} className={`job-card reveal reveal-delay-${i + 1}`}>
+              <span className={`job-source-tag ${job.tagClass}`}>{job.tag}</span>
+              <div className="job-title">{job.title}</div>
+              <div className="job-org">{job.org}</div>
+              <div className="job-meta">
+                <div className="job-meta-item"><span className="job-meta-icon">📍</span>{job.location}</div>
+                <div className="job-meta-item"><span className="job-meta-icon">💰</span>{job.salary}</div>
+              </div>
+              <div className={`job-deadline ${job.urgent ? 'deadline-urgent' : 'deadline-normal'}`} style={{ marginBottom: '1rem' }}>
+                {job.urgent ? '🔴' : '⏱'} Ends in {job.deadline}
+              </div>
+              <button className="btn-apply" onClick={goLogin}>Apply Now</button>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Why Buronet */}
+      <section id="community" className="section">
+        <div ref={el => addRef(el as HTMLElement, 9)} className="reveal" style={{ textAlign: 'center' }}>
+          <div className="section-tag" style={{ justifyContent: 'center' }}>Why Us</div>
+          <h2 className="section-title" style={{ maxWidth: 480, margin: '0 auto 0.75rem' }}>Why choose Buronet?</h2>
+          <p className="section-sub" style={{ margin: '0 auto' }}>The ecosystem designed for high-performing aspirants to turn their public service dreams into reality.</p>
+        </div>
+
+        <div className="why-grid">
+          {whyItems.map((item, i) => (
+            <div key={i} ref={el => addRef(el as HTMLElement, 10 + i)} className={`why-card reveal reveal-delay-${i + 1}`}>
+              <div className="why-icon-circle">{item.icon}</div>
+              <div className="why-title">{item.title}</div>
+              <div className="why-desc">{item.desc}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Critical Deadlines + Latest Updates */}
+      <section className="section section-bg-alt">
+        <div className="two-col">
+          <div ref={el => addRef(el as HTMLElement, 13)} className="panel reveal">
+            <div className="panel-title">⏰ Critical Deadlines</div>
+            {[
+              { month: 'JUN', day: '15', name: 'UPSC Civil Services Prelims 2024', status: 'Application window open' },
+              { month: 'JUL', day: '02', name: 'SSC CGL Tier-I Examination', status: 'Admit card window opens' },
+            ].map((d, i) => (
+              <div key={i} className="deadline-row">
+                <div className="date-badge">
+                  <div className="date-month">{d.month}</div>
+                  <div className="date-day">{d.day}</div>
+                </div>
+                <div className="deadline-info">
+                  <div className="deadline-name">{d.name}</div>
+                  <div className="deadline-status">{d.status}</div>
+                </div>
+                <button className="bell-btn">🔔</button>
+              </div>
+            ))}
+          </div>
+
+          <div ref={el => addRef(el as HTMLElement, 14)} className="panel reveal reveal-delay-2">
+            <div className="panel-title">📡 Latest Updates</div>
+            {[
+              { chip: 'Recruitment', chipClass: 'chip-rec', title: 'New age relaxation policy for State PSC candidates announced', time: '2 hours ago · 3 Min Read' },
+              { chip: 'Policy', chipClass: 'chip-pol', title: 'Digital India initiative introduces new training modules for civil servants', time: 'Yesterday · 5 Min Read' },
+            ].map((u, i) => (
+              <div key={i} className="update-row">
+                <span className={`update-chip ${u.chipClass}`}>{u.chip}</span>
+                <div className="update-title">{u.title}</div>
+                <div className="update-time">{u.time}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section id="resources" className="section" style={{ textAlign: 'center' }}>
+        <div ref={el => addRef(el as HTMLElement, 15)} className="reveal">
+          <div className="section-tag" style={{ justifyContent: 'center' }}>FAQ</div>
+          <h2 className="section-title">Frequently Asked Questions</h2>
+        </div>
+
+        <div className="faq-list">
+          {faqs.map((faq, i) => (
+            <div
+              key={i}
+              className={`faq-item${openFaq === i ? ' open' : ''}`}
+              ref={el => addRef(el as HTMLElement, 16 + i)}
+              style={{ textAlign: 'left' }}
+            >
+              <div className="faq-q" onClick={() => setOpenFaq(openFaq === i ? null : i)}>
+                {faq.q}
+                <span className="faq-chevron">▼</span>
+              </div>
+              <div className="faq-a">{faq.a}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* CTA */}
+      <div ref={el => addRef(el as HTMLElement, 21)} className="reveal">
+        <div className="cta-section">
+          <div className="cta-bg" />
+          <h2 className="cta-title" style={{ position: 'relative' }}>
+            Ready to <span>Serve the Nation?</span>
+          </h2>
+          <p className="cta-sub" style={{ position: 'relative' }}>
+            Join the most trusted community of Indian aspirants and start your journey today.
+          </p>
+          <button className="btn-cta" onClick={goRegister}>Start Your Journey →</button>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <footer className="footer">
+        <div className="footer-grid">
+          <div>
+            <div className="footer-logo">Buronet</div>
+            <p className="footer-desc">India's premier professional network for the government sector. Building trust, transparency, and careers in the public realm.</p>
+          </div>
+          <div>
+            <div className="footer-col-title">Navigation</div>
+            <ul className="footer-links">
+              <li><a href="#hero" onClick={(e) => { e.preventDefault(); document.getElementById('hero')?.scrollIntoView({ behavior: 'smooth' }); }}>Home</a></li>
+              <li><a href="#jobs" onClick={(e) => { e.preventDefault(); document.getElementById('jobs')?.scrollIntoView({ behavior: 'smooth' }); }}>Job Board</a></li>
+              <li><a href="#community" onClick={(e) => { e.preventDefault(); document.getElementById('community')?.scrollIntoView({ behavior: 'smooth' }); }}>Community</a></li>
+            </ul>
+          </div>
+          <div>
+            <div className="footer-col-title">Support</div>
+            <ul className="footer-links">
+              <li><a href="#">About Us</a></li>
+              <li><a href="#">Contact</a></li>
+              <li><a href="#">Privacy Policy</a></li>
+            </ul>
+          </div>
+          <div>
+            <div className="footer-col-title">Connect</div>
+            <div className="social-links">
+              <button className="social-btn">𝕏</button>
+              <button className="social-btn">in</button>
+              <button className="social-btn">✉</button>
+            </div>
+          </div>
+        </div>
+        <div className="footer-bottom">
+          <div className="footer-copy">© 2024 Buronet. All rights reserved.</div>
+        </div>
+      </footer>
+    </div>
   );
 }

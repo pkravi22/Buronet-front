@@ -28,8 +28,8 @@ const HomePage: React.FC = () => {
   // This is passed as a key to PostSection to force it to re-render and refetch
   const [postsRefetchKey, setPostsRefetchKey] = useState(0);
   const [postFilter, setPostFilter] = useState<'all' | 'mine'>('all'); // Add filter state
-  const { user: authUser, isLoading: isAuthLoading } = useAuth(); 
-  const { userProfile, isLoading: isProfileLoading } = useUserProfile(); 
+  const { user: authUser, isLoading: isAuthLoading } = useAuth();
+  const { userProfile, isLoading: isProfileLoading } = useUserProfile();
   const mainRef = useRef<HTMLDivElement>(null);
 
   // Treat the user as logged-out while the logout guard is active.
@@ -53,7 +53,7 @@ const HomePage: React.FC = () => {
       body.classList.remove('restrict-scroll');
     };
   }, [isLoggedIn]);
-  
+
   // Combine loading state, especially if the home page relies on profile data
   const isLoading = isAuthLoading || (isLoggedIn && isProfileLoading);
 
@@ -66,7 +66,7 @@ const HomePage: React.FC = () => {
       </div>
     );
   }
-  
+
   // If authenticated but profile is loading, show loading
   if (isLoggedIn && isProfileLoading) {
     return (
@@ -75,13 +75,13 @@ const HomePage: React.FC = () => {
       </div>
     );
   }
-  
+
   // If not authenticated (or logging out), show the public homepage
- if(!isLoggedIn){
+  if (!isLoggedIn) {
     // isLoading = false;
     return (
       <div>
-        <Home/>
+        <Home />
       </div>
     )
   }
@@ -95,62 +95,62 @@ const HomePage: React.FC = () => {
 
   return (
     <AuthRedirectHandler>
-    <div className="max-h-screen flex flex-col bg-[#EEF0F4] pb-6 mb-12 sm:mb-0">
-      <TopBar />
-      <div className="flex flex-1 pt-[80px]">
-        <div className="hidden lg:block w-[20%] ml-6 xl:w-[270px] desktop:w-[260px] left-6 shrink-0" />
-        <Navbar activeItem="Home" />
-        {/* Placeholder is now hidden on small screens and visible on large screens */}
-        {/* <div className="hidden lg:block lg:w-[239px] shrink-0" /> */}
-        {/* <Navbar activeItem="Home" /> */}
-        <main ref={mainRef} className="flex-1 px-4 sm:px-6 lg:mx-1 overflow-y-auto h-[calc(100vh-100px)] ultra:h-[calc(83.2vh-100px)] xl-ultra:h-[calc(71.3vh-100px)] scrollbar-hide"> {/* Margin is now responsive */}
-          <div className="">
-            <DashboardCards />
-            <InsightsSection onShareArticleClick={() => setIsCreatePostModalOpen(true)} onCreatePollClick={() => setIsCreatePollModalOpen(true)} onShareByteClick={() => setIsCreateByteModalOpen(true)} />
-            
-            {/* Mobile Filter */}
-            <div className="lg:hidden flex justify-center w-full px-4 sm:px-0">
-               <div className="mt-6 w-full max-w-[640px] bg-gray-200 p-1 rounded-lg flex">
-                  <button 
-                     onClick={() => setPostFilter('all')}
-                     className={`flex-1 py-1.5 text-sm font-semibold rounded-md transition-all ${postFilter === 'all' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
-                  >
-                     All Posts
-                  </button>
-                  <button 
-                     onClick={() => setPostFilter('mine')}
-                     className={`flex-1 py-1.5 text-sm font-semibold rounded-md transition-all ${postFilter === 'mine' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
-                  >
-                     My Posts
-                  </button>
-               </div>
-            </div>
+      <div className="max-h-screen flex flex-col bg-[#EEF0F4] pb-6 mb-12 sm:mb-0">
+        <TopBar />
+        <div className="flex flex-1 pt-[80px]">
+          <div className="hidden lg:block w-[20%] ml-6 xl:w-[270px] desktop:w-[260px] left-6 shrink-0" />
+          <Navbar activeItem="Home" />
+          {/* Placeholder is now hidden on small screens and visible on large screens */}
+          {/* <div className="hidden lg:block lg:w-[239px] shrink-0" /> */}
+          {/* <Navbar activeItem="Home" /> */}
+          <main ref={mainRef} className="flex-1 px-4 sm:px-6 lg:mx-1 overflow-y-auto h-[calc(100vh-100px)] ultra:h-[calc(83.2vh-100px)] xl-ultra:h-[calc(71.3vh-100px)] scrollbar-hide"> {/* Margin is now responsive */}
+            <div className="">
+              <DashboardCards />
+              <InsightsSection onShareArticleClick={() => setIsCreatePostModalOpen(true)} onCreatePollClick={() => setIsCreatePollModalOpen(true)} onShareByteClick={() => setIsCreateByteModalOpen(true)} />
 
-            <PostSection postsRefetchKey={postsRefetchKey} filterType={postFilter}/>
-            {/* Using the new PostSection component */}  
-            {/* <PostSectionOld /> */}
-          </div>
-          <div className="lg:hidden h-20" />
-        </main>
-        <div className="fixed h-[21px] lg:hidden"></div> {/* Hide fixed height div on desktop */}
-        <RightSidebar scrollSourceRef={mainRef} activeFilter={postFilter} onFilterChange={setPostFilter} />
+              {/* Mobile Filter */}
+              <div className="lg:hidden flex justify-center w-full px-4 sm:px-0">
+                <div className="mt-6 w-full max-w-[640px] bg-gray-200 p-1 rounded-lg flex">
+                  <button
+                    onClick={() => setPostFilter('all')}
+                    className={`flex-1 py-1.5 text-sm font-semibold rounded-md transition-all ${postFilter === 'all' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                  >
+                    All Posts
+                  </button>
+                  <button
+                    onClick={() => setPostFilter('mine')}
+                    className={`flex-1 py-1.5 text-sm font-semibold rounded-md transition-all ${postFilter === 'mine' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                  >
+                    My Posts
+                  </button>
+                </div>
+              </div>
+
+              <PostSection postsRefetchKey={postsRefetchKey} filterType={postFilter} />
+              {/* Using the new PostSection component */}
+              {/* <PostSectionOld /> */}
+            </div>
+            <div className="lg:hidden h-20" />
+          </main>
+          <div className="fixed h-[21px] lg:hidden"></div> {/* Hide fixed height div on desktop */}
+          <RightSidebar scrollSourceRef={mainRef} activeFilter={postFilter} onFilterChange={setPostFilter} />
+        </div>
+        <CreatePostModal
+          isOpen={isCreatePostModalOpen} // Controls modal visibility
+          onClose={() => setIsCreatePostModalOpen(false)} // Function to close the modal
+          onPostCreated={handlePostCreated} // Callback for when a post is successfully created
+        />
+        <CreatePollModal
+          isOpen={isCreatePollModalOpen} // Controls modal visibility
+          onClose={() => setIsCreatePollModalOpen(false)} // Function to close the modal
+          onPostCreated={handlePostCreated} // Callback for when a poll is successfully created
+        />
+        <CreateByteModal
+          isOpen={isCreateByteModalOpen} // Controls modal visibility
+          onClose={() => setIsCreateByteModalOpen(false)} // Function to close the modal
+        />
+        {/* </SiteLayout> */}
       </div>
-      <CreatePostModal
-        isOpen={isCreatePostModalOpen} // Controls modal visibility
-        onClose={() => setIsCreatePostModalOpen(false)} // Function to close the modal
-        onPostCreated={handlePostCreated} // Callback for when a post is successfully created
-      />
-      <CreatePollModal
-        isOpen={isCreatePollModalOpen} // Controls modal visibility
-        onClose={() => setIsCreatePollModalOpen(false)} // Function to close the modal
-        onPostCreated={handlePostCreated} // Callback for when a poll is successfully created
-      />
-      <CreateByteModal
-        isOpen={isCreateByteModalOpen} // Controls modal visibility
-        onClose={() => setIsCreateByteModalOpen(false)} // Function to close the modal
-      />
-      {/* </SiteLayout> */}
-    </div>
     </AuthRedirectHandler>
   );
 }
