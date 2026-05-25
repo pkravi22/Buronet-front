@@ -1,4 +1,4 @@
-name: EC2 Deployment Workflow
+name: Lightsail Deployment Workflow
 
 on:
   push:
@@ -18,16 +18,15 @@ jobs:
         with:
           node-version: '20'
 
-      # 2. Install Dependencies (Runner par)
+      # 2. Install Dependencies
       - name: Install Dependencies
         run: |
           npm ci
           npm install mongodb
 
-      # 3. Build the Application (Runner par)
+      # 3. Build the Application
       - name: Build Application
         env:
-          # Yahaan aapke saare NEXT_PUBLIC_ variables aayenge.
           NEXT_PUBLIC_DOTNET_BACKEND_BASE: "/api"
           NEXT_PUBLIC_JOBS_BACKEND_BASE: '/api'
           NEXT_PUBLIC_BYTES_BACKEND_BASE: '/api'
@@ -35,37 +34,34 @@ jobs:
           NEXT_PUBLIC_MESSAGE_SERVICE_BASE_URL: ''
           MONGO_URI: 'mongodb+srv://shobhit9887:0aX62ECWzZ4sOrzb@cluster0.uo5qhgj.mongodb.net/job_postings_db?retryWrites=true&w=majority&appName=Cluster0'
           NEXT_PUBLIC_CURRENT_AFFAIRS_API_KEY: 'pub_7ebcbabb30e44a098ef683a34a98453c'
-
         run: npm run build
 
-      # 4. FIX: Create Deployment Archive (Tarball)
-      # --- Tar is reliable for including hidden files like .next ---
+      # 4. Create Deployment Archive (Tarball)
       - name: Create Deployment Tarball
         run: |
           tar -czf deploy.tar.gz .next public package.json node_modules package-lock.json next.config.js ecosystem.config.js
           
-      # 5. Secure Copy (SCP) the Archive to EC2 Server
-      - name: Transfer Archive to EC2
+      # 5. Secure Copy (SCP) the Archive to Lightsail Instance
+      - name: Transfer Archive to Lightsail
         uses: appleboy/scp-action@v0.1.7
         with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          host: ${{ secrets.LIGHTSAIL_HOST }}
+          username: ${{ secrets.LIGHTSAIL_USER }}
+          key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
           source: "deploy.tar.gz"
-          target: "/var/www/buronet-app" # Single tar file transfer ho raha hai
+          target: "/var/www/buronet-app"
           
-      # 6. Connect via SSH, Unzip, and Restart Application Process (PM2)
+      # 6. Extract Files and Restart App via PM2
       - name: Extract Files and Restart App
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          host: ${{ secrets.LIGHTSAIL_HOST }}
+          username: ${{ secrets.LIGHTSAIL_USER }}
+          key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
           script: |
             cd /var/www/buronet-app
-            rm -rf .next node_modules # Delete old stuff
+            rm -rf .next node_modules
             tar -xzf deploy.tar.gz
             rm deploy.tar.gz
-            # Purely restarting - no building or installing
             pm2 start ecosystem.config.js --update-env
             pm2 save
