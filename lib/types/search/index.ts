@@ -4,6 +4,10 @@ export interface UserSearchResultPayload {
   profilePictureUrl: string;
   currentPosition: string;
   location: string;
+  /** GUID of the user — used to render the Follow button inline in search results */
+  userId: string;
+  /** True when the currently authenticated user already follows this person */
+  isFollowedByCurrentUser: boolean;
 }
 
 export interface JobSearchResultPayload {
@@ -19,12 +23,11 @@ export interface UnifiedSearchResultItem {
   title: string;
   subtitle: string;
   linkUrl: string;
-  payload: UserSearchResultPayload | JobSearchResultPayload | any; // Use 'any' for other types for now
+  payload: UserSearchResultPayload | JobSearchResultPayload | any;
 }
 
 export interface SearchResultDto {
   results: UnifiedSearchResultItem[];
   totalUserCount: number;
   totalJobCount: number;
-  // totalPostCount: number; // Add other counts as your backend supports them
 }

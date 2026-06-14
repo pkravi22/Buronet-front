@@ -1,105 +1,188 @@
+'use client';
 import Link from 'next/link';
-import { MouseEvent, useEffect, useState } from 'react'; // Import useState
+import { MouseEvent } from 'react';
 import { Job } from '@/lib/types/jobs/';
-import { formatDate as formatDateHelper } from '@/lib/helpers/DateHelper';
 import { useAuth } from '@/context/AuthContext';
-import { postApi, remove } from '@/lib/api';
-import { useRouter } from 'next/navigation';
+import { MapPin, Banknote, Clock, Bookmark, ExternalLink } from 'lucide-react';
 
-// The component's props are updated to accept the initial bookmark status
 interface JobCardProps {
   job: Job;
   isBookmarked: boolean;
   onToggleBookmark: (jobId: string, isBookmarked: boolean) => void;
 }
 
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+const SOURCE_STYLES: Record<string, { bg: string; text: string }> = {
+  SarkariResult: { bg: 'bg-orange-50', text: 'text-orange-600' },
+  IndGovtJobs:   { bg: 'bg-sky-50',    text: 'text-sky-600'    },
+  Manual:        { bg: 'bg-gray-100',  text: 'text-gray-500'   },
+};
+
+const SECTOR_COLOURS: Record<string, string> = {
+  Railway:        'bg-blue-50 text-blue-700',
+  Banking:        'bg-purple-50 text-purple-700',
+  Defense:        'bg-red-50 text-red-700',
+  Education:      'bg-green-50 text-green-700',
+  Healthcare:     'bg-teal-50 text-teal-700',
+  'Civil Services': 'bg-amber-50 text-amber-700',
+  Government:     'bg-indigo-50 text-indigo-700',
+};
+
+// Org-name abbreviation map — cleans up scraper artefacts like "Post Name", "SSC" for UPSSSC
+const ORG_CLEAN: Record<string, string> = {
+  'Post Name':  '',
+  'post name':  '',
+  'Post name':  '',
+};
+
+function cleanOrg(raw: string): string {
+  return ORG_CLEAN[raw.trim()] ?? raw.trim();
+}
+
+function formatDeadline(raw?: string): { label: string; urgent: boolean; expired: boolean } {
+  if (!raw) return { label: 'No deadline', urgent: false, expired: false };
+  // Try parsing
+  const d = new Date(raw);
+  if (!isNaN(d.getTime())) {
+    const days = Math.ceil((d.getTime() - Date.now()) / 86400000);
+    if (days < 0)  return { label: 'Expired',           urgent: false, expired: true };
+    if (days === 0) return { label: 'Last day!',         urgent: true,  expired: false };
+    if (days <= 7)  return { label: `${days}d left`,     urgent: true,  expired: false };
+    return { label: d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }), urgent: false, expired: false };
+  }
+  // Non-parseable string — return as-is truncated
+  return { label: raw.slice(0, 28), urgent: false, expired: false };
+}
+
+// Initials avatar when no logo
+function OrgAvatar({ name, sector }: { name: string; sector?: string }) {
+  const initials = name
+    .split(/\s+/)
+    .slice(0, 2)
+    .map(w => w[0]?.toUpperCase() ?? '')
+    .join('');
+
+  const colours = [
+    'from-blue-500 to-indigo-600',
+    'from-purple-500 to-pink-600',
+    'from-green-500 to-teal-600',
+    'from-orange-500 to-red-600',
+    'from-cyan-500 to-blue-600',
+  ];
+  const idx = name.charCodeAt(0) % colours.length;
+
+  return (
+    <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${colours[idx]} flex items-center justify-center shrink-0`}>
+      <span className="text-white font-bold text-sm">{initials || 'G'}</span>
+    </div>
+  );
+}
+
+// ── Component ─────────────────────────────────────────────────────────────────
+
 const JobCard = ({ job, isBookmarked, onToggleBookmark }: JobCardProps) => {
-  // Internal state to manage the bookmark status for immediate UI feedback
-  // const [isBookmarked, setIsBookmarked] = useState(isInitiallyBookmarked);
-  const { user } = useAuth(); // Assuming you have a useAuth hook to get the current user
-  const router = useRouter();
+  const { user } = useAuth();
 
-  console.log("JobCard - isInitiallyBookmarked:", job, isBookmarked);
+  const org      = cleanOrg(job.organizationName || job.companyName || 'Government');
+  const deadline = formatDeadline(job.lastDateToApply);
+  const source   = (job as any).source as string | undefined;
+  const sector   = job.sector;
+  const srcStyle = source ? (SOURCE_STYLES[source] ?? SOURCE_STYLES.Manual) : null;
+  const secStyle = sector ? (SECTOR_COLOURS[sector] ?? SECTOR_COLOURS.Government) : null;
 
-  // useEffect(() => {
-  //    setIsBookmarked(isInitiallyBookmarked);
-  // }, [isBookmarked, isInitiallyBookmarked]);
-
-  const logoSrc = 'https://readdy.ai/api/search-image?query=official%20government%20logo%20of%20Union%20Public%20Service%20Commission%20of%20India%20with%20emblem%20and%20blue%20and%20gold%20colors%20professional%20clean%20design%20on%20white%20background&width=120&height=120&seq=201&orientation=squarish';
-
-  const handleBookmarkClick = async (e: MouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation();
+  const handleBookmark = (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
+    e.stopPropagation();
+    if (!user) return;
     onToggleBookmark(job.id!, isBookmarked);
-    
-    // Optimistic UI update: toggle the state immediately
-    // const newState = !isBookmarked;
-
-    // setIsBookmarked(newState);
-
-    // try {
-    //   if (newState) {
-    //     // Your API call to ADD a bookmark would go here
-    //     console.log(`Bookmarking job ${job.id}`);
-    //     await postApi(`/bookmarks/${user?.id}/job`, { Id: job.id });
-    //   } else {
-    //     // Your API call to REMOVE a bookmark would go here
-    //     console.log(`Removing bookmark for job ${job.id}`);
-    //     await remove(`/bookmarks/${user?.id}/job/${job.id}`);
-    //   }
-    // } catch (error) {
-    //   console.error("Failed to update bookmark status:", error);
-    //   // If the API call fails, revert the state to what it was before the click
-    //   setIsBookmarked(!newState);
-    // }
   };
 
   return (
-    <Link href={`/jobs/${job.id}`} className="block group">
-      <div className="bg-white rounded-xl shadow border border-[#E5E7EB] p-6 flex flex-col min-h-[270px] relative cursor-pointer group-hover:shadow-md transition-shadow" style={{boxShadow:'0 1px 2px 0 rgba(0,0,0,0.05)'}}>
-        
-        <button 
-          onClick={handleBookmarkClick}
-          className="absolute top-5 right-5 z-10 p-1 rounded-full hover:bg-gray-100 transition-colors"
-          aria-label={isBookmarked ? "Remove bookmark" : "Bookmark job"}
-        >
-          {/* The SVG's class now changes based on the isBookmarked state */}
-          <svg 
-            width="20" 
-            height="20" 
-            viewBox="0 0 24 24" 
-            className={`transition-all ${isBookmarked ? 'text-blue-600 fill-current' : 'text-gray-500 fill-none'}`}
-          >
-            <path d="M6 4a2 2 0 0 0-2 2v14l8-5.333L20 20V6a2 2 0 0 0-2-2H6z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
-          </svg>
-        </button>
+    <Link href={`/jobs/${job.id}`} className="block group focus:outline-none">
+      <div className="
+        relative bg-white rounded-2xl border border-gray-100
+        shadow-sm hover:shadow-lg hover:-translate-y-0.5
+        transition-all duration-200 overflow-hidden h-full flex flex-col
+      ">
+        {/* Top colour accent */}
+        <div className="h-1 w-full bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500
+          scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300" />
 
-        <div className="flex flex-col mb-4">
-          <div className="flex items-start">
-            <img src={logoSrc} alt={`${job.companyName} logo`} className="w-12 h-12 rounded-lg object-cover border border-[#E5E7EB] bg-white" />
-            <div className="flex flex-col ml-3">
-              <h3 className="text-[#1F2937] text-xl font-bold leading-tight">{job.jobTitle}</h3>
-              <p className="text-[#4B5563] text-base font-medium mt-1">{job.companyName || job.organizationName}</p>
-              <span className="flex items-center gap-1 text-sm text-[#6B7280] mt-2">
-                <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M12 21s-6-5.686-6-10A6 6 0 0 1 18 11c0 4.314-6 10-6 10Z" stroke="#6B7280" strokeWidth="1.5"/><circle cx="12" cy="11" r="2.5" stroke="#6B7280" strokeWidth="1.5"/></svg>
-                {job.location}
-              </span>
-              <span className="flex items-center gap-1 text-xs text-[#6B7280] mt-1">
-                <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M6 4h9M6 8h9M9 4v12a4 4 0 0 0 4 4h2M6 12h7" stroke="#6B7280" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                {job.compensation || 'Not disclosed'}
-              </span>
+        <div className="p-5 flex flex-col gap-4 flex-1">
+
+          {/* ── Header: avatar + title + bookmark ──────────────────── */}
+          <div className="flex items-start gap-3">
+            <OrgAvatar name={org} sector={sector} />
+
+            <div className="flex-1 min-w-0 pr-8">
+              <h3 className="text-gray-900 font-bold text-[15px] leading-snug line-clamp-2 group-hover:text-blue-600 transition-colors">
+                {job.jobTitle}
+              </h3>
+              {org && (
+                <p className="text-gray-500 text-sm mt-0.5 truncate font-medium">{org}</p>
+              )}
             </div>
+
+            {/* Bookmark button */}
+            <button
+              onClick={handleBookmark}
+              title={isBookmarked ? 'Remove bookmark' : 'Bookmark'}
+              className="absolute top-4 right-4 p-1.5 rounded-full hover:bg-gray-100 transition-colors"
+            >
+              <Bookmark
+                size={17}
+                className={isBookmarked ? 'fill-blue-600 text-blue-600' : 'text-gray-400'}
+              />
+            </button>
           </div>
+
+          {/* ── Tags: source + sector ───────────────────────────────── */}
+          <div className="flex flex-wrap gap-1.5">
+            {srcStyle && source !== 'Manual' && (
+              <span className={`text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-md ${srcStyle.bg} ${srcStyle.text}`}>
+                {source}
+              </span>
+            )}
+            {secStyle && sector && sector !== 'Government' && (
+              <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-md ${secStyle}`}>
+                {sector}
+              </span>
+            )}
+          </div>
+
+          {/* ── Meta: location + compensation ──────────────────────── */}
+          <div className="flex flex-col gap-1.5 text-sm text-gray-500">
+            <span className="flex items-center gap-1.5">
+              <MapPin size={13} className="text-gray-400 shrink-0" />
+              <span className="truncate">{job.location || 'India'}</span>
+            </span>
+            <span className="flex items-center gap-1.5">
+              <Banknote size={13} className="text-gray-400 shrink-0" />
+              <span className="truncate">{job.compensation || 'As per norms'}</span>
+            </span>
+          </div>
+
+          {/* ── Footer: deadline + view link ────────────────────────── */}
+          <div className="flex items-center justify-between pt-3 border-t border-gray-50 mt-auto">
+            <span className={`flex items-center gap-1.5 text-xs font-semibold ${
+              deadline.expired  ? 'text-gray-400 line-through' :
+              deadline.urgent   ? 'text-red-500' :
+                                  'text-gray-500'
+            }`}>
+              <Clock size={12} className="shrink-0" />
+              {deadline.expired ? 'Expired' : deadline.label}
+            </span>
+
+            <span className="flex items-center gap-1 text-xs font-semibold text-blue-600 group-hover:gap-2 transition-all">
+              View <ExternalLink size={11} />
+            </span>
+          </div>
+
         </div>
-        <div className="flex items-center gap-2 text-[#EF4444] text-sm mt-auto mb-4">
-          <svg width="18" height="18" fill="none"><circle cx="9" cy="9" r="8" stroke="#EF4444" strokeWidth="2"/><path d="M9 5v4l2.5 2.5" stroke="#EF4444" strokeWidth="1.5" strokeLinecap="round"/></svg>
-          <span className="font-medium">Deadline: {formatDateHelper(job.lastDateToApply)}</span>
-        </div>
-        
       </div>
     </Link>
   );
 };
 
 export default JobCard;
-

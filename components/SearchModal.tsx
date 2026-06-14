@@ -2,9 +2,10 @@
 
 import { FiSearch, FiX, FiUser, FiBriefcase, FiLink } from 'react-icons/fi';
 import { useState, useEffect, useRef, useMemo } from 'react';
-import { useSearch } from '@/hooks/useSearch'; // Adjust path as needed
-import { SearchItemType, JobSearchResultPayload } from '@/lib/types/search';
+import { useSearch } from '@/hooks/useSearch';
+import { SearchItemType, JobSearchResultPayload, UserSearchResultPayload } from '@/lib/types/search';
 import Link from 'next/link';
+import FollowButton from '@/components/FollowButton';
 
 interface SearchModalProps {
   isOpen: boolean;
@@ -17,10 +18,9 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
   const { results, loading, executeSearch } = useSearch();
   const searchInputRef = useRef<HTMLInputElement>(null);
 
-  // Focus the input when the modal opens
   useEffect(() => {
     if (isOpen) {
-      document.body.style.overflow = 'hidden'; // Prevent scrolling the body
+      document.body.style.overflow = 'hidden';
       searchInputRef.current?.focus();
     } else {
       document.body.style.overflow = 'unset';
@@ -30,16 +30,13 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
     };
   }, [isOpen]);
 
-  // Debounce the search execution
   useEffect(() => {
     const timer = setTimeout(() => {
       executeSearch(searchQuery);
     }, 300);
-
     return () => clearTimeout(timer);
   }, [searchQuery, executeSearch]);
 
-  // Filter results based on the active tab
   const filteredResults = useMemo(() => {
     if (activeTab === 'All') return results.results;
     return results.results.filter(item => item.type === activeTab);
@@ -59,15 +56,13 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
     { key: 'All', label: `All (${results.results.length})` },
     { key: 'User', label: `People (${results.totalUserCount})` },
     { key: 'Job', label: `Jobs (${results.totalJobCount})` },
-    // Add other result types here
   ] as const;
 
   return (
     <div className="fixed inset-0 z-[100] bg-white md:bg-gray-50/70 md:backdrop-blur-sm flex justify-center p-0 md:p-8 overflow-y-auto">
-      
       <div className="w-full h-full md:max-w-4xl md:h-auto md:max-h-full bg-white md:rounded-xl shadow-2xl flex flex-col">
-        
-        {/* Search Input Bar (Header) */}
+
+        {/* Search Input Bar */}
         <div className="flex items-center p-4 border-b md:border-b-0">
           <div className="relative flex-1">
             <FiSearch size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9CA3AF]" />
@@ -104,14 +99,14 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
 
         {/* Results Body */}
         <div className="flex-1 overflow-y-auto p-4 md:p-6">
-          
+
           {loading && searchQuery.length > 0 && (
             <div className="text-center py-12 text-[#6B7280]">Loading results...</div>
           )}
 
           {!loading && searchQuery.length > 0 && filteredResults.length === 0 && (
             <div className="text-center py-12 text-[#6B7280]">
-              No results found for **"{searchQuery}"** in {activeTab}.
+              No results found for &quot;{searchQuery}&quot; in {activeTab}.
             </div>
           )}
 
@@ -121,32 +116,42 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
             </div>
           )}
 
-          {/* List of Results */}
           {!loading && filteredResults.length > 0 && (
             <div className="space-y-4">
               {filteredResults.map((item) => (
-                <Link
+                <div
                   key={item.id}
-                  href={item.linkUrl}
-                  onClick={onClose}
-                  className="block p-4 bg-white border border-[#E5E7EB] rounded-lg shadow-sm hover:shadow-md transition-shadow duration-150"
+                  className="flex items-center gap-3 p-4 bg-white border border-[#E5E7EB] rounded-lg shadow-sm hover:shadow-md transition-shadow duration-150"
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-gray-100 rounded-full">{getIcon(item.type)}</div>
-                    <div>
-                      <p className="font-semibold text-[#1F2937] flex items-center gap-2">
+                  {/* Clickable area */}
+                  <Link
+                    href={item.linkUrl}
+                    onClick={onClose}
+                    className="flex items-center gap-3 flex-1 min-w-0"
+                  >
+                    <div className="p-2 bg-gray-100 rounded-full shrink-0">{getIcon(item.type)}</div>
+                    <div className="min-w-0">
+                      <p className="font-semibold text-[#1F2937] flex items-center gap-2 truncate">
                         {item.title}
-                        {/* Optional: Display Job Type/Location for quick context */}
                         {item.type === 'Job' && (
-                            <span className="text-xs font-medium text-[#10B981] bg-[#D1FAE5] px-2 py-0.5 rounded-full ml-1">
-                                {(item.payload as JobSearchResultPayload)?.jobType}
-                            </span>
+                          <span className="text-xs font-medium text-[#10B981] bg-[#D1FAE5] px-2 py-0.5 rounded-full ml-1 shrink-0">
+                            {(item.payload as JobSearchResultPayload)?.jobType}
+                          </span>
                         )}
                       </p>
-                      <p className="text-sm text-[#6B7280]">{item.subtitle}</p>
+                      <p className="text-sm text-[#6B7280] truncate">{item.subtitle}</p>
                     </div>
-                  </div>
-                </Link>
+                  </Link>
+
+                  {/* Inline Follow button — only shown for User results */}
+                  {item.type === 'User' && (item.payload as UserSearchResultPayload)?.userId && (
+                    <FollowButton
+                      targetUserId={(item.payload as UserSearchResultPayload).userId}
+                      initialIsFollowing={(item.payload as UserSearchResultPayload).isFollowedByCurrentUser ?? false}
+                      size="sm"
+                    />
+                  )}
+                </div>
               ))}
             </div>
           )}

@@ -1,422 +1,461 @@
-// File: MainContent.tsx
-
 "use client";
 
-import { TrendingUp, Clock, Briefcase, FileText, Bookmark, Bell, ChevronRight, Building2, Banknote, Shield, GraduationCap, Stethoscope, Landmark, ChevronLeft, X, Plus } from 'lucide-react';
+import {
+  TrendingUp, Clock, Briefcase, FileText, Bookmark, Bell,
+  ChevronRight, Building2, Banknote, Shield, GraduationCap,
+  Stethoscope, Landmark, ChevronLeft, Plus,
+  Search, X, Filter, RefreshCw, CalendarDays, Award, BarChart3,
+  ChevronDown,
+} from 'lucide-react';
 import Link from 'next/link';
-import { useRef, useState, useEffect, useMemo } from 'react';
-import { get, remove, postApi } from '@/lib/api'; // Make sure this path is correct for your API helper
-import { Job, ApiResponse } from '@/lib/types/jobs'; // Make sure this path is correct for your types
-import JobCard from '../components/JobCard'; // Make sure this path is correct for your JobCard component
+import { useRef, useState, useEffect, useCallback } from 'react';
+import { get, remove, postApi } from '@/lib/api';
+import { Job } from '@/lib/types/jobs';
+import JobCard from './JobCard';
 import { useAuth } from '@/context/AuthContext';
 import { useNotifications } from '@/hooks/useNotifications';
 
-interface bookmarksResponseType {
-  id: String,
-  jobId: String,
-  userId: String,
-  savedDate: String,
-}
-
-// TypeScript Interfaces
-interface DashboardCardProps {
-  title: string;
-  value: string;
-  trend: string;
-  icon: React.ReactNode;
-  iconColor: string;
-  trendIcon?: React.ReactNode;
-  trendColor?: string;
-}
-
+// ── Types ─────────────────────────────────────────────────────────────────────
+interface BookmarkItem { id: string; jobId: string; userId: string; savedDate: string }
 interface DashboardStats {
-  totalActiveJobs: number;
-  newJobsToday: number;
-  totalBookmarkedJobs: number;
-  newJobsTodayTrend?: string;
-  totalApplications?: number;
-  applicationsInProgress?: number;
-  bookmarkedJobsTrend?: string;
+  totalActiveJobs: number; newJobsToday: number; totalBookmarkedJobs: number;
+  newJobsTodayTrend?: string; totalApplications?: number;
+  applicationsInProgress?: number; bookmarkedJobsTrend?: string;
 }
+interface DepartmentStat { departmentName: string; jobCount: number }
+interface PublicRes { page: number; pageSize: number; totalCount: number; totalPages: number; data: Job[] }
 
-interface DepartmentStats {
-  departmentName: string;
-  jobCount: number;
-}
+// ── Constants ─────────────────────────────────────────────────────────────────
+const TABS = [
+  { id: 'job',        label: 'Latest Jobs',  Icon: Briefcase    },
+  { id: 'admit_card', label: 'Admit Cards',  Icon: CalendarDays },
+  { id: 'result',     label: 'Results',      Icon: Award        },
+  { id: 'update',     label: 'Updates',      Icon: BarChart3    },
+] as const;
+type TabId = typeof TABS[number]['id'];
 
-interface DepartmentStatArray {
-  data: DepartmentStats[]
-}
+const SECTORS  = ['All', 'Railway', 'Banking', 'Defense', 'Education', 'Healthcare', 'Civil Services', 'Government'];
+const SOURCES  = ['All Sources', 'SarkariResult', 'IndGovtJobs', 'Manual'];
+const PAGE_SIZE = 12;
 
-// Reusable Components defined within the file
-const DashboardCard = ({ title, value, trend, icon, iconColor, trendIcon, trendColor = "text-[#16A34A]" }: DashboardCardProps) => (
-  // RESPONSIVE CHANGE: Changed w-[148px] to w-full. The grid container will now control the width.
-  <div className="w-full h-32 bg-gradient-to-br from-[#DDECFF] to-[#E3EAFF] rounded-xl">
-    <div className="h-full px-4 py-4 flex flex-col justify-between">
-      <div className="flex items-center">
-        <div className="w-8 h-8 bg-white rounded-lg shadow-sm flex items-center justify-center p-2">
-          <span className={`${iconColor}`}>
-            {icon}
-          </span>
-        </div>
-        <div className="ml-3">
-          <h3 className="text-[#1F2937] font-medium text-sm">{title}</h3>
-        </div>
-      </div>
-      <div>
-        <p className="text-[#1F2937] text-2xl font-semibold">{value}</p>
-        <div className="flex items-center gap-1 mt-1">
-          {trendIcon && (
-            <span className={`${trendColor}`}>
-              {trendIcon}
-            </span>
-          )}
-          <p className="text-xs text-[#6B7280]">{trend}</p>
-        </div>
-      </div>
+// ── Small reusable pieces ─────────────────────────────────────────────────────
+const StatCard = ({ title, value, sub, icon, colour }: {
+  title: string; value: string; sub: string;
+  icon: React.ReactNode; colour: string
+}) => (
+  <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 flex items-center gap-4">
+    <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${colour}`}>
+      {icon}
+    </div>
+    <div className="min-w-0">
+      <p className="text-2xl font-bold text-gray-900 leading-tight">{value}</p>
+      <p className="text-sm font-semibold text-gray-700 truncate">{title}</p>
+      <p className="text-xs text-gray-400 truncate">{sub}</p>
     </div>
   </div>
 );
 
-const DepartmentCard = ({ title, jobs, icon }: { title: string; jobs: number; icon: React.ReactNode }) => {
-  const getGradient = (title: string) => {
-    switch (title.toLowerCase()) {
-      case 'railway': return 'from-blue-500 to-indigo-600';
-      case 'banking': return 'from-indigo-500 to-purple-600';
-      case 'defense': return 'from-purple-500 to-pink-600';
-      case 'education': return 'from-pink-500 to-red-600';
-      case 'healthcare': return 'from-red-500 to-orange-600';
-      case 'civil services': return 'from-orange-500 to-yellow-600';
-      default: return 'from-blue-500 to-indigo-600';
-    }
+const DeptCard = ({ title, jobs, icon }: { title: string; jobs: number; icon: React.ReactNode }) => {
+  const g: Record<string, string> = {
+    railway: 'from-blue-500 to-blue-700', banking: 'from-violet-500 to-purple-700',
+    defense: 'from-red-500 to-rose-700', education: 'from-emerald-500 to-green-700',
+    healthcare: 'from-cyan-500 to-teal-700', 'civil services': 'from-amber-500 to-orange-600',
   };
-
   return (
-    <div className={`w-[180px] h-32 bg-gradient-to-br ${getGradient(title)} rounded-xl`}>
-      <div className="h-full px-4 py-4 flex flex-col justify-between">
-        <div className="flex items-center justify-between">
-          <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
-            <span className="text-white">{icon}</span>
-          </div>
-          <span className="bg-white/20 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-full">{jobs} jobs</span>
-        </div>
-        <div>
-          <h3 className="text-white text-lg font-medium">{title}</h3>
-          <p className="text-white/80 text-sm">Ministry of India</p>
-        </div>
+    <div className={`min-w-[160px] h-28 rounded-2xl bg-gradient-to-br ${g[title.toLowerCase()] ?? 'from-blue-500 to-indigo-700'} p-4 flex flex-col justify-between`}>
+      <div className="flex items-center justify-between">
+        <div className="w-9 h-9 bg-white/20 rounded-lg flex items-center justify-center text-white">{icon}</div>
+        <span className="text-[11px] font-bold bg-white/20 text-white px-2 py-0.5 rounded-full">{jobs}</span>
+      </div>
+      <div>
+        <p className="text-white font-bold text-sm">{title}</p>
+        <p className="text-white/70 text-xs">Ministry of India</p>
       </div>
     </div>
   );
 };
 
-// Main Component
-const MainContent = () => {
-  // State for dynamic job data
-  const [jobs, setJobs] = useState<Job[]>([]);
-  const [bookmarkedJobs, setBookmarkedJobs] = useState<bookmarksResponseType[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [dashboardStats, setDashboardStats] = useState<DashboardStats | null>(null);
-  const [departmentStats, setDepartmentStats] = useState<DepartmentStats[]>([]);
-  const { user } = useAuth(); // Assuming you have a useAuth hook to get the current user
-  const { unreadCount } = useNotifications(); // Get unread notification count
-  const [activeTab, setActiveTab] = useState('All Jobs');
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [allJobs, setAllJobs] = useState<Job[]>([]);
-  const [modalLoading, setModalLoading] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
+const SkeletonCard = () => (
+  <div className="bg-white rounded-2xl border border-gray-100 p-5 animate-pulse">
+    <div className="flex gap-3 mb-4">
+      <div className="w-11 h-11 rounded-xl bg-gray-200 shrink-0" />
+      <div className="flex-1 space-y-2 pt-1">
+        <div className="h-4 bg-gray-200 rounded w-3/4" />
+        <div className="h-3 bg-gray-200 rounded w-1/2" />
+      </div>
+    </div>
+    <div className="flex gap-2 mb-3">
+      <div className="h-5 w-20 bg-gray-100 rounded-md" />
+      <div className="h-5 w-16 bg-gray-100 rounded-md" />
+    </div>
+    <div className="space-y-2">
+      <div className="h-3 bg-gray-100 rounded w-full" />
+      <div className="h-3 bg-gray-100 rounded w-2/3" />
+    </div>
+    <div className="flex justify-between items-center mt-4 pt-3 border-t border-gray-50">
+      <div className="h-3 w-20 bg-gray-200 rounded" />
+      <div className="h-3 w-10 bg-gray-200 rounded" />
+    </div>
+  </div>
+);
+
+// ── Main ──────────────────────────────────────────────────────────────────────
+export default function MainContent() {
+  const { user } = useAuth();
+  const { unreadCount } = useNotifications();
+
+  // Tab + filters
+  const [activeTab,   setActiveTab]   = useState<TabId>('job');
+  const [sector,      setSector]      = useState('All');
+  const [source,      setSource]      = useState('All Sources');
+  const [searchInput, setSearchInput] = useState('');
+  const [keyword,     setKeyword]     = useState('');
+
+  // Pagination
+  const [page,       setPage]       = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const pageSize = 10; // Number of jobs per page
+  const [totalCount, setTotalCount] = useState(0);
 
-  // Data fetching effect for jobs
+  // Data
+  const [jobs,          setJobs]          = useState<Job[]>([]);
+  const [loading,       setLoading]       = useState(true);
+  const [bookmarks,     setBookmarks]     = useState<BookmarkItem[]>([]);
+  const [dashStats,     setDashStats]     = useState<DashboardStats | null>(null);
+  const [deptStats,     setDeptStats]     = useState<DepartmentStat[]>([]);
+
+  // Dept scroll
+  const deptRef = useRef<HTMLDivElement>(null);
+  const [deptLeft,  setDeptLeft]  = useState(false);
+  const [deptRight, setDeptRight] = useState(true);
+  const scrollDept = (d: 'left' | 'right') =>
+    deptRef.current?.scrollBy({ left: d === 'left' ? -200 : 200, behavior: 'smooth' });
+  const onDeptScroll = () => {
+    const el = deptRef.current;
+    if (!el) return;
+    setDeptLeft(el.scrollLeft > 0);
+    setDeptRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 1);
+  };
+
+  // Fetch public jobs
+  const fetchJobs = useCallback(async (p: number) => {
+    setLoading(true);
+    try {
+      const q = new URLSearchParams({ type: activeTab, page: String(p), pageSize: String(PAGE_SIZE) });
+      if (sector  !== 'All')         q.set('sector',  sector);
+      if (source  !== 'All Sources') q.set('source',  source);
+      if (keyword.trim())            q.set('keyword', keyword.trim());
+      const res = await get<PublicRes>(`/jobs/public?${q}`);
+      setJobs(res.data ?? []);
+      setTotalPages(res.totalPages ?? 1);
+      setTotalCount(res.totalCount ?? 0);
+      setPage(p);
+    } catch (e) {
+      console.error(e);
+      setJobs([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [activeTab, sector, source, keyword]);
+
+  useEffect(() => { fetchJobs(1); }, [activeTab, sector, source, keyword]);
+
+  // Fetch legacy dashboard / bookmarks (auth-gated)
   useEffect(() => {
-    const fetchJobs = async () => {
-      setIsLoading(true);
-      try {
-        const response = await get<Job[]>('/jobs/job-home');
-        const bookmarksResponse = await get<bookmarksResponseType[]>(`/bookmarks/${user?.id}/jobs`);
-        const dashboardStatsResponse = await get<DashboardStats>(`/dashboard/job/stats/${user?.id}`);
-        const departmentStatsResponse = await get<DepartmentStatArray>(`/dashboard/jobs/departments`);
-        console.log("Jobs response:", response);
-        // if (response.success) {
-        setJobs(response);
-        setBookmarkedJobs(bookmarksResponse);
-        setDashboardStats(dashboardStatsResponse);
-        setDepartmentStats(departmentStatsResponse.data);
-        console.log("Bookmarks response:", bookmarksResponse);
-        // console.log("bookmarked Jobs response:", );
-        
-        // } else {
-        //   console.error(response.message);
-        //   setJobs([]);
-        // }
+    if (!user?.id) return;
+    Promise.all([
+      get<BookmarkItem[]>(`/bookmarks/${user.id}/jobs`),
+      get<DashboardStats>(`/dashboard/job/stats/${user.id}`),
+      get<{ data: DepartmentStat[] }>('/dashboard/jobs/departments'),
+    ]).then(([bk, ds, dept]) => {
+      setBookmarks(bk ?? []);
+      setDashStats(ds);
+      setDeptStats(dept?.data ?? []);
+    }).catch(console.error);
+  }, [user?.id]);
 
-
-      } catch (error) {
-        console.error("Failed to fetch jobs:", error);
-      } finally {
-        setIsLoading(false);
+  // Bookmark toggle
+  const toggleBookmark = async (jobId: string, bookmarked: boolean) => {
+    if (!user) return;
+    try {
+      if (bookmarked) {
+        await remove(`/bookmarks/${user.id}/job/${jobId}`);
+        setBookmarks(p => p.filter(b => b.jobId !== jobId));
+      } else {
+        await postApi(`/bookmarks/${user.id}/job`, { Id: jobId });
+        setBookmarks(p => [...p, { jobId, userId: user.id!, id: '', savedDate: new Date().toISOString() }]);
       }
-    };
-    fetchJobs();
-  }, [user]);
-
-  const fetchAllJobs = async (page: number) => {
-  setModalLoading(true);
-  try {
-    // Note: Ensure your C# backend has an endpoint like: /api/jobs/all?page=1&pageSize=10
-    const response = await get<any>(`/jobs/all?page=${page}&pageSize=${pageSize}`);
-    
-    // Logic: Adapt the following based on your specific API response structure
-    setAllJobs(response.data || response); 
-    setTotalPages(response.totalPages || 1);
-    setCurrentPage(page);
-  } catch (error) {
-    console.error("Failed to fetch all jobs", error);
-  } finally {
-    setModalLoading(false);
-  }
-};
-
-const handleOpenModal = () => {
-  setIsModalOpen(true);
-  fetchAllJobs(1); // Reset to page 1 on open
-};
-
-  const filteredJobs = useMemo(() => {
-    switch (activeTab) {
-      case 'Saved Jobs':
-        return jobs.filter(job => bookmarkedJobs.some(b => b.jobId === job.id!));
-      case 'Recommended':
-        // Placeholder: Add logic for recommended jobs later
-        return [];
-      case 'All Jobs':
-      default:
-        return jobs;
-    }
-  }, [activeTab, jobs, bookmarkedJobs]);
-
-  const toggleBookmark = async (jobId: string, isCurrentlyBookmarked: boolean) => {
-  try {
-    if (isCurrentlyBookmarked) {
-      await remove(`/bookmarks/${user?.id}/job/${jobId}`);
-      setBookmarkedJobs(prev => prev.filter(b => b.jobId !== jobId));
-    } else {
-      await postApi(`/bookmarks/${user?.id}/job`, { Id: jobId });
-      setBookmarkedJobs(prev => [
-        ...prev,
-        { jobId, userId: user?.id!, id: '', savedDate: new Date().toISOString() }
-      ]);
-    }
-  } catch (err) {
-    console.error("Bookmark toggle failed", err);
-  }
-};
-
-
-
-  // Static data for dashboard and departments
-  const dashboardCards: DashboardCardProps[] = [
-    { title: 'Total Active Jobs', value: dashboardStats?.totalActiveJobs.toString() || '0', trend: dashboardStats?.newJobsTodayTrend || `${Math.floor(dashboardStats?.newJobsToday || 0)} new today`, icon: <Briefcase size={16} />, iconColor: 'text-[#EF4444]', trendIcon: <TrendingUp size={12} />, trendColor: 'text-[#16A34A]' },
-    { title: 'Total Applications', value: dashboardStats?.totalApplications?.toString() || '_', trend: dashboardStats?.applicationsInProgress ? `${Math.floor(dashboardStats.applicationsInProgress)} in progress` : 'Coming soon!', icon: <FileText size={16} />, iconColor: 'text-[#3B82F6]', trendIcon: <Clock size={12} />, trendColor: 'text-[#F59E0B]' },
-    { title: 'Saved Jobs', value: dashboardStats?.totalBookmarkedJobs.toString() || '0', trend: dashboardStats?.bookmarkedJobsTrend || 'updated Just now', icon: <Bookmark size={16} />, iconColor: 'text-[#22C55E]', trendIcon: <Clock size={12} />, trendColor: 'text-[#F59E0B]' },
-    { title: 'New Notifications', value: unreadCount.toString(), trend: `${unreadCount} new alerts`, icon: <Bell size={16} />, iconColor: 'text-[#A855F7]', trendIcon: <TrendingUp size={12} />, trendColor: 'text-[#16A34A]' }
-  ];
-
-  const departments = [
-    { title: "Railway", jobs: departmentStats.find(d => d.departmentName === "Railway")?.jobCount || 0, icon: <Building2 size={16} /> },
-    { title: "Banking", jobs: departmentStats.find(d => d.departmentName === "Banking")?.jobCount || 0, icon: <Banknote size={16} /> },
-    { title: "Defense", jobs: departmentStats.find(d => d.departmentName === "Defense")?.jobCount || 0, icon: <Shield size={16} /> },
-    { title: "Education", jobs: departmentStats.find(d => d.departmentName === "Education")?.jobCount || 0, icon: <GraduationCap size={16} /> },
-    { title: "Healthcare", jobs: departmentStats.find(d => d.departmentName === "Healthcare")?.jobCount || 0, icon: <Stethoscope size={16} /> },
-    { title: "Civil Services", jobs: departmentStats.find(d => d.departmentName === "Civil Services")?.jobCount || 0, icon: <Landmark size={16} /> }
-  ];
-
-  // Logic for horizontal scrolling sections
-  const departmentsScrollRef = useRef<HTMLDivElement>(null);
-  const filtersScrollRef = useRef<HTMLDivElement>(null);
-  const [showDeptLeftButton, setShowDeptLeftButton] = useState(false);
-  const [showDeptRightButton, setShowDeptRightButton] = useState(true);
-  const [showFiltersLeftButton, setShowFiltersLeftButton] = useState(false);
-  const [showFiltersRightButton, setShowFiltersRightButton] = useState(true);
-
-  const handleDeptScroll = () => {
-    if (departmentsScrollRef.current) {
-      const { scrollLeft, scrollWidth, clientWidth } = departmentsScrollRef.current;
-      setShowDeptLeftButton(scrollLeft > 0);
-      setShowDeptRightButton(scrollLeft < scrollWidth - clientWidth - 1);
-    }
+    } catch (e) { console.error(e); }
   };
 
-  const handleFiltersScroll = () => {
-    if (filtersScrollRef.current) {
-      const { scrollLeft, scrollWidth, clientWidth } = filtersScrollRef.current;
-      setShowFiltersLeftButton(scrollLeft > 0);
-      setShowFiltersRightButton(scrollLeft < scrollWidth - clientWidth - 1);
-    }
+  const activeTabLabel = TABS.find(t => t.id === activeTab)?.label ?? 'Latest Jobs';
+  const emptyMsg: Record<TabId, string> = {
+    job: 'No job openings found.', admit_card: 'No admit cards found.',
+    result: 'No results found.', update: 'No updates found.',
   };
 
-  const scroll = (ref: React.RefObject<HTMLDivElement | null>, direction: 'left' | 'right') => {
-    const element = ref.current;
-    if (element) {
-      element.scrollBy({ left: direction === 'left' ? -200 : 200, behavior: 'smooth' });
-    }
-  };
-
-  const jobTabs = [
-    { id: 'All Jobs', label: 'All Jobs' },
-    // { id: 'Recommended', label: 'Recommended' },
-    { id: 'Saved Jobs', label: 'Saved Jobs', icon: <Bookmark size={14} /> },
+  const statCards = [
+    { title: 'Active Jobs',       value: (dashStats?.totalActiveJobs ?? totalCount).toString(),       sub: `${dashStats?.newJobsToday ?? 0} new today`,       icon: <Briefcase    size={20} className="text-blue-600"   />, colour: 'bg-blue-50'   },
+    { title: 'Applications',      value: dashStats?.totalApplications?.toString() ?? '—',            sub: 'Track coming soon',                                 icon: <FileText     size={20} className="text-purple-600"/>, colour: 'bg-purple-50' },
+    { title: 'Saved Jobs',        value: (dashStats?.totalBookmarkedJobs ?? bookmarks.length).toString(), sub: 'Updated now',                                  icon: <Bookmark     size={20} className="text-green-600" />, colour: 'bg-green-50'  },
+    { title: 'Notifications',     value: unreadCount.toString(),                                     sub: `${unreadCount} unread`,                             icon: <Bell         size={20} className="text-amber-600" />, colour: 'bg-amber-50'  },
   ];
+
+  const depts = [
+    { title: 'Railway',         icon: <Building2    size={16} />, jobs: deptStats.find(d => d.departmentName === 'Railway')?.jobCount         ?? 0 },
+    { title: 'Banking',         icon: <Banknote     size={16} />, jobs: deptStats.find(d => d.departmentName === 'Banking')?.jobCount         ?? 0 },
+    { title: 'Defense',         icon: <Shield       size={16} />, jobs: deptStats.find(d => d.departmentName === 'Defense')?.jobCount         ?? 0 },
+    { title: 'Education',       icon: <GraduationCap size={16}/>, jobs: deptStats.find(d => d.departmentName === 'Education')?.jobCount       ?? 0 },
+    { title: 'Healthcare',      icon: <Stethoscope  size={16} />, jobs: deptStats.find(d => d.departmentName === 'Healthcare')?.jobCount      ?? 0 },
+    { title: 'Civil Services',  icon: <Landmark     size={16} />, jobs: deptStats.find(d => d.departmentName === 'Civil Services')?.jobCount  ?? 0 },
+  ];
+
+  const hasFilters = sector !== 'All' || source !== 'All Sources' || keyword;
 
   return (
-    <div className="flex-1">
-      <div className="flex justify-center w-full">
-        {/* RESPONSIVE CHANGE: Replaced fixed w-[640px] with w-full max-w-[640px] and added responsive padding */}
-        <div className="w-full max-w-[640px] px-4 md:px-0">
-          {/* Dashboard Cards Section */}
-          {/* RESPONSIVE CHANGE: Replaced flex-wrap with a responsive grid. Removed fixed-width wrapper from loop. */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            {dashboardCards.map((card, index) => (
-              <DashboardCard key={index} {...card} />
+    <div className="w-full py-6 space-y-8">
+
+      {/* ── Stat Cards ─────────────────────────────────────────────────── */}
+      <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
+        {statCards.map((c, i) => <StatCard key={i} {...c} />)}
+      </div>
+
+      {/* ── Popular Departments ─────────────────────────────────────────── */}
+      <div>
+        <h2 className="text-lg font-bold text-gray-900 mb-4">Popular Departments</h2>
+        <div className="relative">
+          {deptLeft && (
+            <button onClick={() => scrollDept('left')} className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-3 z-10 w-8 h-8 bg-white rounded-full shadow-md hidden md:flex items-center justify-center hover:bg-gray-50">
+              <ChevronLeft size={18} className="text-gray-500" />
+            </button>
+          )}
+          <div ref={deptRef} onScroll={onDeptScroll} className="flex gap-4 overflow-x-auto scrollbar-hide pb-1">
+            {depts.map((d, i) => <DeptCard key={i} {...d} />)}
+          </div>
+          {deptRight && (
+            <button onClick={() => scrollDept('right')} className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-3 z-10 w-8 h-8 bg-white rounded-full shadow-md hidden md:flex items-center justify-center hover:bg-gray-50">
+              <ChevronRight size={18} className="text-gray-500" />
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* ── Jobs Section ────────────────────────────────────────────────── */}
+      <div>
+        {/* Section header */}
+        <div className="flex items-center justify-between mb-5">
+          <div>
+            <h2 className="text-xl font-bold text-gray-900">Government Jobs</h2>
+            <p className="text-sm text-gray-400 mt-0.5">{totalCount.toLocaleString()} listings · updated automatically</p>
+          </div>
+          {user?.isAdmin && (
+            <Link href="/jobs/create" className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2 rounded-xl shadow-sm transition-all">
+              <Plus size={15} /> Add Job
+            </Link>
+          )}
+        </div>
+
+        {/* ── Tabs — desktop pills, mobile dropdown ───────────────────── */}
+        <div className="mb-5">
+          {/* Mobile: dropdown */}
+          <div className="relative md:hidden">
+            <select
+              value={activeTab}
+              onChange={e => setActiveTab(e.target.value as TabId)}
+              className="w-full appearance-none bg-white border border-gray-200 rounded-xl px-4 py-3 pr-10 text-sm font-semibold text-gray-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+            >
+              {TABS.map(t => <option key={t.id} value={t.id}>{t.label}</option>)}
+            </select>
+            <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+          </div>
+
+          {/* Desktop: pill tabs */}
+          <div className="hidden md:flex items-center gap-2 bg-gray-100 p-1 rounded-2xl w-fit">
+            {TABS.map(({ id, label, Icon }) => (
+              <button
+                key={id}
+                onClick={() => setActiveTab(id)}
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all whitespace-nowrap ${
+                  activeTab === id
+                    ? 'bg-white text-blue-600 shadow-sm'
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                <Icon size={15} />
+                {label}
+              </button>
             ))}
           </div>
+        </div>
 
-          {/* Popular Departments Section */}
-          <div className="mb-8">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-[#1F2937] font-semibold text-lg">Popular Departments</h2>
-              {/* <button className="text-[#3B82F6] text-sm flex items-center gap-1 hover:text-[#2563EB]">View All<ChevronRight size={16} /></button> */}
+        {/* ── Filter Bar ──────────────────────────────────────────────── */}
+        <div className="bg-white border border-gray-100 rounded-2xl p-4 mb-5 shadow-sm space-y-3">
+          {/* Search row */}
+          <div className="flex gap-2">
+            <div className="flex-1 flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-xl px-3.5 py-2.5 focus-within:border-blue-400 transition-colors">
+              <Search size={15} className="text-gray-400 shrink-0" />
+              <input
+                type="text"
+                value={searchInput}
+                onChange={e => setSearchInput(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && setKeyword(searchInput)}
+                placeholder={`Search ${activeTabLabel.toLowerCase()}…`}
+                className="flex-1 bg-transparent text-sm outline-none placeholder:text-gray-400 text-gray-800"
+              />
+              {searchInput && (
+                <button onClick={() => { setSearchInput(''); setKeyword(''); }} className="text-gray-400 hover:text-gray-600">
+                  <X size={14} />
+                </button>
+              )}
             </div>
+            <button
+              onClick={() => setKeyword(searchInput)}
+              className="shrink-0 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm px-5 rounded-xl transition-colors"
+            >
+              Search
+            </button>
+            <button
+              onClick={() => fetchJobs(1)}
+              className="shrink-0 p-2.5 text-gray-400 hover:text-blue-600 bg-gray-50 hover:bg-blue-50 border border-gray-200 rounded-xl transition-colors"
+              title="Refresh"
+            >
+              <RefreshCw size={16} />
+            </button>
+          </div>
+
+          {/* Filter row */}
+          <div className="flex flex-wrap gap-2 items-center">
+            <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-400 uppercase tracking-wide">
+              <Filter size={12} /> Filters
+            </div>
+
+            {/* Sector */}
             <div className="relative">
-              {/* RESPONSIVE CHANGE: Hide scroll buttons on mobile (md:flex) */}
-              {showDeptLeftButton && <button onClick={() => scroll(departmentsScrollRef, 'left')} className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 w-8 h-8 bg-white rounded-full shadow-md items-center justify-center z-10 hover:bg-gray-50 hidden md:flex"><ChevronLeft size={20} className="text-[#6B7280]" /></button>}
-              <div className="relative">
-                <div ref={departmentsScrollRef} onScroll={handleDeptScroll} className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth">
-                  {departments.map((dept, index) => <div key={index} className="w-[180px] shrink-0"><DepartmentCard {...dept} /></div>)}
-                </div>
-              </div>
-              {/* RESPONSIVE CHANGE: Hide scroll buttons on mobile (md:flex) */}
-              {showDeptRightButton && <button onClick={() => scroll(departmentsScrollRef, 'right')} className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 w-8 h-8 bg-white rounded-full shadow-md items-center justify-center z-10 hover:bg-gray-50 hidden md:flex"><ChevronRight size={20} className="text-[#6B7280]" /></button>}
+              <select
+                value={sector}
+                onChange={e => setSector(e.target.value)}
+                className="appearance-none bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 pr-7 text-sm text-gray-700 font-medium focus:outline-none focus:border-blue-400 cursor-pointer"
+              >
+                {SECTORS.map(s => <option key={s}>{s}</option>)}
+              </select>
+              <ChevronDown size={12} className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
             </div>
+
+            {/* Source */}
+            <div className="relative">
+              <select
+                value={source}
+                onChange={e => setSource(e.target.value)}
+                className="appearance-none bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 pr-7 text-sm text-gray-700 font-medium focus:outline-none focus:border-blue-400 cursor-pointer"
+              >
+                {SOURCES.map(s => <option key={s}>{s}</option>)}
+              </select>
+              <ChevronDown size={12} className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+            </div>
+
+            {/* Clear */}
+            {hasFilters && (
+              <button
+                onClick={() => { setSector('All'); setSource('All Sources'); setKeyword(''); setSearchInput(''); }}
+                className="text-xs font-semibold text-red-500 hover:text-red-600 flex items-center gap-1 px-2 py-1.5 rounded-lg hover:bg-red-50 transition-colors"
+              >
+                <X size={12} /> Clear all
+              </button>
+            )}
           </div>
 
-          {/* Latest Job Openings Section */}
-          <div className="mb-8">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-[#1F2937] font-semibold text-lg">Latest Job Openings</h2>
-              <div className="flex items-center gap-4">
-                {user?.isAdmin && (
-                  <Link href="/jobs/create" className="text-white bg-blue-600 hover:bg-blue-700 px-3 py-1.5 rounded-lg text-sm flex items-center gap-2 shadow-sm transition-all">
-                    <Plus size={16} />
-                    <span>Create Job</span>
-                  </Link>
-                )}
-                <button 
-                  onClick={handleOpenModal}
-                  className="text-[#3B82F6] text-sm flex items-center gap-1 hover:text-[#2563EB]"
-                >
-                  View All<ChevronRight size={16} />
-                </button>
-              </div>
+          {/* Active chips */}
+          {hasFilters && (
+            <div className="flex flex-wrap gap-2">
+              {sector !== 'All' && (
+                <span className="flex items-center gap-1 text-xs bg-blue-50 text-blue-700 border border-blue-100 px-2.5 py-1 rounded-full font-semibold">
+                  {sector} <button onClick={() => setSector('All')}><X size={10} /></button>
+                </span>
+              )}
+              {source !== 'All Sources' && (
+                <span className="flex items-center gap-1 text-xs bg-orange-50 text-orange-700 border border-orange-100 px-2.5 py-1 rounded-full font-semibold">
+                  {source} <button onClick={() => setSource('All Sources')}><X size={10} /></button>
+                </span>
+              )}
+              {keyword && (
+                <span className="flex items-center gap-1 text-xs bg-green-50 text-green-700 border border-green-100 px-2.5 py-1 rounded-full font-semibold">
+                  "{keyword}" <button onClick={() => { setKeyword(''); setSearchInput(''); }}><X size={10} /></button>
+                </span>
+              )}
             </div>
-            {/* RESPONSIVE CHANGE: Added overflow-x-auto and scrollbar-hide to make tabs scroll on mobile */}
-            <div className="flex items-center gap-2 border-b border-[#E5E7EB] pb-4 overflow-x-auto scrollbar-hide">
-              {jobTabs.map(tab => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`h-9 px-4 rounded-md text-sm whitespace-nowrap flex items-center justify-center gap-2 transition-colors ${
-                    activeTab === tab.id
-                      ? 'bg-[#3B82F6] text-white'
-                      : 'bg-[#F3F4F6] text-[#374151] hover:bg-gray-200'
-                  }`}
-                >
-                  {tab.icon}
-                  {tab.label}
-                </button>
-              ))}
-            </div>
-          </div>
+          )}
+        </div>
 
-          {/* Latest Job Cards Section - This was already responsive! */}
-          <div className="w-full max-w-[640px] mx-auto mb-8 flex flex-col gap-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {isLoading ? (
-                <p className="col-span-2 text-center text-gray-500">Loading...</p>
-              ) : filteredJobs.length > 0 ? (
-                // KEY CHANGE 5: Render the filtered list
-                filteredJobs.map(job => (
+        {/* ── Cards Grid ─────────────────────────────────────────────── */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+          {loading
+            ? Array.from({ length: 9 }).map((_, i) => <SkeletonCard key={i} />)
+            : jobs.length > 0
+              ? jobs.map(job => (
                   <JobCard
                     key={job.id}
                     job={job}
-                    isBookmarked={bookmarkedJobs.some(b => b.jobId === job.id)}
+                    isBookmarked={bookmarks.some(b => b.jobId === job.id)}
                     onToggleBookmark={toggleBookmark}
                   />
                 ))
-              ) : (
-                <p className="col-span-2 text-center text-gray-500">
-                  {activeTab === 'Saved Jobs' ? 'You have no saved jobs.' : 'No job openings found.'}
-                </p>
-              )}
-            </div>
-          </div>
+              : (
+                <div className="col-span-full flex flex-col items-center py-20 text-center">
+                  <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mb-4">
+                    <Briefcase size={28} className="text-gray-300" />
+                  </div>
+                  <p className="font-semibold text-gray-500">{emptyMsg[activeTab]}</p>
+                  <p className="text-sm text-gray-400 mt-1">Try clearing filters or check back later.</p>
+                </div>
+              )
+          }
         </div>
-      </div>
-      {isModalOpen && (
-  <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-    <div className="bg-white w-full max-w-4xl max-h-[90vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden">
-      
-      {/* Header */}
-      <div className="p-6 border-b flex items-center justify-between">
-        <h2 className="text-xl font-bold text-gray-900">All Job Openings</h2>
-        <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-gray-100 rounded-full">
-          <X size={24} className="text-gray-500" />
-        </button>
-      </div>
 
-      {/* Body */}
-      <div className="flex-1 overflow-y-auto p-6 bg-gray-50">
-        {modalLoading ? (
-          <div className="flex justify-center py-20">Loading...</div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {allJobs.map(job => (
-              <JobCard
-                key={job.id}
-                job={job}
-                isBookmarked={bookmarkedJobs.some(b => b.jobId === job.id)}
-                onToggleBookmark={toggleBookmark}
-              />
-            ))}
+        {/* ── Pagination ─────────────────────────────────────────────── */}
+        {!loading && totalPages > 1 && (
+          <div className="flex items-center justify-between mt-8 pt-6 border-t border-gray-100">
+            <button
+              disabled={page <= 1}
+              onClick={() => fetchJobs(page - 1)}
+              className="flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-sm"
+            >
+              <ChevronLeft size={16} /> Previous
+            </button>
+
+            {/* Page numbers */}
+            <div className="hidden sm:flex items-center gap-1">
+              {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                const n = page <= 3 ? i + 1 : page + i - 2;
+                if (n < 1 || n > totalPages) return null;
+                return (
+                  <button
+                    key={n}
+                    onClick={() => fetchJobs(n)}
+                    className={`w-9 h-9 rounded-lg text-sm font-semibold transition-colors ${
+                      n === page ? 'bg-blue-600 text-white shadow' : 'text-gray-600 hover:bg-gray-100'
+                    }`}
+                  >
+                    {n}
+                  </button>
+                );
+              })}
+            </div>
+            <span className="sm:hidden text-sm text-gray-500 font-medium">
+              {page} / {totalPages}
+            </span>
+
+            <button
+              disabled={page >= totalPages}
+              onClick={() => fetchJobs(page + 1)}
+              className="flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-sm"
+            >
+              Next <ChevronRight size={16} />
+            </button>
           </div>
         )}
       </div>
 
-      {/* Pagination Footer */}
-      <div className="p-4 border-t flex items-center justify-between bg-white">
-        <button
-          disabled={currentPage === 1 || modalLoading}
-          onClick={() => fetchAllJobs(currentPage - 1)}
-          className="flex items-center gap-1 px-4 py-2 border rounded-lg disabled:opacity-50"
-        >
-          <ChevronLeft size={16} /> Previous
-        </button>
-        
-        <span className="text-sm font-medium">Page {currentPage} of {totalPages}</span>
-
-        <button
-          disabled={currentPage === totalPages || modalLoading}
-          onClick={() => fetchAllJobs(currentPage + 1)}
-          className="flex items-center gap-1 px-4 py-2 border rounded-lg disabled:opacity-50"
-        >
-          Next <ChevronRight size={16} />
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+      {/* bottom padding for mobile nav */}
+      <div className="h-6" />
     </div>
   );
-};
-
-export default MainContent;
+}

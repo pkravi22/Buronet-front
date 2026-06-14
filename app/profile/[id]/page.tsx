@@ -5,10 +5,6 @@ import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import AppLayout from '@/components/AppLayout';
 import { useUserProfile } from '@/hooks/useUserProfile';
-import UserProfileHeader from '@/components/UserProfile/UserProfileHeader'; // Component for the left profile card
-import UserProfileSection from '@/components/UserProfile/UserProfileSection'; // Generic section wrapper
-
-// Individual sections for profile data. These components will consume the arrays from userProfile.
 import ExperienceSection from '@/components/UserProfile/ExperienceSection';
 import SkillsSection from '@/components/UserProfile/SkillsSection';
 import EducationSection from '@/components/UserProfile/EducationSection';
@@ -17,14 +13,12 @@ import CoachingSection from '@/components/UserProfile/CoachingSection';
 import PublicationsSection from '@/components/UserProfile/PublicationsSection';
 import ProjectsSection from '@/components/UserProfile/ProjectsSection';
 import CommunityGroupsSection from '@/components/UserProfile/CommunityGroupsSection';
-
-// Modals/Forms for editing profile data
-import EditProfileModal from '@/components/UserProfile/EditProfileModal';
-
 import LoadingSpinner from '@/components/UI/LoadingSpinner';
-import { useAuth } from '@/context/AuthContext'; 
+import { useAuth } from '@/context/AuthContext';
 import { getProfileImageUrl } from '@/lib/helpers/profileImage';
 import { useConnections } from '@/hooks/useConnections';
+import { useFollow } from '@/hooks/useFollow';
+import FollowButton from '@/components/FollowButton';
 import { toast } from 'react-hot-toast';
 import ShareLinkModal from '@/components/UI/ShareLinkModal';
 
@@ -33,17 +27,12 @@ const OthersProfilePage: React.FC = () => {
   const userId = params.id as string;
   const router = useRouter();
 
-  // We fetch the specific user profile. Note: we do NOT use withAuthRequired here 
-  // so that profiles can be viewed, but useAuth still provides the current viewer's info.
   const { user: authUser } = useAuth();
   const { userProfile, isLoading: isProfileLoading, isError: profileError } = useUserProfile(userId);
 
-  // The route param might not always be the canonical user Guid.
-  // Use the loaded profile id when available to match connection request ids.
   const targetUserId = userProfile?.id || userId;
   const normalizeId = (value?: string | null) => (value || '').toLowerCase();
 
-  // Connection state/actions (reused from Circle logic)
   const {
     connections,
     pendingRequests,
@@ -58,6 +47,21 @@ const OthersProfilePage: React.FC = () => {
   const isOwnProfile = !!authUser?.id && authUser.id === targetUserId;
 
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+
+  const { getFollowStatus } = useFollow();
+  const [followStatus, setFollowStatus] = useState<{
+    isFollowing: boolean;
+    followerCount: number;
+    followingCount: number;
+  } | null>(null);
+
+  useEffect(() => {
+    if (!targetUserId || isOwnProfile) return;
+    getFollowStatus(targetUserId).then((s) => {
+      if (s) setFollowStatus(s);
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [targetUserId, isOwnProfile]);
 
   const shareUrl = useMemo(() => {
     return typeof window !== 'undefined' && targetUserId
@@ -96,71 +100,15 @@ const OthersProfilePage: React.FC = () => {
     );
   }, [pendingRequests, pendingIncomingRequests, authUser?.id, targetUserId]);
 
-  // Dev-only diagnostics (remove once verified)
-  useEffect(() => {
-    if (process.env.NODE_ENV === 'production') return;
-
-    const me = normalizeId(authUser?.id);
-    const target = normalizeId(targetUserId);
-
-    const outgoingMatch = pendingOutgoingRequests.find(
-      (r) => r.status === 'Pending' && normalizeId(r.senderId) === me && normalizeId(r.receiverId) === target
-    );
-    const incomingMatch = pendingRequests.find(
-      (r) => r.status === 'Pending' && normalizeId(r.receiverId) === me && normalizeId(r.senderId) === target
-    );
-
-    console.log('[Profile Connect Debug]', {
-      routeParam: userId,
-      userProfileId: userProfile?.id,
-      targetUserId,
-      authUserId: authUser?.id,
-      pendingRequestsCount: pendingRequests.length,
-      pendingIncomingRequestsCount: pendingIncomingRequests?.length,
-      pendingOutgoingRequestsCount: pendingOutgoingRequests?.length,
-      connectionsCount: connections.length,
-      outgoingMatch,
-      incomingMatch,
-      pendingSample: pendingRequests.slice(0, 10).map((r) => ({
-        id: r.id,
-        status: r.status,
-        senderId: r.senderId,
-        receiverId: r.receiverId,
-      })),
-    });
-  }, [
-    authUser?.id,
-    connections.length,
-    pendingRequests,
-    pendingIncomingRequests,
-    pendingOutgoingRequests,
-    targetUserId,
-    userId,
-    userProfile?.id,
-  ]);
-
   const handlePrimaryAction = async () => {
     if (!authUser?.id) {
-      // Preserve the exact current path in case the param isn't a Guid.
       const returnTo = typeof window !== 'undefined' ? window.location.pathname + window.location.search : `/profile/${userId}`;
       router.push(`/login?returnTo=${encodeURIComponent(returnTo)}`);
       return;
     }
-
-    if (isConnected) {
-      router.push(`/messaging?userId=${targetUserId}`);
-      return;
-    }
-
-    if (incomingRequest) {
-      await acceptRequest(incomingRequest.id);
-      return;
-    }
-
-    if (outgoingRequest) {
-      return;
-    }
-
+    if (isConnected) { router.push(`/messaging?userId=${targetUserId}`); return; }
+    if (incomingRequest) { await acceptRequest(incomingRequest.id); return; }
+    if (outgoingRequest) { return; }
     await sendRequest(targetUserId);
   };
 
@@ -250,9 +198,36 @@ const OthersProfilePage: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Redundant structure: Only "Share" and "Connect" buttons, no Edit */}
+                  {/* Follow counts — only on other people's profiles */}
+                  {!isOwnProfile && followStatus && (
+                    <div className="flex gap-6 mb-5 w-full justify-center">
+                      <div className="text-center">
+                        <p className="text-lg font-bold text-gray-900">{followStatus.followerCount}</p>
+                        <p className="text-xs text-gray-500">Followers</p>
+                      </div>
+                      <div className="w-px bg-gray-200" />
+                      <div className="text-center">
+                        <p className="text-lg font-bold text-gray-900">{followStatus.followingCount}</p>
+                        <p className="text-xs text-gray-500">Following</p>
+                      </div>
+                    </div>
+                  )}
+
                   {!isOwnProfile ? (
                     <div className="w-full space-y-3">
+                      {/* Follow button */}
+                      {followStatus !== null && (
+                        <FollowButton
+                          targetUserId={targetUserId}
+                          initialIsFollowing={followStatus?.isFollowing ?? false}
+                          size="lg"
+                          onToggled={(isNowFollowing, newCount) =>
+                            setFollowStatus((prev) =>
+                              prev ? { ...prev, isFollowing: isNowFollowing, followerCount: newCount } : prev
+                            )
+                          }
+                        />
+                      )}
                       <div className="flex w-full space-x-3">
                         {incomingRequest ? (
                           <button
@@ -282,10 +257,7 @@ const OthersProfilePage: React.FC = () => {
                         <button
                           className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2.5 rounded-lg font-medium transition"
                           onClick={() => {
-                            if (!shareUrl) {
-                              toast.error('Profile link is not available yet');
-                              return;
-                            }
+                            if (!shareUrl) { toast.error('Profile link is not available yet'); return; }
                             setIsShareModalOpen(true);
                           }}
                         >
@@ -308,10 +280,7 @@ const OthersProfilePage: React.FC = () => {
                       <button
                         className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2.5 rounded-lg font-medium transition"
                         onClick={() => {
-                          if (!shareUrl) {
-                            toast.error('Profile link is not available yet');
-                            return;
-                          }
+                          if (!shareUrl) { toast.error('Profile link is not available yet'); return; }
                           setIsShareModalOpen(true);
                         }}
                       >
@@ -323,14 +292,13 @@ const OthersProfilePage: React.FC = () => {
               </div>
             </div>
 
-            {/* Right Column - Information Cards */}
+            {/* Right Column */}
             <div className="flex-1 min-w-0">
               <div className="mb-8">
-                <h2 className="text-2xl font-bold text-gray-900">{userProfile.firstName}'s Profile</h2>
+                <h2 className="text-2xl font-bold text-gray-900">{userProfile.firstName}&apos;s Profile</h2>
                 <p className="text-gray-600 mt-1">View professional background and qualifications</p>
               </div>
 
-              {/* Explicitly passing canEdit={false} to ensure no edit buttons appear */}
               <ExperienceSection experiences={userProfile.experiences || []} canEdit={false} />
               <SkillsSection skills={userProfile.skills || []} canEdit={false} />
               <EducationSection education={userProfile.education || []} canEdit={false} />

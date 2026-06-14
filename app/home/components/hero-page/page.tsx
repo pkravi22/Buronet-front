@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import PublicJobsSection from '../PublicJobsSection';
 
 const GoogleFonts = () => (
   <style suppressHydrationWarning>{`
@@ -894,39 +895,13 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Featured Opportunities */}
+      {/* Featured Opportunities — Dynamic (scraped from SarkariResult + IndGovtJobs) */}
+      {/* OLD static section preserved below as comment for reference
       <section id="jobs" className="section section-bg-alt">
-        <div ref={el => addRef(el as HTMLElement, 5)} className="reveal opportunities-header">
-          <div>
-            <div className="section-tag">Opportunities</div>
-            <h2 className="section-title">Featured Job Openings</h2>
-            <p className="section-sub">Handpicked vacancies from top government sectors.</p>
-          </div>
-          <a href="#" className="view-all-link" onClick={(e) => { e.preventDefault(); goLogin(); }}>View All →</a>
-        </div>
-
-        <div className="jobs-grid">
-          {[
-            { tag: 'UPSC', tagClass: 'tag-upsc', title: 'Assistant Director (Technical)', org: 'Union Public Service Commission', location: 'New Delhi, Delhi', salary: '₹78,800 – ₹2,09,200', deadline: '4 days', urgent: true },
-            { tag: 'STATE PSC', tagClass: 'tag-psc', title: 'Lecturer Recruitment (Mechanical)', org: 'State Public Service Commission', location: 'Lucknow, UP', salary: '₹56,100 – ₹1,77,500', deadline: '12 days', urgent: false },
-            { tag: 'SSC', tagClass: 'tag-ssc', title: 'Multi Tasking Staff (MTS) 2024', org: 'Staff Selection Commission', location: 'All India', salary: '₹18,000 – ₹56,900', deadline: '25 days', urgent: false },
-          ].map((job, i) => (
-            <div key={i} ref={el => addRef(el as HTMLElement, 6 + i)} className={`job-card reveal reveal-delay-${i + 1}`}>
-              <span className={`job-source-tag ${job.tagClass}`}>{job.tag}</span>
-              <div className="job-title">{job.title}</div>
-              <div className="job-org">{job.org}</div>
-              <div className="job-meta">
-                <div className="job-meta-item"><span className="job-meta-icon">📍</span>{job.location}</div>
-                <div className="job-meta-item"><span className="job-meta-icon">💰</span>{job.salary}</div>
-              </div>
-              <div className={`job-deadline ${job.urgent ? 'deadline-urgent' : 'deadline-normal'}`} style={{ marginBottom: '1rem' }}>
-                {job.urgent ? '🔴' : '⏱'} Ends in {job.deadline}
-              </div>
-              <button className="btn-apply" onClick={goLogin}>Apply Now</button>
-            </div>
-          ))}
-        </div>
+        static hardcoded 3 cards were here — replaced by PublicJobsSection
       </section>
+      */}
+      <PublicJobsSection />
 
       {/* Why Buronet */}
       <section id="community" className="section">

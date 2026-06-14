@@ -1,16 +1,33 @@
 // components/UserProfile/UserProfileHeader.tsx
-'use client'; // This is a client component
+'use client';
 
 import Image from 'next/image';
-import { UserProfile } from '../../lib/types/user'; // Import from the consolidated types folder
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { UserProfile } from '../../lib/types/user';
 import { getProfileImageUrl } from '@/lib/helpers/profileImage';
+import { useFollow } from '@/hooks/useFollow';
 
 interface UserProfileHeaderProps {
-  userProfile: UserProfile; // Type is UserProfile
-  onEdit: () => void; // Callback to open main profile edit modal
+  userProfile: UserProfile;
+  onEdit: () => void;
 }
 
 const UserProfileHeader: React.FC<UserProfileHeaderProps> = ({ userProfile, onEdit }) => {
+  const { getFollowStatus } = useFollow();
+  const [followerCount, setFollowerCount] = useState<number | null>(null);
+  const [followingCount, setFollowingCount] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!userProfile?.id) return;
+    getFollowStatus(userProfile.id).then((s) => {
+      if (s) {
+        setFollowerCount(s.followerCount);
+        setFollowingCount(s.followingCount);
+      }
+    });
+  }, [userProfile?.id, getFollowStatus]);
+
   return (
     <div className="bg-white p-6 rounded-lg shadow-md mb-4">
       <div className="flex flex-col items-center">
@@ -32,7 +49,25 @@ const UserProfileHeader: React.FC<UserProfileHeaderProps> = ({ userProfile, onEd
         <p className="text-gray-600 text-center text-sm mb-4">
           {userProfile.bio || 'No bio available. Click "Edit Profile" to add one.'}
         </p>
+
+        {/* Follower / Following counts */}
+        <div className="flex gap-6 mb-4">
+          <Link href="/followers" className="text-center group">
+            <p className="text-lg font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
+              {followerCount ?? '—'}
+            </p>
+            <p className="text-xs text-gray-500 group-hover:text-blue-500 transition-colors">Followers</p>
+          </Link>
+          <div className="w-px bg-gray-200" />
+          <Link href="/followers" className="text-center group">
+            <p className="text-lg font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
+              {followingCount ?? '—'}
+            </p>
+            <p className="text-xs text-gray-500 group-hover:text-blue-500 transition-colors">Following</p>
+          </Link>
+        </div>
       </div>
+
       <div className="flex justify-center mt-4 space-x-2">
         <button
           onClick={onEdit}
@@ -40,7 +75,6 @@ const UserProfileHeader: React.FC<UserProfileHeaderProps> = ({ userProfile, onEd
         >
           Edit Profile
         </button>
-        {/* Add Share/More options if needed from the image */}
       </div>
     </div>
   );

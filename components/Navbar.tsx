@@ -17,6 +17,9 @@ const FiHome = ({ size = 24 }) => (
 const FiUsers = ({ size = 24 }) => (
   <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
 );
+const FiUserCheck = ({ size = 24 }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><polyline points="17 11 19 13 23 9"></polyline></svg>
+);
 const FiBriefcase = ({ size = 24 }) => (
   <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
 );
@@ -61,15 +64,14 @@ const NavItem = ({ icon, text, href, isActive, badge }: NavItemProps) => {
     <li>
       <Link
         href={href}
-        className={`flex items-center mx-4 my-1 px-4 py-3 rounded-md transition-colors ${
-          isActive
+        className={`flex items-center mx-4 my-1 px-4 py-3 rounded-md transition-colors ${isActive
             ? 'bg-[#E3EAFF] text-[#5E98FF]'
             : 'hover:bg-gray-50 text-[#505965]'
-        }`}
+          }`}
       >
         <div className="flex items-center w-full">
-          <span className="w-5 h-5 flex items-center">{icon}</span>
-          <span className="ml-8 text-sm font-medium">{text}</span>
+          <span className="w-6 h-6 flex items-center *:w-full *:h-full">{icon}</span>
+          <span className="ml-6 text-base font-medium">{text}</span>
           {badge && (
             <span className="ml-auto bg-[#EF4444] text-white text-xs rounded-full px-2 py-0.5">
               {badge}
@@ -91,7 +93,9 @@ const Navbar = ({ activeItem }: NavbarProps) => {
 
   const navItems = [
     { icon: <FiHome size={20} />, text: 'Home', href: '/home' },
-    { icon: <FiUsers size={20} />, text: 'My Circle', href: '/circle' },
+    // { icon: <FiUsers size={20} />, text: 'My Circle', href: '/circle' },
+    // { icon: <FiUserCheck size={20} />, text: 'Followers', href: '/followers' },
+    { icon: <FiUsers size={20} />, text: 'My Circle', href: '/followers' },
     { icon: <FiVideo size={20} />, text: 'Bytes', href: '/bytes' },
     { icon: <FiBriefcase size={20} />, text: 'Jobs', href: '/jobs' },
     { icon: <FiBook size={20} />, text: 'Exams', href: '/exams' },
@@ -133,8 +137,7 @@ const Navbar = ({ activeItem }: NavbarProps) => {
           {navItems.map((item) => (
             <li key={item.href}>
               <Link href={item.href} className="flex flex-col items-center justify-center p-2 relative w-16">
-                 <div className={`relative transition-colors ${
-                    item.text === activeItem ? 'text-[#5E98FF]' : 'text-gray-500'
+                <div className={`relative transition-colors ${item.text === activeItem ? 'text-[#5E98FF]' : 'text-gray-500'
                   }`}>
                   {React.cloneElement(item.icon as React.ReactElement, { size: 24 })}
                   {/* {item.badge && (
@@ -142,7 +145,7 @@ const Navbar = ({ activeItem }: NavbarProps) => {
                       {item.badge}
                     </span>
                   )} */}
-                 </div>
+                </div>
               </Link>
             </li>
           ))}

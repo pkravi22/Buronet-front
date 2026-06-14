@@ -26,6 +26,11 @@ export interface Job {
   createdDate: string; // DateTime serializes to string (ISO 8601)
   updatedDate: string; // DateTime serializes to string (ISO 8601)
   originalExtraction?: Job; // New recursive property
+  // Scraper fields
+  source?: string;       // "SarkariResult" | "IndGovtJobs" | "Manual"
+  type?: string;         // "job" | "admit_card" | "result" | "update"
+  isScraped?: boolean;
+  scrapedAt?: string;
 }
 
 export interface ApiResponse<T> {
