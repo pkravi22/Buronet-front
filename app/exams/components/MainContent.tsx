@@ -2,12 +2,13 @@
 
 "use client";
 
-import { TrendingUp, Clock, Briefcase, FileText, Bookmark, Bell, ChevronRight, Building2, Banknote, Shield, GraduationCap, Stethoscope, Landmark, ChevronLeft, X, Plus } from 'lucide-react';
+import { TrendingUp, Clock, Briefcase, FileText, Bookmark, Bell, ChevronRight, Building2, Banknote, Shield, GraduationCap, Stethoscope, Landmark, ChevronLeft, X, Plus, CalendarDays, Award } from 'lucide-react';
 import Link from 'next/link';
 import { useRef, useState, useEffect, useMemo } from 'react';
 import { get, remove, postApi } from '@/lib/api'; // Make sure this path is correct for your API helper
 import { Exam, ApiResponse } from '@/lib/types/exams'; // Make sure this path is correct for your types
 import ExamCard from '../components/ExamCard'; // Make sure this path is correct for your ExamCard component
+import JobCard from '../../jobs/components/JobCard';
 import { useAuth } from '@/context/AuthContext';
 import { useNotifications } from '@/hooks/useNotifications';
 
@@ -16,6 +17,13 @@ interface bookmarksResponseType {
   examId: String,
   userId: String,
   savedDate: String,
+}
+
+interface bookmarkJobResponseType {
+  id: string;
+  jobId: string;
+  userId: string;
+  savedDate: string;
 }
 
 // TypeScript Interfaces
@@ -78,6 +86,11 @@ const MainContent = () => {
   // State for dynamic exam data
   const [exams, setExams] = useState<Exam[]>([]);
   const [bookmarkedExams, setBookmarkedExams] = useState<bookmarksResponseType[]>([]);
+  const [bookmarkedJobs, setBookmarkedJobs] = useState<bookmarkJobResponseType[]>([]);
+  const [admitCards, setAdmitCards] = useState<any[]>([]);
+  const [results, setResults] = useState<any[]>([]);
+  const [loadingAdmitCards, setLoadingAdmitCards] = useState(false);
+  const [loadingResults, setLoadingResults] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [dashboardStats, setDashboardStats] = useState<DashboardStats | null>(null);
   const [departmentStats, setDepartmentStats] = useState<DepartmentStats[]>([]);
@@ -100,19 +113,14 @@ const MainContent = () => {
         const bookmarksResponse = await get<bookmarksResponseType[]>(`/bookmarks/${user?.id}/exams`);
         const dashboardStatsResponse = await get<DashboardStats>(`/dashboard/exam/stats/${user?.id}`);
         console.log("Exams bookmark response:", bookmarksResponse);
-        // if (response.success) {
         setExams(response);
         setBookmarkedExams(bookmarksResponse);
         setDashboardStats(dashboardStatsResponse);
-        // console.log("Bookmarks response:", bookmarksResponse);
-        // console.log("bookmarked Exams response:", );
-        
-        // } else {
-        //   console.error(response.message);
-        //   setExams([]);
-        // }
 
-
+        if (user?.id) {
+          const jobBookmarksRes = await get<bookmarkJobResponseType[]>(`/bookmarks/${user.id}/jobs`);
+          setBookmarkedJobs(jobBookmarksRes ?? []);
+        }
       } catch (error) {
         console.error("Failed to fetch exams:", error);
       } finally {
@@ -121,6 +129,24 @@ const MainContent = () => {
     };
     fetchExams();
   }, [user]);
+
+  // Tab-dependent fetch logic for Admit Cards and Results
+  useEffect(() => {
+    if (activeTab === 'admit_card' && admitCards.length === 0) {
+      setLoadingAdmitCards(true);
+      get<any>(`/jobs/public?type=admit_card&pageSize=30`)
+        .then(res => setAdmitCards(res.data ?? []))
+        .catch(console.error)
+        .finally(() => setLoadingAdmitCards(false));
+    }
+    if (activeTab === 'result' && results.length === 0) {
+      setLoadingResults(true);
+      get<any>(`/jobs/public?type=result&pageSize=30`)
+        .then(res => setResults(res.data ?? []))
+        .catch(console.error)
+        .finally(() => setLoadingResults(false));
+    }
+  }, [activeTab]);
 
   const fetchAllExams = async (page: number) => {
     setModalLoading(true);
@@ -163,7 +189,7 @@ const MainContent = () => {
     fetchAllExams(1);
   };
 
-    const toggleBookmark = async (examId: string, isCurrentlyBookmarked: boolean) => {
+  const toggleBookmark = async (examId: string, isCurrentlyBookmarked: boolean) => {
     try {
       if (isCurrentlyBookmarked) {
         await remove(`/bookmarks/${user?.id}/exam/${examId}`);
@@ -177,6 +203,21 @@ const MainContent = () => {
       }
     } catch (err) {
       console.error("Bookmark toggle failed", err);
+    }
+  };
+
+  const toggleJobBookmark = async (jobId: string, bookmarked: boolean) => {
+    if (!user) return;
+    try {
+      if (bookmarked) {
+        await remove(`/bookmarks/${user.id}/job/${jobId}`);
+        setBookmarkedJobs(p => p.filter(b => b.jobId !== jobId));
+      } else {
+        await postApi(`/bookmarks/${user.id}/job`, { Id: jobId });
+        setBookmarkedJobs(p => [...p, { jobId, userId: user.id!, id: '', savedDate: new Date().toISOString() }]);
+      }
+    } catch (e) {
+      console.error("Job bookmark toggle failed", e);
     }
   };
 
@@ -247,7 +288,8 @@ const MainContent = () => {
 
   const examTabs = [
     { id: 'All Exams', label: 'All Exams' },
-    // { id: 'Recommended', label: 'Recommended' },
+    { id: 'admit_card', label: 'Admit Cards', icon: <CalendarDays size={14} /> },
+    { id: 'result', label: 'Results', icon: <Award size={14} /> },
     { id: 'Saved Exams', label: 'Saved Exams', icon: <Bookmark size={14} /> },
   ];
 
@@ -321,10 +363,35 @@ const MainContent = () => {
           {/* Latest Exam Cards Section - DYNAMIC & FILTERED */}
           <div className="w-full max-w-[640px] mx-auto mb-8 flex flex-col gap-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {isLoading ? (
+              {isLoading || (activeTab === 'admit_card' && loadingAdmitCards) || (activeTab === 'result' && loadingResults) ? (
                 <p className="col-span-2 text-center text-gray-500">Loading...</p>
+              ) : activeTab === 'admit_card' ? (
+                admitCards.length > 0 ? (
+                  admitCards.map(job => (
+                    <JobCard
+                      key={job.id}
+                      job={job}
+                      isBookmarked={bookmarkedJobs.some(b => b.jobId === job.id)}
+                      onToggleBookmark={toggleJobBookmark}
+                    />
+                  ))
+                ) : (
+                  <p className="col-span-2 text-center text-gray-500">No admit cards found.</p>
+                )
+              ) : activeTab === 'result' ? (
+                results.length > 0 ? (
+                  results.map(job => (
+                    <JobCard
+                      key={job.id}
+                      job={job}
+                      isBookmarked={bookmarkedJobs.some(b => b.jobId === job.id)}
+                      onToggleBookmark={toggleJobBookmark}
+                    />
+                  ))
+                ) : (
+                  <p className="col-span-2 text-center text-gray-500">No results found.</p>
+                )
               ) : filteredExams.length > 0 ? (
-                // KEY CHANGE 5: Render the filtered list
                 filteredExams.map(exam => (
                   <ExamCard
                     key={exam.id}

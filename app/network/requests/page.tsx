@@ -88,7 +88,7 @@ const RequestsPageContent = () => {
                 <h2 className="font-bold text-gray-900">Manage Network</h2>
               </div>
               <nav className="flex flex-col">
-                <Link href="/circle" className="px-4 py-3 flex items-center gap-3 text-gray-600 hover:bg-gray-50 transition-colors">
+                <Link href="/followers" className="px-4 py-3 flex items-center gap-3 text-gray-600 hover:bg-gray-50 transition-colors">
                   <ArrowLeft size={18} />
                   <span className="text-sm font-medium">Back to My Circle</span>
                 </Link>
@@ -233,7 +233,7 @@ const RequestsPageContent = () => {
                     <p className="text-gray-500 mt-2 max-w-[300px] mx-auto">
                       Try searching for colleagues or classmates to grow your network.
                     </p>
-                    <Link href="/circle" className="inline-block mt-8 px-8 py-3 bg-blue-600 text-white font-bold rounded-full hover:bg-blue-700 transition-shadow shadow-lg">
+                    <Link href="/followers" className="inline-block mt-8 px-8 py-3 bg-blue-600 text-white font-bold rounded-full hover:bg-blue-700 transition-shadow shadow-lg">
                       Find People
                     </Link>
                   </div>
@@ -377,7 +377,7 @@ const RequestsPageContent = () => {
                     <p className="text-gray-500 mt-2 max-w-[300px] mx-auto">
                       Start building your network by connecting with people you know.
                     </p>
-                    <Link href="/circle" className="inline-block mt-8 px-8 py-3 bg-blue-600 text-white font-bold rounded-full hover:bg-blue-700 transition-shadow shadow-lg">
+                    <Link href="/followers" className="inline-block mt-8 px-8 py-3 bg-blue-600 text-white font-bold rounded-full hover:bg-blue-700 transition-shadow shadow-lg">
                       Find People
                     </Link>
                   </div>

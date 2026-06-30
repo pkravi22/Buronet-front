@@ -13,23 +13,20 @@ export async function GET(req: Request) {
 
     // Handle news query (for external news API)
     if (query) {
-      const NEWS_API_KEY = "f6719dee71aa4664bca1082aa8e98438";
+      const NEWS_API_KEY = process.env.NEXT_PUBLIC_CURRENT_AFFAIRS_API_KEY || "pub_7ebcbabb30e44a098ef683a34a98453c";
       
       if (!NEWS_API_KEY) {
         return NextResponse.json(
-          { error: "NewsAPI key is not configured" },
+          { error: "News API key is not configured" },
           { status: 500 }
         );
       }
 
       try {
         const response = await fetch(
-          `https://newsapi.org/v2/everything?q=${encodeURIComponent(query)}&pageSize=${limit}`,
+          `https://newsdata.io/api/1/news?apikey=${NEWS_API_KEY}&q=${encodeURIComponent(query)}&language=en`,
           {
-            method: 'GET',
-            headers: {
-              'X-Api-Key': NEWS_API_KEY,
-            },
+            method: 'GET'
           }
         );
 
@@ -39,9 +36,21 @@ export async function GET(req: Request) {
         }
 
         const data = await response.json();
-        return NextResponse.json(data);
+        // Transform Newsdata.io format to match the expected NewsAPI format in useNews.ts
+        const articles = (data.results || []).map((item: any) => ({
+          source: { id: null, name: item.source_id || 'News Source' },
+          author: item.creator ? item.creator[0] : null,
+          title: item.title,
+          description: item.description,
+          url: item.link,
+          urlToImage: item.image_url,
+          publishedAt: item.pubDate,
+          content: item.content
+        }));
+        
+        return NextResponse.json({ articles });
       } catch (err: any) {
-        console.error("NewsAPI error:", err);
+        console.error("News API error:", err);
         return NextResponse.json(
           { error: err.message || "Failed to fetch news" },
           { status: 500 }

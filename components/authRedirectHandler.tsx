@@ -78,13 +78,15 @@ export const AuthRedirectHandler: React.FC<{ children: React.ReactNode }> = ({ c
     // 2. Security Check: Unauthenticated access to protected routes
     if (!user && !isPublicRoute) {
       const token = localStorage.getItem('token');
-      if (!authExclusions.includes(pathname) && !token) {
+      const isExcluded = authExclusions.some(exclusion => pathname === exclusion || pathname.startsWith(exclusion + '/'));
+      if (!isExcluded && !token) {
         console.log(`AuthRedirectHandler: Not authenticated. Redirecting from ${pathname} to /login.`);
         // Note: Best practice is to include returnTo query here.
         router.push(`/login`); 
       }
       return;
     }
+
 
     // 3. Profile Enforcement (for authenticated users)
     if (user) {

@@ -44,12 +44,31 @@ export const useNews = (query: string): UseNewsResult => {
       setError(null);
 
       try {
-        const response = await fetch(`/api/updates?query=${encodeURIComponent(query)}&limit=20`);
+        const response = await fetch(`/next-api/updates?query=${encodeURIComponent(query)}&limit=20`);
         if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || `API Error: ${response.status}`);
+          let errorText = `API Error: ${response.status}`;
+          try {
+            const text = await response.text();
+            if (text) {
+              try {
+                const errorData = JSON.parse(text);
+                errorText = errorData.error || errorData.message || errorText;
+              } catch (e) {
+                errorText = `${errorText} - ${text.substring(0, 100)}`;
+              }
+            }
+          } catch (e) {
+            // Ignore text reading errors
+          }
+          throw new Error(errorText);
         }
-        const data = await response.json();
+        
+        let data;
+        try {
+          data = await response.json();
+        } catch (e) {
+           throw new Error('Failed to parse API response as JSON.');
+        }
         if (data && data.articles && Array.isArray(data.articles)) {
           const sortedArticles = data.articles.sort((a: any, b: any) => {
             const bTime = parseUtcDateTime(b.publishedAt)?.getTime() ?? 0;

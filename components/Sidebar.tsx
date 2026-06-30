@@ -19,7 +19,7 @@ const Sidebar = () => {
               <span>Home</span>
             </Link>
             
-            <Link href="/circle" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 text-gray-700 font-medium">
+            <Link href="/followers" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 text-gray-700 font-medium">
               <BsPeople className="text-xl" />
               <span>My Circle</span>
             </Link>

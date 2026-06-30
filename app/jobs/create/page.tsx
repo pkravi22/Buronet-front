@@ -59,15 +59,17 @@ const CreateJobPage = () => {
     status: 'Active'
   });
 
-  if (!user || !user.isAdmin) {
-    // Basic protection, redirect if not admin
-    // In a real app, maybe show a "Not Authorized" message or redirect in useEffect
-    if (typeof window !== 'undefined' && user !== undefined) { 
-       // Only redirect if user state is loaded (user is either null or object, but if undefined wait)
-       // But user is User | null from context. Initial might be null but isLoading is true. 
-       // Assuming AuthContext handles loading state.
+  useEffect(() => {
+    // Only redirect if user state has finished loading
+    if (user !== undefined && user !== null && !user.isAdmin) {
+      router.push('/home');
     }
-  }
+  }, [user, router]);
+
+  // Optionally show a blank screen or loading spinner while checking
+  if (user === undefined) return <div className="min-h-screen bg-[#EEF0F4] flex items-center justify-center">Loading...</div>;
+  if (user === null || !user.isAdmin) return null; // Let the useEffect redirect
+
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;

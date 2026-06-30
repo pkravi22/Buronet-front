@@ -98,10 +98,10 @@ const RightBar = ({ scrollSourceRef }: { scrollSourceRef: React.RefObject<HTMLEl
             <h2 className="text-[#1F2937] font-medium mb-4">Discover More</h2>
             <p className="text-sm text-gray-500 mb-4">Find more interesting people and content in your circle.</p>
             <button
-              onClick={() => router.push('/circle')}
+              onClick={() => router.push('/followers')}
               className="w-full text-[#2563EB] font-medium py-2 bg-[#F3F4F6] hover:bg-gray-200 rounded transition-colors"
             >
-              Go to My Circle
+              Go to Followers
             </button>
           </div>
         </div>

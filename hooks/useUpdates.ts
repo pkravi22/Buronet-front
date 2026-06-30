@@ -18,7 +18,7 @@ export function useUpdates(type: UpdateType, limit = 10) {
   useEffect(() => {
     let active = true;
 
-    fetch(`/api/updates?type=${type}&limit=${limit}`)
+    fetch(`/next-api/updates?type=${type}&limit=${limit}`)
       .then(res => res.json())
       .then(res => {
         if (active) setData(res);

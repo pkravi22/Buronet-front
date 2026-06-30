@@ -139,11 +139,7 @@ const JobCard = ({ job, isBookmarked, onToggleBookmark }: JobCardProps) => {
 
           {/* ── Tags: source + sector ───────────────────────────────── */}
           <div className="flex flex-wrap gap-1.5">
-            {srcStyle && source !== 'Manual' && (
-              <span className={`text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-md ${srcStyle.bg} ${srcStyle.text}`}>
-                {source}
-              </span>
-            )}
+            {/* Source tag removed */}
             {secStyle && sector && sector !== 'Government' && (
               <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-md ${secStyle}`}>
                 {sector}

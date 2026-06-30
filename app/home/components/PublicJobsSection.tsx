@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import {
   Briefcase, CalendarDays, Award, BarChart3,
-  Search, X, ChevronRight, MapPin, Clock, ChevronDown, ArrowRight,
+  Search, X, ChevronRight, MapPin, Clock, ChevronDown, ArrowRight, ChevronLeft
 } from 'lucide-react';
 
 interface Job {
@@ -19,7 +19,7 @@ interface Job {
   type?: string;
   applyLink?: { link: string; fileName: string };
 }
-interface PublicRes { totalCount: number; data: Job[] }
+interface PublicRes { page: number; pageSize: number; totalCount: number; totalPages: number; data: Job[] }
 
 const TABS = [
   { id: 'job', label: 'Latest Jobs', Icon: Briefcase },
@@ -110,31 +110,28 @@ function JobCard({ job }: { job: Job }) {
           </div>
         </div>
 
-        {/* badges */}
-        {(src || secCls) && (
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-            {src && (
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '10px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', padding: '3px 8px', borderRadius: '999px', background: src.bg.replace('bg-', ''), color: src.text.replace('text-', '') }} className={`${src.bg} ${src.text}`}>
-                <span style={{ width: '5px', height: '5px', borderRadius: '50%' }} className={src.dot} />
-                {job.source}
-              </span>
-            )}
-            {secCls && (
-              <span style={{ fontSize: '10px', fontWeight: 600, padding: '3px 8px', borderRadius: '999px' }} className={secCls}>
-                {job.sector}
-              </span>
-            )}
-          </div>
-        )}
-
-        {/* meta */}
-        <div style={{ fontSize: '12px', color: '#6b7280' }}>
-          {job.location && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <MapPin size={12} style={{ color: '#d1d5db', flexShrink: 0 }} />
-              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{job.location}</span>
+        {/* badges & meta row */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', margin: '8px 0' }}>
+          {(src || secCls) && (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+              {/* Source tag removed */}
+              {secCls && (
+                <span style={{ fontSize: '10px', fontWeight: 600, padding: '3px 8px', borderRadius: '999px' }} className={secCls}>
+                  {job.sector}
+                </span>
+              )}
             </div>
           )}
+
+          {/* meta */}
+          <div style={{ fontSize: '12px', color: '#6b7280', minWidth: 0 }}>
+            {job.location && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <MapPin size={12} style={{ color: '#d1d5db', flexShrink: 0 }} />
+                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{job.location}</span>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* footer */}
@@ -193,33 +190,38 @@ export default function PublicJobsSection() {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const [totalCount, setTotalCount] = useState(0);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [searchInput, setSearchInput] = useState('');
   const [keyword, setKeyword] = useState('');
 
-  const fetchJobs = useCallback(async () => {
+  const fetchJobs = useCallback(async (p: number = 1) => {
     setLoading(true);
     try {
-      const q = new URLSearchParams({ type: activeTab, page: '1', pageSize: '6' });
+      const q = new URLSearchParams({ type: activeTab, page: String(p), pageSize: '6' });
       if (keyword.trim()) q.set('keyword', keyword.trim());
       const res = await fetch(`${API_BASE}/jobs/public?${q}`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data: PublicRes = await res.json();
       setJobs(data.data ?? []);
       setTotalCount(data.totalCount ?? 0);
+      setTotalPages(data.totalPages ?? 1);
+      setPage(p);
     } catch (err) {
       console.error('PublicJobsSection:', err);
       setJobs([]);
       setTotalCount(0);
+      setTotalPages(1);
     } finally {
       setLoading(false);
     }
   }, [activeTab, keyword]);
 
-  useEffect(() => { fetchJobs(); }, [fetchJobs]);
+  useEffect(() => { fetchJobs(1); }, [activeTab, keyword]);
 
   return (
     <section style={{ background: 'linear-gradient(180deg, #f5f8fa 0%, #eef4f7 100%)', padding: '64px 0' }}>
-      <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 48px' }}>
+      <div className="max-w-[1400px] mx-auto px-5 sm:px-8 md:px-12">
 
         {/* ── Section header ────────────────────────────────────────────── */}
         <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-end', justifyContent: 'space-between', gap: '24px', marginBottom: '40px' }}>
@@ -263,7 +265,7 @@ export default function PublicJobsSection() {
           </div>
 
           {/* Desktop pills */}
-          <div style={{ display: 'inline-flex', background: '#fff', border: '1px solid #f3f4f6', boxShadow: '0 1px 4px rgba(0,0,0,0.06)', borderRadius: '16px', padding: '6px', gap: '4px' }}>
+          <div className="hidden sm:inline-flex" style={{ background: '#fff', border: '1px solid #f3f4f6', boxShadow: '0 1px 4px rgba(0,0,0,0.06)', borderRadius: '16px', padding: '6px', gap: '4px' }}>
             {TABS.map(({ id, label, Icon }) => (
               <button
                 key={id}
@@ -312,7 +314,7 @@ export default function PublicJobsSection() {
         </div>
 
         {/* ── Cards grid ───────────────────────────────────────────────── */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }}>
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
           {loading
             ? Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)
             : jobs.length > 0
@@ -329,30 +331,53 @@ export default function PublicJobsSection() {
           }
         </div>
 
-        {/* ── CTA ──────────────────────────────────────────────────────── */}
-        {!loading && totalCount > 6 && (
-          <div style={{ textAlign: 'center', marginTop: '48px', paddingTop: '16px', paddingBottom: '8px' }}>
-            <Link
-              href="/jobs"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '8px',
-                background: '#0096c7',
-                color: '#fff',
-                fontWeight: 700,
-                padding: '14px 40px',
-                borderRadius: '16px',
-                boxShadow: '0 6px 20px rgba(0,150,199,0.35)',
-                textDecoration: 'none',
-                fontSize: '15px',
-                transition: 'all 0.2s',
-              }}
+        {/* ── Pagination ─────────────────────────────────────────────── */}
+        {!loading && totalPages > 1 && (
+          <div className="flex items-center justify-between mt-8 pt-6 border-t border-gray-200">
+            <button
+              disabled={page <= 1}
+              onClick={() => fetchJobs(page - 1)}
+              className="flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-sm cursor-pointer"
             >
-              View all {totalCount.toLocaleString()} listings
-              <ArrowRight size={17} />
-            </Link>
-            <p style={{ color: '#6b8499', fontSize: '13px', marginTop: '14px' }}>
+              <ChevronLeft size={16} /> Previous
+            </button>
+
+            {/* Page numbers */}
+            <div className="hidden sm:flex items-center gap-1">
+              {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                const n = page <= 3 ? i + 1 : page + i - 2;
+                if (n < 1 || n > totalPages) return null;
+                return (
+                  <button
+                    key={n}
+                    onClick={() => fetchJobs(n)}
+                    className={`w-9 h-9 rounded-lg text-sm font-semibold transition-colors cursor-pointer ${
+                      n === page ? 'bg-[#0096c7] text-white shadow' : 'text-gray-600 hover:bg-gray-100'
+                    }`}
+                  >
+                    {n}
+                  </button>
+                );
+              })}
+            </div>
+            <span className="sm:hidden text-sm text-gray-500 font-medium">
+              {page} / {totalPages}
+            </span>
+
+            <button
+              disabled={page >= totalPages}
+              onClick={() => fetchJobs(page + 1)}
+              className="flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-sm cursor-pointer"
+            >
+              Next <ChevronRight size={16} />
+            </button>
+          </div>
+        )}
+
+        {/* ── CTA ──────────────────────────────────────────────────────── */}
+        {!loading && (
+          <div style={{ textAlign: 'center', marginTop: '32px', paddingTop: '16px' }}>
+            <p style={{ color: '#6b8499', fontSize: '13px' }}>
               Sign up free to bookmark jobs and get deadline alerts
             </p>
           </div>

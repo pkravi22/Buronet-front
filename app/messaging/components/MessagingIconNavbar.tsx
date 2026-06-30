@@ -20,7 +20,7 @@ type NavItem = {
 
 const navItems: NavItem[] = [
   { href: '/home', label: 'Home', icon: FiHome },
-  { href: '/circle', label: 'My Circle', icon: FiUsers },
+  { href: '/followers', label: 'My Circle', icon: FiUsers },
   { href: '/bytes', label: 'Bytes', icon: FiVideo },
   { href: '/jobs', label: 'Jobs', icon: FiBriefcase },
   { href: '/exams', label: 'Exams', icon: FiBook },

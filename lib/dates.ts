@@ -3,7 +3,7 @@ import { format, formatDistanceToNow, differenceInYears } from 'date-fns';
 type DateLike = string | number | Date | null | undefined;
 
 const ISO_DATE_ONLY_RE = /^\d{4}-\d{2}-\d{2}$/;
-const DD_MM_YYYY_RE = /^\d{2}-\d{2}-\d{4}$/;
+const DD_MM_YYYY_RE = /^\d{2}[-/]\d{2}[-/]\d{4}$/;
 
 function isString(value: unknown): value is string {
   return typeof value === 'string';
@@ -22,7 +22,7 @@ function safeTrim(value: string): string {
  * Converts backend date strings that are meant to be date-only into `YYYY-MM-DD`.
  * Supports:
  * - `YYYY-MM-DD`
- * - `DD-MM-YYYY`
+ * - `DD-MM-YYYY` / `DD/MM/YYYY`
  * - ISO datetime strings (uses the leading date portion)
  */
 export function toDateOnly(value: DateLike): string | null {
@@ -46,7 +46,8 @@ export function toDateOnly(value: DateLike): string | null {
   if (ISO_DATE_ONLY_RE.test(raw)) return raw;
 
   if (DD_MM_YYYY_RE.test(raw)) {
-    const [day, month, year] = raw.split('-');
+    const separator = raw.includes('/') ? '/' : '-';
+    const [day, month, year] = raw.split(separator);
     return `${year}-${month}-${day}`;
   }
 

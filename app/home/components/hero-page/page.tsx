@@ -688,6 +688,53 @@ export default function Home() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const revealRefs = useRef<(HTMLElement | null)[]>([]);
+  const [newListingsToday, setNewListingsToday] = useState<number | null>(null);
+  const [deadlines, setDeadlines] = useState<{ month: string; day: string; name: string; status: string }[]>([]);
+  const [latestUpdates, setLatestUpdates] = useState<{ chip: string; chipClass: string; title: string; time: string; url: string }[]>([]);
+
+  // Fetch dynamic data
+  useEffect(() => {
+    const JOBS_BASE = process.env.NEXT_PUBLIC_JOBS_BACKEND_BASE || 'https://test.buronet.co.in/jobs/api';
+
+    // 1. Fetch new listings today count
+    fetch(`${JOBS_BASE}/jobs/public?type=job&page=1&pageSize=1`)
+      .then(r => r.json())
+      .then(d => setNewListingsToday(d.totalCount ?? null))
+      .catch(() => setNewListingsToday(null));
+
+    // 2. Fetch upcoming exam deadlines
+    fetch(`${JOBS_BASE}/jobs/public?type=admit_card&page=1&pageSize=5`)
+      .then(r => r.json())
+      .then(d => {
+        const items = (d.data ?? []).slice(0, 3).map((j: any) => {
+          const date = j.lastDateToApply ? new Date(j.lastDateToApply) : null;
+          const month = date ? date.toLocaleString('en-US', { month: 'short' }).toUpperCase() : '---';
+          const day   = date ? String(date.getDate()).padStart(2, '0') : '--';
+          return {
+            month, day,
+            name: j.jobTitle || j.organizationName || 'Upcoming Exam',
+            status: j.organizationName || 'Check official website',
+          };
+        });
+        if (items.length > 0) setDeadlines(items);
+      })
+      .catch(() => {});
+
+    // 3. Fetch latest news updates
+    fetch('/next-api/updates?query=government+exam+india&limit=5')
+      .then(r => r.json())
+      .then(d => {
+        const articles = (d.articles ?? []).slice(0, 3).map((a: any) => ({
+          chip: 'Update',
+          chipClass: 'chip-rec',
+          title: a.title?.substring(0, 80) + (a.title?.length > 80 ? '…' : ''),
+          time: a.publishedAt ? new Date(a.publishedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : 'Recently',
+          url: a.url || '#',
+        }));
+        if (articles.length > 0) setLatestUpdates(articles);
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -808,22 +855,7 @@ export default function Home() {
             <button className="btn-hero-outline" onClick={goLogin}>Explore Jobs</button>
           </div>
 
-          <div className="hero-stats animate-fade-up delay-4">
-            <div className="stat-item">
-              <div className="stat-value">12k+</div>
-              <div className="stat-label">Active Jobs</div>
-            </div>
-            <div className="stat-div" />
-            <div className="stat-item">
-              <div className="stat-value">85%</div>
-              <div className="stat-label">Success Rate</div>
-            </div>
-            <div className="stat-div" />
-            <div className="stat-item">
-              <div className="stat-value">500k+</div>
-              <div className="stat-label">Aspirants</div>
-            </div>
-          </div>
+
         </div>
 
         <div className="hero-right animate-scale-in delay-2">
@@ -837,7 +869,9 @@ export default function Home() {
 
           <div className="hero-floating-card animate-fade-up delay-5">
             <div className="floating-card-label">New Listings Today</div>
-            <div className="floating-card-value">247</div>
+            <div className="floating-card-value">
+              {newListingsToday !== null ? newListingsToday.toLocaleString() : '—'}
+            </div>
             <div className="floating-card-sub">Across UPSC, PSC & SSC</div>
           </div>
 
@@ -927,10 +961,10 @@ export default function Home() {
         <div className="two-col">
           <div ref={el => addRef(el as HTMLElement, 13)} className="panel reveal">
             <div className="panel-title">⏰ Critical Deadlines</div>
-            {[
+            {(deadlines.length > 0 ? deadlines : [
               { month: 'JUN', day: '15', name: 'UPSC Civil Services Prelims 2024', status: 'Application window open' },
               { month: 'JUL', day: '02', name: 'SSC CGL Tier-I Examination', status: 'Admit card window opens' },
-            ].map((d, i) => (
+            ]).map((d, i) => (
               <div key={i} className="deadline-row">
                 <div className="date-badge">
                   <div className="date-month">{d.month}</div>
@@ -947,13 +981,15 @@ export default function Home() {
 
           <div ref={el => addRef(el as HTMLElement, 14)} className="panel reveal reveal-delay-2">
             <div className="panel-title">📡 Latest Updates</div>
-            {[
-              { chip: 'Recruitment', chipClass: 'chip-rec', title: 'New age relaxation policy for State PSC candidates announced', time: '2 hours ago · 3 Min Read' },
-              { chip: 'Policy', chipClass: 'chip-pol', title: 'Digital India initiative introduces new training modules for civil servants', time: 'Yesterday · 5 Min Read' },
-            ].map((u, i) => (
+            {(latestUpdates.length > 0 ? latestUpdates : [
+              { chip: 'Recruitment', chipClass: 'chip-rec', title: 'New age relaxation policy for State PSC candidates announced', time: '2 hours ago', url: '#' },
+              { chip: 'Policy', chipClass: 'chip-pol', title: 'Digital India initiative introduces new training modules for civil servants', time: 'Yesterday', url: '#' },
+            ]).map((u, i) => (
               <div key={i} className="update-row">
                 <span className={`update-chip ${u.chipClass}`}>{u.chip}</span>
-                <div className="update-title">{u.title}</div>
+                <a href={u.url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+                  <div className="update-title" style={{ cursor: 'pointer' }}>{u.title}</div>
+                </a>
                 <div className="update-time">{u.time}</div>
               </div>
             ))}
