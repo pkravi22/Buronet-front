@@ -57,6 +57,15 @@ const cleanJobDescription = (desc: string) => {
     .trim();
 };
 
+const isValidNote = (n: string) => {
+  if (!n) return false;
+  const lower = n.toLowerCase();
+  if (lower.includes('sarkari result')) return false;
+  if (lower.includes('sarkariresult')) return false;
+  if (lower.includes('pay the exam fee through online / offline fee mode only')) return false;
+  return true;
+};
+
 const parseQualificationsTable = (list: string[]) => {
   const rows: { postName: string; totalPost: string; eligibility: string }[] = [];
   let currentPost: string | null = null;
@@ -253,7 +262,7 @@ function AdmitCardRightContent({ job, desc, parsedDates, otherNotes, isEnriching
       {/* How to Download Admit Card */}
       <Card title="How to Download Admit Card" icon={<Download size={18} />}>
         <ol className="space-y-2">
-          {job.applicationProcess?.length > 0 ? job.applicationProcess.map((step, i) => (
+          {job.applicationProcess?.length > 0 ? job.applicationProcess.filter(isValidNote).map((step, i) => (
             <li key={i} className="flex items-start gap-3 text-[14px] font-medium text-gray-700">
               <span className="w-6 h-6 rounded-full bg-cyan-100 text-[#0096c7] font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">{i + 1}</span>
               {step}
@@ -468,8 +477,6 @@ const JobDetailsPage = ({ params }: JobDetailsPageProps) => {
   const showTable = parsedRows.length > 0 && parsedRows.some(r => r.totalPost !== '—');
   const detailsTitle = isAdmitCard ? 'Admit Card Details' : (job.type === 'job' ? 'Job Details' : 'Short Description');
   const descriptionTitle = isAdmitCard ? 'About the Exam' : (job.type === 'job' ? 'Job Description' : 'Short Description');
-
-  const isValidNote = (n: string) => !n.toLowerCase().includes('sarkari result');
 
   const parsedDates = job.eligibilityNotes
     ?.filter((n) => n.startsWith('📅 Date:') && isValidNote(n))
@@ -795,7 +802,7 @@ const JobDetailsPage = ({ params }: JobDetailsPageProps) => {
                 <Card title="How to Apply" icon={<FileText size={18} />}>
                   {job.applicationProcess?.length > 0 ? (
                     <ol className="space-y-2">
-                      {job.applicationProcess.map((step, i) => (
+                      {job.applicationProcess.filter(isValidNote).map((step, i) => (
                         <li key={i} className="flex items-start gap-3 text-[14px] font-medium text-gray-700">
                           <span className="w-6 h-6 rounded-full bg-cyan-100 text-[#0096c7] font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">{i + 1}</span>
                           {step}
