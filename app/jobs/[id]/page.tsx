@@ -1170,10 +1170,10 @@ const JobDetailsPage = ({ params }: JobDetailsPageProps) => {
               <Card title="How to Apply" icon={<FileText size={18} />}>
                 {job.applicationProcess?.length > 0 ? (
                   <ol className="space-y-2">
-                    {job.applicationProcess.map((step, i) => (
+                    {job.applicationProcess.filter(isValidNote).map((step, i) => (
                       <li key={i} className="flex items-start gap-3 text-[14px] font-medium text-gray-700">
                         <span className="w-6 h-6 rounded-full bg-cyan-100 text-[#0096c7] font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">{i + 1}</span>
-                        {step}
+                        {sanitizeText(step)}
                       </li>
                     ))}
                   </ol>
