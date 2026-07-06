@@ -24,12 +24,21 @@ const ensureAbsoluteUrl = (url: string | undefined) => {
   return /^https?:\/\//i.test(url) ? url : `https://${url}`;
 };
 
+const sanitizeText = (text: string) => {
+  if (!text) return '';
+  return text
+    .replace(/sarkari\s*result\.com/gi, 'buronet.co.in')
+    .replace(/sarkari\s*result/gi, 'Buronet')
+    .replace(/sarkariresult/gi, 'Buronet')
+    .replace(/since 2012/gi, '') // Usually associated with their tagline
+    .trim();
+};
+
 const cleanJobDescription = (desc: string) => {
   if (!desc) return '';
   
   let cleaned = desc;
 
-  // Find the start of the massive footer and chop off everything from there down
   const footerIndex = cleaned.toLowerCase().indexOf('welcome to this official website of sarkari result');
   if (footerIndex !== -1) {
     cleaned = cleaned.substring(0, footerIndex);
@@ -40,14 +49,11 @@ const cleanJobDescription = (desc: string) => {
     cleaned = cleaned.substring(0, disclaimerIndex);
   }
 
-  // Also filter line by line for any straggler artifacts
-  return cleaned
+  cleaned = cleaned
     .split('\n')
     .filter(line => {
       const lower = line.toLowerCase();
       return (
-        !lower.includes('sarkariresult.com') &&
-        !lower.includes('sarkari result') &&
         !lower.includes('registered trademark') &&
         !lower.includes('disclaimer :') &&
         line.trim().length > 0
@@ -55,14 +61,15 @@ const cleanJobDescription = (desc: string) => {
     })
     .join('\n')
     .trim();
+
+  return sanitizeText(cleaned);
 };
 
 const isValidNote = (n: string) => {
   if (!n) return false;
   const lower = n.toLowerCase();
-  if (lower.includes('sarkari result')) return false;
-  if (lower.includes('sarkariresult')) return false;
   if (lower.includes('pay the exam fee through online / offline fee mode only')) return false;
+  if (lower.includes('sarkari result tools')) return false;
   return true;
 };
 
@@ -265,7 +272,7 @@ function AdmitCardRightContent({ job, desc, parsedDates, otherNotes, isEnriching
           {job.applicationProcess?.length > 0 ? job.applicationProcess.filter(isValidNote).map((step, i) => (
             <li key={i} className="flex items-start gap-3 text-[14px] font-medium text-gray-700">
               <span className="w-6 h-6 rounded-full bg-cyan-100 text-[#0096c7] font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">{i + 1}</span>
-              {step}
+              {sanitizeText(step)}
             </li>
           )) : [
             'Visit the official website of the conducting body.',
@@ -289,7 +296,7 @@ function AdmitCardRightContent({ job, desc, parsedDates, otherNotes, isEnriching
             {[...otherNotes, ...(job.qualifications ?? [])].slice(0, 12).map((n, i) => (
               <li key={i} className="flex items-start gap-2 text-[14px] font-medium text-gray-700">
                 <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-cyan-400 shrink-0" />
-                {n}
+                {sanitizeText(n)}
               </li>
             ))}
           </ul>
@@ -728,7 +735,7 @@ const JobDetailsPage = ({ params }: JobDetailsPageProps) => {
                                       <td className="px-4 py-3 text-base text-gray-600 align-top">
                                         <div className="font-extrabold text-lg text-[#0096c7] mb-1 leading-none">{row.totalPost}</div>
                                         {row.eligibility && (
-                                          <div className="text-base text-gray-500 font-medium leading-relaxed mt-1.5">{row.eligibility}</div>
+                                          <div className="text-base text-gray-500 font-medium leading-relaxed mt-1.5">{sanitizeText(row.eligibility)}</div>
                                         )}
                                       </td>
                                     </tr>
@@ -741,7 +748,7 @@ const JobDetailsPage = ({ params }: JobDetailsPageProps) => {
                               {job.qualifications.map((q, i) => (
                                 <li key={i} className="flex items-start gap-2 text-[14px] font-medium text-gray-700">
                                   <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-cyan-400 shrink-0" />
-                                  {q}
+                                  {sanitizeText(q)}
                                 </li>
                               ))}
                             </ul>
@@ -758,7 +765,7 @@ const JobDetailsPage = ({ params }: JobDetailsPageProps) => {
                             {parsedAges.map((age, i) => (
                               <li key={i} className="flex items-start gap-2 text-[14px] font-medium text-gray-700">
                                 <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-orange-400 shrink-0" />
-                                {age}
+                                {sanitizeText(age)}
                               </li>
                             ))}
                           </ul>
@@ -772,7 +779,7 @@ const JobDetailsPage = ({ params }: JobDetailsPageProps) => {
                             {otherNotes.map((n, i) => (
                               <li key={i} className="flex items-start gap-2 text-[14px] font-medium text-gray-700">
                                 <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-gray-400 shrink-0" />
-                                {n}
+                                {sanitizeText(n)}
                               </li>
                             ))}
                           </ul>
@@ -791,7 +798,7 @@ const JobDetailsPage = ({ params }: JobDetailsPageProps) => {
                       {job.benefits.map((b, i) => (
                         <li key={i} className="flex items-start gap-2 text-base font-medium text-gray-700">
                           <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-green-400 shrink-0" />
-                          {b}
+                          {sanitizeText(b)}
                         </li>
                       ))}
                     </ul>
@@ -805,7 +812,7 @@ const JobDetailsPage = ({ params }: JobDetailsPageProps) => {
                       {job.applicationProcess.filter(isValidNote).map((step, i) => (
                         <li key={i} className="flex items-start gap-3 text-[14px] font-medium text-gray-700">
                           <span className="w-6 h-6 rounded-full bg-cyan-100 text-[#0096c7] font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">{i + 1}</span>
-                          {step}
+                          {sanitizeText(step)}
                         </li>
                       ))}
                     </ol>
@@ -1033,8 +1040,8 @@ const JobDetailsPage = ({ params }: JobDetailsPageProps) => {
                       const val = parts.slice(1).join(':').trim();
                       return (
                         <div key={i} className="flex flex-col p-2.5 bg-cyan-50/40 border border-cyan-100/30 rounded-xl">
-                          <span className="text-[14px] font-medium font-semibold text-[#0096c7] uppercase tracking-wider">{label}</span>
-                          <span className="text-base font-bold text-gray-800 mt-1">{val || 'As per schedule'}</span>
+                          <span className="text-[14px] font-medium font-semibold text-[#0096c7] uppercase tracking-wider">{sanitizeText(label)}</span>
+                          <span className="text-base font-bold text-gray-800 mt-1">{val ? sanitizeText(val) : 'As per schedule'}</span>
                         </div>
                       );
                     })}
@@ -1053,14 +1060,14 @@ const JobDetailsPage = ({ params }: JobDetailsPageProps) => {
                       if (val) {
                         return (
                           <div key={i} className="flex items-center justify-between border-b border-gray-100 pb-1.5 last:border-0 last:pb-0">
-                            <span className="text-base font-medium text-gray-600">{label}</span>
-                            <span className="text-base font-bold text-green-700 bg-green-50 px-2.5 py-0.5 rounded-full">{val}</span>
+                            <span className="text-base font-medium text-gray-600">{sanitizeText(label)}</span>
+                            <span className="text-base font-bold text-green-700 bg-green-50 px-2.5 py-0.5 rounded-full">{sanitizeText(val)}</span>
                           </div>
                         );
                       }
                       return (
                         <div key={i} className="text-base font-medium text-gray-600 bg-gray-50 p-2 rounded-lg border border-gray-100">
-                          {label}
+                          {sanitizeText(label)}
                         </div>
                       );
                     })}
@@ -1087,11 +1094,11 @@ const JobDetailsPage = ({ params }: JobDetailsPageProps) => {
                               <tbody className="divide-y divide-gray-100 bg-white">
                                 {parsedRows.map((row, i) => (
                                   <tr key={i} className="hover:bg-gray-50/40 transition">
-                                    <td className="px-4 py-3 text-base font-semibold text-gray-800 align-top leading-relaxed">{row.postName}</td>
+                                    <td className="px-4 py-3 text-base font-semibold text-gray-800 align-top leading-relaxed">{sanitizeText(row.postName)}</td>
                                     <td className="px-4 py-3 text-base text-gray-600 align-top">
-                                      <div className="font-extrabold text-lg text-[#0096c7] mb-1 leading-none">{row.totalPost}</div>
+                                      <div className="font-extrabold text-lg text-[#0096c7] mb-1 leading-none">{sanitizeText(row.totalPost)}</div>
                                       {row.eligibility && (
-                                        <div className="text-base text-gray-500 font-medium leading-relaxed mt-1.5">{row.eligibility}</div>
+                                        <div className="text-base text-gray-500 font-medium leading-relaxed mt-1.5">{sanitizeText(row.eligibility)}</div>
                                       )}
                                     </td>
                                   </tr>
@@ -1104,7 +1111,7 @@ const JobDetailsPage = ({ params }: JobDetailsPageProps) => {
                             {job.qualifications.map((q, i) => (
                               <li key={i} className="flex items-start gap-2 text-[14px] font-medium text-gray-700">
                                 <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-cyan-400 shrink-0" />
-                                {q}
+                                {sanitizeText(q)}
                               </li>
                             ))}
                           </ul>
