@@ -1,0 +1,175 @@
+version: '3.8'
+
+services:
+  # --- Databases ---
+  mysql-db:
+    image: mysql:8.0
+    container_name: buronet-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: buronet_root_pass
+      MYSQL_DATABASE: buronet
+    ports:
+      - "3307:3306" # Host 3307 to avoid conflict with local MySQL
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - buronet-network
+
+  mongodb:
+    image: mongo:latest
+    container_name: buronet-mongodb
+    ports:
+      - "27018:27017" # Host 27018 to avoid conflict with local Mongo
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - buronet-network
+
+  # --- Microservices ---
+  main-api:
+    build:
+      context: ./buronet-service
+      dockerfile: Dockerfile
+    container_name: buronet-main-api
+    ports:
+      - "5156:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=server=mysql-db;port=3306;database=buronet;user=root;password=buronet_root_pass;
+      - Jwt__Key=A8S6b19zR02r+uDL1kZ78yKJqXcwMb5nY8Z3R7G1T4ks=
+      - Jwt__Issuer=BuronetAuth
+      - Jwt__Audience=BuronetUsers
+      - ServiceUrls__JobService=http://job-service:8080
+      - ServiceUrls__NotificationsService=http://messaging-service:8080
+      - Smtp__Host=mailhog
+      - Smtp__Port=1025
+      - Smtp__Username=buronet-local
+      - Smtp__Password=buronet-local
+      - Smtp__EnableSsl=false
+      - Cloudinary__CloudName=dshqjmnqw
+      - Cloudinary__ApiKey=192821369896933
+      - Cloudinary__ApiSecret=iFe4Pcd6C4kHdftCLfp7ixznTYQ
+      - Cloudinary__ImagePreset=ml_default
+      - Cloudinary__VideoPreset=ml_default
+    depends_on:
+      - mysql-db
+      - mailhog
+    networks:
+      - buronet-network
+
+  mailhog:
+    image: mailhog/mailhog
+    container_name: buronet-mailhog
+    ports:
+      - "1025:1025" # SMTP
+      - "8025:8025" # Web UI
+    networks:
+      - buronet-network
+
+  job-service:
+    build:
+      context: ./buronet-service
+      dockerfile: Buronet.JobService/Dockerfile
+    container_name: buronet-job-service
+    ports:
+      - "5270:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=server=mysql-db;port=3306;database=buronet;user=root;password=buronet_root_pass;
+      - MongoDbSettings__ConnectionString=mongodb+srv://aegismailaegis_db_user:ZTfHyoVuStYx272j@cluster0.ttfpwjd.mongodb.net/
+      - MongoDbSettings__DatabaseName=job_postings_db
+      - ServiceUrls__NotificationService=http://messaging-service:8080
+    depends_on:
+      - mysql-db
+      - mongodb
+    networks:
+      - buronet-network
+
+  messaging-service:
+    build:
+      context: ./buronet-service
+      dockerfile: buronet_messaging_service/Dockerfile
+    container_name: buronet-messaging-service
+    ports:
+      - "5227:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__MessagingConnection=server=mysql-db;port=3306;database=buronet;user=root;password=buronet_root_pass;
+      - Jwt__Key=A8S6b19zR02r+uDL1kZ78yKJqXcwMb5nY8Z3R7G1T4ks=
+      - Jwt__Issuer=BuronetAuth
+      - Jwt__Audience=BuronetUsers
+      - FrontendAppUrl=http://localhost:3000
+    depends_on:
+      - mysql-db
+    networks:
+      - buronet-network
+
+  bytes-api:
+    build:
+      context: ./buronet-service
+      dockerfile: Buronet.Bytes.API/Dockerfile
+    container_name: buronet-bytes-api
+    ports:
+      - "5188:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - MongoDbSettings__ConnectionString=mongodb+srv://aegismailaegis_db_user:ZTfHyoVuStYx272j@cluster0.ttfpwjd.mongodb.net/
+      - MongoDbSettings__DatabaseName=buronet
+      - MongoDbSettings__CollectionName=bytes
+      - Jwt__Key=A8S6b19zR02r+uDL1kZ78yKJqXcwMb5nY8Z3R7G1T4ks=
+      - Jwt__Issuer=BuronetAuth
+      - Jwt__Audience=BuronetUsers
+      - ServiceUrls__BuronetService=http://main-api:8080
+    depends_on:
+      - mongodb
+    networks:
+      - buronet-network
+
+  video-api:
+    build:
+      context: ./buronet-service
+      dockerfile: Buronet.Video.API/Dockerfile
+    container_name: buronet-video-api
+    ports:
+      - "5189:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - MongoDbSettings__ConnectionString=mongodb+srv://aegismailaegis_db_user:ZTfHyoVuStYx272j@cluster0.ttfpwjd.mongodb.net/
+      - MongoDbSettings__DatabaseName=BuronetVideo
+      - MongoDbSettings__CollectionName=posts
+    depends_on:
+      - mongodb
+    networks:
+      - buronet-network
+
+  # --- Frontend ---
+  frontend:
+    build:
+      context: ./buronet-frontend
+      dockerfile: Dockerfile
+      args:
+        - NEXT_PUBLIC_DOTNET_BACKEND_BASE=https://test.buronet.co.in/api
+        - NEXT_PUBLIC_JOBS_BACKEND_BASE=https://test.buronet.co.in/jobs/api
+        - NEXT_PUBLIC_BYTES_BACKEND_BASE=https://test.buronet.co.in/bytes/api
+        - NEXT_PUBLIC_MESSAGING_BACKEND_BASE=https://test.buronet.co.in/messaging/api
+    container_name: buronet-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_DOTNET_BACKEND_BASE=https://test.buronet.co.in/api
+      - NEXT_PUBLIC_JOBS_BACKEND_BASE=https://test.buronet.co.in/jobs/api
+      - NEXT_PUBLIC_BYTES_BACKEND_BASE=https://test.buronet.co.in/bytes/api
+      - NEXT_PUBLIC_MESSAGING_BACKEND_BASE=https://test.buronet.co.in/messaging/api
+      - MONGO_URI=mongodb+srv://aegismailaegis_db_user:ZTfHyoVuStYx272j@cluster0.ttfpwjd.mongodb.net/
+    depends_on:
+      - main-api
+    networks:
+      - buronet-network
+
+networks:
+  buronet-network:
+    driver: bridge
+
+volumes:
+  mysql_data:
+  mongo_data:

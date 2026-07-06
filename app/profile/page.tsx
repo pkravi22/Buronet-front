@@ -169,7 +169,7 @@ const ProfilePage: React.FC = () => {
                       <Briefcase size={16} className="text-[#0096c7]" />
                       Current Organization
                     </h3>
-                    <p className="text-[12.5px] sm:text-[13px] font-medium text-gray-700 bg-gray-50 border border-gray-100 p-3 rounded-xl">{userProfile.currentOrganization || "N/A"}</p>
+                    <p className="text-[12.5px] sm:text-[13px] font-medium text-gray-700 bg-gray-50 border border-gray-100 p-3 rounded-xl">{(userProfile as any).currentOrganization || "N/A"}</p>
                   </div>
 
                   <div className="w-full mb-6">

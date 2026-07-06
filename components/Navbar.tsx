@@ -145,8 +145,8 @@ const Navbar = ({ activeItem }: NavbarProps) => {
             >
               <div className="flex items-center w-full">
                 <span className="w-6 h-6 flex items-center shrink-0">
-                  {user.profilePictureUrl ? (
-                    <img src={user.profilePictureUrl} className="w-full h-full rounded-full object-cover" alt="Profile" />
+                  {(user as any).profilePictureUrl ? (
+                    <img src={(user as any).profilePictureUrl} className="w-full h-full rounded-full object-cover" alt="Profile" />
                   ) : (
                     <div className="w-full h-full rounded-full bg-gray-100 text-gray-500 flex items-center justify-center shrink-0 border border-gray-200">
                       <FiUser size={14} />
