@@ -67,7 +67,7 @@ const PublicationsSection: React.FC<PublicationsSectionProps> = ({ publications,
                 <div className="absolute top-2 right-2 flex space-x-2">
                   <button
                     onClick={() => handleEditClick(pub)}
-                    className="text-blue-600 hover:underline text-sm"
+                    className="text-[#0096c7] hover:underline text-sm"
                     title="Edit Publication"
                   >
                     Edit
@@ -84,7 +84,7 @@ const PublicationsSection: React.FC<PublicationsSectionProps> = ({ publications,
               <h4 className="font-semibold text-lg text-gray-800">{pub.title}</h4>
               {pub.journalConference && <p className="text-gray-700">Journal/Conference: {pub.journalConference}</p>}
               {pub.publicationDate && <p className="text-gray-500 text-sm">Published: {formatDateOnly(pub.publicationDate, 'MMM d, yyyy')}</p>}
-              {pub.url && <p className="text-blue-600 text-sm hover:underline"><a href={pub.url} target="_blank" rel="noopener noreferrer">View Publication</a></p>}
+              {pub.url && <p className="text-[#0096c7] text-sm hover:underline"><a href={pub.url} target="_blank" rel="noopener noreferrer">View Publication</a></p>}
               {pub.abstract && <p className="text-gray-700 mt-2 text-sm">{pub.abstract}</p>}
             </div>
           ))}

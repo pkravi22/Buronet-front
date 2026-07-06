@@ -233,7 +233,7 @@ const OthersProfilePage: React.FC = () => {
                           <button
                             disabled={isConnectionsLoading}
                             onClick={handlePrimaryAction}
-                            className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white py-2.5 rounded-lg font-medium transition shadow-md"
+                            className="flex-1 bg-[#0096c7] hover:bg-cyan-700 disabled:bg-cyan-300 text-white py-2.5 rounded-lg font-medium transition shadow-md"
                           >
                             <i className="fas fa-user-check mr-2"></i> Accept
                           </button>
@@ -246,7 +246,7 @@ const OthersProfilePage: React.FC = () => {
                                 ? 'bg-gray-100 hover:bg-gray-200 text-gray-700 shadow-none'
                                 : outgoingRequest
                                 ? 'bg-gray-100 text-gray-500 cursor-not-allowed shadow-none'
-                                : 'bg-blue-600 hover:bg-blue-700 text-white'
+                                : 'bg-[#0096c7] hover:bg-cyan-700 text-white'
                             }`}
                           >
                             <i className={`fas ${isConnected ? 'fa-comment-dots' : 'fa-user-plus'} mr-2`}></i>

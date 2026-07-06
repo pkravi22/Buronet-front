@@ -46,7 +46,7 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
 
   const getIcon = (type: SearchItemType) => {
     switch (type) {
-      case 'User': return <FiUser size={16} className="text-[#2563EB]" />;
+      case 'User': return <FiUser size={16} className="text-[#0096c7]" />;
       case 'Job': return <FiBriefcase size={16} className="text-[#10B981]" />;
       default: return <FiLink size={16} className="text-[#9CA3AF]" />;
     }
@@ -72,7 +72,7 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
               placeholder="Search people, jobs, posts, and more..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full h-11 pl-10 pr-4 bg-[#F3F4F6] rounded-lg text-[#1F2937] focus:outline-none focus:ring-2 focus:ring-[#2563EB]"
+              className="w-full h-11 pl-10 pr-4 bg-[#F3F4F6] rounded-lg text-[#1F2937] focus:outline-none focus:ring-2 focus:ring-[#0096c7]"
             />
           </div>
           <button onClick={onClose} className="p-2 ml-3 text-gray-600 hover:text-gray-800 rounded-full hover:bg-gray-100">
@@ -88,7 +88,7 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
               onClick={() => setActiveTab(tab.key as SearchItemType | 'All')}
               className={`py-3 px-4 text-sm font-medium transition-colors ${
                 activeTab === tab.key
-                  ? 'text-[#2563EB] border-b-2 border-[#2563EB]'
+                  ? 'text-[#0096c7] border-b-2 border-[#0096c7]'
                   : 'text-[#6B7280] hover:text-[#1F2937]'
               }`}
             >

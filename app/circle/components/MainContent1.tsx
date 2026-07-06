@@ -40,7 +40,7 @@ const NetworkCard: React.FC<NetworkCardProps> = ({ user, onConnectClick, isConne
       <button
         onClick={() => onConnectClick(user.id)}
         className={`mt-auto w-full h-10 rounded flex items-center justify-center gap-2 ${
-          isConnected ? 'bg-[#F3F4F6] text-[#374151]' : 'bg-[#2563EB] text-white'
+          isConnected ? 'bg-[#F3F4F6] text-[#374151]' : 'bg-[#0096c7] text-white'
           }`}
       >
         <Users size={16} />
@@ -106,7 +106,7 @@ const MainContent = () => {
 
   const dashboardCards = [
     { title: 'Total Connections', value: `${networkMetrics?.totalConnections}`, trend: `${networkMetrics?.totalConnectionsTrend}% this month`, icon: <Users size={16} />, iconColor: 'text-[#EF4444]', trendIcon: <TrendingUp size={12} />, trendColor: 'text-[#16A34A]', refLink: "network/requests?tab=connections" },
-    { title: 'Joined Groups', value: `${networkMetrics?.joinedGroups}`, trend: `${networkMetrics?.joinedGroupsTrend} new this month`, icon: <Users size={16} />, iconColor: 'text-[#3B82F6]', trendIcon: <TrendingUp size={12} />, trendColor: 'text-[#16A34A]', refLink: "" },
+    { title: 'Joined Groups', value: `${networkMetrics?.joinedGroups}`, trend: `${networkMetrics?.joinedGroupsTrend} new this month`, icon: <Users size={16} />, iconColor: 'text-[#06b6d4]', trendIcon: <TrendingUp size={12} />, trendColor: 'text-[#16A34A]', refLink: "" },
     { title: 'Pending Requests', value: `${networkMetrics?.pendingRequests}`, trend: `${networkMetrics?.pendingRequestsTrend} new this week`, icon: <UserPlus size={16} />, iconColor: 'text-[#22C55E]', trendIcon: <Clock size={12} />, trendColor: 'text-[#F59E0B]', refLink: "" },
     { title: 'Network Growth', value: `${networkMetrics?.networkGrowth}`, trend: `${networkMetrics?.networkGrowthPercentage}% this month`, icon: <TrendingUp size={16} />, iconColor: 'text-[#A855F7]', trendIcon: <TrendingUp size={12} />, trendColor: 'text-[#16A34A]', refLink: "" }
   ];
@@ -138,7 +138,7 @@ const MainContent = () => {
           <div className="mt-8">
             <div className="flex justify-between items-center mb-4 px-4 sm:px-0">
               <h2 className="text-[#1F2937] text-lg font-medium">Popular in Your Network</h2>
-              <button className="text-[#2563EB] text-sm font-medium">View All</button>
+              <button className="text-[#0096c7] text-sm font-medium">View All</button>
             </div>
             <div className="relative">
               <div className="relative">
@@ -183,7 +183,7 @@ const MainContent = () => {
           <div className="mt-8">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-[#1F2937] text-lg font-medium">People With Similar Profile</h2>
-              <button className="text-[#2563EB] text-sm font-medium">See More</button>
+              <button className="text-[#0096c7] text-sm font-medium">See More</button>
             </div>
             {/* The People You May Know section can also be made dynamic with a different hook/data set */}
             <div
@@ -208,7 +208,7 @@ const MainContent = () => {
           <div className="mt-8">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-[#1F2937] text-lg font-medium">People With Similar Title</h2>
-              <button className="text-[#2563EB] text-sm font-medium">See More</button>
+              <button className="text-[#0096c7] text-sm font-medium">See More</button>
             </div>
             {/* The People You May Know section can also be made dynamic with a different hook/data set */}
             <div
@@ -232,7 +232,7 @@ const MainContent = () => {
           <div className="mt-8">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-[#1F2937] text-lg font-medium">People With Similar Education</h2>
-              <button className="text-[#2563EB] text-sm font-medium">See More</button>
+              <button className="text-[#0096c7] text-sm font-medium">See More</button>
             </div>
             {/* The People You May Know section can also be made dynamic with a different hook/data set */}
             <div

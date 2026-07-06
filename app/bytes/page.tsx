@@ -5,7 +5,6 @@ import MainContent from './components/MainContent';
 import VideoList from './components/VideoList';
 import MessagingIconNavbar from '../messaging/components/MessagingIconNavbar';
 import Navbar from '../../components/Navbar';
-import BytesNavbar from './components/BytesNavbar';
 import { createGlobalStyle } from "styled-components";
 
 const GlobalStyle = createGlobalStyle`
@@ -79,9 +78,9 @@ const BytesPage = () => {
   return (
     <>
       <TopBar />
-      {/* Show Navbar up to 1024px, MessagingIconNavbar after 1024px */}
+      {/* Show Navbar up to 1024px, Navbar after 1024px */}
       <div className="hidden laptop:block">
-        <MessagingIconNavbar />
+        <Navbar activeItem="Bytes" />
       </div>
       {/* Mobile layout: navbar part of document flow */}
       <div className="laptop:hidden flex flex-col bg-[#EEF0F4] gap-2" style={{ height: '100dvh' }}>
@@ -94,7 +93,7 @@ const BytesPage = () => {
         </main>
         {/* Mobile navbar - part of normal flow, not fixed */}
         <div className="mx-2">
-          <BytesNavbar activeItem="Bytes" />
+          <Navbar activeItem="Bytes" />
         </div>
       </div>
       {/* Desktop layout */}

@@ -66,7 +66,7 @@ const ExamAttemptsSection: React.FC<ExamAttemptsSectionProps> = ({ examAttempts,
                 <div className="absolute top-2 right-2 flex space-x-2">
                   <button
                     onClick={() => handleEditClick(attempt)}
-                    className="text-blue-600 hover:underline text-sm"
+                    className="text-[#0096c7] hover:underline text-sm"
                     title="Edit Exam Attempt"
                   >
                     Edit

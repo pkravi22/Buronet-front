@@ -53,7 +53,7 @@ const PostSection: React.FC<PostSectionProps> = ({ tag, postsRefetchKey, filterT
     return (
       <div className="text-red-600 text-center py-8">
         <p>Error loading posts: {isError}</p>
-        {/* <button onClick={refetchPosts} className="mt-4 px-4 py-2 bg-blue-500 text-white rounded">
+        {/* <button onClick={refetchPosts} className="mt-4 px-4 py-2 bg-cyan-500 text-white rounded">
           Retry
         </button> */}
       </div>

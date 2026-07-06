@@ -61,7 +61,7 @@ const TrendingTopicsPage = () => {
     <div className="mt-4">
       {/* Header */}
       <div className="flex items-center mb-4">
-        <FiTrendingUp className="text-[#5E98FF] w-6 h-6" />
+        <FiTrendingUp className="text-[#00B4D8] w-6 h-6" />
         <h1 className="ml-2 text-xl font-bold text-[#1F2937]">Trending Now</h1>
       </div>
 
@@ -75,7 +75,7 @@ const TrendingTopicsPage = () => {
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center">
-                <span className="text-[#5E98FF] font-semibold text-sm">#{tag.tagName}</span>
+                <span className="text-[#00B4D8] font-semibold text-sm">#{tag.tagName}</span>
                 {index < 3 && (
                   <div className="ml-2 bg-[#FEE2E2] rounded px-2 py-0.5 flex items-center">
                     <FaFire className="text-[#DC2626] w-2.5 h-3" />

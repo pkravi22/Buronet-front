@@ -104,7 +104,7 @@
 //       <AppLayout>
 //         <div className="text-red-600 text-center py-8">
 //           <p>Error loading messaging service: {error}</p>
-//           <button onClick={refetchConversations} className="mt-4 px-4 py-2 bg-blue-500 text-white rounded">
+//           <button onClick={refetchConversations} className="mt-4 px-4 py-2 bg-cyan-500 text-white rounded">
 //             Retry
 //           </button>
 //         </div>
@@ -121,7 +121,7 @@
 //             <span className="font-semibold text-lg">Chats</span>
 //             <button
 //               onClick={() => setShowNewChatInput(prev => !prev)}
-//               className="text-gray-400 hover:text-blue-600 p-1 rounded-full hover:bg-gray-100 transition"
+//               className="text-gray-400 hover:text-[#0096c7] p-1 rounded-full hover:bg-gray-100 transition"
 //               title="Start new conversation"
 //             >
 //               <MessageSquarePlus size={20} />
@@ -135,13 +135,13 @@
 //                 placeholder="Enter participant IDs (comma-separated GUIDs)"
 //                 value={newChatParticipantIds}
 //                 onChange={(e) => setNewChatParticipantIds(e.target.value)}
-//                 className="w-full px-3 py-2 rounded-lg bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-200 text-sm"
+//                 className="w-full px-3 py-2 rounded-lg bg-gray-100 focus:outline-none focus:ring-2 focus:ring-cyan-200 text-sm"
 //                 disabled={isCreatingConversation}
 //               />
 //               {newChatError && <p className="text-red-500 text-xs mt-1">{newChatError}</p>}
 //               <button
 //                 onClick={handleCreateNewConversation}
-//                 className="mt-2 w-full bg-blue-600 hover:bg-blue-700 text-white py-1.5 rounded-lg text-sm font-medium transition"
+//                 className="mt-2 w-full bg-[#0096c7] hover:bg-cyan-700 text-white py-1.5 rounded-lg text-sm font-medium transition"
 //                 disabled={isCreatingConversation || !newChatParticipantIds.trim()}
 //               >
 //                 {isCreatingConversation ? 'Creating...' : 'Create Chat'}
@@ -153,7 +153,7 @@
 //               <input
 //                 type="text"
 //                 placeholder="Search chats"
-//                 className="w-full pl-10 pr-3 py-2 rounded-lg bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-200"
+//                 className="w-full pl-10 pr-3 py-2 rounded-lg bg-gray-100 focus:outline-none focus:ring-2 focus:ring-cyan-200"
 //               />
 //               <Search className="absolute left-3 top-2.5 text-gray-400" size={18} />
 //             </div>
@@ -167,7 +167,7 @@
 //                 return (
 //                   <div
 //                     key={chat.id}
-//                     className={`flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-blue-50 transition ${selectedConversation?.id === chat.id ? 'bg-blue-50' : ''}`}
+//                     className={`flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-cyan-50 transition ${selectedConversation?.id === chat.id ? 'bg-cyan-50' : ''}`}
 //                     onClick={() => selectConversation(chat.id)}
 //                   >
 //                     <img
@@ -186,7 +186,7 @@
 //                       <div className="flex justify-between items-center mt-1">
 //                         <span className="text-sm text-gray-500 truncate">{chat.lastMessage?.content || 'No messages yet.'}</span>
 //                         {chat.unreadCount && chat.unreadCount > 0 && (
-//                           <span className="ml-2 bg-blue-600 text-white text-xs rounded-full px-2 py-0.5 font-semibold">
+//                           <span className="ml-2 bg-[#0096c7] text-white text-xs rounded-full px-2 py-0.5 font-semibold">
 //                             {chat.unreadCount}
 //                           </span>
 //                         )}
@@ -235,7 +235,7 @@
 //                         <div
 //                           className={`rounded-2xl px-4 py-2 max-w-xs break-words text-sm shadow-sm ${
 //                             msg.senderId === currentUser?.id
-//                               ? 'bg-blue-600 text-white rounded-br-md'
+//                               ? 'bg-[#0096c7] text-white rounded-br-md'
 //                               : 'bg-white text-gray-800 rounded-bl-md border border-gray-200'
 //                           }`}
 //                         >
@@ -253,20 +253,20 @@
 //               </div>
 //               {/* Message Input */}
 //               <form onSubmit={handleSendMessage} className="flex items-center gap-2 px-6 py-4 border-t border-gray-100">
-//                 <button type="button" className="p-2 text-gray-400 hover:text-blue-600 rounded-full hover:bg-gray-100">
+//                 <button type="button" className="p-2 text-gray-400 hover:text-[#0096c7] rounded-full hover:bg-gray-100">
 //                   <Paperclip size={20} />
 //                 </button>
 //                 <input
 //                   type="text"
 //                   placeholder="Type a message"
-//                   className="flex-1 rounded-full bg-gray-100 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200"
+//                   className="flex-1 rounded-full bg-gray-100 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-200"
 //                   value={messageInput}
 //                   onChange={(e) => setMessageInput(e.target.value)}
 //                   disabled={isSendingMessage}
 //                 />
 //                 <button
 //                   type="submit"
-//                   className="p-2 text-white bg-blue-600 hover:bg-blue-700 rounded-full transition"
+//                   className="p-2 text-white bg-[#0096c7] hover:bg-cyan-700 rounded-full transition"
 //                   disabled={isSendingMessage || !messageInput.trim()}
 //                 >
 //                   <Send size={20} />

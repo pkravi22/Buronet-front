@@ -97,7 +97,7 @@ const RequestsPageContent = () => {
                   onClick={() => setActiveTab('received')}
                   className={`px-4 py-3 flex items-center justify-between transition-colors ${
                     activeTab === 'received' 
-                      ? 'text-blue-600 bg-blue-50/50 border-r-4 border-blue-600' 
+                      ? 'text-[#0096c7] bg-cyan-50/50 border-r-4 border-cyan-600' 
                       : 'text-gray-600 hover:bg-gray-50'
                   }`}
                 >
@@ -107,7 +107,7 @@ const RequestsPageContent = () => {
                   </div>
                   {pendingRequests.length > 0 && (
                     <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
-                      activeTab === 'received' ? 'bg-blue-100' : 'bg-gray-100 text-gray-600'
+                      activeTab === 'received' ? 'bg-cyan-100' : 'bg-gray-100 text-gray-600'
                     }`}>
                       {pendingRequests.length}
                     </span>
@@ -118,7 +118,7 @@ const RequestsPageContent = () => {
                   onClick={() => setActiveTab('sent')}
                   className={`px-4 py-3 flex items-center justify-between transition-colors ${
                     activeTab === 'sent' 
-                      ? 'text-blue-600 bg-blue-50/50 border-r-4 border-blue-600' 
+                      ? 'text-[#0096c7] bg-cyan-50/50 border-r-4 border-cyan-600' 
                       : 'text-gray-600 hover:bg-gray-50'
                   }`}
                 >
@@ -128,7 +128,7 @@ const RequestsPageContent = () => {
                   </div>
                   {pendingOutgoingRequests.length > 0 && (
                     <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
-                      activeTab === 'sent' ? 'bg-blue-100' : 'bg-gray-100 text-gray-600'
+                      activeTab === 'sent' ? 'bg-cyan-100' : 'bg-gray-100 text-gray-600'
                     }`}>
                       {pendingOutgoingRequests.length}
                     </span>
@@ -139,7 +139,7 @@ const RequestsPageContent = () => {
                   onClick={() => setActiveTab('connections')}
                   className={`px-4 py-3 flex items-center justify-between transition-colors ${
                     activeTab === 'connections' 
-                      ? 'text-blue-600 bg-blue-50/50 border-r-4 border-blue-600' 
+                      ? 'text-[#0096c7] bg-cyan-50/50 border-r-4 border-cyan-600' 
                       : 'text-gray-600 hover:bg-gray-50'
                   }`}
                 >
@@ -148,7 +148,7 @@ const RequestsPageContent = () => {
                     <span className={`text-sm ${activeTab === 'connections' ? 'font-bold' : 'font-medium'}`}>Total Connections</span>
                   </div>
                   <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
-                    activeTab === 'connections' ? 'bg-blue-100' : 'bg-gray-100 text-gray-600'
+                    activeTab === 'connections' ? 'bg-cyan-100' : 'bg-gray-100 text-gray-600'
                   }`}>
                     {networkMetrics?.totalConnections || 0}
                   </span>
@@ -180,8 +180,8 @@ const RequestsPageContent = () => {
                       >
                         <div className="flex items-center gap-5">
                           {/* Enlarged Desktop Avatar */}
-                          <div className="w-16 h-16 bg-gradient-to-br from-blue-50 to-blue-100 rounded-full flex items-center justify-center shrink-0 border border-blue-200 shadow-inner group-hover:scale-105 transition-transform">
-                            <User size={32} className="text-blue-500" />
+                          <div className="w-16 h-16 bg-gradient-to-br from-cyan-50 to-cyan-100 rounded-full flex items-center justify-center shrink-0 border border-cyan-200 shadow-inner group-hover:scale-105 transition-transform">
+                            <User size={32} className="text-[#00B4D8]" />
                           </div>
                           
                           <div className="flex flex-col">
@@ -198,7 +198,7 @@ const RequestsPageContent = () => {
                                   <Clock size={12} />
                                   <span className="text-[11px]">{formatTimeAgo(request.createdAt)}</span>
                               </div>
-                              <span className="text-[11px] text-blue-600 font-medium">
+                              <span className="text-[11px] text-[#0096c7] font-medium">
                                 3 mutual connections
                               </span>
                             </div>
@@ -215,7 +215,7 @@ const RequestsPageContent = () => {
                           </button>
                           <button 
                             onClick={() => acceptRequest(request.id)}
-                            className="flex-1 sm:flex-none px-8 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-full transition-all shadow-md active:scale-95"
+                            className="flex-1 sm:flex-none px-8 py-2 bg-[#0096c7] hover:bg-cyan-700 text-white font-bold rounded-full transition-all shadow-md active:scale-95"
                           >
                             Accept
                           </button>
@@ -233,7 +233,7 @@ const RequestsPageContent = () => {
                     <p className="text-gray-500 mt-2 max-w-[300px] mx-auto">
                       Try searching for colleagues or classmates to grow your network.
                     </p>
-                    <Link href="/followers" className="inline-block mt-8 px-8 py-3 bg-blue-600 text-white font-bold rounded-full hover:bg-blue-700 transition-shadow shadow-lg">
+                    <Link href="/followers" className="inline-block mt-8 px-8 py-3 bg-[#0096c7] text-white font-bold rounded-full hover:bg-cyan-700 transition-shadow shadow-lg">
                       Find People
                     </Link>
                   </div>
@@ -260,8 +260,8 @@ const RequestsPageContent = () => {
                       >
                         <div className="flex items-center gap-5">
                           {/* Avatar */}
-                          <div className="w-16 h-16 bg-gradient-to-br from-blue-50 to-blue-100 rounded-full flex items-center justify-center shrink-0 border border-blue-200 shadow-inner group-hover:scale-105 transition-transform">
-                            <User size={32} className="text-blue-500" />
+                          <div className="w-16 h-16 bg-gradient-to-br from-cyan-50 to-cyan-100 rounded-full flex items-center justify-center shrink-0 border border-cyan-200 shadow-inner group-hover:scale-105 transition-transform">
+                            <User size={32} className="text-[#00B4D8]" />
                           </div>
                           
                           <div className="flex flex-col">
@@ -318,11 +318,11 @@ const RequestsPageContent = () => {
                       >
                          <div className="flex items-center gap-5">
                           <Link href={`/profile/${connection.connectedUserId}`}>
-                            <div className="w-16 h-16 bg-gradient-to-br from-blue-50 to-blue-100 rounded-full flex items-center justify-center shrink-0 border border-blue-200 shadow-inner group-hover:scale-105 transition-transform overflow-hidden">
+                            <div className="w-16 h-16 bg-gradient-to-br from-cyan-50 to-cyan-100 rounded-full flex items-center justify-center shrink-0 border border-cyan-200 shadow-inner group-hover:scale-105 transition-transform overflow-hidden">
                                 {connection.connectedUserProfilePictureUrl ? (
                                     <img src={getProfileImageUrl(connection.connectedUserProfilePictureUrl)} alt="" className="w-full h-full object-cover" />
                                 ) : (
-                                    <User size={32} className="text-blue-500" />
+                                    <User size={32} className="text-[#00B4D8]" />
                                 )}
                             </div>
                           </Link>
@@ -348,7 +348,7 @@ const RequestsPageContent = () => {
                         <div className="flex items-center gap-4 mt-4 sm:mt-0 w-full sm:w-auto">
                             <Link 
                                 href={`/messaging?userId=${connection.connectedUserId}`}
-                                className="px-5 py-2 border border-blue-600 text-blue-600 font-semibold hover:bg-blue-50 rounded-full transition-all text-sm"
+                                className="px-5 py-2 border border-cyan-600 text-[#0096c7] font-semibold hover:bg-cyan-50 rounded-full transition-all text-sm"
                             >
                                 Message
                             </Link>
@@ -361,7 +361,7 @@ const RequestsPageContent = () => {
                             <button
                                 onClick={loadMoreConnections}
                                 disabled={loadingConnections}
-                                className="px-4 py-2 text-sm text-blue-600 hover:bg-blue-50 font-medium rounded-lg transition-colors disabled:opacity-50"
+                                className="px-4 py-2 text-sm text-[#0096c7] hover:bg-cyan-50 font-medium rounded-lg transition-colors disabled:opacity-50"
                             >
                                 {loadingConnections ? 'Loading...' : 'Load more connections'}
                             </button>
@@ -377,7 +377,7 @@ const RequestsPageContent = () => {
                     <p className="text-gray-500 mt-2 max-w-[300px] mx-auto">
                       Start building your network by connecting with people you know.
                     </p>
-                    <Link href="/followers" className="inline-block mt-8 px-8 py-3 bg-blue-600 text-white font-bold rounded-full hover:bg-blue-700 transition-shadow shadow-lg">
+                    <Link href="/followers" className="inline-block mt-8 px-8 py-3 bg-[#0096c7] text-white font-bold rounded-full hover:bg-cyan-700 transition-shadow shadow-lg">
                       Find People
                     </Link>
                   </div>

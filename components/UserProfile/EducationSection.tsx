@@ -70,7 +70,7 @@ const EducationSection: React.FC<EducationSectionProps> = ({ education, onEducat
                 <div className="absolute top-2 right-2 flex space-x-2">
                   <button
                     onClick={() => handleEditClick(edu)}
-                    className="text-blue-600 hover:underline text-sm"
+                    className="text-[#0096c7] hover:underline text-sm"
                     title="Edit Education"
                   >
                     Edit

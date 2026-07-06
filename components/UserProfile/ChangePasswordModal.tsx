@@ -212,7 +212,7 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ onClose, onSu
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium transition shadow-md hover:shadow-lg disabled:opacity-60 disabled:cursor-not-allowed"
+                className="px-4 py-2 rounded-lg bg-[#0096c7] hover:bg-cyan-700 text-white font-medium transition shadow-md hover:shadow-lg disabled:opacity-60 disabled:cursor-not-allowed"
                 disabled={!isFormValid || isSaving}
               >
                 {isSaving ? (

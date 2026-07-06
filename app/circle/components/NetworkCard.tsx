@@ -48,7 +48,7 @@ export const NetworkCard: React.FC<NetworkCardProps> = ({ user, onConnectClick, 
                 ? 'bg-[#F3F4F6] text-[#6B7280] cursor-not-allowed'
                 : isConnected
                 ? 'bg-[#F3F4F6] text-[#374151]'
-                : 'bg-[#2563EB] text-white'
+                : 'bg-[#0096c7] text-white'
             }`}
           >
             <Users size={16} />

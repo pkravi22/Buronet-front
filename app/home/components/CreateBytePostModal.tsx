@@ -202,7 +202,7 @@ const CreateByteModal: React.FC<CreateByteModalProps> = ({ isOpen, onClose, onBy
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label htmlFor="byte-file" className="block text-sm font-medium text-gray-700">Video File</label>
+              <label htmlFor="byte-file" className="block text-[12px] font-medium text-gray-700">Video File</label>
               <span className="text-xs text-red-500">*Required</span>
             </div>
             <input
@@ -210,7 +210,7 @@ const CreateByteModal: React.FC<CreateByteModalProps> = ({ isOpen, onClose, onBy
               type="file"
               accept="video/*"
               onChange={handleFileChange}
-              className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+              className="mt-1 block w-full text-[12px] text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-[12px] file:font-semibold file:bg-cyan-50 file:text-cyan-700 hover:file:bg-cyan-100"
               required
               disabled={isSubmitting}
             />
@@ -218,7 +218,7 @@ const CreateByteModal: React.FC<CreateByteModalProps> = ({ isOpen, onClose, onBy
               <p className="text-xs text-red-500 mt-1">Video file is required</p>
             )} */}
             {byteFile && (
-              <div className="mt-2 text-sm text-green-600 bg-green-50 p-2 rounded">
+              <div className="mt-2 text-[12px] text-green-600 bg-green-50 p-2 rounded">
                 <p>✓ Selected: {byteFile.name}</p>
                 <p>✓ Size: {(byteFile.size / 1024 / 1024).toFixed(2)} MB / 20 MB</p>
                 {videoDuration && <p>✓ Duration: {Math.round(videoDuration)}s / 30s</p>}
@@ -228,7 +228,7 @@ const CreateByteModal: React.FC<CreateByteModalProps> = ({ isOpen, onClose, onBy
           <div>
             <div className="flex items-center justify-between mb-2">
               <label htmlFor="byte-title" className="sr-only">Title</label>
-              <span className="text-sm font-medium text-gray-700">Title</span>
+              <span className="text-[12px] font-medium text-gray-700">Title</span>
               <span className="text-xs text-red-500">*Required</span>
             </div>
             <input
@@ -250,7 +250,7 @@ const CreateByteModal: React.FC<CreateByteModalProps> = ({ isOpen, onClose, onBy
           <div>
             <div className="flex items-center justify-between mb-2">
               <label htmlFor="byte-description" className="sr-only">Description</label>
-              <span className="text-sm font-medium text-gray-700">Description</span>
+              <span className="text-[12px] font-medium text-gray-700">Description</span>
               <span className="text-xs text-red-500">*Required</span>
             </div>
             <textarea
@@ -269,7 +269,7 @@ const CreateByteModal: React.FC<CreateByteModalProps> = ({ isOpen, onClose, onBy
             )} */}
           </div>
           {error && (
-            <p className="text-red-500 text-sm bg-red-50 p-2 rounded">{error}</p>
+            <p className="text-red-500 text-[12px] bg-red-50 p-2 rounded">{error}</p>
           )}
           <button
             type="submit"

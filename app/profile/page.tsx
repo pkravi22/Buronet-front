@@ -2,6 +2,7 @@
 'use client'; // This component uses React hooks and needs client-side interactivity
 
 import React, { useMemo, useState, useEffect } from 'react';
+import { Briefcase, User, Mail, Phone, MapPin, Calendar, Edit2, Key, Share2 } from 'lucide-react';
 import AppLayout from '../../components/AppLayout'; // Our main application layout
 import { useUserProfile } from '../../hooks/useUserProfile'; // Our custom hook to fetch user profile data
 import UserProfileHeader from '../../components/UserProfile/UserProfileHeader'; // Component for the left profile card
@@ -150,78 +151,90 @@ const ProfilePage: React.FC = () => {
           <div className="flex flex-col lg:flex-row gap-8 justify-center">
             {/* Left Column - Profile Card */}
             <div className="lg:w-[360px] lg:shrink-0">
-              <div className="bg-white rounded-xl shadow-sm p-6 lg:mt-2 lg:sticky lg:top-24">
+              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 lg:mt-2 lg:sticky lg:top-24">
                 <div className="flex flex-col items-center">
                   <img
                     src={getProfileImageUrl(userProfile.profilePictureUrl)} // Dynamic photo
                     alt={userProfile.firstName || userProfile.username || "Profile"} // Dynamic alt text
                     className="w-28 h-28 rounded-full object-cover object-top mb-4"
                   />
-                  <h1 className="text-2xl font-bold text-center">
-                    {userProfile.firstName} {userProfile.lastName}
+                  <h1 className="text-xl sm:text-[22px] font-extrabold text-gray-900 text-center">
+                    {/* Dynamic name */}
+                    {userProfile.firstName || userProfile.username || "N/A"} {userProfile.lastName || ""}
                   </h1>
-                  <p className="text-gray-600 text-sm text-center mb-4">{userProfile.headline || "N/A"}</p> {/* Dynamic designation */}
+                  <p className="text-[#505965] text-xs sm:text-sm mt-1">{userProfile.headline || ""}</p> {/* Dynamic designation */}
 
-                  {/* Current Organization - Not directly in DTO, placeholder */}
                   <div className="w-full mb-6">
-                    <h3 className="text-sm font-medium text-gray-700 mb-2">Current Organization</h3>
-                    <p className="text-sm text-gray-600 bg-gray-50 p-3.5 rounded-lg">N/A</p>
+                    <h3 className="text-[14px] sm:text-[15px] font-bold text-gray-900 mb-2 flex items-center gap-2">
+                      <Briefcase size={16} className="text-[#0096c7]" />
+                      Current Organization
+                    </h3>
+                    <p className="text-[12.5px] sm:text-[13px] font-medium text-gray-700 bg-gray-50 border border-gray-100 p-3 rounded-xl">{userProfile.currentOrganization || "N/A"}</p>
                   </div>
 
-                  {/* About Me - Dynamic */}
                   <div className="w-full mb-6">
-                    <h3 className="text-sm font-medium text-gray-700 mb-3">About Me</h3>
-                    <p className="text-sm text-gray-600 leading-relaxed">{userProfile.bio || "No description available."}</p>
+                    <h3 className="text-[14px] sm:text-[15px] font-bold text-gray-900 mb-2 flex items-center gap-2">
+                      <User size={16} className="text-[#0096c7]" />
+                      About Me
+                    </h3>
+                    <p className="text-[12.5px] sm:text-[13px] text-gray-600 leading-relaxed bg-gray-50 border border-gray-100 p-3 rounded-xl">{userProfile.bio || "No description available."}</p>
                   </div>
 
-                  {/* Basic Information - Updated based on request */}
                   <div className="w-full mb-6">
-                    <h3 className="text-sm font-medium text-gray-700 mb-3">Basic Information</h3>
-                    <div className="space-y-3">
-                      <div className="flex items-start">
-                        <div className="w-8 text-gray-400"><i className="fas fa-user-clock"></i></div>
+                    <h3 className="text-[14px] sm:text-[15px] font-bold text-gray-900 mb-3 flex items-center gap-2">
+                      <Calendar size={16} className="text-[#0096c7]" />
+                      Basic Information
+                    </h3>
+                    <div className="space-y-3 bg-gray-50 border border-gray-100 p-4 rounded-xl">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-white shadow-sm flex items-center justify-center shrink-0">
+                          <Calendar size={14} className="text-gray-500" />
+                        </div>
                         <div className="flex-1">
-                          <p className="text-sm text-gray-600">
-                            Age: {calculateAge(userProfile.dateOfBirth) ? `${calculateAge(userProfile.dateOfBirth)} years` : "N/A"}
+                          <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Age</p>
+                          <p className="text-[13px] font-medium text-gray-700 mt-0.5">
+                            {calculateAge(userProfile.dateOfBirth) ? `${calculateAge(userProfile.dateOfBirth)} years` : "N/A"}
                           </p>
                         </div>
                       </div>
-                      <div className="flex items-start">
-                        <div className="w-8 text-gray-400"><i className="fas fa-map-marker-alt"></i></div>
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-white shadow-sm flex items-center justify-center shrink-0">
+                          <MapPin size={14} className="text-gray-500" />
+                        </div>
                         <div className="flex-1">
-                          <p className="text-sm text-gray-600">
-                            Location: {[
-                              userProfile.city,
-                              userProfile.stateProvince,
-                              userProfile.country
-                            ].filter(Boolean).join(', ') || "N/A"}
+                          <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Location</p>
+                          <p className="text-[13px] font-medium text-gray-700 mt-0.5">
+                            {[userProfile.city, userProfile.stateProvince, userProfile.country].filter(Boolean).join(', ') || "N/A"}
                           </p>
                         </div>
                       </div>
                     </div>
                   </div>
 
-                  {/* Contact Details - Dynamic */}
                   <div className="w-full mb-7">
-                    <h3 className="text-sm font-medium text-gray-700 mb-3">Contact Details</h3>
-                    <div className="space-y-3">
-                      <div className="flex items-start">
-                        <div className="w-8 text-gray-400"><i className="fas fa-envelope"></i></div>
-                        <div className="flex-1"><p className="text-sm text-gray-600">{userProfile.email || "N/A"}</p></div>
+                    <h3 className="text-[14px] sm:text-[15px] font-bold text-gray-900 mb-3 flex items-center gap-2">
+                      <Mail size={16} className="text-[#0096c7]" />
+                      Contact Details
+                    </h3>
+                    <div className="space-y-3 bg-gray-50 border border-gray-100 p-4 rounded-xl">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-white shadow-sm flex items-center justify-center shrink-0">
+                          <Mail size={14} className="text-gray-500" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Email</p>
+                          <p className="text-[13px] font-medium text-gray-700 mt-0.5 truncate">{userProfile.email || "N/A"}</p>
+                        </div>
                       </div>
-                      <div className="flex items-start">
-                        <div className="w-8 text-gray-400"><i className="fas fa-phone-alt"></i></div>
-                        <div className="flex-1"><p className="text-sm text-gray-600">{userProfile.phoneNumber || "N/A"}</p></div>
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-white shadow-sm flex items-center justify-center shrink-0">
+                          <Phone size={14} className="text-gray-500" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Phone</p>
+                          <p className="text-[13px] font-medium text-gray-700 mt-0.5 truncate">{userProfile.phoneNumber || "N/A"}</p>
+                        </div>
                       </div>
-                      {/* LinkedIn and Twitter not in DTO, placeholder 
-                      <div className="flex items-start">
-                        <div className="w-8 text-gray-400"><i className="fab fa-linkedin"></i></div>
-                        <div className="flex-1"><p className="text-sm text-gray-600">LinkedIn: N/A</p></div>
-                      </div>
-                      <div className="flex items-start">
-                        <div className="w-8 text-gray-400"><i className="fab fa-twitter"></i></div>
-                        <div className="flex-1"><p className="text-sm text-gray-600">Twitter: N/A</p></div>
-                      </div>*/}
                     </div>
                   </div>
 
@@ -231,15 +244,15 @@ const ProfilePage: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => setIsEditModalOpen(true)}
-                        className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                        className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#0096c7] px-4 py-3 text-[13px] font-bold text-white shadow-sm transition hover:bg-cyan-600 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2"
                       >
-                        <i className="fas fa-edit"></i>
+                        <Edit2 size={16} />
                         <span className="whitespace-nowrap">Edit Profile</span>
                       </button>
 
                       <button
                         type="button"
-                        className="inline-flex items-center justify-center gap-2 rounded-lg bg-gray-100 px-4 py-2.5 text-sm font-semibold text-gray-800 shadow-sm transition hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2"
+                        className="inline-flex items-center justify-center gap-2 rounded-xl bg-gray-50 border border-gray-200 px-4 py-3 text-[13px] font-bold text-gray-700 shadow-sm transition hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2"
                         onClick={() => {
                           if (!shareUrl) {
                             toast.error('Profile link is not available yet');
@@ -248,7 +261,7 @@ const ProfilePage: React.FC = () => {
                           setIsShareModalOpen(true);
                         }}
                       >
-                        <i className="fas fa-share-alt"></i>
+                        <Share2 size={16} />
                         <span className="whitespace-nowrap">Share</span>
                       </button>
                     </div>
@@ -256,9 +269,9 @@ const ProfilePage: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setIsChangePasswordOpen(true)}
-                      className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-900 shadow-sm transition hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                      className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-3 text-[13px] font-bold text-gray-700 shadow-sm transition hover:bg-gray-50 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2"
                     >
-                      <i className="fas fa-key"></i>
+                      <Key size={16} />
                       <span className="whitespace-nowrap">Change Password</span>
                     </button>
                   </div>
@@ -269,8 +282,8 @@ const ProfilePage: React.FC = () => {
             {/* Right Column - Information Cards */}
             <div className="flex-1 min-w-0">
               <div className="mb-8">
-                <h2 className="text-2xl font-bold text-gray-900">My Profile</h2>
-                <p className="text-gray-600 mt-1">Manage your profile information and track your progress</p>
+                <h2 className="text-2xl sm:text-[26px] font-extrabold text-[#0096c7] tracking-tight">My Profile</h2>
+                <p className="text-[14px] sm:text-base text-gray-500 mt-1 font-medium">Manage your profile information and track your progress</p>
               </div>
 
               {/* Target Exams Card (using ExperienceSection component for dynamic data) */}

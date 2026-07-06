@@ -236,7 +236,7 @@ const MessagingPage: React.FC = () => {
               initialErrorRef.current = false;
               refetchConversations();
             }}
-            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
+            className="mt-4 px-4 py-2 bg-cyan-500 text-white rounded"
           >
             Retry
           </button>
@@ -273,7 +273,7 @@ const MessagingPage: React.FC = () => {
                 setNewChatError(null);
                 setNewChatQuery('');
               }}
-              className="text-gray-400 hover:text-blue-600 p-1 rounded-full hover:bg-gray-100 transition"
+              className="text-gray-400 hover:text-[#0096c7] p-1 rounded-full hover:bg-gray-100 transition"
               title="Start new conversation"
             >
               <MessageSquarePlus size={20} />
@@ -287,7 +287,7 @@ const MessagingPage: React.FC = () => {
                 placeholder="Search your connections by name"
                 value={newChatQuery}
                 onChange={(e) => setNewChatQuery(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-200 text-sm"
+                className="w-full px-3 py-2 rounded-lg bg-gray-100 focus:outline-none focus:ring-2 focus:ring-cyan-200 text-sm"
                 disabled={isCreatingConversation}
               />
               {newChatError && (
@@ -306,7 +306,7 @@ const MessagingPage: React.FC = () => {
                       type="button"
                       onClick={() => handleStartChatWithUser(u.id)}
                       disabled={isCreatingConversation}
-                      className="w-full flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-blue-50 transition text-left disabled:opacity-60"
+                      className="w-full flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-cyan-50 transition text-left disabled:opacity-60"
                     >
                       <img
                         src={getProfileImageUrl(u.profilePictureUrl)}
@@ -331,7 +331,7 @@ const MessagingPage: React.FC = () => {
                 placeholder="Search chats"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-3 py-2 rounded-lg bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                className="w-full pl-10 pr-3 py-2 rounded-lg bg-gray-100 focus:outline-none focus:ring-2 focus:ring-cyan-200"
               />
               <Search
                 className="absolute left-3 top-2.5 text-gray-400"
@@ -354,8 +354,8 @@ const MessagingPage: React.FC = () => {
                 return (
                   <div
                     key={chat.id}
-                    className={`flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-blue-50 transition ${
-                      selectedConversation?.id === chat.id ? 'bg-blue-50' : ''
+                    className={`flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-cyan-50 transition ${
+                      selectedConversation?.id === chat.id ? 'bg-cyan-50' : ''
                     }`}
                     onClick={() => handleSelectConversation(chat.id)}
                   >
@@ -382,7 +382,7 @@ const MessagingPage: React.FC = () => {
                           {chat.lastMessage?.content || 'No messages yet.'}
                         </span>
                         {(chat.unreadCount || 0) > 0 && (
-                          <span className="ml-2 bg-blue-600 text-white text-xs rounded-full px-2 py-0.5 font-semibold">
+                          <span className="ml-2 bg-[#0096c7] text-white text-xs rounded-full px-2 py-0.5 font-semibold">
                             {chat.unreadCount}
                           </span>
                         )}
@@ -413,7 +413,7 @@ const MessagingPage: React.FC = () => {
                 {/* NEW: Back button, only visible on mobile (md:hidden) */}
                 <button
                   onClick={() => setShowChatView(false)}
-                  className="p-1 text-gray-500 hover:text-blue-600 hover:bg-gray-100 rounded-full md:hidden sticky top-0"
+                  className="p-1 text-gray-500 hover:text-[#0096c7] hover:bg-gray-100 rounded-full md:hidden sticky top-0"
                   title="Back to chats"
                 >
                   <ChevronLeft size={22} />
@@ -473,7 +473,7 @@ const MessagingPage: React.FC = () => {
                         <div
                           className={`rounded-2xl px-4 py-2 max-w-xs break-words text-sm shadow-sm ${
                             isOwnMessage
-                              ? 'bg-blue-600 text-white rounded-br-md'
+                              ? 'bg-[#0096c7] text-white rounded-br-md'
                               : 'bg-white text-gray-800 rounded-bl-md border border-gray-200'
                           }`}
                         >
@@ -503,21 +503,21 @@ const MessagingPage: React.FC = () => {
                 {/* Button for attachments. Not yet workable */}
                 {/* <button
                   type="button"
-                  className="p-2 text-gray-400 hover:text-blue-600 rounded-full hover:bg-gray-100"
+                  className="p-2 text-gray-400 hover:text-[#0096c7] rounded-full hover:bg-gray-100"
                 >
                   <Paperclip size={20} />
                 </button> */}
                 <input
                   type="text"
                   placeholder="Type a message"
-                  className="flex-1 rounded-full bg-gray-100 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                  className="flex-1 rounded-full bg-gray-100 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-200"
                   value={messageInput}
                   onChange={(e) => setMessageInput(e.target.value)}
                   disabled={isSendingMessage}
                 />
                 <button
                   type="submit"
-                  className="p-2 text-white bg-blue-600 hover:bg-blue-700 rounded-full transition"
+                  className="p-2 text-white bg-[#0096c7] hover:bg-cyan-700 rounded-full transition"
                   disabled={isSendingMessage || !messageInput.trim()}
                 >
                   <Send size={20} />

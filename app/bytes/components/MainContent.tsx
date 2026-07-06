@@ -124,8 +124,8 @@ const CommentSheet = ({ byteId, authorName, onClose, currentUserId: string }: { 
                     )}
                 </div>
                 <form onSubmit={handlePostComment} className="flex gap-2 border-t pt-4">
-                    <input type="text" value={newComment} onChange={e => setNewComment(e.target.value)} placeholder="Add a comment..." className="flex-1 bg-gray-100 rounded-full px-4 py-2 border-none focus:ring-2 focus:ring-blue-500" />
-                    <button type="submit" className="bg-blue-500 text-white rounded-full p-2"><Send /></button>
+                    <input type="text" value={newComment} onChange={e => setNewComment(e.target.value)} placeholder="Add a comment..." className="flex-1 bg-gray-100 rounded-full px-4 py-2 border-none focus:ring-2 focus:ring-cyan-500" />
+                    <button type="submit" className="bg-cyan-500 text-white rounded-full p-2"><Send /></button>
                 </form>
             </div>
         </div>

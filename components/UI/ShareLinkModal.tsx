@@ -70,7 +70,7 @@ export default function ShareLinkModal({ open, url, title = 'Share', onClose }: 
                 console.error('Copy failed:', err);
               }
             }}
-            className="text-sm font-medium text-blue-600 hover:text-blue-700 disabled:text-gray-400 disabled:cursor-not-allowed"
+            className="text-sm font-medium text-[#0096c7] hover:text-cyan-700 disabled:text-gray-400 disabled:cursor-not-allowed"
           >
             Copy
           </button>

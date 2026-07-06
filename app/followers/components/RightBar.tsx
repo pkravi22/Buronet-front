@@ -70,7 +70,7 @@ const RightBar = ({ scrollSourceRef }: { scrollSourceRef: React.RefObject<HTMLEl
             <div className="space-y-4">
               <div className="bg-[#F9FAFB] rounded-xl p-4 flex items-center justify-between">
                 <div className="flex items-center">
-                  <div className="w-10 h-10 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center mr-3">
+                  <div className="w-10 h-10 bg-cyan-100 text-[#0096c7] rounded-lg flex items-center justify-center mr-3">
                     <Users size={20} />
                   </div>
                   <div>
@@ -99,7 +99,7 @@ const RightBar = ({ scrollSourceRef }: { scrollSourceRef: React.RefObject<HTMLEl
             <p className="text-sm text-gray-500 mb-4">Find more interesting people and content in your circle.</p>
             <button
               onClick={() => router.push('/followers')}
-              className="w-full text-[#2563EB] font-medium py-2 bg-[#F3F4F6] hover:bg-gray-200 rounded transition-colors"
+              className="w-full text-[#0096c7] font-medium py-2 bg-[#F3F4F6] hover:bg-gray-200 rounded transition-colors"
             >
               Go to Followers
             </button>
@@ -109,7 +109,7 @@ const RightBar = ({ scrollSourceRef }: { scrollSourceRef: React.RefObject<HTMLEl
         {/* Follow Suggestions */}
         <div className="bg-white rounded-lg shadow-sm border border-[#E5E7EB] p-5 mt-4">
           <div className="flex items-center gap-2 mb-4">
-            <UserPlus size={18} className="text-[#2563EB]" />
+            <UserPlus size={18} className="text-[#0096c7]" />
             <h2 className="text-[#1F2937] font-semibold text-sm">People You May Want to Follow</h2>
           </div>
 

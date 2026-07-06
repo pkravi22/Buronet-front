@@ -34,7 +34,7 @@ const MobileCircleCardMenu: React.FC<MobileCircleCardMenuProps> = ({ cards }) =>
               {/* Clone the icon and enforce white text color */}
               {React.cloneElement(card.icon, { size: 24, className: 'text-white' })}
             </div>
-            <p className="text-xs font-medium text-[#4B5563] group-hover:text-[#2563EB] transition-colors duration-200 leading-tight">
+            <p className="text-xs font-medium text-[#4B5563] group-hover:text-[#0096c7] transition-colors duration-200 leading-tight">
               {card.title.split(' ').slice(0, 2).join(' ')} 
             </p>
           </a>

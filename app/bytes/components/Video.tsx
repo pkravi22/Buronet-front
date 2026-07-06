@@ -521,7 +521,7 @@ const Video = ({
                 />
                 <button
                   onClick={copyToClipboard}
-                  className="text-sm font-medium text-blue-600 hover:text-blue-700 px-3 py-1"
+                  className="text-sm font-medium text-[#0096c7] hover:text-cyan-700 px-3 py-1"
                 >
                   Copy
                 </button>
@@ -570,7 +570,7 @@ const Video = ({
               <textarea
                 value={reportMessage}
                 onChange={(e) => setReportMessage(e.target.value)}
-                className="w-full text-black bg-transparent min-h-[120px] border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full text-black bg-transparent min-h-[120px] border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
                 placeholder="Add details (what's wrong with this byte?)"
                 disabled={isReporting}
               />
@@ -588,7 +588,7 @@ const Video = ({
               <button
                 type="button"
                 onClick={handleSubmitReport}
-                className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-60"
+                className="px-4 py-2 rounded-lg bg-[#0096c7] hover:bg-cyan-700 text-white disabled:opacity-60"
                 disabled={isReporting}
               >
                 {isReporting ? 'Sending…' : 'Send Report'}

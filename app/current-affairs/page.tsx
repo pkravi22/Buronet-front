@@ -49,7 +49,7 @@ const CurrentAffairsPage: React.FC = () => {
         <div className="text-red-600 text-center py-8 px-4">
           <p>Error loading latest news: {error}</p>
           <p className="mt-4 text-gray-700 text-sm">Please check your network and API key configuration.</p>
-          <button onClick={refetch} className="mt-4 px-4 py-2 bg-blue-500 text-white rounded">Retry</button>
+          <button onClick={refetch} className="mt-4 px-4 py-2 bg-cyan-500 text-white rounded">Retry</button>
         </div>
       </PageShell>
     );
@@ -100,7 +100,7 @@ const CurrentAffairsPage: React.FC = () => {
                 href={item.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-auto inline-flex items-center text-blue-600 hover:underline font-medium transition"
+                className="mt-auto inline-flex items-center text-[#0096c7] hover:underline font-medium transition"
               >
                 Read more
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">

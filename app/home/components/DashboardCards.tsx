@@ -14,7 +14,7 @@
 
 // const updateData: UpdateCardProps[] = [
 //   { icon: <FaFire size={16} />, title: "Trending Topics", updates: 111, iconColor: "text-[#EF4444]", refLink: "" },
-//   { icon: <FaNewspaper size={16} />, title: "Current Affairs", updates: 49, iconColor: "text-[#3B82F6]", refLink: "/current-affairs" },
+//   { icon: <FaNewspaper size={16} />, title: "Current Affairs", updates: 49, iconColor: "text-[#06b6d4]", refLink: "/current-affairs" },
 //   { icon: <FaLaptopCode size={16} />, title: "Exam Updates", updates: 74, iconColor: "text-[#22C55E]", refLink: "" },
 //   { icon: <FaGraduationCap size={16} />, title: "Popular Profiles", updates: 62, iconColor: "text-[#A855F7]", refLink: "" },
 // ];
@@ -28,7 +28,7 @@
 
 // const UpdateCard: React.FC<UpdateCardProps> = ({ icon, title, updates, iconColor, refLink }) => {
 //   return (
-//     <div className="w-full h-24 bg-gradient-to-br from-[#DDECFF] to-[#E3EAFF] rounded-xl" onClick={() => handleOpenClick(refLink || "")}>
+//     <div className="w-full h-24 bg-gradient-to-br from-[#DDECFF] to-[#E5F6FD] rounded-xl" onClick={() => handleOpenClick(refLink || "")}>
 //       <div className="h-full px-4 py-4 flex flex-col justify-between">
 //         <div className="flex items-center">
 //           <div className="w-8 h-8 bg-white rounded-lg shadow-sm flex items-center justify-center">
@@ -37,10 +37,10 @@
 //             </span>
 //           </div>
 //           <div className="ml-3">
-//             <h3 className="text-[#1F2937] font-medium text-sm">{title}</h3>
+//             <h3 className="text-[#1F2937] font-medium text-[12px]">{title}</h3>
 //           </div>
 //         </div>
-//         <p className="text-sm text-[#6B7280]">{updates} new updates</p>
+//         <p className="text-[12px] text-[#6B7280]">{updates} new updates</p>
 //       </div>
 //     </div>
 //   );
@@ -105,27 +105,24 @@ interface UpdateCardProps {
 // Data for the cards
 const updateData: UpdateCardProps[] = [
   { icon: <FaFire size={16} />, title: "Trending Topics", updates: 0, iconColor: "text-[#EF4444]", refLink: "/trending" },
-  { icon: <FaNewspaper size={16} />, title: "Current Affairs", updates: 0, iconColor: "text-[#3B82F6]", refLink: "/current-affairs" },
+  { icon: <FaNewspaper size={16} />, title: "Current Affairs", updates: 0, iconColor: "text-[#06b6d4]", refLink: "/current-affairs" },
   { icon: <FaLaptopCode size={16} />, title: "Exam Updates", updates: 0, iconColor: "text-[#22C55E]", refLink: "/exam-updates" },
   { icon: <FaGraduationCap size={16} />, title: "Popular Profiles", updates: 0, iconColor: "text-[#A855F7]", refLink: "/followers" },
 ];
 
-// Reusable component for desktop/tablet view
 const UpdateCard: React.FC<UpdateCardProps> = ({ icon, title, updates, iconColor }) => {
   return (
-    <div className="w-full h-24 bg-gradient-to-br from-[#DDECFF] to-[#E3EAFF] rounded-xl">
-      <div className="h-full px-4 py-4 flex flex-col justify-between">
-        <div className="flex items-center">
-          <div className="w-8 h-8 bg-white rounded-lg shadow-sm flex items-center justify-center">
-            <span className={`${iconColor}`}>
-              {icon}
-            </span>
-          </div>
-          <div className="ml-3">
-            <h3 className="text-[#1F2937] font-medium text-sm">{title}</h3>
-          </div>
+    <div className="w-full bg-white border border-gray-100 shadow-sm rounded-2xl px-2.5 py-4 flex flex-col justify-center h-[88px]">
+      <div className="flex items-center gap-2">
+        <div className="w-8 h-8 bg-gray-50 rounded-xl flex shrink-0 items-center justify-center">
+          <span className={`${iconColor}`}>
+            {React.cloneElement(icon as React.ReactElement, { size: 14 })}
+          </span>
         </div>
-        <p className="text-sm text-[#6B7280]">{updates != 0 ? `${updates} new updates` : `All ${title}`}</p>
+        <div className="flex flex-col min-w-0 justify-center">
+          <h3 className="text-gray-900 font-bold text-[13px] leading-tight truncate">{title}</h3>
+          <p className="text-[11px] text-gray-500 truncate mt-0.5">{updates != 0 ? `${updates} new updates` : `All ${title}`}</p>
+        </div>
       </div>
     </div>
   );

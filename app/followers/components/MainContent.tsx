@@ -55,7 +55,7 @@ const FollowCard: React.FC<FollowCardProps> = ({ user, onFollowToggle, isLoading
             isLoadingAction ? 'bg-gray-200 text-gray-500 cursor-not-allowed' :
             user.isFollowedByCurrentUser
               ? 'bg-[#F3F4F6] text-[#374151] hover:bg-[#E5E7EB]'
-              : 'bg-[#2563EB] text-white hover:bg-[#1D4ED8]'
+              : 'bg-[#0096c7] text-white hover:bg-[#0e7490]'
           }`}
         >
           {user.isFollowedByCurrentUser ? (
@@ -132,21 +132,21 @@ const MainContent = () => {
           <div className="bg-white rounded-lg shadow-sm border border-[#E5E7EB] mb-6 mt-2 overflow-hidden">
             <div className="flex w-full border-b border-[#E5E7EB]">
               <button
-                className={`flex-1 py-4 text-center font-medium text-sm transition-colors relative ${activeTab === 'followers' ? 'text-[#2563EB]' : 'text-[#6B7280] hover:text-[#374151]'}`}
+                className={`flex-1 py-4 text-center font-semibold text-[15px] transition-colors relative ${activeTab === 'followers' ? 'text-[#0096c7]' : 'text-[#6B7280] hover:text-[#374151]'}`}
                 onClick={() => setActiveTab('followers')}
               >
                 Followers ({followers.length})
                 {activeTab === 'followers' && (
-                  <div className="absolute bottom-0 left-0 w-full h-0.5 bg-[#2563EB]"></div>
+                  <div className="absolute bottom-0 left-0 w-full h-0.5 bg-[#0096c7]"></div>
                 )}
               </button>
               <button
-                className={`flex-1 py-4 text-center font-medium text-sm transition-colors relative ${activeTab === 'following' ? 'text-[#2563EB]' : 'text-[#6B7280] hover:text-[#374151]'}`}
+                className={`flex-1 py-4 text-center font-semibold text-[15px] transition-colors relative ${activeTab === 'following' ? 'text-[#0096c7]' : 'text-[#6B7280] hover:text-[#374151]'}`}
                 onClick={() => setActiveTab('following')}
               >
                 Following ({following.length})
                 {activeTab === 'following' && (
-                  <div className="absolute bottom-0 left-0 w-full h-0.5 bg-[#2563EB]"></div>
+                  <div className="absolute bottom-0 left-0 w-full h-0.5 bg-[#0096c7]"></div>
                 )}
               </button>
             </div>
@@ -170,8 +170,8 @@ const MainContent = () => {
               </div>
             ) : (
               <div className="text-center mt-12 bg-white rounded-xl p-8 shadow-sm">
-                <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Users className="text-[#2563EB]" size={32} />
+                <div className="w-16 h-16 bg-cyan-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Users className="text-[#0096c7]" size={32} />
                 </div>
                 <h3 className="text-lg font-medium text-gray-900 mb-1">
                   {activeTab === 'followers' ? 'No followers yet' : 'Not following anyone'}

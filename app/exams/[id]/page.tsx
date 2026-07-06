@@ -95,7 +95,7 @@ const ExamDetailsPage = ({ params }: ExamDetailsPageProps) => {
     return (
         <div className="bg-white rounded-xl shadow-sm p-6">
             <h3 className="font-semibold text-lg text-gray-900 flex items-center mb-5">
-                <Gavel size={20} className="text-blue-600 mr-2" /> {title}
+                <Gavel size={20} className="text-[#0096c7] mr-2" /> {title}
             </h3>
             <div className="space-y-4">
                 {stage.summary && (
@@ -231,7 +231,7 @@ const ExamDetailsPage = ({ params }: ExamDetailsPageProps) => {
                       </div>
                       <div className="flex w-full flex-col space-y-3">
                         {/* Bookmark logic removed, but can be added if needed */}
-                        <a href={exam.importantLinks?.officialWebsite?.startsWith('http') ? exam.importantLinks.officialWebsite : `https://${exam.importantLinks?.officialWebsite}`} target="_blank" rel="noopener noreferrer" className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-lg font-medium transition shadow-md hover:shadow-lg flex items-center justify-center gap-2">
+                        <a href={exam.importantLinks?.officialWebsite?.startsWith('http') ? exam.importantLinks.officialWebsite : `https://${exam.importantLinks?.officialWebsite}`} target="_blank" rel="noopener noreferrer" className="w-full bg-[#0096c7] hover:bg-cyan-700 text-white py-2.5 rounded-lg font-medium transition shadow-md hover:shadow-lg flex items-center justify-center gap-2">
                           <Edit size={18} /> Apply / Official Site
                         </a>
                         {exam.importantLinks?.notificationPdf && (
@@ -258,7 +258,7 @@ const ExamDetailsPage = ({ params }: ExamDetailsPageProps) => {
                     
                     {/* Exam Summary / Posts Card */}
                     <div className="bg-white rounded-xl shadow-sm p-6">
-                      <h3 className="font-semibold text-lg text-gray-900 flex items-center mb-4"><FileText size={20} className="text-blue-600 mr-2" /> Exam Overview</h3>
+                      <h3 className="font-semibold text-lg text-gray-900 flex items-center mb-4"><FileText size={20} className="text-[#0096c7] mr-2" /> Exam Overview</h3>
                       {exam.examSummary && (
                         <p className="text-gray-700 whitespace-pre-line mb-4">{exam.examSummary}</p>
                       )}
@@ -275,7 +275,7 @@ const ExamDetailsPage = ({ params }: ExamDetailsPageProps) => {
                     {/* Eligibility Criteria Card */}
                     {exam.eligibilityCriteria && (
                         <div className="bg-white rounded-xl shadow-sm p-6">
-                            <h3 className="font-semibold text-lg text-gray-900 flex items-center mb-5"><UserCheck size={20} className="text-blue-600 mr-2" /> Eligibility & Qualifications</h3>
+                            <h3 className="font-semibold text-lg text-gray-900 flex items-center mb-5"><UserCheck size={20} className="text-[#0096c7] mr-2" /> Eligibility & Qualifications</h3>
                             <div className="space-y-4">
                                 <div className="bg-gray-50 rounded-lg p-4">
                                     <p className="text-sm text-gray-500 mb-1">Educational Qualification</p>
@@ -307,7 +307,7 @@ const ExamDetailsPage = ({ params }: ExamDetailsPageProps) => {
                     {/* Syllabus Summary Card */}
                     {exam.syllabusSummary && (
                         <div className="bg-white rounded-xl shadow-sm p-6">
-                            <h3 className="font-semibold text-lg text-gray-900 flex items-center mb-5"><ListChecks size={20} className="text-blue-600 mr-2" /> Syllabus Summary</h3>
+                            <h3 className="font-semibold text-lg text-gray-900 flex items-center mb-5"><ListChecks size={20} className="text-[#0096c7] mr-2" /> Syllabus Summary</h3>
                             <p className="text-gray-700 whitespace-pre-line">{exam.syllabusSummary}</p>
                         </div>
                     )}
@@ -323,7 +323,7 @@ const ExamDetailsPage = ({ params }: ExamDetailsPageProps) => {
                     {/* How to Apply Card */}
                     {exam.applicationDetails && (
                         <div className="bg-white rounded-xl shadow-sm p-6">
-                            <h3 className="font-semibold text-lg text-gray-900 flex items-center mb-5"><Edit size={20} className="text-blue-600 mr-2" /> How to Apply</h3>
+                            <h3 className="font-semibold text-lg text-gray-900 flex items-center mb-5"><Edit size={20} className="text-[#0096c7] mr-2" /> How to Apply</h3>
                             <div className="space-y-4">
                                 <div className="bg-gray-50 rounded-lg p-4">
                                     <p className="text-sm text-gray-500 mb-1">Application Process</p>
@@ -346,17 +346,17 @@ const ExamDetailsPage = ({ params }: ExamDetailsPageProps) => {
 
                     {/* Important Links Card */}
                     <div className="bg-white rounded-xl shadow-sm p-6">
-                        <h3 className="font-semibold text-lg text-gray-900 flex items-center mb-5"><LucideLink size={20} className="text-blue-600 mr-2" />Important Links</h3>
+                        <h3 className="font-semibold text-lg text-gray-900 flex items-center mb-5"><LucideLink size={20} className="text-[#0096c7] mr-2" />Important Links</h3>
                         <div className="space-y-3"> 
                             {exam.importantLinks?.notificationPdf && (
-                                <a href={exam.importantLinks.notificationPdf} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between bg-gray-50 rounded-lg p-4 hover:bg-blue-50 transition cursor-pointer">
+                                <a href={exam.importantLinks.notificationPdf} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between bg-gray-50 rounded-lg p-4 hover:bg-cyan-50 transition cursor-pointer">
                                     <div className="flex items-center"><FileArchive size={18} className="text-red-500 mr-3" /><span className="text-gray-800">Official Notification PDF</span></div>
                                     <LucideLink size={16} className="text-gray-400" />
                                 </a>
                             )}
                             {exam.importantLinks?.officialWebsite && (
-                                <a href={exam.importantLinks.officialWebsite.startsWith('http') ? exam.importantLinks.officialWebsite : `https://${exam.importantLinks.officialWebsite}`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between bg-gray-50 rounded-lg p-4 hover:bg-blue-50 transition cursor-pointer">
-                                    <div className="flex items-center"><Globe size={18} className="text-blue-500 mr-3" /><span className="text-gray-800">Official Website</span></div>
+                                <a href={exam.importantLinks.officialWebsite.startsWith('http') ? exam.importantLinks.officialWebsite : `https://${exam.importantLinks.officialWebsite}`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between bg-gray-50 rounded-lg p-4 hover:bg-cyan-50 transition cursor-pointer">
+                                    <div className="flex items-center"><Globe size={18} className="text-[#00B4D8] mr-3" /><span className="text-gray-800">Official Website</span></div>
                                     <LucideLink size={16} className="text-gray-400" />
                                 </a>
                             )}

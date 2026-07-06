@@ -90,7 +90,7 @@ export default function TagPostsPage() {
                       <button
                         onClick={loadMore}
                         disabled={isLoadingMore}
-                        className="px-6 py-2.5 bg-white text-[#2563EB] font-medium rounded-lg border border-[#2563EB] hover:bg-[#EEF2FF] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="px-6 py-2.5 bg-white text-[#0096c7] font-medium rounded-lg border border-[#0096c7] hover:bg-[#EEF2FF] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         {isLoadingMore ? (
                           <span className="flex items-center gap-2">

@@ -36,7 +36,7 @@ const Trending = () => {
           <div key={topic.id} className="flex items-center justify-between">
             <a
               href="#"
-              className="text-blue-600 hover:text-blue-800 font-medium"
+              className="text-[#0096c7] hover:text-cyan-800 font-medium"
             >
               {topic.topic}
             </a>

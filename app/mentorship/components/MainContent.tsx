@@ -4,7 +4,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 // Import Lucide icons as needed
 
 const mentorCategories = [
-  { id: 1, name: "Research & Development", count: 245, gradient: "from-blue-500 to-indigo-600" },
+  { id: 1, name: "Research & Development", count: 245, gradient: "from-cyan-500 to-indigo-600" },
   { id: 2, name: "Technology", count: 189, gradient: "from-indigo-500 to-purple-600" },
   { id: 3, name: "Design", count: 176, gradient: "from-purple-500 to-pink-600" },
   { id: 4, name: "Marketing", count: 154, gradient: "from-pink-500 to-red-600" },
@@ -60,11 +60,11 @@ const MainContent = () => {
     <div className="max-w-2xl mx-auto px-4 py-6">
       {/* Hero Section */}
       <div className="relative overflow-hidden rounded-2xl mb-8">
-        <div className="relative bg-gradient-to-r from-blue-50 to-transparent p-8 md:p-10">
+        <div className="relative bg-gradient-to-r from-cyan-50 to-transparent p-8 md:p-10">
           <div className="max-w-md relative z-20">
             <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Find Your Perfect Mentor</h1>
             <p className="text-gray-600 mb-6">Connect with industry experts who can guide your career journey, help you develop new skills, and unlock your full potential.</p>
-            <button className="bg-blue-600 text-white hover:bg-blue-700 px-6 py-3 rounded-lg font-medium transition shadow-lg hover:shadow-xl whitespace-nowrap cursor-pointer">
+            <button className="bg-[#0096c7] text-white hover:bg-cyan-700 px-6 py-3 rounded-lg font-medium transition shadow-lg hover:shadow-xl whitespace-nowrap cursor-pointer">
               Find a Mentor
             </button>
           </div>
@@ -74,14 +74,14 @@ const MainContent = () => {
           alt="Mentorship Concept"
           className="absolute top-0 right-0 h-full w-2/3 object-cover object-left"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-50 via-blue-50/95 to-transparent z-10"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-cyan-50 via-cyan-50/95 to-transparent z-10"></div>
       </div>
 
       {/* Mentor Categories */}
       <div className="mb-10">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-semibold">Explore Mentor Categories</h2>
-          <button className="text-sm text-blue-600 hover:underline cursor-pointer">View All</button>
+          <button className="text-sm text-[#0096c7] hover:underline cursor-pointer">View All</button>
         </div>
         <div className="relative">
           {showLeftButton && (
@@ -140,10 +140,10 @@ const MainContent = () => {
         <div className="flex flex-col space-y-4 mb-6">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-semibold">Featured Mentors</h2>
-            <button className="text-sm text-blue-600 hover:underline cursor-pointer">View All</button>
+            <button className="text-sm text-[#0096c7] hover:underline cursor-pointer">View All</button>
           </div>
           <div className="flex items-center space-x-2 overflow-x-auto pb-2">
-            <button className={`bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-medium transition cursor-pointer`}>All Mentors</button>
+            <button className={`bg-[#0096c7] text-white px-4 py-2 rounded-full text-sm font-medium transition cursor-pointer`}>All Mentors</button>
             <button className={`bg-gray-100 text-gray-700 hover:bg-gray-200 px-4 py-2 rounded-full text-sm font-medium transition cursor-pointer`}>Top Rated</button>
             <button className={`bg-gray-100 text-gray-700 hover:bg-gray-200 px-4 py-2 rounded-full text-sm font-medium transition cursor-pointer`}>Most Experienced</button>
             <button className={`bg-gray-100 text-gray-700 hover:bg-gray-200 px-4 py-2 rounded-full text-sm font-medium transition cursor-pointer`}>Recently Added</button>
@@ -172,7 +172,7 @@ const MainContent = () => {
               <div className="mt-4">
                 <div className="flex flex-wrap gap-2 mb-3">
                   {mentor.expertise.map((skill, index) => (
-                    <span key={index} className="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded-full">
+                    <span key={index} className="text-xs bg-cyan-50 text-cyan-700 px-2 py-1 rounded-full">
                       {skill}
                     </span>
                   ))}
@@ -192,7 +192,7 @@ const MainContent = () => {
                     <span className="mr-1">⏰</span>
                     {mentor.availability}
                   </span>
-                  <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition cursor-pointer">
+                  <button className="bg-[#0096c7] hover:bg-cyan-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition cursor-pointer">
                     Book Session
                   </button>
                 </div>
@@ -208,8 +208,8 @@ const MainContent = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {benefits.map((benefit) => (
             <div key={benefit.id} className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition">
-              <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mb-4">
-                <span className="text-blue-600 text-xl">★</span>
+              <div className="w-12 h-12 rounded-full bg-cyan-100 flex items-center justify-center mb-4">
+                <span className="text-[#0096c7] text-xl">★</span>
               </div>
               <h3 className="font-semibold text-lg mb-2">{benefit.title}</h3>
               <p className="text-sm text-gray-600">{benefit.description}</p>
@@ -277,7 +277,7 @@ const MainContent = () => {
           <div className="relative z-20">
             <h2 className="text-2xl font-bold text-white mb-3">Become a Mentor</h2>
             <p className="text-white/90 mb-6 max-w-md mx-auto">Share your expertise, build your professional brand, and make a difference in someone's career journey.</p>
-            <button className="bg-white text-blue-600 hover:bg-gray-100 px-6 py-3 rounded-lg font-medium transition shadow-lg hover:shadow-xl cursor-pointer">
+            <button className="bg-white text-[#0096c7] hover:bg-gray-100 px-6 py-3 rounded-lg font-medium transition shadow-lg hover:shadow-xl cursor-pointer">
               Apply as Mentor
             </button>
           </div>
@@ -286,7 +286,7 @@ const MainContent = () => {
             alt="Become a Mentor"
             className="absolute inset-0 w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-900/95 z-10"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-cyan-600 to-indigo-900/95 z-10"></div>
         </div>
       </div>
     </div>

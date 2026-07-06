@@ -26,7 +26,7 @@ const featuredMentors: Mentor[] = [
 ];
 
 const mentorCategories: Category[] = [
-  { id: 1, name: "Research & Development", count: 245, gradient: "from-blue-500 to-indigo-600" },
+  { id: 1, name: "Research & Development", count: 245, gradient: "from-cyan-500 to-indigo-600" },
   { id: 2, name: "Technology", count: 189, gradient: "from-indigo-500 to-purple-600" },
   { id: 3, name: "Design", count: 176, gradient: "from-purple-500 to-pink-600" }
 ];
@@ -43,9 +43,9 @@ const RightBar = () => {
           </div>
           <div className="space-y-4">
             {/* Example session */}
-            <div className="bg-blue-50 rounded-xl p-4">
+            <div className="bg-cyan-50 rounded-xl p-4">
               <div className="flex items-center justify-between mb-3">
-                <span className="text-xs font-medium px-2 py-1 bg-blue-100 text-blue-700 rounded-full">
+                <span className="text-xs font-medium px-2 py-1 bg-cyan-100 text-cyan-700 rounded-full">
                   Today, 3:00 PM
                 </span>
                 <button className="text-gray-400 hover:text-red-600">
@@ -64,16 +64,16 @@ const RightBar = () => {
                 </div>
               </div>
               <div className="flex gap-2">
-                <button className="bg-white text-blue-600 border border-blue-200 px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-blue-50 transition cursor-pointer">
+                <button className="bg-white text-[#0096c7] border border-cyan-200 px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-cyan-50 transition cursor-pointer">
                   Reschedule
                 </button>
-                <button className="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-blue-700 transition cursor-pointer">
+                <button className="bg-[#0096c7] text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-cyan-700 transition cursor-pointer">
                   Join Meeting
                 </button>
               </div>
             </div>
           </div>
-          <button className="w-full text-[#2563EB] font-medium mt-[40px] py-2 hover:bg-[#F3F4F6] rounded">
+          <button className="w-full text-[#0096c7] font-medium mt-[40px] py-2 hover:bg-[#F3F4F6] rounded">
             View All Sessions
           </button>
         </div>
@@ -106,13 +106,13 @@ const RightBar = () => {
                 </div>
                 <button className="w-8 h-8 flex items-center justify-center hover:bg-[#F3F4F6] rounded">
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                    <path d="M8 0C3.6 0 0 3.6 0 8C0 12.4 3.6 16 8 16C12.4 16 16 12.4 16 8C16 3.6 12.4 0 8 0ZM12 8.7H8.7V12H7.3V8.7H4V7.3H7.3V4H8.7V7.3H12V8.7Z" fill="#2563EB"/>
+                    <path d="M8 0C3.6 0 0 3.6 0 8C0 12.4 3.6 16 8 16C12.4 16 16 12.4 16 8C16 3.6 12.4 0 8 0ZM12 8.7H8.7V12H7.3V8.7H4V7.3H7.3V4H8.7V7.3H12V8.7Z" fill="#0096c7"/>
                   </svg>
                 </button>
               </div>
             ))}
           </div>
-          <button className="w-full text-[#2563EB] font-medium mt-[40px] py-2 hover:bg-[#F3F4F6] rounded">
+          <button className="w-full text-[#0096c7] font-medium mt-[40px] py-2 hover:bg-[#F3F4F6] rounded">
             View All Mentors
           </button>
         </div>
@@ -124,20 +124,20 @@ const RightBar = () => {
               <div key={category.id} className="bg-[#F9FAFB] rounded-xl p-4">
                 <div className="flex">
                   <div className={`w-10 h-10 bg-[#DBE9FE] rounded-lg flex items-center justify-center`}>
-                    <span className="text-[#2563EB]">★</span>
+                    <span className="text-[#0096c7]">★</span>
                   </div>
                   <div className="ml-3">
                     <h3 className="text-[#1F2937] font-medium text-sm">{category.name}</h3>
                     <p className="text-[#6B7280] text-xs">{category.count} mentors</p>
                   </div>
                 </div>
-                <button className="w-full mt-4 h-[34px] bg-white border border-[#BFD9FE] text-[#2563EB] font-medium rounded flex items-center justify-center hover:bg-[#F8FAFC]">
+                <button className="w-full mt-4 h-[34px] bg-white border border-[#BFD9FE] text-[#0096c7] font-medium rounded flex items-center justify-center hover:bg-[#F8FAFC]">
                   Explore
                 </button>
               </div>
             ))}
           </div>
-          <button className="w-full text-[#2563EB] font-medium mt-[40px] py-2 hover:bg-[#F3F4F6] rounded">
+          <button className="w-full text-[#0096c7] font-medium mt-[40px] py-2 hover:bg-[#F3F4F6] rounded">
             View All Resources
           </button>
         </div>

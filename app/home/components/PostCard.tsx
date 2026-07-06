@@ -279,19 +279,19 @@ const PostCard: React.FC<PostCardProps> = ({ post: initialPost, onPostUpdated, c
                   {post.user?.firstName && post.user?.lastName ? `${post.user.firstName} ${post.user.lastName}` : post.user?.username || "N/A"}
                 </h3>
                 {post.user?.headline && (
-                  <span className="ml-0 mt-1 sm:ml-2 sm:mt-0 text-[#2563EB] text-sm bg-[#EFF6FF] px-2 py-0.5 rounded-lg">
+                  <span className="ml-0 mt-1 sm:ml-2 sm:mt-0 text-[#0096c7] text-[12px] bg-[#ecfeff] px-2 py-0.5 rounded-lg">
                     {post.user.headline}
                   </span>
                 )}
               </div>
-              <p className="text-[#6B7280] text-sm mt-1">
+              <p className="text-[#6B7280] text-[12px] mt-1">
                 {post.user?.username || "N/A"}
               </p>
             </div>
           </div>
           
           {/* Three-dot menu and popup */}
-          <div className="flex items-center text-[#9CA3AF] text-sm shrink-0 ml-2 relative">
+          <div className="flex items-center text-[#9CA3AF] text-[12px] shrink-0 ml-2 relative">
             <span>{getTimeAgo(post.createdAt)}</span>
             <div ref={menuRef}>
               <button
@@ -311,7 +311,7 @@ const PostCard: React.FC<PostCardProps> = ({ post: initialPost, onPostUpdated, c
                     <Link
                       href={`/posts/${post.id}`}
                       onClick={handleOpenClick}
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      className="block px-4 py-2 text-[12px] text-gray-700 hover:bg-gray-100"
                     >
                       <i className="fas fa-eye mr-2"></i> Open
                     </Link>
@@ -319,7 +319,7 @@ const PostCard: React.FC<PostCardProps> = ({ post: initialPost, onPostUpdated, c
 
                   <button
                     onClick={handleReportClick}
-                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    className="block w-full text-left px-4 py-2 text-[12px] text-gray-700 hover:bg-gray-100"
                   >
                     <i className="fas fa-flag mr-2"></i> Report
                   </button>
@@ -329,13 +329,13 @@ const PostCard: React.FC<PostCardProps> = ({ post: initialPost, onPostUpdated, c
                       <Link
                         href={`/posts/${post.id}/edit`}
                         onClick={handleEditClick}
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        className="block px-4 py-2 text-[12px] text-gray-700 hover:bg-gray-100"
                       >
                         <i className="fas fa-edit mr-2"></i> Edit
                       </Link>
                       <button
                         onClick={handleDeleteClick}
-                        className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                        className="block w-full text-left px-4 py-2 text-[12px] text-red-600 hover:bg-gray-100"
                       >
                         <i className="fas fa-trash-alt mr-2"></i> Delete
                       </button>
@@ -369,7 +369,7 @@ const PostCard: React.FC<PostCardProps> = ({ post: initialPost, onPostUpdated, c
               </div>
 
               <div className="px-6 py-4 space-y-3">
-                <p className="text-sm text-gray-600">
+                <p className="text-[12px] text-gray-600">
                   This will email our moderators with the post link automatically.
                 </p>
                 <div className="text-xs text-gray-500 break-all">
@@ -378,7 +378,7 @@ const PostCard: React.FC<PostCardProps> = ({ post: initialPost, onPostUpdated, c
                 <textarea
                   value={reportMessage}
                   onChange={(e) => setReportMessage(e.target.value)}
-                  className="w-full min-h-[120px] border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full min-h-[120px] border border-gray-300 rounded-lg p-3 text-[12px] focus:outline-none focus:ring-2 focus:ring-cyan-500"
                   placeholder="Add details (what’s wrong with this post?)"
                   disabled={isReporting}
                 />
@@ -396,7 +396,7 @@ const PostCard: React.FC<PostCardProps> = ({ post: initialPost, onPostUpdated, c
                 <button
                   type="button"
                   onClick={handleSubmitReport}
-                  className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-60"
+                  className="px-4 py-2 rounded-lg bg-[#0096c7] hover:bg-cyan-700 text-white disabled:opacity-60"
                   disabled={isReporting}
                 >
                   {isReporting ? 'Sending…' : 'Send Report'}
@@ -413,7 +413,7 @@ const PostCard: React.FC<PostCardProps> = ({ post: initialPost, onPostUpdated, c
           </h4>
           {post.isPoll && post.poll ? (
             <div className="mt-4 space-y-3">
-              <p className="text-[#4B5563] text-base leading-6">{post.content}</p>
+              <p className="text-[#4B5563] text-[12px] font-medium leading-6">{post.content}</p>
               {post.poll.options.map((option) => {
                 const hasVoted = option.hasVoted;
                 const showResults = post.poll!.totalVotes > 0 && (hasVoted || isPostOwner);
@@ -422,17 +422,17 @@ const PostCard: React.FC<PostCardProps> = ({ post: initialPost, onPostUpdated, c
                   <div key={option.id} className="relative">
                     <button
                       onClick={() => handlePollVote(option.id)}
-                      className={`relative w-full p-3 border rounded-lg text-sm text-left transition-colors duration-200
-                        ${hasVoted ? 'bg-blue-100 border-blue-400 text-blue-800 font-semibold' :
+                      className={`relative w-full p-3 border rounded-lg text-[12px] text-left transition-colors duration-200
+                        ${hasVoted ? 'bg-cyan-100 border-cyan-400 text-cyan-800 font-semibold' :
                           'bg-gray-50 border-gray-300 text-gray-800 hover:bg-gray-100'}
                         ${isVoting || hasVoted || !user ? 'cursor-not-allowed' : ''}`}
                       disabled={isVoting || hasVoted || !user}
                     >
-                      <span className="absolute inset-y-0 left-0 bg-blue-200 transition-width duration-500 rounded-l-lg" style={{ width: `${percentage}%` }}></span>
+                      <span className="absolute inset-y-0 left-0 bg-cyan-200 transition-width duration-500 rounded-l-lg" style={{ width: `${percentage}%` }}></span>
                       <span className="relative z-10 flex justify-between items-center">
                         <span>{option.text}</span>
                         {showResults && (
-                          <span className={`${hasVoted ? 'text-blue-800' : 'text-gray-700'} font-semibold ml-2`}>
+                          <span className={`${hasVoted ? 'text-cyan-800' : 'text-gray-700'} font-semibold ml-2`}>
                             {option.votes} ({percentage.toFixed(0)}%)
                           </span>
                         )}
@@ -442,12 +442,12 @@ const PostCard: React.FC<PostCardProps> = ({ post: initialPost, onPostUpdated, c
                 );
               })}
               {post.poll.totalVotes > 0 && (
-                <p className="text-sm text-gray-500 mt-2 text-right">{post.poll.totalVotes} total votes</p>
+                <p className="text-[12px] text-gray-500 mt-2 text-right">{post.poll.totalVotes} total votes</p>
               )}
             </div>
           ) : (
             <>
-              <p className="mt-4 text-[#4B5563] text-base leading-6">{post.content}</p>
+              <p className="mt-4 text-[#4B5563] text-[12px] font-medium leading-6">{post.content}</p>
               {post.image && (
                 <div className="mt-6 bg-[#F9FAFB] rounded-lg p-2 sm:p-4">
                   <Image
@@ -470,7 +470,7 @@ const PostCard: React.FC<PostCardProps> = ({ post: initialPost, onPostUpdated, c
             {/* Like Button */}
             <button
               onClick={handleLikeToggle}
-              className={`flex items-center text-sm ${post.isLikedByCurrentUser ? 'text-blue-600 font-medium' : 'text-[#4B5563]'} ${isLiking ? 'opacity-50 cursor-not-allowed' : 'hover:text-blue-600'}`}
+              className={`flex items-center text-[12px] ${post.isLikedByCurrentUser ? 'text-[#0096c7] font-medium' : 'text-[#4B5563]'} ${isLiking ? 'opacity-50 cursor-not-allowed' : 'hover:text-[#0096c7]'}`}
               disabled={isLiking || !user}
             >
               <svg className="w-3.5 h-3.5 mr-2" viewBox="0 0 14 12" fill="currentColor">
@@ -481,7 +481,7 @@ const PostCard: React.FC<PostCardProps> = ({ post: initialPost, onPostUpdated, c
             {/* Discuss Button - Toggles comment input */}
             <button
               onClick={() => setShowCommentInput(prev => !prev)}
-              className="flex items-center text-[#4B5563] text-sm hover:text-blue-600"
+              className="flex items-center text-[#4B5563] text-[12px] hover:text-[#0096c7]"
             >
               <svg className="w-3.5 h-3.5 mr-2" viewBox="0 0 14 12" fill="currentColor">
                 <path d="M12 0H2C0.9 0 0 0.9 0 2V7C0 8.1 0.9 9 2 9H10L14 12V2C14 0.9 13.1 0 12 0Z" />
@@ -491,7 +491,7 @@ const PostCard: React.FC<PostCardProps> = ({ post: initialPost, onPostUpdated, c
           </div>
           <div className="flex space-x-4">
             {/* Bookmark Button
-            <button className="flex items-center text-[#4B5563] text-sm hover:text-blue-600">
+            <button className="flex items-center text-[#4B5563] text-[12px] hover:text-[#0096c7]">
               <svg className="w-4 h-4 mr-2" viewBox="0 0 16 16" fill="currentColor">
                 <path d="M2 2v12l6-3 6 3V2H2zm12-1H2C1.45 1 1 1.45 1 2v12c0 .55.45 1 1 1l6-3 6 3c.55 0 1-.45 1-1V2c0-.55-.45-1-1-1z"/>
               </svg>
@@ -500,7 +500,7 @@ const PostCard: React.FC<PostCardProps> = ({ post: initialPost, onPostUpdated, c
             {/* Share Button */}
             <button
               onClick={() => setShowShareModal(true)}
-              className="flex items-center text-[#4B5563] text-sm hover:text-blue-600"
+              className="flex items-center text-[#4B5563] text-[12px] hover:text-[#0096c7]"
             >
               <svg className="w-4 h-3.5 mr-2" viewBox="0 0 16 14" fill="currentColor">
                 <path d="M14 6L8 0V4C3 5 0 8 0 14C2 11 4 9.9 8 9.9V14L14 8L16 7L14 6Z" />
@@ -514,7 +514,7 @@ const PostCard: React.FC<PostCardProps> = ({ post: initialPost, onPostUpdated, c
         {post.tags && post.tags.length > 0 && (
           <div className="mt-6 flex flex-wrap gap-2">
             {post.tags.map((tag) => (
-              <span key={tag} className="bg-[#F3F4F6] text-[#4B5563] text-sm px-3 py-1 rounded-lg">
+              <span key={tag} className="bg-[#F3F4F6] text-[#4B5563] text-[12px] px-3 py-1 rounded-lg">
                 #{tag}
               </span>
             ))}
@@ -529,12 +529,12 @@ const PostCard: React.FC<PostCardProps> = ({ post: initialPost, onPostUpdated, c
                 value={commentInput}
                 onChange={(e) => setCommentInput(e.target.value)}
                 placeholder="Write a comment..."
-                className="flex-1 p-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+                className="flex-1 p-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 text-[12px]"
                 disabled={isCommenting || !user}
               />
               <button
                 type="submit"
-                className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-lg text-sm font-medium transition-colors"
+                className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-lg text-[12px] font-medium transition-colors"
                 disabled={isCommenting || !commentInput.trim() || !user}
               >
                 {isCommenting ? 'Posting...' : 'Post'}
@@ -542,9 +542,9 @@ const PostCard: React.FC<PostCardProps> = ({ post: initialPost, onPostUpdated, c
             </form>
             {post.comments.length > 0 && (
               <div className="mt-4 space-y-3">
-                <h5 className="text-sm font-medium text-gray-700 mb-2">Comments ({post.comments.length})</h5>
+                <h5 className="text-[12px] font-medium text-gray-700 mb-2">Comments ({post.comments.length})</h5>
                 {post.comments.map(comment => (
-                  <div key={comment.id} className="bg-gray-50 p-3 rounded-lg text-sm">
+                  <div key={comment.id} className="bg-gray-50 p-3 rounded-lg text-[12px]">
                     <div className="flex items-center mb-1">
                       <img
                         src={getProfileImageUrl(comment.user?.profilePictureUrl)}
@@ -573,7 +573,7 @@ const PostCard: React.FC<PostCardProps> = ({ post: initialPost, onPostUpdated, c
       className="bg-white rounded-xl shadow-lg w-[90%] max-w-sm p-4"
       onClick={(e) => e.stopPropagation()}
     >
-      <h3 className="text-sm font-semibold text-gray-900 mb-2">
+      <h3 className="text-[12px] font-semibold text-gray-900 mb-2">
         Share this post
       </h3>
 
@@ -582,7 +582,7 @@ const PostCard: React.FC<PostCardProps> = ({ post: initialPost, onPostUpdated, c
           type="text"
           readOnly
           value={postUrl}
-          className="flex-1 bg-transparent text-sm text-gray-700 outline-none"
+          className="flex-1 bg-transparent text-[12px] text-gray-700 outline-none"
         />
         <button
           onClick={async () => {
@@ -618,7 +618,7 @@ const PostCard: React.FC<PostCardProps> = ({ post: initialPost, onPostUpdated, c
               toast.error("Failed to copy link");
             }
           }}
-          className="text-sm font-medium text-blue-600 hover:text-blue-700"
+          className="text-[12px] font-medium text-[#0096c7] hover:text-cyan-700"
         >
           Copy
         </button>
@@ -626,7 +626,7 @@ const PostCard: React.FC<PostCardProps> = ({ post: initialPost, onPostUpdated, c
 
       <button
         onClick={() => setShowShareModal(false)}
-        className="mt-3 w-full text-sm text-gray-500 hover:text-gray-700"
+        className="mt-3 w-full text-[12px] text-gray-500 hover:text-gray-700"
       >
         Close
       </button>

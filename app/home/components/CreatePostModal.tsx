@@ -236,7 +236,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onPo
           </div>
           <div className="ml-3">
             <h3 className="text-base font-semibold text-gray-900">{userProfile?.firstName} {userProfile?.lastName}</h3>
-            <p className="text-sm text-gray-500">{userProfile?.headline}</p>
+            <p className="text-[12px] text-gray-500">{userProfile?.headline}</p>
           </div>
         </div>
 
@@ -247,7 +247,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onPo
            <div>
              <label htmlFor="post-title" className="sr-only">Post Title</label>
              <div className="flex items-center justify-between mb-1">
-               <span className="text-sm font-medium text-gray-700">Title</span>
+               <span className="text-[12px] font-medium text-gray-700">Title</span>
                <span className="text-xs text-red-500">*Required</span>
              </div>
              <input
@@ -269,7 +269,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onPo
           {/* Content Textarea */}
           <div className="mt-4">
             <div className="flex items-center justify-between mb-1">
-              <span className="text-sm font-medium text-gray-700">Content</span>
+              <span className="text-[12px] font-medium text-gray-700">Content</span>
               <span className="text-xs text-red-500">*Required</span>
             </div>
             <textarea
@@ -291,7 +291,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onPo
           <div className="mt-4">
             <label htmlFor="post-tags" className="sr-only">Tags</label>
             <div className="flex items-center justify-between mb-1">
-              <span className="text-sm font-medium text-gray-700">Tags</span>
+              <span className="text-[12px] font-medium text-gray-700">Tags</span>
               <span className="text-xs text-gray-500">Optional</span>
             </div>
             <input
@@ -307,13 +307,13 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onPo
 
           {/* Error Display */}
           {error && (
-            <p className="text-red-500 text-sm text-center mt-2 bg-red-50 p-2 rounded">{error}</p>
+            <p className="text-red-500 text-[12px] text-center mt-2 bg-red-50 p-2 rounded">{error}</p>
           )}
 
           {/* Image Preview - Only 1 image allowed */}
           <div className="mt-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-gray-700">Image</span>
+              <span className="text-[12px] font-medium text-gray-700">Image</span>
               <span className="text-xs text-gray-500">Optional</span>
             </div>
             {preview && (
@@ -384,7 +384,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onPo
             {/* Submit Button */}
             <button
               type="submit"
-              className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-full transition-colors flex items-center justify-center disabled:bg-gray-400 disabled:cursor-not-allowed"
+              className="bg-[#0096c7] hover:bg-cyan-700 text-white font-medium py-2 px-4 rounded-full transition-colors flex items-center justify-center disabled:bg-gray-400 disabled:cursor-not-allowed"
               disabled={isSubmitting || !title.trim() || !content.trim()}
             >
               {isSubmitting ? (

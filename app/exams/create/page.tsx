@@ -122,7 +122,7 @@ const CreateExamPage = () => {
               {/* Basic Information */}
               <section className="space-y-6">
                 <h2 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
-                  <BookOpen size={20} className="text-blue-500" />
+                  <BookOpen size={20} className="text-[#00B4D8]" />
                   Basic Information
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -134,7 +134,7 @@ const CreateExamPage = () => {
                       required
                       value={formData.examTitle}
                       onChange={handleChange}
-                      className="w-full rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500 shadow-sm"
+                      className="w-full rounded-lg border-gray-300 focus:ring-cyan-500 focus:border-cyan-500 shadow-sm"
                       placeholder="e.g. UPSC Civil Services Examination"
                     />
                   </div>
@@ -146,7 +146,7 @@ const CreateExamPage = () => {
                       required
                       value={formData.conductingBody}
                       onChange={handleChange}
-                      className="w-full rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500 shadow-sm"
+                      className="w-full rounded-lg border-gray-300 focus:ring-cyan-500 focus:border-cyan-500 shadow-sm"
                       placeholder="e.g. UPSC, SSC, IBPS"
                     />
                   </div>
@@ -157,7 +157,7 @@ const CreateExamPage = () => {
                       name="referenceNumber"
                       value={formData.referenceNumber}
                       onChange={handleChange}
-                      className="w-full rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500 shadow-sm"
+                      className="w-full rounded-lg border-gray-300 focus:ring-cyan-500 focus:border-cyan-500 shadow-sm"
                       placeholder="e.g. EXAM-2024-001"
                     />
                   </div>
@@ -167,7 +167,7 @@ const CreateExamPage = () => {
                       name="status"
                       value={formData.status}
                       onChange={handleChange}
-                      className="w-full rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500 shadow-sm"
+                      className="w-full rounded-lg border-gray-300 focus:ring-cyan-500 focus:border-cyan-500 shadow-sm"
                     >
                       <option value="active">active</option>
                       <option value="inactive">inactive</option>
@@ -179,7 +179,7 @@ const CreateExamPage = () => {
               {/* Exam Summary */}
               <section className="space-y-6">
                 <h2 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
-                  <FileText size={20} className="text-blue-500" />
+                  <FileText size={20} className="text-[#00B4D8]" />
                   Exam Details
                 </h2>
                 
@@ -191,7 +191,7 @@ const CreateExamPage = () => {
                     rows={6}
                     value={formData.examSummary}
                     onChange={handleChange}
-                    className="w-full rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500 shadow-sm"
+                    className="w-full rounded-lg border-gray-300 focus:ring-cyan-500 focus:border-cyan-500 shadow-sm"
                     placeholder="Overview of the exam, its importance, and key details..."
                   />
                 </div>
@@ -204,7 +204,7 @@ const CreateExamPage = () => {
                       rows={4}
                       value={formData.eligibilityCriteria}
                       onChange={handleChange}
-                      className="w-full rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500 shadow-sm"
+                      className="w-full rounded-lg border-gray-300 focus:ring-cyan-500 focus:border-cyan-500 shadow-sm"
                       placeholder="Age limit, educational qualifications, etc."
                     />
                   </div>
@@ -215,7 +215,7 @@ const CreateExamPage = () => {
                       rows={4}
                       value={formData.applicationDetails}
                       onChange={handleChange}
-                      className="w-full rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500 shadow-sm"
+                      className="w-full rounded-lg border-gray-300 focus:ring-cyan-500 focus:border-cyan-500 shadow-sm"
                       placeholder="How to apply, application fees, etc."
                     />
                   </div>
@@ -226,7 +226,7 @@ const CreateExamPage = () => {
                       rows={4}
                       value={formData.examPattern}
                       onChange={handleChange}
-                      className="w-full rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500 shadow-sm"
+                      className="w-full rounded-lg border-gray-300 focus:ring-cyan-500 focus:border-cyan-500 shadow-sm"
                       placeholder="Number of papers, duration, marking scheme, etc."
                     />
                   </div>
@@ -237,7 +237,7 @@ const CreateExamPage = () => {
                       rows={4}
                       value={formData.syllabus}
                       onChange={handleChange}
-                      className="w-full rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500 shadow-sm"
+                      className="w-full rounded-lg border-gray-300 focus:ring-cyan-500 focus:border-cyan-500 shadow-sm"
                       placeholder="Topics covered in the exam..."
                     />
                   </div>
@@ -247,7 +247,7 @@ const CreateExamPage = () => {
               {/* Additional Information */}
               <section className="space-y-6">
                 <h2 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
-                  <Info size={20} className="text-blue-500" />
+                  <Info size={20} className="text-[#00B4D8]" />
                   Additional Information
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -258,7 +258,7 @@ const CreateExamPage = () => {
                       rows={4}
                       value={formData.links}
                       onChange={handleChange}
-                      className="w-full rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500 shadow-sm"
+                      className="w-full rounded-lg border-gray-300 focus:ring-cyan-500 focus:border-cyan-500 shadow-sm"
                       placeholder="https://official-website.com&#10;https://notification.com"
                     />
                   </div>
@@ -269,7 +269,7 @@ const CreateExamPage = () => {
                       rows={4}
                       value={formData.dates}
                       onChange={handleChange}
-                      className="w-full rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500 shadow-sm"
+                      className="w-full rounded-lg border-gray-300 focus:ring-cyan-500 focus:border-cyan-500 shadow-sm"
                       placeholder="Application Start: 01-01-2024&#10;Application End: 15-01-2024"
                     />
                   </div>
@@ -283,7 +283,7 @@ const CreateExamPage = () => {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="px-6 py-2.5 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-6 py-2.5 rounded-lg bg-[#0096c7] text-white font-medium hover:bg-cyan-700 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isLoading ? 'Creating Exam...' : 'Create Exam'}
                 </button>

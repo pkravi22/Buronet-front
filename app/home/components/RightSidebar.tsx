@@ -53,18 +53,18 @@ const RightSidebar = ({ scrollSourceRef, activeFilter, onFilterChange }: RightSi
 
         {/* Feed Filter Widget */}
         {onFilterChange && (
-          <div className="bg-white rounded-lg shadow-sm border border-[#E5E7EB] p-4 mb-6">
-            <h3 className="text-gray-900 font-bold mb-3 text-sm">Feed Filter</h3>
+          <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm mb-5">
+            <h3 className="text-sm sm:text-[16px] font-bold text-gray-900 mb-4">Feed Filter</h3>
             <div className="flex bg-gray-100 p-1 rounded-lg">
               <button
                 onClick={() => onFilterChange('all')}
-                className={`flex-1 py-1.5 text-xs font-semibold rounded-md transition-all ${activeFilter === 'all' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                className={`flex-1 py-2 text-xs sm:text-[14px] font-semibold rounded-md transition-all ${activeFilter === 'all' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
               >
                 All Posts
               </button>
               <button
                 onClick={() => onFilterChange('mine')}
-                className={`flex-1 py-1.5 text-xs font-semibold rounded-md transition-all ${activeFilter === 'mine' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                className={`flex-1 py-2 text-xs sm:text-[14px] font-semibold rounded-md transition-all ${activeFilter === 'mine' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
               >
                 My Posts
               </button>
@@ -72,10 +72,10 @@ const RightSidebar = ({ scrollSourceRef, activeFilter, onFilterChange }: RightSi
           </div>
         )}
 
-        <div className="bg-white rounded-lg shadow-sm border border-[#E5E7EB] p-4 mb-6">
-          <div className="flex items-center mb-4">
-            <FiTrendingUp className="text-[#5E98FF] w-5 h-5" />
-            <span className="ml-2 text-[#1F2937] font-semibold">Trending Now</span>
+        <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm mb-5">
+          <div className="flex items-center mb-4 gap-2">
+            <FiTrendingUp className="text-[#0096c7] w-5 h-5" />
+            <h3 className="text-sm sm:text-[16px] font-bold text-gray-900">Trending Now</h3>
           </div>
           <div>
             <TrendingNowSection />
@@ -84,10 +84,10 @@ const RightSidebar = ({ scrollSourceRef, activeFilter, onFilterChange }: RightSi
 
         {/* People to Follow */}
         {user && (
-          <div className="bg-white rounded-lg shadow-sm border border-[#E5E7EB] p-4 mb-6">
+          <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm mb-5">
             <div className="flex items-center gap-2 mb-4">
-              <UserPlus size={16} className="text-[#2563EB]" />
-              <span className="text-[#1F2937] font-semibold text-sm">People to Follow</span>
+              <UserPlus size={18} className="text-[#0096c7]" />
+              <h3 className="text-sm sm:text-[16px] font-bold text-gray-900">People to Follow</h3>
             </div>
 
             {suggestionsLoading ? (
@@ -108,10 +108,10 @@ const RightSidebar = ({ scrollSourceRef, activeFilter, onFilterChange }: RightSi
                       className="flex-1 min-w-0 cursor-pointer"
                       onClick={() => router.push(`/profile/${s.userId}`)}
                     >
-                      <p className="text-xs font-medium text-gray-900 truncate">
+                      <p className="text-xs sm:text-[14px] font-semibold text-gray-900 truncate">
                         {s.firstName} {s.lastName}
                       </p>
-                      <p className="text-[11px] text-gray-400 truncate">
+                      <p className="text-[11px] sm:text-[12px] text-gray-500 truncate mt-0.5">
                         {s.headline || 'Buronet member'}
                       </p>
                     </div>
@@ -130,7 +130,7 @@ const RightSidebar = ({ scrollSourceRef, activeFilter, onFilterChange }: RightSi
           </div>
         )}
 
-        <div className="mt-6 pt-6 border-t border-[#E5E7EB] text-sm">
+        <div className="mt-6 pt-6 border-t border-[#E5E7EB] text-[12px]">
           <div className="flex flex-wrap gap-x-4 gap-y-2 mb-4">
             <a href="#" className="text-[#6B728B] hover:underline">About</a>
             <a href="#" className="text-[#6B728B] hover:underline">Help Center</a>

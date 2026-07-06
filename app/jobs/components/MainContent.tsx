@@ -8,7 +8,7 @@ import {
   ChevronDown,
 } from 'lucide-react';
 import Link from 'next/link';
-import { useRef, useState, useEffect, useCallback } from 'react';
+import React, { useRef, useState, useEffect, useCallback } from 'react';
 import { get, remove, postApi } from '@/lib/api';
 import { Job } from '@/lib/types/jobs';
 import JobCard from './JobCard';
@@ -38,38 +38,41 @@ const SECTORS  = ['All', 'Railway', 'Banking', 'Defense', 'Education', 'Healthca
 const SOURCES  = ['All Sources', 'SarkariResult', 'IndGovtJobs', 'Manual'];
 const PAGE_SIZE = 12;
 
-// ── Small reusable pieces ─────────────────────────────────────────────────────
-const StatCard = ({ title, value, sub, icon, colour }: {
+const StatCard = ({ title, value, sub, icon }: {
   title: string; value: string; sub: string;
   icon: React.ReactNode; colour: string
 }) => (
-  <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 flex items-center gap-4">
-    <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${colour}`}>
-      {icon}
-    </div>
-    <div className="min-w-0">
-      <p className="text-2xl font-bold text-gray-900 leading-tight">{value}</p>
-      <p className="text-sm font-semibold text-gray-700 truncate">{title}</p>
-      <p className="text-xs text-gray-400 truncate">{sub}</p>
+  <div className="w-full bg-white border border-gray-100 shadow-sm rounded-2xl p-4 flex flex-col justify-center h-24">
+    <div className="flex items-center gap-3">
+      <div className="w-10 h-10 bg-gray-50 rounded-xl flex shrink-0 items-center justify-center">
+        {React.cloneElement(icon as React.ReactElement, { size: 18 })}
+      </div>
+      <div className="flex flex-col min-w-0 justify-center">
+        <div className="flex items-baseline gap-1.5 truncate">
+          <span className="text-xl font-bold text-gray-900 leading-none">{value}</span>
+          <h3 className="text-gray-900 font-bold text-[15px] leading-tight truncate">{title}</h3>
+        </div>
+        <p className="text-[12px] text-gray-500 truncate mt-0.5">{sub}</p>
+      </div>
     </div>
   </div>
 );
 
 const DeptCard = ({ title, jobs, icon }: { title: string; jobs: number; icon: React.ReactNode }) => {
   const g: Record<string, string> = {
-    railway: 'from-blue-500 to-blue-700', banking: 'from-violet-500 to-purple-700',
+    railway: 'from-cyan-500 to-cyan-700', banking: 'from-violet-500 to-purple-700',
     defense: 'from-red-500 to-rose-700', education: 'from-emerald-500 to-green-700',
     healthcare: 'from-cyan-500 to-teal-700', 'civil services': 'from-amber-500 to-orange-600',
   };
   return (
-    <div className={`min-w-[160px] h-28 rounded-2xl bg-gradient-to-br ${g[title.toLowerCase()] ?? 'from-blue-500 to-indigo-700'} p-4 flex flex-col justify-between`}>
+    <div className={`min-w-[160px] h-28 rounded-2xl bg-gradient-to-br ${g[title.toLowerCase()] ?? 'from-cyan-500 to-indigo-700'} p-4 flex flex-col justify-between`}>
       <div className="flex items-center justify-between">
         <div className="w-9 h-9 bg-white/20 rounded-lg flex items-center justify-center text-white">{icon}</div>
         <span className="text-[11px] font-bold bg-white/20 text-white px-2 py-0.5 rounded-full">{jobs}</span>
       </div>
       <div>
-        <p className="text-white font-bold text-sm">{title}</p>
-        <p className="text-white/70 text-xs">Ministry of India</p>
+        <p className="text-white font-bold text-[15px]">{title}</p>
+        <p className="text-white/70 text-[13px]">Ministry of India</p>
       </div>
     </div>
   );
@@ -194,7 +197,7 @@ export default function MainContent() {
   };
 
   const statCards = [
-    { title: 'Active Jobs',       value: (dashStats?.totalActiveJobs ?? totalCount).toString(),       sub: `${dashStats?.newJobsToday ?? 0} new today`,       icon: <Briefcase    size={20} className="text-blue-600"   />, colour: 'bg-blue-50'   },
+    { title: 'Active Jobs',       value: (dashStats?.totalActiveJobs ?? totalCount).toString(),       sub: `${dashStats?.newJobsToday ?? 0} new today`,       icon: <Briefcase    size={20} className="text-[#0096c7]"   />, colour: 'bg-cyan-50'   },
     { title: 'Applications',      value: dashStats?.totalApplications?.toString() ?? '—',            sub: 'Track coming soon',                                 icon: <FileText     size={20} className="text-purple-600"/>, colour: 'bg-purple-50' },
     { title: 'Saved Jobs',        value: (dashStats?.totalBookmarkedJobs ?? bookmarks.length).toString(), sub: 'Updated now',                                  icon: <Bookmark     size={20} className="text-green-600" />, colour: 'bg-green-50'  },
     { title: 'Notifications',     value: unreadCount.toString(),                                     sub: `${unreadCount} unread`,                             icon: <Bell         size={20} className="text-amber-600" />, colour: 'bg-amber-50'  },
@@ -245,10 +248,10 @@ export default function MainContent() {
         <div className="flex items-center justify-between mb-5">
           <div>
             <h2 className="text-xl font-bold text-gray-900">Government Jobs</h2>
-            <p className="text-sm text-gray-400 mt-0.5">{totalCount.toLocaleString()} listings · updated automatically</p>
+            <p className="text-[15px] text-gray-400 mt-0.5">{totalCount.toLocaleString()} listings · updated automatically</p>
           </div>
           {user?.isAdmin && (
-            <Link href="/jobs/create" className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2 rounded-xl shadow-sm transition-all">
+            <Link href="/jobs/create" className="flex items-center gap-2 bg-[#0096c7] hover:bg-cyan-700 text-white text-sm font-semibold px-4 py-2 rounded-xl shadow-sm transition-all">
               <Plus size={15} /> Add Job
             </Link>
           )}
@@ -261,7 +264,7 @@ export default function MainContent() {
             <select
               value={activeTab}
               onChange={e => setActiveTab(e.target.value as TabId)}
-              className="w-full appearance-none bg-white border border-gray-200 rounded-xl px-4 py-3 pr-10 text-sm font-semibold text-gray-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full appearance-none bg-white border border-gray-200 rounded-xl px-4 py-3 pr-10 text-sm font-semibold text-gray-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-400"
             >
               {TABS.map(t => <option key={t.id} value={t.id}>{t.label}</option>)}
             </select>
@@ -274,9 +277,9 @@ export default function MainContent() {
               <button
                 key={id}
                 onClick={() => setActiveTab(id)}
-                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all whitespace-nowrap ${
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-[16px] font-semibold transition-all whitespace-nowrap ${
                   activeTab === id
-                    ? 'bg-white text-blue-600 shadow-sm'
+                    ? 'bg-white text-[#0096c7] shadow-sm'
                     : 'text-gray-500 hover:text-gray-700'
                 }`}
               >
@@ -291,7 +294,7 @@ export default function MainContent() {
         <div className="bg-white border border-gray-100 rounded-2xl p-4 mb-5 shadow-sm space-y-3">
           {/* Search row */}
           <div className="flex gap-2">
-            <div className="flex-1 flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-xl px-3.5 py-2.5 focus-within:border-blue-400 transition-colors">
+            <div className="flex-1 flex items-center gap-2 bg-gray-50 rounded-xl px-3.5 py-2.5 focus-within:ring-2 focus-within:ring-cyan-400 transition-colors">
               <Search size={15} className="text-gray-400 shrink-0" />
               <input
                 type="text"
@@ -299,7 +302,7 @@ export default function MainContent() {
                 onChange={e => setSearchInput(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && setKeyword(searchInput)}
                 placeholder={`Search ${activeTabLabel.toLowerCase()}…`}
-                className="flex-1 bg-transparent text-sm outline-none placeholder:text-gray-400 text-gray-800"
+                className="flex-1 bg-transparent text-sm !outline-none !border-0 !ring-0 focus:ring-0 focus:border-0 placeholder:text-gray-400 text-gray-800"
               />
               {searchInput && (
                 <button onClick={() => { setSearchInput(''); setKeyword(''); }} className="text-gray-400 hover:text-gray-600">
@@ -309,13 +312,13 @@ export default function MainContent() {
             </div>
             <button
               onClick={() => setKeyword(searchInput)}
-              className="shrink-0 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm px-5 rounded-xl transition-colors"
+              className="shrink-0 bg-[#0096c7] hover:bg-cyan-700 text-white font-semibold text-sm px-5 rounded-xl transition-colors"
             >
               Search
             </button>
             <button
               onClick={() => fetchJobs(1)}
-              className="shrink-0 p-2.5 text-gray-400 hover:text-blue-600 bg-gray-50 hover:bg-blue-50 border border-gray-200 rounded-xl transition-colors"
+              className="shrink-0 p-2.5 text-gray-400 hover:text-[#0096c7] bg-gray-50 hover:bg-cyan-50 border border-gray-200 rounded-xl transition-colors"
               title="Refresh"
             >
               <RefreshCw size={16} />
@@ -333,7 +336,7 @@ export default function MainContent() {
               <select
                 value={sector}
                 onChange={e => setSector(e.target.value)}
-                className="appearance-none bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 pr-7 text-sm text-gray-700 font-medium focus:outline-none focus:border-blue-400 cursor-pointer"
+                className="appearance-none bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 pr-7 text-sm text-gray-700 font-medium focus:outline-none focus:border-cyan-400 cursor-pointer"
               >
                 {SECTORS.map(s => <option key={s}>{s}</option>)}
               </select>
@@ -345,7 +348,7 @@ export default function MainContent() {
               <select
                 value={source}
                 onChange={e => setSource(e.target.value)}
-                className="appearance-none bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 pr-7 text-sm text-gray-700 font-medium focus:outline-none focus:border-blue-400 cursor-pointer"
+                className="appearance-none bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 pr-7 text-sm text-gray-700 font-medium focus:outline-none focus:border-cyan-400 cursor-pointer"
               >
                 {SOURCES.map(s => <option key={s}>{s}</option>)}
               </select>
@@ -367,7 +370,7 @@ export default function MainContent() {
           {hasFilters && (
             <div className="flex flex-wrap gap-2">
               {sector !== 'All' && (
-                <span className="flex items-center gap-1 text-xs bg-blue-50 text-blue-700 border border-blue-100 px-2.5 py-1 rounded-full font-semibold">
+                <span className="flex items-center gap-1 text-xs bg-cyan-50 text-cyan-700 border border-cyan-100 px-2.5 py-1 rounded-full font-semibold">
                   {sector} <button onClick={() => setSector('All')}><X size={10} /></button>
                 </span>
               )}
@@ -431,7 +434,7 @@ export default function MainContent() {
                     key={n}
                     onClick={() => fetchJobs(n)}
                     className={`w-9 h-9 rounded-lg text-sm font-semibold transition-colors ${
-                      n === page ? 'bg-blue-600 text-white shadow' : 'text-gray-600 hover:bg-gray-100'
+                      n === page ? 'bg-[#0096c7] text-white shadow' : 'text-gray-600 hover:bg-gray-100'
                     }`}
                   >
                     {n}

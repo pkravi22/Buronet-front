@@ -126,12 +126,12 @@
 //         <h2 className="text-2xl font-bold text-gray-900 mb-6 border-b pb-3">Create a Poll</h2>
 
 //         {error && (
-//           <p className="text-red-500 text-center mb-4 text-sm">{error}</p>
+//           <p className="text-red-500 text-center mb-4 text-[12px]">{error}</p>
 //         )}
 
 //         <form onSubmit={handleSubmit} className="space-y-4">
 //           <div>
-//             <label htmlFor="title" className="block text-sm font-medium text-gray-700">Question Title</label>
+//             <label htmlFor="title" className="block text-[12px] font-medium text-gray-700">Question Title</label>
 //             <input
 //               type="text"
 //               id="title"
@@ -144,7 +144,7 @@
 //             />
 //           </div>
 //           <div>
-//             <label htmlFor="content" className="block text-sm font-medium text-gray-700">Description</label>
+//             <label htmlFor="content" className="block text-[12px] font-medium text-gray-700">Description</label>
 //             <textarea
 //               id="content"
 //               value={content}
@@ -157,7 +157,7 @@
 //             ></textarea>
 //           </div>
 //           <div>
-//             <label htmlFor="imageUrl" className="block text-sm font-medium text-gray-700">Image URL (Optional)</label>
+//             <label htmlFor="imageUrl" className="block text-[12px] font-medium text-gray-700">Image URL (Optional)</label>
 //             <input
 //               type="url"
 //               id="imageUrl"
@@ -169,7 +169,7 @@
 //             />
 //           </div>
 //           <div>
-//             <label className="block text-sm font-medium text-gray-700">Poll Options</label>
+//             <label className="block text-[12px] font-medium text-gray-700">Poll Options</label>
 //             {options.map((option, index) => (
 //               <div key={index} className="mt-2 flex items-center gap-2">
 //                 <input
@@ -198,7 +198,7 @@
 //               <button
 //                 type="button"
 //                 onClick={addOption}
-//                 className="mt-2 flex items-center text-blue-600 hover:underline text-sm"
+//                 className="mt-2 flex items-center text-[#0096c7] hover:underline text-[12px]"
 //               >
 //                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
 //                   <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
@@ -208,7 +208,7 @@
 //             )}
 //           </div>
 //           <div>
-//             <label htmlFor="tags" className="block text-sm font-medium text-gray-700">Tags (comma-separated)</label>
+//             <label htmlFor="tags" className="block text-[12px] font-medium text-gray-700">Tags (comma-separated)</label>
 //             <input
 //               type="text"
 //               id="tags"
@@ -370,7 +370,7 @@ const CreatePollModal: React.FC<CreatePollModalProps> = ({ isOpen, onClose, onPo
 
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto px-6 pb-6 space-y-6">
           {error && (
-            <p className="text-red-500 text-sm bg-red-50 p-2 rounded">{error}</p>
+            <p className="text-red-500 text-[12px] bg-red-50 p-2 rounded">{error}</p>
           )}
           {/* LinkedIn-style content input */}
           <div className="flex items-start space-x-4">
@@ -378,7 +378,7 @@ const CreatePollModal: React.FC<CreatePollModalProps> = ({ isOpen, onClose, onPo
             <div className="h-10 w-10 rounded-full bg-gray-200 flex-shrink-0" />
             <div className="flex-1">
               <div className="flex items-center justify-between mb-1">
-                <span className="text-sm font-medium text-gray-700">Poll Question</span>
+                <span className="text-[12px] font-medium text-gray-700">Poll Question</span>
                 <span className="text-xs text-red-500">*Required</span>
               </div>
               <textarea
@@ -400,7 +400,7 @@ const CreatePollModal: React.FC<CreatePollModalProps> = ({ isOpen, onClose, onPo
           {/* Poll Options section - Redesigned for cleaner look */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="block text-sm font-medium text-gray-700">Poll Options</label>
+              <label className="block text-[12px] font-medium text-gray-700">Poll Options</label>
               <span className="text-xs text-red-500">*Min 2 required</span>
             </div>
             {options.map((option, index) => (
@@ -410,7 +410,7 @@ const CreatePollModal: React.FC<CreatePollModalProps> = ({ isOpen, onClose, onPo
                   value={option}
                   onChange={(e) => handleOptionChange(index, e.target.value)}
                   placeholder={`Option ${index + 1}`}
-                  className={`flex-1 p-3 border rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 transition-colors ${
+                  className={`flex-1 p-3 border rounded-md shadow-sm focus:border-cyan-500 focus:ring-cyan-500 transition-colors ${
                     option.trim() ? 'border-green-300 bg-green-50' : 'border-gray-300'
                   }`}
                   required
@@ -435,7 +435,7 @@ const CreatePollModal: React.FC<CreatePollModalProps> = ({ isOpen, onClose, onPo
               <button
                 type="button"
                 onClick={addOption}
-                className="mt-2 flex items-center text-blue-600 hover:underline text-sm font-semibold transition-colors"
+                className="mt-2 flex items-center text-[#0096c7] hover:underline text-[12px] font-semibold transition-colors"
               >
                 <FaPlus className="h-4 w-4 mr-1" />
                 Add option
@@ -448,7 +448,7 @@ const CreatePollModal: React.FC<CreatePollModalProps> = ({ isOpen, onClose, onPo
             {/* <div className="flex items-center space-x-4 mb-4">
               <label htmlFor="imageUrl" className="flex items-center text-gray-700 cursor-pointer">
                 <FaImage className="h-5 w-5 mr-2 text-gray-500" />
-                <span className="text-sm font-medium">Image URL (Optional)</span>
+                <span className="text-[12px] font-medium">Image URL (Optional)</span>
               </label>
               <input
                 type="url"
@@ -456,14 +456,14 @@ const CreatePollModal: React.FC<CreatePollModalProps> = ({ isOpen, onClose, onPo
                 value={imageUrl}
                 onChange={(e) => setImageUrl(e.target.value)}
                 placeholder="Add an image URL..."
-                className="flex-1 p-2 border border-gray-300 rounded-md shadow-sm text-sm"
+                className="flex-1 p-2 border border-gray-300 rounded-md shadow-sm text-[12px]"
                 disabled={isSubmitting}
               />
             </div> */}
             <div className="flex items-center space-x-4">
               <label htmlFor="tags" className="flex items-center text-gray-700 cursor-pointer">
                 <FaTag className="h-5 w-5 mr-2 text-gray-500" />
-                <span className="text-sm font-medium">Tags (comma-separated)</span>
+                <span className="text-[12px] font-medium">Tags (comma-separated)</span>
               </label>
               <input
                 type="text"
@@ -471,7 +471,7 @@ const CreatePollModal: React.FC<CreatePollModalProps> = ({ isOpen, onClose, onPo
                 value={tagsInput}
                 onChange={(e) => setTagsInput(e.target.value)}
                 placeholder="e.g., #tech, #community"
-                className="flex-1 p-2 border border-gray-300 rounded-md shadow-sm text-sm"
+                className="flex-1 p-2 border border-gray-300 rounded-md shadow-sm text-[12px]"
                 disabled={isSubmitting}
               />
             </div>
@@ -481,7 +481,7 @@ const CreatePollModal: React.FC<CreatePollModalProps> = ({ isOpen, onClose, onPo
           <div className="flex justify-end pt-4 border-t">
             <button
               type="submit"
-              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-full transition-colors flex items-center justify-center disabled:bg-gray-400 disabled:cursor-not-allowed"
+              className="bg-[#0096c7] hover:bg-cyan-700 text-white font-semibold py-2 px-6 rounded-full transition-colors flex items-center justify-center disabled:bg-gray-400 disabled:cursor-not-allowed"
               disabled={isSubmitting || !content.trim() || options.filter(o => o.trim()).length < 2}
             >
               {isSubmitting ? (

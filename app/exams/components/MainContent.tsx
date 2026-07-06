@@ -54,7 +54,7 @@ interface DepartmentStats {
 
 // Reusable Components defined within the file
 const DashboardCard = ({ title, value, trend, icon, iconColor, trendIcon, trendColor = "text-[#16A34A]" }: DashboardCardProps) => (
-  <div className="w-full h-32 bg-gradient-to-br from-[#DDECFF] to-[#E3EAFF] rounded-xl">
+  <div className="w-full h-32 bg-gradient-to-br from-[#DDECFF] to-[#E5F6FD] rounded-xl">
     <div className="h-full px-4 py-4 flex flex-col justify-between">
       <div className="flex items-center">
         <div className="w-8 h-8 bg-white rounded-lg shadow-sm flex items-center justify-center p-2">
@@ -241,7 +241,7 @@ const MainContent = () => {
   // Static data for dashboard and departments
   const dashboardCards: DashboardCardProps[] = [
     { title: 'Total Active Exams', value: dashboardStats?.totalActiveExams.toString() || '0', trend: dashboardStats?.newExamsTodayTrend || `${Math.floor(dashboardStats?.newExamsToday || 0)} new today`, icon: <Briefcase size={16} />, iconColor: 'text-[#EF4444]', trendIcon: <TrendingUp size={12} />, trendColor: 'text-[#16A34A]' },
-    { title: 'Total Applications', value: dashboardStats?.totalApplications?.toString() || '0', trend: dashboardStats?.applicationsInProgress ? `${Math.floor(dashboardStats.applicationsInProgress)} in progress` : 'Coming Soon!', icon: <FileText size={16} />, iconColor: 'text-[#3B82F6]', trendIcon: <Clock size={12} />, trendColor: 'text-[#F59E0B]' },
+    { title: 'Total Applications', value: dashboardStats?.totalApplications?.toString() || '0', trend: dashboardStats?.applicationsInProgress ? `${Math.floor(dashboardStats.applicationsInProgress)} in progress` : 'Coming Soon!', icon: <FileText size={16} />, iconColor: 'text-[#06b6d4]', trendIcon: <Clock size={12} />, trendColor: 'text-[#F59E0B]' },
     { title: 'Saved Exams', value: dashboardStats?.totalBookmarkedExams.toString() || '0', trend: dashboardStats?.bookmarkedExamsTrend || 'updated Just now', icon: <Bookmark size={16} />, iconColor: 'text-[#22C55E]', trendIcon: <Clock size={12} />, trendColor: 'text-[#F59E0B]' },
     { title: 'New Notifications', value: unreadCount.toString(), trend: `${unreadCount} new alerts`, icon: <Bell size={16} />, iconColor: 'text-[#A855F7]', trendIcon: <TrendingUp size={12} />, trendColor: 'text-[#16A34A]' }
   ];
@@ -309,7 +309,7 @@ const MainContent = () => {
           <div className="mb-8">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-[#1F2937] font-semibold text-lg">Popular Departments</h2>
-              <button className="text-[#3B82F6] text-sm flex items-center gap-1 hover:text-[#2563EB]">View All<ChevronRight size={16} /></button>
+              <button className="text-[#06b6d4] text-sm flex items-center gap-1 hover:text-[#0096c7]">View All<ChevronRight size={16} /></button>
             </div>
             <div className="relative">
               {showDeptLeftButton && <button onClick={() => scroll(departmentsScrollRef, 'left')} className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center z-10 hover:bg-gray-50"><ChevronLeft size={20} className="text-[#6B7280]" /></button>}
@@ -328,14 +328,14 @@ const MainContent = () => {
               <h2 className="text-[#1F2937] font-semibold text-lg">Latest Exam Openings</h2>
               <div className="flex items-center gap-4">
                 {user?.isAdmin && (
-                  <Link href="/exams/create" className="text-white bg-blue-600 hover:bg-blue-700 px-3 py-1.5 rounded-lg text-sm flex items-center gap-2 shadow-sm transition-all">
+                  <Link href="/exams/create" className="text-white bg-[#0096c7] hover:bg-cyan-700 px-3 py-1.5 rounded-lg text-sm flex items-center gap-2 shadow-sm transition-all">
                     <Plus size={16} />
                     <span>Create Exam</span>
                   </Link>
                 )}
                 <button
                   onClick={handleOpenModal}
-                  className="text-[#3B82F6] text-sm flex items-center gap-1 hover:text-[#2563EB]"
+                  className="text-[#06b6d4] text-sm flex items-center gap-1 hover:text-[#0096c7]"
                 >
                   View All<ChevronRight size={16} />
                 </button>
@@ -349,7 +349,7 @@ const MainContent = () => {
                   onClick={() => setActiveTab(tab.id)}
                   className={`h-9 px-4 rounded-md text-sm whitespace-nowrap flex items-center justify-center gap-2 transition-colors ${
                     activeTab === tab.id
-                      ? 'bg-[#3B82F6] text-white'
+                      ? 'bg-[#06b6d4] text-white'
                       : 'bg-[#F3F4F6] text-[#374151] hover:bg-gray-200'
                   }`}
                 >

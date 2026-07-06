@@ -72,7 +72,7 @@
 
 // const DashboardCard = ({ title, value, trend, icon, iconColor, trendIcon, trendColor = "text-[#16A34A]" }: DashboardCardProps) => (
 
-//   <div className="w-[148px] h-32 bg-gradient-to-br from-[#DDECFF] to-[#E3EAFF] rounded-xl">
+//   <div className="w-[148px] h-32 bg-gradient-to-br from-[#DDECFF] to-[#E5F6FD] rounded-xl">
 
 //     <div className="h-full px-4 py-4 flex flex-col justify-between">
 
@@ -131,7 +131,7 @@
 
 //     switch (title.toLowerCase()) {
 
-//       case 'railway': return 'from-blue-500 to-indigo-600';
+//       case 'railway': return 'from-cyan-500 to-indigo-600';
 
 //       case 'banking': return 'from-indigo-500 to-purple-600';
 
@@ -143,7 +143,7 @@
 
 //       case 'civil services': return 'from-orange-500 to-yellow-600';
 
-//       default: return 'from-blue-500 to-indigo-600';
+//       default: return 'from-cyan-500 to-indigo-600';
 
 //     }
 
@@ -273,7 +273,7 @@
 
 //     { title: 'Total Active Jobs', value: dashboardStats?.totalActiveJobs.toString() || '0', trend: '10 new today', icon: <Briefcase size={16} />, iconColor: 'text-[#EF4444]', trendIcon: <TrendingUp size={12} />, trendColor: 'text-[#16A34A]' },
 
-//     { title: 'Total Applications', value: '0', trend: '5 in progress', icon: <FileText size={16} />, iconColor: 'text-[#3B82F6]', trendIcon: <Clock size={12} />, trendColor: 'text-[#F59E0B]' },
+//     { title: 'Total Applications', value: '0', trend: '5 in progress', icon: <FileText size={16} />, iconColor: 'text-[#06b6d4]', trendIcon: <Clock size={12} />, trendColor: 'text-[#F59E0B]' },
 
 //     { title: 'Saved Jobs', value: dashboardStats?.totalBookmarkedJobs.toString() || '0', trend: 'updated Just now', icon: <Bookmark size={16} />, iconColor: 'text-[#22C55E]', trendIcon: <Clock size={12} />, trendColor: 'text-[#F59E0B]' },
 
@@ -386,7 +386,7 @@
 
 //               <h2 className="text-[#1F2937] font-semibold text-lg">Popular Departments</h2>
 
-//               <button className="text-[#3B82F6] text-sm flex items-center gap-1 hover:text-[#2563EB]">View All<ChevronRight size={16} /></button>
+//               <button className="text-[#06b6d4] text-sm flex items-center gap-1 hover:text-[#0096c7]">View All<ChevronRight size={16} /></button>
 
 //             </div>
 
@@ -419,7 +419,7 @@
 
 //               <h2 className="text-[#1F2937] font-semibold text-lg">Latest Job Openings</h2>
 
-//               <button className="text-[#3B82F6] text-sm flex items-center gap-1 hover:text-[#2563EB]">View All<ChevronRight size={16} /></button>
+//               <button className="text-[#06b6d4] text-sm flex items-center gap-1 hover:text-[#0096c7]">View All<ChevronRight size={16} /></button>
 
 //             </div>
 
@@ -427,7 +427,7 @@
 
 //               <div className="flex items-center gap-2 border-b border-[#E5E7EB] pb-4">
 
-//                 <button className="h-9 px-4 bg-[#3B82F6] text-white rounded-md text-sm whitespace-nowrap">All Jobs</button>
+//                 <button className="h-9 px-4 bg-[#06b6d4] text-white rounded-md text-sm whitespace-nowrap">All Jobs</button>
 
 //                 <button className="h-9 px-4 bg-[#F3F4F6] text-[#374151] rounded-md text-sm whitespace-nowrap">Recommended</button>
 

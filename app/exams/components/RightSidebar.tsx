@@ -22,7 +22,7 @@ const UpdateCard = ({ type, timeAgo, title }: UpdateCardProps) => {
       case 'Exam Schedule':
         return {
           bg: 'bg-[#DBEAFE]',
-          text: 'text-[#1D4ED8]'
+          text: 'text-[#0e7490]'
         };
       case 'Application':
         return {
@@ -201,12 +201,12 @@ const RightSidebar = ({ scrollSourceRef }: { scrollSourceRef: React.RefObject<HT
       <div className="bg-white rounded-lg shadow-sm border border-[#E5E7EB] p-6 mt-6">
         <h3 className="text-[#1F2937] font-medium mb-4">Preparation Resources</h3>
         
-        <div className="bg-gradient-to-b from-[#EFF6FF] to-[#EEF2FF] rounded-xl p-4">
+        <div className="bg-gradient-to-b from-[#ecfeff] to-[#EEF2FF] rounded-xl p-4">
           <div className="flex items-start gap-3 mb-4">
             <div className="bg-[#DBEAFE] p-2 rounded-lg">
               <svg width="14" height="16" viewBox="0 0 14 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M0 16.3438V0H14V16.3438H0ZM1.4 14.9438H12.6V1.4H1.4V14.9438Z" fill="#2563EB"/>
-                <path d="M2.8 3.8H11.2V5.2H2.8V3.8ZM2.8 6.6H11.2V8H2.8V6.6ZM2.8 9.4H11.2V10.8H2.8V9.4ZM2.8 12.2H8.4V13.6H2.8V12.2Z" fill="#2563EB"/>
+                <path d="M0 16.3438V0H14V16.3438H0ZM1.4 14.9438H12.6V1.4H1.4V14.9438Z" fill="#0096c7"/>
+                <path d="M2.8 3.8H11.2V5.2H2.8V3.8ZM2.8 6.6H11.2V8H2.8V6.6ZM2.8 9.4H11.2V10.8H2.8V9.4ZM2.8 12.2H8.4V13.6H2.8V12.2Z" fill="#0096c7"/>
               </svg>
             </div>
             <div>
@@ -214,7 +214,7 @@ const RightSidebar = ({ scrollSourceRef }: { scrollSourceRef: React.RefObject<HT
               <p className="text-[#6B7280] text-sm">For all competitive exams</p>
             </div>
           </div>
-          <button className="w-full bg-white text-[#2563EB] py-2 rounded hover:bg-[#F3F4F6] transition-colors">
+          <button className="w-full bg-white text-[#0096c7] py-2 rounded hover:bg-[#F3F4F6] transition-colors">
             Coming Soon
           </button>
         </div>

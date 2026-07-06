@@ -2,6 +2,7 @@
 
 import React from 'react'; // Import React
 import { useUnreadMessages } from '@/context/UnreadMessagesContext';
+import { useAuth } from '@/context/AuthContext';
 
 // --- Mock Implementations to Resolve Errors ---
 // In a real Next.js project, you would install `react-icons` and `next`
@@ -48,6 +49,12 @@ const FiVideo = ({ size = 24 }) => (
 const FiMessageSquare = ({ size = 24 }) => (
   <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
 );
+const FiLogOut = ({ size = 24 }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+);
+const FiUser = ({ size = 24 }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+);
 
 
 // --- Reusable NavItem component for the Desktop Sidebar ---
@@ -65,13 +72,13 @@ const NavItem = ({ icon, text, href, isActive, badge }: NavItemProps) => {
       <Link
         href={href}
         className={`flex items-center mx-4 my-1 px-4 py-3 rounded-md transition-colors ${isActive
-            ? 'bg-[#E3EAFF] text-[#5E98FF]'
+            ? 'bg-[#E5F6FD] text-[#00B4D8]'
             : 'hover:bg-gray-50 text-[#505965]'
           }`}
       >
         <div className="flex items-center w-full">
           <span className="w-6 h-6 flex items-center *:w-full *:h-full">{icon}</span>
-          <span className="ml-6 text-base font-medium">{text}</span>
+          <span className="ml-6 text-base font-semibold">{text}</span>
           {badge && (
             <span className="ml-auto bg-[#EF4444] text-white text-xs rounded-full px-2 py-0.5">
               {badge}
@@ -90,6 +97,7 @@ interface NavbarProps {
 
 const Navbar = ({ activeItem }: NavbarProps) => {
   const { totalUnreadCount } = useUnreadMessages();
+  const { logout, user } = useAuth();
 
   const navItems = [
     { icon: <FiHome size={20} />, text: 'Home', href: '/home' },
@@ -97,8 +105,7 @@ const Navbar = ({ activeItem }: NavbarProps) => {
     // { icon: <FiUserCheck size={20} />, text: 'Followers', href: '/followers' },
     { icon: <FiUsers size={20} />, text: 'My Circle', href: '/followers' },
     { icon: <FiVideo size={20} />, text: 'Bytes', href: '/bytes' },
-    { icon: <FiBriefcase size={20} />, text: 'Jobs', href: '/jobs' },
-    { icon: <FiBook size={20} />, text: 'Exams', href: '/exams' },
+    { icon: <FiBriefcase size={20} />, text: 'Jobs & Exams', href: '/jobs' },
     { icon: <FiMessageSquare size={20} />, text: 'Messaging', href: '/messaging', badge: totalUnreadCount > 0 ? totalUnreadCount : undefined }
   ];
 
@@ -114,9 +121,9 @@ const Navbar = ({ activeItem }: NavbarProps) => {
       {/* --- Desktop Sidebar (Visible on lg screens and up) --- */}
       <nav
         className={`navbar-desktop
-          hidden lg:block
+          hidden lg:flex flex-col justify-between
           fixed top-[61px] ml-6 xl:w-[260px] lg-laptop:w-[20%] rounded-lg
-          shadow-sm border border-[#E5E7EB] my-6
+          shadow-sm border border-[#E5E7EB] my-6 z-40
           min-h-[calc(100vh-61px-3rem)] ultra:min-h-[calc(90vh-61px-7rem)] xl-ultra:min-h-[calc(80vh-61px-10.5rem)] bg-white
         `}
       >
@@ -129,6 +136,31 @@ const Navbar = ({ activeItem }: NavbarProps) => {
             />
           ))}
         </ul>
+
+        {user && (
+          <div className="border-t border-[#E5E7EB] mt-auto pt-2 pb-2">
+            <button 
+              onClick={logout} 
+              className="flex items-center mx-4 my-1 px-4 py-3 rounded-md transition-colors hover:bg-gray-50 text-[#505965] w-[calc(100%-2rem)] text-left"
+            >
+              <div className="flex items-center w-full">
+                <span className="w-6 h-6 flex items-center shrink-0">
+                  {user.profilePictureUrl ? (
+                    <img src={user.profilePictureUrl} className="w-full h-full rounded-full object-cover" alt="Profile" />
+                  ) : (
+                    <div className="w-full h-full rounded-full bg-gray-100 text-gray-500 flex items-center justify-center shrink-0 border border-gray-200">
+                      <FiUser size={14} />
+                    </div>
+                  )}
+                </span>
+                <span className="ml-6 text-base font-semibold">Logout</span>
+                <span className="ml-auto flex items-center">
+                  <FiLogOut size={20} className="text-gray-400" />
+                </span>
+              </div>
+            </button>
+          </div>
+        )}
       </nav>
 
       {/* --- Mobile Sticky Bottom Bar (Hidden on lg screens and up) --- */}
@@ -137,7 +169,7 @@ const Navbar = ({ activeItem }: NavbarProps) => {
           {navItems.map((item) => (
             <li key={item.href}>
               <Link href={item.href} className="flex flex-col items-center justify-center p-2 relative w-16">
-                <div className={`relative transition-colors ${item.text === activeItem ? 'text-[#5E98FF]' : 'text-gray-500'
+                <div className={`relative transition-colors ${item.text === activeItem ? 'text-[#00B4D8]' : 'text-gray-500'
                   }`}>
                   {React.cloneElement(item.icon as React.ReactElement, { size: 24 })}
                   {/* {item.badge && (

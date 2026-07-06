@@ -20,7 +20,7 @@ const Header = () => {
                 priority
               />
             </div>
-            <span className="text-2xl font-bold bg-gradient-to-r from-[#4898FF] to-[#2563EB] bg-clip-text text-transparent">
+            <span className="text-2xl font-bold bg-gradient-to-r from-[#4898FF] to-[#0096c7] bg-clip-text text-transparent">
               Buronet
             </span>
           </Link>
@@ -32,7 +32,7 @@ const Header = () => {
             <input
               type="text"
               placeholder="Search..."
-              className="w-full pl-10 pr-4 py-2 rounded-lg bg-gray-50 border border-gray-200 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+              className="w-full pl-10 pr-4 py-2 rounded-lg bg-gray-50 border border-gray-200 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"
             />
             <AiOutlineSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-xl" />
           </div>

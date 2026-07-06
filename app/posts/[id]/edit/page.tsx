@@ -164,7 +164,7 @@ const EditPostPage: React.FC<EditPostPageProps> = ({ params }) => {
                       <button
                         type="submit"
                         disabled={isUpdatingPost}
-                        className="px-6 py-2 text-sm text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors font-medium disabled:opacity-50"
+                        className="px-6 py-2 text-sm text-white bg-[#0096c7] hover:bg-cyan-700 rounded-lg transition-colors font-medium disabled:opacity-50"
                       >
                         {isUpdatingPost ? 'Saving...' : 'Save Changes'}
                       </button>

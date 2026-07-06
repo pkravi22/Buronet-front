@@ -67,7 +67,7 @@ const ProjectsSection: React.FC<ProjectsSectionProps> = ({ projects, canEdit = t
                 <div className="absolute top-2 right-2 flex space-x-2">
                   <button
                     onClick={() => handleEditClick(project)}
-                    className="text-blue-600 hover:underline text-sm"
+                    className="text-[#0096c7] hover:underline text-sm"
                     title="Edit Project"
                   >
                     Edit
@@ -86,7 +86,7 @@ const ProjectsSection: React.FC<ProjectsSectionProps> = ({ projects, canEdit = t
                 {project.startDate ? formatDateOnly(project.startDate, 'MMM yyyy') : 'N/A'} -{' '}
                 {project.endDate ? formatDateOnly(project.endDate, 'MMM yyyy') : 'Present'}
               </p>
-              {project.url && <p className="text-blue-600 text-sm hover:underline"><a href={project.url} target="_blank" rel="noopener noreferrer">View Project</a></p>}
+              {project.url && <p className="text-[#0096c7] text-sm hover:underline"><a href={project.url} target="_blank" rel="noopener noreferrer">View Project</a></p>}
               {project.description && <p className="text-gray-700 mt-2 text-sm">{project.description}</p>}
             </div>
           ))}

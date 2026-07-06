@@ -40,7 +40,7 @@
 
 // // Reusable Components defined within the file
 // const DashboardCard = ({ title, value, trend, icon, iconColor, trendIcon, trendColor = "text-[#16A34A]" }: DashboardCardProps) => (
-//   <div className="w-[148px] h-32 bg-gradient-to-br from-[#DDECFF] to-[#E3EAFF] rounded-xl">
+//   <div className="w-[148px] h-32 bg-gradient-to-br from-[#DDECFF] to-[#E5F6FD] rounded-xl">
 //     <div className="h-full px-4 py-4 flex flex-col justify-between">
 //       <div className="flex items-center">
 //         <div className="w-8 h-8 bg-white rounded-lg shadow-sm flex items-center justify-center p-2">
@@ -70,13 +70,13 @@
 // const DepartmentCard = ({ title, jobs, icon }: { title: string; jobs: number; icon: React.ReactNode }) => {
 //   const getGradient = (title: string) => {
 //     switch (title.toLowerCase()) {
-//       case 'railway': return 'from-blue-500 to-indigo-600';
+//       case 'railway': return 'from-cyan-500 to-indigo-600';
 //       case 'banking': return 'from-indigo-500 to-purple-600';
 //       case 'defense': return 'from-purple-500 to-pink-600';
 //       case 'education': return 'from-pink-500 to-red-600';
 //       case 'healthcare': return 'from-red-500 to-orange-600';
 //       case 'civil services': return 'from-orange-500 to-yellow-600';
-//       default: return 'from-blue-500 to-indigo-600';
+//       default: return 'from-cyan-500 to-indigo-600';
 //     }
 //   };
 
@@ -159,7 +159,7 @@
 //   // Static data for dashboard and departments
 //   const dashboardCards: DashboardCardProps[] = [
 //     { title: 'Total Active Jobs', value: dashboardStats?.totalActiveJobs.toString() || '0', trend: '10 new today', icon: <Briefcase size={16} />, iconColor: 'text-[#EF4444]', trendIcon: <TrendingUp size={12} />, trendColor: 'text-[#16A34A]' },
-//     { title: 'Total Applications', value: '0', trend: '5 in progress', icon: <FileText size={16} />, iconColor: 'text-[#3B82F6]', trendIcon: <Clock size={12} />, trendColor: 'text-[#F59E0B]' },
+//     { title: 'Total Applications', value: '0', trend: '5 in progress', icon: <FileText size={16} />, iconColor: 'text-[#06b6d4]', trendIcon: <Clock size={12} />, trendColor: 'text-[#F59E0B]' },
 //     { title: 'Saved Jobs', value: dashboardStats?.totalBookmarkedJobs.toString() || '0', trend: 'updated Just now', icon: <Bookmark size={16} />, iconColor: 'text-[#22C55E]', trendIcon: <Clock size={12} />, trendColor: 'text-[#F59E0B]' },
 //     { title: 'New Notifications', value: dashboardStats?.newJobsToday.toString() || '0', trend: '4 new alerts', icon: <Bell size={16} />, iconColor: 'text-[#A855F7]', trendIcon: <TrendingUp size={12} />, trendColor: 'text-[#16A34A]' }
 //   ];
@@ -225,7 +225,7 @@
 //           <div className="mb-8">
 //             <div className="flex items-center justify-between mb-4">
 //               <h2 className="text-[#1F2937] font-semibold text-lg">Popular Departments</h2>
-//               <button className="text-[#3B82F6] text-sm flex items-center gap-1 hover:text-[#2563EB]">View All<ChevronRight size={16} /></button>
+//               <button className="text-[#06b6d4] text-sm flex items-center gap-1 hover:text-[#0096c7]">View All<ChevronRight size={16} /></button>
 //             </div>
 //             <div className="relative">
 //               {showDeptLeftButton && <button onClick={() => scroll(departmentsScrollRef, 'left')} className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center z-10 hover:bg-gray-50"><ChevronLeft size={20} className="text-[#6B7280]" /></button>}
@@ -242,7 +242,7 @@
 //           <div className="mb-8">
 //             <div className="flex items-center justify-between mb-4">
 //               <h2 className="text-[#1F2937] font-semibold text-lg">Latest Job Openings</h2>
-//               <button className="text-[#3B82F6] text-sm flex items-center gap-1 hover:text-[#2563EB]">View All<ChevronRight size={16} /></button>
+//               <button className="text-[#06b6d4] text-sm flex items-center gap-1 hover:text-[#0096c7]">View All<ChevronRight size={16} /></button>
 //             </div>
 //             {/* KEY CHANGE 4: Functional Tabs */}
 //             <div className="flex items-center gap-2 border-b border-[#E5E7EB] pb-4">
@@ -252,7 +252,7 @@
 //                   onClick={() => setActiveTab(tab.id)}
 //                   className={`h-9 px-4 rounded-md text-sm whitespace-nowrap flex items-center justify-center gap-2 transition-colors ${
 //                     activeTab === tab.id
-//                       ? 'bg-[#3B82F6] text-white'
+//                       ? 'bg-[#06b6d4] text-white'
 //                       : 'bg-[#F3F4F6] text-[#374151] hover:bg-gray-200'
 //                   }`}
 //                 >

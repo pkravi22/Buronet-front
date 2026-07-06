@@ -97,7 +97,7 @@ const EditEducationForm: React.FC<EditEducationFormProps> = ({ education, onClos
               </button>
               <button
                 type="submit"
-                className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition-colors"
+                className="bg-[#0096c7] text-white px-6 py-2 rounded-md hover:bg-cyan-700 transition-colors"
                 disabled={isSaving}
               >
                 {isSaving ? 'Saving...' : 'Save'}

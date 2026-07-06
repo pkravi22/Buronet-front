@@ -54,7 +54,7 @@ const NavItem = ({ icon, text, href, isActive, badge }: NavItemProps) => {
       <Link
         href={href}
         className={`flex items-center justify-center p-2 relative w-16 transition-colors ${
-          isActive ? 'text-[#5E98FF]' : 'text-gray-500'
+          isActive ? 'text-[#00B4D8]' : 'text-gray-500'
         }`}
       >
         <div className="flex flex-col items-center">
@@ -81,8 +81,7 @@ const BytesNavbar = ({ activeItem }: BytesNavbarProps) => {
     { icon: <FiHome size={20} />, text: 'Home', href: '/home' },
     { icon: <FiUsers size={20} />, text: 'My Circle', href: '/followers' },
     { icon: <FiVideo size={20} />, text: 'Bytes', href: '/bytes' },
-    { icon: <FiBriefcase size={20} />, text: 'Jobs', href: '/jobs' },
-    { icon: <FiBook size={20} />, text: 'Exams', href: '/exams' },
+    { icon: <FiBriefcase size={20} />, text: 'Jobs & Exams', href: '/jobs' },
     { icon: <FiMessageSquare size={20} />, text: 'Messaging', href: '/messaging', badge: totalUnreadCount > 0 ? totalUnreadCount : undefined }
   ];
 

@@ -24,7 +24,7 @@
 //         {/* Bookmark button now has an onClick handler */}
 //         <button 
 //           onClick={handleBookmarkClick}
-//           className="absolute top-5 right-5 text-[#6B7280] hover:text-[#3B82F6] z-10 p-1"
+//           className="absolute top-5 right-5 text-[#6B7280] hover:text-[#06b6d4] z-10 p-1"
 //           aria-label="Bookmark job"
 //         >
 //           <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><path d="M6 4a2 2 0 0 0-2 2v14l8-5.333L20 20V6a2 2 0 0 0-2-2H6z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/></svg>

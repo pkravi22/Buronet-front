@@ -62,11 +62,11 @@ const FollowButton: React.FC<FollowButtonProps> = ({
   };
 
   const baseClass =
-    'inline-flex items-center justify-center rounded font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-blue-400 disabled:cursor-not-allowed';
+    'inline-flex items-center justify-center rounded font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-cyan-400 disabled:cursor-not-allowed';
 
   const variantClass = isFollowing
     ? 'bg-[#F3F4F6] text-[#374151] hover:bg-[#E5E7EB] border border-[#D1D5DB]'
-    : 'bg-[#2563EB] text-white hover:bg-[#1D4ED8]';
+    : 'bg-[#0096c7] text-white hover:bg-[#0e7490]';
 
   return (
     <button

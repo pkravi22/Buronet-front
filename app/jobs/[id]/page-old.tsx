@@ -152,10 +152,10 @@
 //                     </div>
 //                     <div className="flex w-full flex-col space-y-3">
 //                       <a href="#" onClick={handleToggleBookmark} rel="noopener noreferrer" className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-2.5 rounded-lg font-medium transition flex items-center justify-center gap-2">
-//                         <Bookmark size={18} className={`transition-all ${isBookmarked ? 'text-blue-600 fill-blue-600' : 'text-gray-500 hover:text-gray-800'}` }/> {isBookmarked ? "Remove Bookmark" : "Bookmark Job"}
+//                         <Bookmark size={18} className={`transition-all ${isBookmarked ? 'text-[#0096c7] fill-cyan-600' : 'text-gray-500 hover:text-gray-800'}` }/> {isBookmarked ? "Remove Bookmark" : "Bookmark Job"}
 //                       </a>                      
 //                       {/* Share button can be added here */}
-//                       <a href={job.applyLink?.link} target="_blank" rel="noopener noreferrer" className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-lg font-medium transition shadow-md hover:shadow-lg flex items-center justify-center gap-2">
+//                       <a href={job.applyLink?.link} target="_blank" rel="noopener noreferrer" className="w-full bg-[#0096c7] hover:bg-cyan-700 text-white py-2.5 rounded-lg font-medium transition shadow-md hover:shadow-lg flex items-center justify-center gap-2">
 //                         <Edit size={18} /> Apply Now
 //                       </a>
 //                       <a href={job.applyLink?.fileName} target="_blank" rel="noopener noreferrer" className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-2.5 rounded-lg font-medium transition flex items-center justify-center gap-2">
@@ -179,7 +179,7 @@
 //                 <div className="grid grid-cols-1 gap-8">
 //                   {/* Job Description Card */}
 //                   <div className="bg-white rounded-xl shadow-sm p-6">
-//                     <h3 className="font-semibold text-lg text-gray-900 flex items-center mb-4"><FileText size={20} className="text-blue-600 mr-2" /> Job Description</h3>
+//                     <h3 className="font-semibold text-lg text-gray-900 flex items-center mb-4"><FileText size={20} className="text-[#0096c7] mr-2" /> Job Description</h3>
 //                     <p className="text-gray-700 whitespace-pre-line">{job.jobDescription}</p>
 //                     <div className="space-y-4 mt-4">                      
 //                       <div className="bg-gray-50 rounded-lg p-2 pl-0">
@@ -193,7 +193,7 @@
 
 //                   {/* Benefits Card */}
 //                   <div className="bg-white rounded-xl shadow-sm p-6">
-//                     <h3 className="font-semibold text-lg text-gray-900 flex items-center mb-5"><Gift size={20} className="text-blue-600 mr-2" />Benefits</h3>
+//                     <h3 className="font-semibold text-lg text-gray-900 flex items-center mb-5"><Gift size={20} className="text-[#0096c7] mr-2" />Benefits</h3>
 //                     <div className="space-y-4">                      
 //                       <div className="bg-gray-50 rounded-lg p-4">
 //                         <ul className="text-sm text-gray-700 list-disc pl-4 space-y-1 marker:text-gray-400">
@@ -205,7 +205,7 @@
 
 //                   {/* Eligibility Criteria Card */}
 //                   <div className="bg-white rounded-xl shadow-sm p-6">
-//                     <h3 className="font-semibold text-lg text-gray-900 flex items-center mb-5"><UserCheck size={20} className="text-blue-600 mr-2" /> Eligibility & Qualifications</h3>
+//                     <h3 className="font-semibold text-lg text-gray-900 flex items-center mb-5"><UserCheck size={20} className="text-[#0096c7] mr-2" /> Eligibility & Qualifications</h3>
 //                     <div className="space-y-4">
 //                       <div className="bg-gray-50 rounded-lg p-4">
 //                         <p className="text-sm text-gray-500 mb-1">Qualifications</p>
@@ -224,7 +224,7 @@
 
 //                   {/* How to Apply Card */}
 //                   <div className="bg-white rounded-xl shadow-sm p-6">
-//                     <h3 className="font-semibold text-lg text-gray-900 flex items-center mb-5"><FileText size={20} className="text-blue-600 mr-2" /> How to Apply</h3>
+//                     <h3 className="font-semibold text-lg text-gray-900 flex items-center mb-5"><FileText size={20} className="text-[#0096c7] mr-2" /> How to Apply</h3>
 //                     <div className="space-y-4">
 //                       <div className="bg-gray-50 rounded-lg p-4">
 //                         <p className="text-sm text-gray-500 mb-1">Application Process</p>
@@ -243,14 +243,14 @@
 //                   {/* You would need to add a field like `importantLinks: [{title: string, url: string}]` */}
 //                   {/* to your backend Job model to make this dynamic. */}
 //                   <div className="bg-white rounded-xl shadow-sm p-6">
-//                     <h3 className="font-semibold text-lg text-gray-900 flex items-center mb-5"><LucideLink size={20} className="text-blue-600 mr-2" />Important Links</h3>
+//                     <h3 className="font-semibold text-lg text-gray-900 flex items-center mb-5"><LucideLink size={20} className="text-[#0096c7] mr-2" />Important Links</h3>
 //                     <div className="space-y-3">                                      
-//                       <a href={job.applyLink?.fileName} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between bg-gray-50 rounded-lg p-4 hover:bg-blue-50 transition cursor-pointer">
+//                       <a href={job.applyLink?.fileName} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between bg-gray-50 rounded-lg p-4 hover:bg-cyan-50 transition cursor-pointer">
 //                         <div className="flex items-center"><FileArchive size={18} className="text-red-500 mr-3" /><span className="text-gray-800">Official Notification PDF</span></div>
 //                         <LucideLink size={16} className="text-gray-400" />
 //                       </a>
-//                       <a href={`https://${job.applyLink?.link.split('/')[0]}`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between bg-gray-50 rounded-lg p-4 hover:bg-blue-50 transition cursor-pointer">
-//                         <div className="flex items-center"><Globe size={18} className="text-blue-500 mr-3" /><span className="text-gray-800">Official Website</span></div>
+//                       <a href={`https://${job.applyLink?.link.split('/')[0]}`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between bg-gray-50 rounded-lg p-4 hover:bg-cyan-50 transition cursor-pointer">
+//                         <div className="flex items-center"><Globe size={18} className="text-[#00B4D8] mr-3" /><span className="text-gray-800">Official Website</span></div>
 //                         <LucideLink size={16} className="text-gray-400" />
 //                       </a>
 //                     </div>

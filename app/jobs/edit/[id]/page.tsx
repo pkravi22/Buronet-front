@@ -28,7 +28,7 @@ const FormField: React.FC<FormFieldProps> = ({ label, id, value, onChange, type 
         value={value}
         onChange={onChange}
         rows={rows}
-        className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+        className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-cyan-500 focus:border-cyan-500"
       />
     ) : (
       <input
@@ -38,7 +38,7 @@ const FormField: React.FC<FormFieldProps> = ({ label, id, value, onChange, type 
         value={value}
         onChange={onChange}
         required={required}
-        className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+        className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-cyan-500 focus:border-cyan-500"
       />
     )}
   </div>
@@ -262,7 +262,7 @@ const JobEditPage = ({ params }: JobEditPageProps) => {
                 name="status"
                 value={job.status || 'Active'}
                 onChange={handleChange}
-                className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-cyan-500 focus:border-cyan-500"
               >
                 <option value="Active">Active</option>
                 <option value="Closed">Closed</option>
@@ -277,7 +277,7 @@ const JobEditPage = ({ params }: JobEditPageProps) => {
             <button
               type="submit"
               disabled={isSaving}
-              className="px-6 py-2 bg-blue-600 text-white font-semibold rounded-md shadow-sm hover:bg-blue-700 disabled:bg-blue-300 disabled:cursor-not-allowed flex items-center gap-2"
+              className="px-6 py-2 bg-[#0096c7] text-white font-semibold rounded-md shadow-sm hover:bg-cyan-700 disabled:bg-cyan-300 disabled:cursor-not-allowed flex items-center gap-2"
             >
               <Save size={16} />
               {isSaving ? 'Saving...' : 'Save Changes'}

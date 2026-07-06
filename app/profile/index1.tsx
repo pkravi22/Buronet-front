@@ -334,7 +334,7 @@ const ProfilePage: React.FC = () => {
                       </div>
                     </div>
                     <div className="flex w-full space-x-3">
-                      <button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-lg font-medium transition shadow-md hover:shadow-lg">
+                      <button className="flex-1 bg-[#0096c7] hover:bg-cyan-700 text-white py-2.5 rounded-lg font-medium transition shadow-md hover:shadow-lg">
                         <i className="fas fa-edit mr-2"></i> Edit Profile
                       </button>
                       <button className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2.5 rounded-lg font-medium transition">
@@ -356,7 +356,7 @@ const ProfilePage: React.FC = () => {
                 <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
                   <div className="flex justify-between items-center mb-4">
                     <h3 className="text-lg font-semibold text-gray-900">Target Exams</h3>
-                    <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">
+                    <button className="text-[#0096c7] hover:text-cyan-700 text-sm font-medium">
                       <i className="fas fa-plus mr-1"></i> Add Exam
                     </button>
                   </div>
@@ -365,7 +365,7 @@ const ProfilePage: React.FC = () => {
                       <div key={index} className="border border-gray-100 rounded-lg p-4">
                         <div className="flex justify-between items-start mb-2">
                           <h4 className="font-medium text-gray-900">{exam.name}</h4>
-                          <span className="text-sm px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700">
+                          <span className="text-sm px-2.5 py-0.5 rounded-full bg-cyan-50 text-cyan-700">
                             {exam.status}
                           </span>
                         </div>
@@ -392,7 +392,7 @@ const ProfilePage: React.FC = () => {
                 <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
                   <div className="flex justify-between items-center mb-4">
                     <h3 className="text-lg font-semibold text-gray-900">Skills</h3>
-                    <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">
+                    <button className="text-[#0096c7] hover:text-cyan-700 text-sm font-medium">
                       <i className="fas fa-plus mr-1"></i> Add Skill
                     </button>
                   </div>
@@ -410,13 +410,13 @@ const ProfilePage: React.FC = () => {
                 <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
                   <div className="flex justify-between items-center mb-4">
                     <h3 className="text-lg font-semibold text-gray-900">Education</h3>
-                    <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">
+                    <button className="text-[#0096c7] hover:text-cyan-700 text-sm font-medium">
                       <i className="fas fa-plus mr-1"></i> Add Education
                     </button>
                   </div>
                   <div className="space-y-4">
                     {education.map((edu, index) => (
-                      <div key={index} className="border-l-2 border-blue-500 pl-4">
+                      <div key={index} className="border-l-2 border-cyan-500 pl-4">
                         <h4 className="font-medium text-gray-900">{edu.degree}</h4>
                         <p className="text-gray-600 text-sm">{edu.institution}</p>
                         <div className="flex gap-4 mt-1 text-sm">
@@ -433,7 +433,7 @@ const ProfilePage: React.FC = () => {
                 <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
                   <div className="flex justify-between items-center mb-4">
                     <h3 className="text-lg font-semibold text-gray-900">Exam Attempts</h3>
-                    <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">
+                    <button className="text-[#0096c7] hover:text-cyan-700 text-sm font-medium">
                       <i className="fas fa-plus mr-1"></i> Add Attempt
                     </button>
                   </div>
@@ -471,7 +471,7 @@ const ProfilePage: React.FC = () => {
                 <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
                   <div className="flex justify-between items-center mb-4">
                     <h3 className="text-lg font-semibold text-gray-900">Coaching</h3>
-                    <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">
+                    <button className="text-[#0096c7] hover:text-cyan-700 text-sm font-medium">
                       <i className="fas fa-plus mr-1"></i> Add Coaching
                     </button>
                   </div>
@@ -493,7 +493,7 @@ const ProfilePage: React.FC = () => {
                 <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
                   <div className="flex justify-between items-center mb-4">
                     <h3 className="text-lg font-semibold text-gray-900">Projects</h3>
-                    <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">
+                    <button className="text-[#0096c7] hover:text-cyan-700 text-sm font-medium">
                       <i className="fas fa-plus mr-1"></i> Add Project
                     </button>
                   </div>
@@ -516,7 +516,7 @@ const ProfilePage: React.FC = () => {
                 <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
                   <div className="flex justify-between items-center mb-4">
                     <h3 className="text-lg font-semibold text-gray-900">Community Groups</h3>
-                    <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">
+                    <button className="text-[#0096c7] hover:text-cyan-700 text-sm font-medium">
                       <i className="fas fa-plus mr-1"></i> Join Group
                     </button>
                   </div>

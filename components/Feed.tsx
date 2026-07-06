@@ -21,11 +21,11 @@ const Feed = () => {
           <input
             type="text"
             placeholder="Share your thoughts..."
-            className="flex-1 p-2 rounded-lg border border-gray-200 focus:outline-none focus:border-blue-500"
+            className="flex-1 p-2 rounded-lg border border-gray-200 focus:outline-none focus:border-cyan-500"
           />
         </div>
         <div className="flex justify-end mt-4">
-          <button className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+          <button className="px-4 py-2 bg-cyan-500 text-white rounded-lg hover:bg-[#0096c7]">
             Post
           </button>
         </div>
@@ -55,15 +55,15 @@ const Feed = () => {
           </p>
           
           <div className="flex items-center space-x-6 text-gray-500">
-            <button className="flex items-center space-x-2 hover:text-blue-500">
+            <button className="flex items-center space-x-2 hover:text-[#00B4D8]">
               <AiOutlineLike className="text-xl" />
               <span>Like</span>
             </button>
-            <button className="flex items-center space-x-2 hover:text-blue-500">
+            <button className="flex items-center space-x-2 hover:text-[#00B4D8]">
               <AiOutlineComment className="text-xl" />
               <span>Comment</span>
             </button>
-            <button className="flex items-center space-x-2 hover:text-blue-500">
+            <button className="flex items-center space-x-2 hover:text-[#00B4D8]">
               <BiShare className="text-xl" />
               <span>Share</span>
             </button>

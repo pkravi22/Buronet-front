@@ -16,8 +16,8 @@ const actionButtonsData = [
     icon: <FaPoll size={16} />,
     title: "Create Poll",
     description: "Get community feedback",
-    iconBgColor: "bg-[#EFF6FF]",
-    iconColor: "text-[#3B82F6]",
+    iconBgColor: "bg-[#ecfeff]",
+    iconColor: "text-[#06b6d4]",
     actionType: "createPoll",
   },
   {
@@ -40,18 +40,18 @@ type ActionButtonProps = (typeof actionButtonsData)[0] & {
 const ActionButton: React.FC<ActionButtonProps> = ({ icon, title, description, iconBgColor, iconColor, actionType, onClick }) => {
   return (
     <button
-      className="flex items-center bg-white rounded h-[60px] flex-1 min-w-[200px] sm:min-w-[180px] laptop:min-w-[150px] desktop:min-w-[180px] shadow-sm hover:shadow-md transition-shadow" // Added shadow and hover effect
-      onClick={() => onClick?.(actionType)} // Call onClick with actionType
+      className="flex-1 min-w-0 w-full bg-white border border-gray-100 shadow-sm hover:shadow-md transition-shadow rounded-2xl px-2.5 py-4 flex flex-col justify-center h-[88px]"
+      onClick={() => onClick?.(actionType)}
     >
-      <div className="px-3 py-3 flex items-center w-full">
-        <div className={`w-8 h-8 ${iconBgColor} rounded-lg flex items-center justify-center shrink-0`}>
+      <div className="flex items-center gap-2 w-full">
+        <div className={`w-8 h-8 ${iconBgColor} rounded-xl flex items-center justify-center shrink-0`}>
           <span className={`${iconColor}`}>
-            {icon}
+            {React.cloneElement(icon as React.ReactElement, { size: 14 })}
           </span>
         </div>
-        <div className="ml-2 text-left">
-          <h3 className="text-[#1F2937] font-medium text-sm whitespace-nowrap">{title}</h3>
-          <p className="text-[#6B7280] text-xs whitespace-nowrap">{description}</p>
+        <div className="flex flex-col min-w-0 justify-center text-left">
+          <h3 className="text-gray-900 font-bold text-[13px] leading-tight truncate">{title}</h3>
+          <p className="text-[11px] text-gray-500 truncate mt-0.5">{description}</p>
         </div>
       </div>
     </button>
@@ -100,7 +100,7 @@ const InsightsSection: React.FC<InsightsSectionProps> = ({ onShareArticleClick, 
 
   return (
     <div className="flex justify-center w-full px-4 sm:px-0">
-      <div className="mt-6 bg-gradient-to-b from-[#DDECFF] to-[#E3EAFF] rounded-xl w-full max-w-[640px]">
+      <div className="mt-6 bg-cyan-50 rounded-xl w-full max-w-[640px]">
         <div className="px-5 py-4">
           <h2 className="text-[#1F2937] text-lg font-bold mb-4 text-center">Share Your Professional Insights</h2>
 

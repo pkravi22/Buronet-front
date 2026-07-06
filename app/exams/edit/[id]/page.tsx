@@ -30,7 +30,7 @@ const FormField: React.FC<FormFieldProps> = ({ label, id, value, onChange, type 
         value={value}
         onChange={onChange}
         rows={rows}
-        className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+        className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-cyan-500 focus:border-cyan-500"
       />
     ) : (
       <input
@@ -40,7 +40,7 @@ const FormField: React.FC<FormFieldProps> = ({ label, id, value, onChange, type 
         value={value}
         onChange={onChange}
         required={required}
-        className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+        className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-cyan-500 focus:border-cyan-500"
       />
     )}
   </div>
@@ -426,28 +426,28 @@ const ExamEditPage = ({ params } : ExamEditPageProps) => {
                     placeholder="Paper Name"
                     value={paper.paperName || ''}
                     onChange={(e) => handlePaperChange('preliminary', idx, 'paperName', e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-cyan-500 focus:border-cyan-500"
                   />
                   <input
                     type="number"
                     placeholder="Marks"
                     value={paper.marks || ''}
                     onChange={(e) => handlePaperChange('preliminary', idx, 'marks', e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-cyan-500 focus:border-cyan-500"
                   />
                   <input
                     type="number"
                     placeholder="Duration (Hours)"
                     value={paper.durationHours || ''}
                     onChange={(e) => handlePaperChange('preliminary', idx, 'durationHours', e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-cyan-500 focus:border-cyan-500"
                   />
                   <input
                     type="text"
                     placeholder="Type"
                     value={paper.type || ''}
                     onChange={(e) => handlePaperChange('preliminary', idx, 'type', e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-cyan-500 focus:border-cyan-500"
                   />
                 </div>
               </div>
@@ -463,14 +463,14 @@ const ExamEditPage = ({ params } : ExamEditPageProps) => {
                   placeholder="Interview Stage Name"
                   value={exam.examPattern.preliminary.interview.stageName || ''}
                   onChange={(e) => handleInterviewChange('preliminary', 'stageName', e.target.value)}
-                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-cyan-500 focus:border-cyan-500"
                 />
                 <input
                   type="number"
                   placeholder="Interview Marks"
                   value={exam.examPattern.preliminary.interview.marks || ''}
                   onChange={(e) => handleInterviewChange('preliminary', 'marks', e.target.value)}
-                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-cyan-500 focus:border-cyan-500"
                 />
               </div>
             </div>
@@ -495,28 +495,28 @@ const ExamEditPage = ({ params } : ExamEditPageProps) => {
                     placeholder="Paper Name"
                     value={paper.paperName || ''}
                     onChange={(e) => handlePaperChange('main', idx, 'paperName', e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-cyan-500 focus:border-cyan-500"
                   />
                   <input
                     type="text"
                     placeholder="Type"
                     value={paper.type || ''}
                     onChange={(e) => handlePaperChange('main', idx, 'type', e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-cyan-500 focus:border-cyan-500"
                   />
                   <input
                     type="number"
                     placeholder="Marks"
                     value={paper.marks || ''}
                     onChange={(e) => handlePaperChange('main', idx, 'marks', e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-cyan-500 focus:border-cyan-500"
                   />
                   <input
                     type="number"
                     placeholder="Duration (Hours)"
                     value={paper.durationHours || ''}
                     onChange={(e) => handlePaperChange('main', idx, 'durationHours', e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-cyan-500 focus:border-cyan-500"
                   />
                 </div>
               </div>
@@ -532,14 +532,14 @@ const ExamEditPage = ({ params } : ExamEditPageProps) => {
                   placeholder="Interview Stage Name"
                   value={exam.examPattern.main.interview.stageName || ''}
                   onChange={(e) => handleInterviewChange('main', 'stageName', e.target.value)}
-                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-cyan-500 focus:border-cyan-500"
                 />
                 <input
                   type="number"
                   placeholder="Interview Marks"
                   value={exam.examPattern.main.interview.marks || ''}
                   onChange={(e) => handleInterviewChange('main', 'marks', e.target.value)}
-                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-cyan-500 focus:border-cyan-500"
                 />
               </div>
             </div>
@@ -569,7 +569,7 @@ const ExamEditPage = ({ params } : ExamEditPageProps) => {
                 name="status"
                 value={exam.status || 'Active'}
                 onChange={handleChange}
-                className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-cyan-500 focus:border-cyan-500"
               >
                 <option value="Active">Active</option>
                 <option value="Closed">Closed</option>
@@ -581,7 +581,7 @@ const ExamEditPage = ({ params } : ExamEditPageProps) => {
           <div className="flex items-center justify-end gap-4 pt-4 border-t">
             {error && <p className="text-sm text-red-600">{error}</p>}
             {success && <p className="text-sm text-green-600">{success}</p>}
-            <button type="submit" disabled={isSaving} className="px-6 py-2 bg-blue-600 text-white font-semibold rounded-md shadow-sm hover:bg-blue-700 disabled:bg-blue-300 flex items-center gap-2">
+            <button type="submit" disabled={isSaving} className="px-6 py-2 bg-[#0096c7] text-white font-semibold rounded-md shadow-sm hover:bg-cyan-700 disabled:bg-cyan-300 flex items-center gap-2">
               <Save size={16} />
               {isSaving ? 'Saving...' : 'Save Changes'}
             </button>

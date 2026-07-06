@@ -54,7 +54,7 @@ const DashboardCard = ({ title, value, trend, icon, iconColor, trendIcon, trendC
       {/* MEDIUM SCREEN (Desktop/Tablet) Design: Original Card Layout 
         This view is hidden by default and appears only on md screens and up.
       */}
-      <div className="hidden md:block w-full h-32 bg-gradient-to-br from-[#DDECFF] to-[#E3EAFF] rounded-xl">
+      <div className="hidden md:block w-full h-32 bg-gradient-to-br from-[#DDECFF] to-[#E5F6FD] rounded-xl">
         <div className="h-full px-4 py-4 flex flex-col justify-between">
           {/* Top Section */}
           <div className="flex items-center">

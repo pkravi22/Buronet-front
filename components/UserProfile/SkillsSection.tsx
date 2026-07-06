@@ -64,13 +64,13 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({ skills, onSkillsChange, c
       ) : (
         <div className="flex flex-wrap gap-2">
           {skills.map((skill) => (
-            <div key={skill.id} className="relative bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full flex items-center group">
+            <div key={skill.id} className="relative bg-cyan-100 text-cyan-800 text-sm px-3 py-1 rounded-full flex items-center group">
               <span>{skill.skillName} {skill.level && `(${skill.level})`}</span>
               {canEdit && (
-                <div className="absolute inset-0 flex items-center justify-center bg-blue-200 bg-opacity-75 rounded-full opacity-0 group-hover:opacity-100 transition-opacity space-x-1">
+                <div className="absolute inset-0 flex items-center justify-center bg-cyan-200 bg-opacity-75 rounded-full opacity-0 group-hover:opacity-100 transition-opacity space-x-1">
                   <button
                     onClick={() => handleEditClick(skill)}
-                    className="text-blue-700 hover:text-blue-900 text-xs font-bold"
+                    className="text-cyan-700 hover:text-cyan-900 text-xs font-bold"
                     title="Edit Skill"
                   >
                     Edit

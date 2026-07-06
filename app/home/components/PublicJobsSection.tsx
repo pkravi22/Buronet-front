@@ -36,7 +36,7 @@ const SOURCE_COLORS: Record<string, { bg: string; text: string; dot: string }> =
 };
 
 const SECTOR_COLORS: Record<string, string> = {
-  Railway: 'bg-blue-100 text-blue-700',
+  Railway: 'bg-cyan-100 text-cyan-700',
   Banking: 'bg-purple-100 text-purple-700',
   Defense: 'bg-red-100 text-red-700',
   Education: 'bg-emerald-100 text-emerald-700',
@@ -63,18 +63,36 @@ function daysLeft(s?: string) {
   return Math.ceil((d.getTime() - Date.now()) / 86400000);
 }
 
+const ORG_CLEAN: Record<string, string> = {
+  'Post Name':  '',
+  'post name':  '',
+  'Post name':  '',
+  'Click Here': '',
+  'click here': '',
+  'Sarkari Result': '',
+  'sarkari result': '',
+  'SarkariResult': '',
+};
+
+function cleanOrg(raw: string | undefined): string {
+  if (!raw) return 'Government';
+  const cleaned = ORG_CLEAN[raw.trim()] ?? raw.trim();
+  if (cleaned.toLowerCase().includes('sarkari')) return 'Government';
+  return cleaned || 'Government';
+}
+
 function OrgAvatar({ name }: { name: string }) {
   const initials = name.split(/\s+/).slice(0, 2).map(w => w[0]?.toUpperCase() ?? '').join('') || 'G';
   const grad = AVATAR_GRADIENTS[name.charCodeAt(0) % AVATAR_GRADIENTS.length];
   return (
     <div className={`w-11 h-11 rounded-2xl bg-gradient-to-br ${grad} flex items-center justify-center shrink-0 shadow-sm`}>
-      <span className="text-white font-bold text-sm">{initials}</span>
+      <span className="text-white font-bold text-[12px]">{initials}</span>
     </div>
   );
 }
 
 function JobCard({ job }: { job: Job }) {
-  const org = job.organizationName || job.companyName || 'Government';
+  const org = cleanOrg(job.organizationName || job.companyName);
   const days = daysLeft(job.lastDateToApply);
   const deadlineLabel =
     days === null ? null
@@ -257,7 +275,7 @@ export default function PublicJobsSection() {
             <select
               value={activeTab}
               onChange={e => setActiveTab(e.target.value as TabId)}
-              className="w-full appearance-none bg-white border border-gray-200 rounded-2xl px-5 py-3.5 pr-12 text-sm font-bold text-gray-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#0096c7]"
+              className="w-full appearance-none bg-white border border-gray-200 rounded-2xl px-5 py-3.5 pr-12 text-[12px] font-bold text-gray-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#0096c7]"
             >
               {TABS.map(t => <option key={t.id} value={t.id}>{t.label}</option>)}
             </select>
@@ -297,7 +315,7 @@ export default function PublicJobsSection() {
               onChange={e => setSearchInput(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && setKeyword(searchInput)}
               placeholder="Search jobs, exams, organisations…"
-              className="flex-1 text-sm outline-none bg-transparent placeholder:text-gray-400 text-gray-800"
+              className="flex-1 text-[12px] outline-none bg-transparent placeholder:text-gray-400 text-gray-800"
             />
             {searchInput && (
               <button onClick={() => { setSearchInput(''); setKeyword(''); }}>
@@ -325,7 +343,7 @@ export default function PublicJobsSection() {
                     <Briefcase size={28} className="opacity-40" />
                   </div>
                   <p className="font-semibold text-gray-500">No listings found</p>
-                  <p className="text-sm mt-1">Try a different search or tab.</p>
+                  <p className="text-[12px] mt-1">Try a different search or tab.</p>
                 </div>
               )
           }
@@ -337,7 +355,7 @@ export default function PublicJobsSection() {
             <button
               disabled={page <= 1}
               onClick={() => fetchJobs(page - 1)}
-              className="flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-sm cursor-pointer"
+              className="flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-200 rounded-xl text-[12px] font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-sm cursor-pointer"
             >
               <ChevronLeft size={16} /> Previous
             </button>
@@ -351,7 +369,7 @@ export default function PublicJobsSection() {
                   <button
                     key={n}
                     onClick={() => fetchJobs(n)}
-                    className={`w-9 h-9 rounded-lg text-sm font-semibold transition-colors cursor-pointer ${
+                    className={`w-9 h-9 rounded-lg text-[12px] font-semibold transition-colors cursor-pointer ${
                       n === page ? 'bg-[#0096c7] text-white shadow' : 'text-gray-600 hover:bg-gray-100'
                     }`}
                   >
@@ -360,14 +378,14 @@ export default function PublicJobsSection() {
                 );
               })}
             </div>
-            <span className="sm:hidden text-sm text-gray-500 font-medium">
+            <span className="sm:hidden text-[12px] text-gray-500 font-medium">
               {page} / {totalPages}
             </span>
 
             <button
               disabled={page >= totalPages}
               onClick={() => fetchJobs(page + 1)}
-              className="flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-sm cursor-pointer"
+              className="flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-200 rounded-xl text-[12px] font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-sm cursor-pointer"
             >
               Next <ChevronRight size={16} />
             </button>

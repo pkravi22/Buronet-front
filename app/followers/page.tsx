@@ -23,7 +23,7 @@ export default function FollowersPage() {
       <TopBar />
       <div className="flex flex-col lg:flex-row flex-1 pt-[80px]">
         <div className="hidden lg:block w-[20%] ml-6 xl:w-[270px] desktop:w-[260px] left-6 shrink-0" />
-        <Navbar activeItem="Followers" />
+        <Navbar activeItem="My Circle" />
 
         <main 
           ref={mainRef} 

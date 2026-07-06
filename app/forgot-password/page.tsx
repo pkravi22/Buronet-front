@@ -55,21 +55,21 @@ const ForgotPasswordPage: React.FC = () => {
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             required
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-cyan-500 focus:border-cyan-500 transition-colors"
                             placeholder="Email address"
                             disabled={isLoading}
                         />
                     </div>
                     <button
                         type="submit"
-                        className="w-full flex justify-center items-center py-3 px-4 rounded-lg text-white font-semibold bg-blue-600 hover:bg-blue-700 transition-colors"
+                        className="w-full flex justify-center items-center py-3 px-4 rounded-lg text-white font-semibold bg-[#0096c7] hover:bg-cyan-700 transition-colors"
                         disabled={isLoading}
                     >
                         {isLoading ? <LoadingSpinner /> : 'Send Reset Link'}
                     </button>
                 </form>
                 <div className="mt-6 text-center text-sm">
-                    <Link href="/login" className="font-medium text-blue-600 hover:text-blue-500">
+                    <Link href="/login" className="font-medium text-[#0096c7] hover:text-[#00B4D8]">
                         Back to Login
                     </Link>
                 </div>

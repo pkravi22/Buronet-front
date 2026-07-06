@@ -55,7 +55,7 @@ const UpdatesList: React.FC<Props> = ({ title, updates }) => {
               {update.tags.slice(0, 4).map((tag, idx) => (
                 <span
                   key={idx}
-                  className="inline-flex items-center rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-medium text-blue-700"
+                  className="inline-flex items-center rounded-full bg-cyan-50 px-2 py-0.5 text-[10px] font-medium text-cyan-700"
                 >
                   {tag}
                 </span>

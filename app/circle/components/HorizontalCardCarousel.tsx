@@ -87,7 +87,7 @@ const HorizontalCardCarousel: React.FC<HorizontalCardCarouselProps> = ({
         <div className="mt-8">
             <div className="flex justify-between items-center mb-4 px-4 sm:px-0"> 
                 <h2 className="text-[#1F2937] text-lg font-medium">{title}</h2>
-                <button className="text-[#2563EB] text-sm font-medium">{actionText}</button>
+                <button className="text-[#0096c7] text-sm font-medium">{actionText}</button>
             </div>
             
             <div className="relative">

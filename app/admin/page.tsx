@@ -96,7 +96,7 @@ function DashboardSection() {
         </div>
       ) : (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <StatCard label="Total Jobs in DB" value={stats?.total ?? '—'} color="text-blue-600" />
+          <StatCard label="Total Jobs in DB" value={stats?.total ?? '—'} color="text-[#0096c7]" />
           <StatCard label="Active Listings" value={stats?.active ?? '—'} color="text-green-600" />
           <StatCard label="Admit Cards" value={stats?.admitCards ?? '—'} color="text-purple-600" />
           <StatCard label="Results" value={stats?.results ?? '—'} color="text-orange-500" />
@@ -104,10 +104,10 @@ function DashboardSection() {
       )}
 
       <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl p-6 text-white">
+        <div className="bg-gradient-to-br from-cyan-600 to-cyan-700 rounded-2xl p-6 text-white">
           <h3 className="font-bold text-lg mb-1">Add a Manual Job</h3>
-          <p className="text-blue-100 text-sm mb-4">Post a government job, exam notification, or update manually.</p>
-          <Link href="/jobs/create" className="inline-flex items-center gap-2 bg-white text-blue-600 font-semibold text-sm px-4 py-2 rounded-xl hover:bg-blue-50 transition">
+          <p className="text-cyan-100 text-sm mb-4">Post a government job, exam notification, or update manually.</p>
+          <Link href="/jobs/create" className="inline-flex items-center gap-2 bg-white text-[#0096c7] font-semibold text-sm px-4 py-2 rounded-xl hover:bg-cyan-50 transition">
             <Plus size={15} /> Create Job Post
           </Link>
         </div>
@@ -228,7 +228,7 @@ function JobsSection({ onAlert }: { onAlert: (msg: string, type: 'success' | 'er
           <button onClick={() => fetchJobs(page)} className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-gray-200 text-gray-600 text-sm font-medium hover:bg-gray-50 transition cursor-pointer">
             <RefreshCw size={14} /> Refresh
           </button>
-          <Link href="/jobs/create" className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition">
+          <Link href="/jobs/create" className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0096c7] text-white text-sm font-semibold hover:bg-cyan-700 transition">
             <Plus size={14} /> Add Job
           </Link>
         </div>
@@ -247,20 +247,20 @@ function JobsSection({ onAlert }: { onAlert: (msg: string, type: 'success' | 'er
             className="flex-1 text-sm bg-transparent outline-none text-gray-700 placeholder:text-gray-400"
           />
         </div>
-        <select value={filterType} onChange={e => setFilterType(e.target.value)} className="text-sm border border-gray-200 rounded-xl px-3 py-2 bg-white text-gray-700 focus:outline-none focus:ring-1 focus:ring-blue-400">
+        <select value={filterType} onChange={e => setFilterType(e.target.value)} className="text-sm border border-gray-200 rounded-xl px-3 py-2 bg-white text-gray-700 focus:outline-none focus:ring-1 focus:ring-cyan-400">
           <option value="">All Types</option>
           <option value="job">Job</option>
           <option value="admit_card">Admit Card</option>
           <option value="result">Result</option>
           <option value="update">Update</option>
         </select>
-        <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} className="text-sm border border-gray-200 rounded-xl px-3 py-2 bg-white text-gray-700 focus:outline-none focus:ring-1 focus:ring-blue-400">
+        <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} className="text-sm border border-gray-200 rounded-xl px-3 py-2 bg-white text-gray-700 focus:outline-none focus:ring-1 focus:ring-cyan-400">
           <option value="">All Status</option>
           <option value="active">Active</option>
           <option value="closed">Closed</option>
           <option value="draft">Draft</option>
         </select>
-        <select value={filterSource} onChange={e => setFilterSource(e.target.value)} className="text-sm border border-gray-200 rounded-xl px-3 py-2 bg-white text-gray-700 focus:outline-none focus:ring-1 focus:ring-blue-400">
+        <select value={filterSource} onChange={e => setFilterSource(e.target.value)} className="text-sm border border-gray-200 rounded-xl px-3 py-2 bg-white text-gray-700 focus:outline-none focus:ring-1 focus:ring-cyan-400">
           <option value="">All Sources</option>
           <option value="SarkariResult">SarkariResult</option>
           <option value="IndGovtJobs">IndGovtJobs</option>
@@ -312,7 +312,7 @@ function JobsSection({ onAlert }: { onAlert: (msg: string, type: 'success' | 'er
                       <p className="text-xs text-gray-400 mt-0.5 line-clamp-1">{job.organizationName || job.companyName}</p>
                     </td>
                     <td className="px-4 py-3">
-                      <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-50 text-blue-600">
+                      <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-cyan-50 text-[#0096c7]">
                         {typeLabel[job.type?.toLowerCase()] ?? job.type ?? 'Job'}
                       </span>
                     </td>
@@ -332,7 +332,7 @@ function JobsSection({ onAlert }: { onAlert: (msg: string, type: 'success' | 'er
                         <Link href={`/jobs/${job.id}`} title="View" className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-700 transition">
                           <Eye size={15} />
                         </Link>
-                        <Link href={`/jobs/edit/${job.id}`} title="Edit" className="p-1.5 rounded-lg hover:bg-blue-50 text-gray-400 hover:text-blue-600 transition">
+                        <Link href={`/jobs/edit/${job.id}`} title="Edit" className="p-1.5 rounded-lg hover:bg-cyan-50 text-gray-400 hover:text-[#0096c7] transition">
                           <Edit3 size={15} />
                         </Link>
                         <button
@@ -456,7 +456,7 @@ export default function AdminPage() {
           </div>
           <h1 className="text-xl font-bold text-gray-900 mb-2">Access Denied</h1>
           <p className="text-gray-500 text-sm mb-6">You don't have permission to access the admin panel.</p>
-          <Link href="/home" className="inline-block px-6 py-2.5 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition text-sm">
+          <Link href="/home" className="inline-block px-6 py-2.5 bg-[#0096c7] text-white font-semibold rounded-xl hover:bg-cyan-700 transition text-sm">
             Go to Home
           </Link>
         </div>
@@ -500,7 +500,7 @@ export default function AdminPage() {
                     onClick={() => handleNav(id as Section)}
                     className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all w-full text-left cursor-pointer ${
                       section === id && id !== 'add-job'
-                        ? 'bg-blue-600 text-white shadow-sm'
+                        ? 'bg-[#0096c7] text-white shadow-sm'
                         : id === 'add-job'
                         ? 'text-green-600 hover:bg-green-50'
                         : 'text-gray-600 hover:bg-gray-50'

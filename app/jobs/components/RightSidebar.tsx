@@ -22,7 +22,7 @@ const UpdateCard = ({ type, timeAgo, title }: UpdateCardProps) => {
       case 'Exam Schedule':
         return {
           bg: 'bg-[#DBEAFE]',
-          text: 'text-[#1D4ED8]'
+          text: 'text-[#0e7490]'
         };
       case 'Application':
         return {
@@ -150,8 +150,8 @@ const setSidebarRef = (node: HTMLDivElement | null) => {
           scrollbar-hide
         "
       >
-      <div className="bg-white rounded-lg shadow-sm border border-[#E5E7EB] p-6">
-        <h2 className="text-[#1F2937] font-semibold text-lg mb-4">Recent Job Updates</h2>
+      <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm mb-6">
+        <h2 className="text-base sm:text-[18px] font-bold text-gray-900 mb-5">Recent Job Updates</h2>
         
         {/* <div className="relative">
           {showLeftButton && (
@@ -207,53 +207,53 @@ const setSidebarRef = (node: HTMLDivElement | null) => {
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm border border-[#E5E7EB] p-6 mt-6">
-        <h3 className="text-[#1F2937] font-medium mb-4">Important Links</h3>
+      <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm mb-6">
+        <h3 className="text-base sm:text-[18px] font-bold text-gray-900 mb-5">Important Links</h3>
         
         <div className="space-y-4">
-          <a href="https://upsc.gov.in" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-[#374151] hover:text-[#2563eb]">
-            <svg width="18" height="14" viewBox="0 0 18 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M16.5156 12.8766H1.48438C0.664062 12.8766 0 12.2125 0 11.3922V2.60781C0 1.7875 0.664062 1.12344 1.48438 1.12344H16.5156C17.3359 1.12344 18 1.7875 18 2.60781V11.3922C18 12.2125 17.3359 12.8766 16.5156 12.8766ZM1.48438 2.60781V11.3922H16.5156V2.60781H1.48438Z" fill="#9CA3AF"/>
-              <path d="M9 8.87656C8.1 8.87656 7.2 8.47656 6.6 7.87656L1.2 2.47656L2.4 1.27656L9 7.87656L15.6 1.27656L16.8 2.47656L11.4 7.87656C10.8 8.47656 9.9 8.87656 9 8.87656Z" fill="#9CA3AF"/>
+          <a href="https://upsc.gov.in" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-[#505965] hover:text-[#0096c7] transition-colors group">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400 group-hover:text-[#0096c7] transition-colors">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+              <polyline points="22,6 12,13 2,6" />
             </svg>
-            <span>UPSC Official Website</span>
+            <span className="text-sm sm:text-[15px] font-medium">UPSC Official Website</span>
           </a>
 
-          <a href="https://ssc.nic.in" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-[#374151] hover:text-[#2563eb]">
-            <svg width="18" height="14" viewBox="0 0 18 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M16.5156 12.8766H1.48438C0.664062 12.8766 0 12.2125 0 11.3922V2.60781C0 1.7875 0.664062 1.12344 1.48438 1.12344H16.5156C17.3359 1.12344 18 1.7875 18 2.60781V11.3922C18 12.2125 17.3359 12.8766 16.5156 12.8766ZM1.48438 2.60781V11.3922H16.5156V2.60781H1.48438Z" fill="#9CA3AF"/>
-              <path d="M9 8.87656C8.1 8.87656 7.2 8.47656 6.6 7.87656L1.2 2.47656L2.4 1.27656L9 7.87656L15.6 1.27656L16.8 2.47656L11.4 7.87656C10.8 8.47656 9.9 8.87656 9 8.87656Z" fill="#9CA3AF"/>
+          <a href="https://ssc.nic.in" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-[#505965] hover:text-[#0096c7] transition-colors group">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400 group-hover:text-[#0096c7] transition-colors">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+              <polyline points="22,6 12,13 2,6" />
             </svg>
-            <span>SSC Portal</span>
+            <span className="text-sm sm:text-[15px] font-medium">SSC Portal</span>
           </a>
 
-          <a href="https://rrb.gov.in" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-[#374151] hover:text-[#2563eb]">
-            <svg width="18" height="14" viewBox="0 0 18 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M16.5156 12.8766H1.48438C0.664062 12.8766 0 12.2125 0 11.3922V2.60781C0 1.7875 0.664062 1.12344 1.48438 1.12344H16.5156C17.3359 1.12344 18 1.7875 18 2.60781V11.3922C18 12.2125 17.3359 12.8766 16.5156 12.8766ZM1.48438 2.60781V11.3922H16.5156V2.60781H1.48438Z" fill="#9CA3AF"/>
-              <path d="M9 8.87656C8.1 8.87656 7.2 8.47656 6.6 7.87656L1.2 2.47656L2.4 1.27656L9 7.87656L15.6 1.27656L16.8 2.47656L11.4 7.87656C10.8 8.47656 9.9 8.87656 9 8.87656Z" fill="#9CA3AF"/>
+          <a href="https://rrb.gov.in" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-[#505965] hover:text-[#0096c7] transition-colors group">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400 group-hover:text-[#0096c7] transition-colors">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+              <polyline points="22,6 12,13 2,6" />
             </svg>
-            <span>Railway Recruitment Board</span>
+            <span className="text-sm sm:text-[15px] font-medium">Railway Recruitment Board</span>
           </a>
 
-          <a href="https://ibps.in" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-[#374151] hover:text-[#2563eb]">
-            <svg width="18" height="14" viewBox="0 0 18 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M16.5156 12.8766H1.48438C0.664062 12.8766 0 12.2125 0 11.3922V2.60781C0 1.7875 0.664062 1.12344 1.48438 1.12344H16.5156C17.3359 1.12344 18 1.7875 18 2.60781V11.3922C18 12.2125 17.3359 12.8766 16.5156 12.8766ZM1.48438 2.60781V11.3922H16.5156V2.60781H1.48438Z" fill="#9CA3AF"/>
-              <path d="M9 8.87656C8.1 8.87656 7.2 8.47656 6.6 7.87656L1.2 2.47656L2.4 1.27656L9 7.87656L15.6 1.27656L16.8 2.47656L11.4 7.87656C10.8 8.47656 9.9 8.87656 9 8.87656Z" fill="#9CA3AF"/>
+          <a href="https://ibps.in" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-[#505965] hover:text-[#0096c7] transition-colors group">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400 group-hover:text-[#0096c7] transition-colors">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+              <polyline points="22,6 12,13 2,6" />
             </svg>
-            <span>IBPS Official Website</span>
+            <span className="text-sm sm:text-[15px] font-medium">IBPS Official Website</span>
           </a>
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm border border-[#E5E7EB] p-6 mt-6">
-        <h3 className="text-[#1F2937] font-medium mb-4">Preparation Resources</h3>
+      <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm mb-6">
+        <h3 className="text-base sm:text-[18px] font-bold text-gray-900 mb-5">Preparation Resources</h3>
         
-        <div className="bg-gradient-to-b from-[#EFF6FF] to-[#EEF2FF] rounded-xl p-4">
+        <div className="bg-gradient-to-b from-[#ecfeff] to-[#EEF2FF] rounded-xl p-4">
           <div className="flex items-start gap-3 mb-4">
             <div className="bg-[#DBEAFE] p-2 rounded-lg">
               <svg width="14" height="16" viewBox="0 0 14 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M0 16.3438V0H14V16.3438H0ZM1.4 14.9438H12.6V1.4H1.4V14.9438Z" fill="#2563EB"/>
-                <path d="M2.8 3.8H11.2V5.2H2.8V3.8ZM2.8 6.6H11.2V8H2.8V6.6ZM2.8 9.4H11.2V10.8H2.8V9.4ZM2.8 12.2H8.4V13.6H2.8V12.2Z" fill="#2563EB"/>
+                <path d="M0 16.3438V0H14V16.3438H0ZM1.4 14.9438H12.6V1.4H1.4V14.9438Z" fill="#0096c7"/>
+                <path d="M2.8 3.8H11.2V5.2H2.8V3.8ZM2.8 6.6H11.2V8H2.8V6.6ZM2.8 9.4H11.2V10.8H2.8V9.4ZM2.8 12.2H8.4V13.6H2.8V12.2Z" fill="#0096c7"/>
               </svg>
             </div>
             <div>
@@ -261,7 +261,7 @@ const setSidebarRef = (node: HTMLDivElement | null) => {
               <p className="text-[#6B7280] text-sm">For all competitive exams</p>
             </div>
           </div>
-          <button className="w-full bg-white text-[#2563EB] py-2 rounded hover:bg-[#F3F4F6] transition-colors">
+          <button className="w-full bg-white text-[#0096c7] py-2 rounded hover:bg-[#F3F4F6] transition-colors">
             Coming Soon
           </button>
         </div>

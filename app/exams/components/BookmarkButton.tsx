@@ -48,7 +48,7 @@ const BookmarkButton = ({ userId, jobId, initialIsBookmarked, size = 24 }: Bookm
     >
       <Bookmark
             size={size}
-        className={`transition-all ${isBookmarked ? 'text-blue-600 fill-blue-600' : 'text-gray-500 hover:text-gray-800'}`}
+        className={`transition-all ${isBookmarked ? 'text-[#0096c7] fill-cyan-600' : 'text-gray-500 hover:text-gray-800'}`}
       />
     </button>
   );

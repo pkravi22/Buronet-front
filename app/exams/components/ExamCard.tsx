@@ -66,7 +66,7 @@ const ExamCard = ({ exam, isBookmarked, onToggleBookmark}: ExamCardProps) => {
             width="20" 
             height="20" 
             viewBox="0 0 24 24" 
-            className={`transition-all ${isBookmarked ? 'text-blue-600 fill-current' : 'text-gray-500 fill-none'}`}
+            className={`transition-all ${isBookmarked ? 'text-[#0096c7] fill-current' : 'text-gray-500 fill-none'}`}
           >
             <path d="M6 4a2 2 0 0 0-2 2v14l8-5.333L20 20V6a2 2 0 0 0-2-2H6z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
           </svg>

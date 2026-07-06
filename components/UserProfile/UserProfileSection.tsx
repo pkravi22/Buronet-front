@@ -12,14 +12,14 @@ interface UserProfileSectionProps {
 
 const UserProfileSection: React.FC<UserProfileSectionProps> = ({ title, onAdd, onEditAll, children }) => {
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md mb-4">
+    <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:border-cyan-200 hover:bg-cyan-50/20 transition-all duration-200 mb-5 group">
       <div className="flex justify-between items-center mb-4 border-b pb-3">
-        <h3 className="text-xl font-semibold text-gray-800">{title}</h3>
+        <h3 className="text-base sm:text-[18px] font-bold text-gray-900 group-hover:text-[#0096c7] transition-colors">{title}</h3>
         <div>
           {onAdd && (
             <button
               onClick={onAdd}
-              className="text-blue-600 hover:underline text-sm mr-2 py-1 px-2 rounded-md hover:bg-blue-50 transition-colors"
+              className="text-[#0096c7] hover:underline text-sm mr-2 py-1 px-2 rounded-md hover:bg-cyan-50 transition-colors"
             >
               Add New
             </button>
@@ -27,7 +27,7 @@ const UserProfileSection: React.FC<UserProfileSectionProps> = ({ title, onAdd, o
           {onEditAll && (
             <button
               onClick={onEditAll}
-              className="text-blue-600 hover:underline text-sm py-1 px-2 rounded-md hover:bg-blue-50 transition-colors"
+              className="text-[#0096c7] hover:underline text-sm py-1 px-2 rounded-md hover:bg-cyan-50 transition-colors"
             >
               Edit All
             </button>

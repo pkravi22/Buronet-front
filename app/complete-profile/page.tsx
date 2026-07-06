@@ -236,7 +236,7 @@ const CompleteProfilePage: React.FC = () => {
     return (
       <div className="flex justify-center items-center min-h-screen bg-gray-100 text-red-500 flex-col p-4">
         <p className="text-lg mb-4">Error: {fetchError}</p>
-        <button onClick={() => setFetchError(null)} className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+        <button onClick={() => setFetchError(null)} className="px-6 py-2 bg-[#0096c7] text-white rounded-md hover:bg-cyan-700 transition-colors">
           Dismiss Error
         </button>
       </div>
