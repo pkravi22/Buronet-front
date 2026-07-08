@@ -8,6 +8,7 @@ import { get, postApi, remove } from '@/lib/api';
 import { Exam, ApiResponse, AgeLimit, ExamStage, Paper } from '@/lib/types/exams';
 import { useAuth } from '@/context/AuthContext'; // Assuming you have a useAuth hook to get the current user
 import { formatDate as formatDateHelper } from '@/lib/helpers/DateHelper'; // Assuming you have a date helper
+import { sanitizeText } from '@/lib/helpers/SanitizeHelper';
 
 interface ExamDetailsPageProps {
   params: {
@@ -101,7 +102,7 @@ const ExamDetailsPage = ({ params }: ExamDetailsPageProps) => {
                 {stage.summary && (
                     <div className="bg-gray-50 rounded-lg p-4">
                         <p className="text-sm text-gray-500 mb-1">Summary</p>
-                        <p className="text-sm text-gray-700 whitespace-pre-line">{stage.summary}</p>
+                        <p className="text-sm text-gray-700 whitespace-pre-line">{sanitizeText(stage.summary)}</p>
                     </div>
                 )}
                 <div className="bg-gray-50 rounded-lg p-4">
@@ -115,7 +116,7 @@ const ExamDetailsPage = ({ params }: ExamDetailsPageProps) => {
                                     <span>Marks: {paper.marks || 'N/A'}</span>
                                     <span>Duration: {paper.durationHours ? `${paper.durationHours} hrs` : 'N/A'}</span>
                                 </div>
-                                {paper.notes && <p className="text-xs text-gray-500 italic mt-1">{paper.notes}</p>}
+                                {paper.notes && <p className="text-xs text-gray-500 italic mt-1">{sanitizeText(paper.notes)}</p>}
                             </li>
                         ))}
                     </ul>
@@ -125,7 +126,7 @@ const ExamDetailsPage = ({ params }: ExamDetailsPageProps) => {
                         <p className="text-sm text-gray-500 mb-1">Interview/Personality Test</p>
                         <p className="text-sm font-medium text-gray-800">{stage.interview.stageName || 'Interview'}</p>
                         <p className="text-sm text-gray-600">Marks: {stage.interview.marks || 'N/A'}</p>
-                        {stage.interview.notes && <p className="text-xs text-gray-500 italic mt-1">{stage.interview.notes}</p>}
+                        {stage.interview.notes && <p className="text-xs text-gray-500 italic mt-1">{sanitizeText(stage.interview.notes)}</p>}
                     </div>
                 )}
                 {stage.totalMarks && (
@@ -260,7 +261,7 @@ const ExamDetailsPage = ({ params }: ExamDetailsPageProps) => {
                     <div className="bg-white rounded-xl shadow-sm p-6">
                       <h3 className="font-semibold text-lg text-gray-900 flex items-center mb-4"><FileText size={20} className="text-[#0096c7] mr-2" /> Exam Overview</h3>
                       {exam.examSummary && (
-                        <p className="text-gray-700 whitespace-pre-line mb-4">{exam.examSummary}</p>
+                        <p className="text-gray-700 whitespace-pre-line mb-4">{sanitizeText(exam.examSummary)}</p>
                       )}
                       <div className="space-y-4 mt-4"> 
                         <div className="bg-gray-50 rounded-lg p-4">
@@ -297,7 +298,7 @@ const ExamDetailsPage = ({ params }: ExamDetailsPageProps) => {
                                 <div className="bg-gray-50 rounded-lg p-4">
                                     <p className="text-sm text-gray-500 mb-1">Other Requirements</p>
                                     <ul className="text-sm text-gray-700 list-disc pl-4 space-y-1 marker:text-gray-400">
-                                        {exam.eligibilityCriteria.otherRequirements.map((note, index) => <li key={index} className="pl-1">{note}</li>)}
+                                        {exam.eligibilityCriteria.otherRequirements.map((note, index) => <li key={index} className="pl-1">{sanitizeText(note)}</li>)}
                                     </ul>
                                 </div>
                             </div>
@@ -308,7 +309,7 @@ const ExamDetailsPage = ({ params }: ExamDetailsPageProps) => {
                     {exam.syllabusSummary && (
                         <div className="bg-white rounded-xl shadow-sm p-6">
                             <h3 className="font-semibold text-lg text-gray-900 flex items-center mb-5"><ListChecks size={20} className="text-[#0096c7] mr-2" /> Syllabus Summary</h3>
-                            <p className="text-gray-700 whitespace-pre-line">{exam.syllabusSummary}</p>
+                            <p className="text-gray-700 whitespace-pre-line">{sanitizeText(exam.syllabusSummary)}</p>
                         </div>
                     )}
 
@@ -328,7 +329,7 @@ const ExamDetailsPage = ({ params }: ExamDetailsPageProps) => {
                                 <div className="bg-gray-50 rounded-lg p-4">
                                     <p className="text-sm text-gray-500 mb-1">Application Process</p>
                                     <ol className="text-sm text-gray-700 list-decimal pl-5 space-y-2 mt-2">
-                                        {exam.applicationDetails.howToApply.map((step, index) => <li key={index}>{step}</li>)}
+                                        {exam.applicationDetails.howToApply.map((step, index) => <li key={index}>{sanitizeText(step)}</li>)}
                                     </ol>
                                 </div>
                                 <div className="bg-gray-50 rounded-lg p-4">

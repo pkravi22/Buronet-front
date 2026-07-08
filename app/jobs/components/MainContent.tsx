@@ -33,10 +33,9 @@ const TABS = [
   { id: 'update',     label: 'Updates',      Icon: BarChart3    },
 ] as const;
 type TabId = typeof TABS[number]['id'];
-
 const SECTORS  = ['All', 'Railway', 'Banking', 'Defense', 'Education', 'Healthcare', 'Civil Services', 'Government'];
 const SOURCES  = ['All Sources', 'SarkariResult', 'IndGovtJobs', 'Manual'];
-const PAGE_SIZE = 12;
+const PAGE_SIZE = 20;
 
 const StatCard = ({ title, value, sub, icon }: {
   title: string; value: string; sub: string;
@@ -122,6 +121,7 @@ export default function MainContent() {
   // Data
   const [jobs,          setJobs]          = useState<Job[]>([]);
   const [loading,       setLoading]       = useState(true);
+  const [loadingMore,   setLoadingMore]   = useState(false);
   const [bookmarks,     setBookmarks]     = useState<BookmarkItem[]>([]);
   const [dashStats,     setDashStats]     = useState<DashboardStats | null>(null);
   const [deptStats,     setDeptStats]     = useState<DepartmentStat[]>([]);
@@ -141,24 +141,60 @@ export default function MainContent() {
 
   // Fetch public jobs
   const fetchJobs = useCallback(async (p: number) => {
-    setLoading(true);
+    if (p === 1) {
+      setLoading(true);
+    } else {
+      setLoadingMore(true);
+    }
     try {
       const q = new URLSearchParams({ type: activeTab, page: String(p), pageSize: String(PAGE_SIZE) });
       if (sector  !== 'All')         q.set('sector',  sector);
       if (source  !== 'All Sources') q.set('source',  source);
       if (keyword.trim())            q.set('keyword', keyword.trim());
       const res = await get<PublicRes>(`/jobs/public?${q}`);
-      setJobs(res.data ?? []);
+      
+      if (p === 1) {
+        setJobs(res.data ?? []);
+      } else {
+        setJobs(prev => {
+          const existingIds = new Set(prev.map(j => j.id));
+          const newItems = (res.data ?? []).filter(j => !existingIds.has(j.id));
+          return [...prev, ...newItems];
+        });
+      }
+      
       setTotalPages(res.totalPages ?? 1);
       setTotalCount(res.totalCount ?? 0);
       setPage(p);
     } catch (e) {
       console.error(e);
-      setJobs([]);
+      if (p === 1) setJobs([]);
     } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
   }, [activeTab, sector, source, keyword]);
+
+  // Infinite Scroll IntersectionObserver
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  const loaderRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (loading) return;
+    if (observerRef.current) observerRef.current.disconnect();
+
+    observerRef.current = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting && page < totalPages && !loadingMore && !loading) {
+        fetchJobs(page + 1);
+      }
+    });
+
+    if (loaderRef.current) {
+      observerRef.current.observe(loaderRef.current);
+    }
+
+    return () => observerRef.current?.disconnect();
+  }, [loading, page, totalPages, loadingMore, fetchJobs]);
 
   useEffect(() => { fetchJobs(1); }, [activeTab, sector, source, keyword]);
 
@@ -413,48 +449,17 @@ export default function MainContent() {
           }
         </div>
 
-        {/* ── Pagination ─────────────────────────────────────────────── */}
-        {!loading && totalPages > 1 && (
-          <div className="flex items-center justify-between mt-8 pt-6 border-t border-gray-100">
-            <button
-              disabled={page <= 1}
-              onClick={() => fetchJobs(page - 1)}
-              className="flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-sm"
-            >
-              <ChevronLeft size={16} /> Previous
-            </button>
-
-            {/* Page numbers */}
-            <div className="hidden sm:flex items-center gap-1">
-              {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
-                const n = page <= 3 ? i + 1 : page + i - 2;
-                if (n < 1 || n > totalPages) return null;
-                return (
-                  <button
-                    key={n}
-                    onClick={() => fetchJobs(n)}
-                    className={`w-9 h-9 rounded-lg text-sm font-semibold transition-colors ${
-                      n === page ? 'bg-[#0096c7] text-white shadow' : 'text-gray-600 hover:bg-gray-100'
-                    }`}
-                  >
-                    {n}
-                  </button>
-                );
-              })}
+        {/* ── Infinite Scroll Loader ───────────────────────────────────────── */}
+        <div ref={loaderRef} className="h-14 w-full flex items-center justify-center mt-8 border-t border-gray-50 pt-4">
+          {loadingMore && (
+            <div className="flex items-center gap-2 text-cyan-600 text-sm font-semibold">
+              <RefreshCw className="animate-spin" size={16} /> Loading more listings...
             </div>
-            <span className="sm:hidden text-sm text-gray-500 font-medium">
-              {page} / {totalPages}
-            </span>
-
-            <button
-              disabled={page >= totalPages}
-              onClick={() => fetchJobs(page + 1)}
-              className="flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-sm"
-            >
-              Next <ChevronRight size={16} />
-            </button>
-          </div>
-        )}
+          )}
+          {!loadingMore && page >= totalPages && jobs.length > 0 && (
+            <span className="text-xs text-gray-400 font-medium">You have caught up with all listings.</span>
+          )}
+        </div>
       </div>
 
       {/* bottom padding for mobile nav */}

@@ -31,6 +31,13 @@ export interface Job {
   type?: string;         // "job" | "admit_card" | "result" | "update"
   isScraped?: boolean;
   scrapedAt?: string;
+  shortDescription?: string[];
+  importantDatesStructured?: { label: string; value: string }[];
+  applicationFee?: { category: string; amount: string }[];
+  vacancyDetails?: Record<string, string>[];
+  howToApply?: string[];
+  importantLinks?: { label: string; url: string; type: string }[];
+  sourceUrl?: string;
 }
 
 export interface ApiResponse<T> {
