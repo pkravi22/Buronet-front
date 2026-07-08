@@ -46,7 +46,9 @@ const sanitizeText = (text: any) => {
 const cleanJobDescription = (desc: any) => {
   if (desc === null || desc === undefined) return '';
   const str = String(desc);
-  let cleaned = str;
+  let cleaned = str
+    .replace(/^(\s*Short\s+Information\s*[:\-]?\s*)/i, '')
+    .replace(/^(\s*Short\s+Info\s*[:\-]?\s*)/i, '');
 
   const footerIndex = cleaned.toLowerCase().indexOf('welcome to this official website of sarkari result');
   if (footerIndex !== -1) {
@@ -74,9 +76,9 @@ const cleanJobDescription = (desc: any) => {
   return sanitizeText(cleaned);
 };
 
-const isValidNote = (n: string) => {
+const isValidNote = (n: any) => {
   if (!n) return false;
-  const lower = n.toLowerCase();
+  const lower = String(n).toLowerCase();
   if (lower.includes('pay the exam fee through online / offline fee mode only')) return false;
   if (lower.includes('sarkari result')) return false;
   if (lower.includes('result tools')) return false;
@@ -202,9 +204,9 @@ function Card({ title, icon, children }: { title: string; icon: React.ReactNode;
   );
 }
 
-function cleanOrg(raw: string | undefined): string {
+function cleanOrg(raw: any): string {
   if (!raw) return 'N/A';
-  const c = raw.trim();
+  const c = String(raw).trim();
   const lower = c.toLowerCase();
   if (lower === 'post name' || lower === 'click here' || lower.includes('sarkari')) {
     return 'N/A';
@@ -213,8 +215,8 @@ function cleanOrg(raw: string | undefined): string {
 }
 
 function extractDeadlineString(job: Job): string | undefined {
-  if (job.lastDateToApply && job.lastDateToApply.trim() !== "") {
-    return job.lastDateToApply;
+  if (job.lastDateToApply && String(job.lastDateToApply).trim() !== "") {
+    return String(job.lastDateToApply);
   }
 
   // Check structured important dates first
@@ -236,10 +238,10 @@ function extractDeadlineString(job: Job): string | undefined {
 
     for (const target of targets) {
       const found = job.importantDatesStructured.find(d => 
-        d.label && d.label.toLowerCase().includes(target)
+        d.label && String(d.label).toLowerCase().includes(target)
       );
-      if (found && found.value && found.value.trim() !== "") {
-        return found.value;
+      if (found && found.value && String(found.value).trim() !== "") {
+        return String(found.value);
       }
     }
   }
