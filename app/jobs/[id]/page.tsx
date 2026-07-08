@@ -19,14 +19,16 @@ interface JobDetailsPageProps {
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
-const ensureAbsoluteUrl = (url: string | undefined) => {
+const ensureAbsoluteUrl = (url: any) => {
   if (!url) return '#';
-  return /^https?:\/\//i.test(url) ? url : `https://${url}`;
+  const str = String(url);
+  return /^https?:\/\//i.test(str) ? str : `https://${str}`;
 };
 
-const sanitizeText = (text: string) => {
-  if (!text) return '';
-  return text
+const sanitizeText = (text: any) => {
+  if (text === null || text === undefined) return '';
+  const str = String(text);
+  return str
     .replace(/sarkari\s*result\.com/gi, 'buronet.co.in')
     .replace(/sarkari\s*result/gi, 'Buronet')
     .replace(/sarkariresult/gi, 'Buronet')
@@ -41,10 +43,10 @@ const sanitizeText = (text: string) => {
     .trim();
 };
 
-const cleanJobDescription = (desc: string) => {
-  if (!desc) return '';
-
-  let cleaned = desc;
+const cleanJobDescription = (desc: any) => {
+  if (desc === null || desc === undefined) return '';
+  const str = String(desc);
+  let cleaned = str;
 
   const footerIndex = cleaned.toLowerCase().indexOf('welcome to this official website of sarkari result');
   if (footerIndex !== -1) {
@@ -105,7 +107,7 @@ const isValidAge = (n: string) => {
   return hasAgeIndicator || hasNumericRange || hasAgeKeyword;
 };
 
-const parseQualificationsTable = (list: string[]) => {
+const parseQualificationsTable = (list: any[]) => {
   const rows: { postName: string; totalPost: string; eligibility: string }[] = [];
   let currentPost: string | null = null;
   let currentTotal: string = '';
@@ -125,7 +127,7 @@ const parseQualificationsTable = (list: string[]) => {
   };
 
   for (let item of list) {
-    const trimmed = item.trim();
+    const trimmed = String(item || '').trim();
     if (!trimmed) continue;
 
     const lower = trimmed.toLowerCase();
