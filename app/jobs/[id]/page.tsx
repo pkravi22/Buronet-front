@@ -43,14 +43,14 @@ const sanitizeText = (text: string) => {
 
 const cleanJobDescription = (desc: string) => {
   if (!desc) return '';
-  
+
   let cleaned = desc;
 
   const footerIndex = cleaned.toLowerCase().indexOf('welcome to this official website of sarkari result');
   if (footerIndex !== -1) {
     cleaned = cleaned.substring(0, footerIndex);
   }
-  
+
   const disclaimerIndex = cleaned.toLowerCase().indexOf('disclaimer : the examination results');
   if (disclaimerIndex !== -1) {
     cleaned = cleaned.substring(0, disclaimerIndex);
@@ -96,6 +96,8 @@ const isValidAge = (n: string) => {
   if (educationKeywords.some(kw => lower.includes(kw))) return false;
   // Reject sarkari junk
   if (lower.includes('sarkari result') || lower.includes('result tools')) return false;
+  // Reject short description summaries
+  if (lower.includes('short information') || lower.includes('short info')) return false;
   // Must contain a year/age indicator OR a numeric range
   const hasAgeIndicator = /\d+\s*(year|yr|वर्ष)/i.test(trimmed);
   const hasNumericRange = /\d{2}\s*[-–to]+\s*\d{2}/.test(trimmed);
@@ -206,6 +208,82 @@ function cleanOrg(raw: string | undefined): string {
     return 'N/A';
   }
   return c;
+}
+
+function extractDeadlineString(job: Job): string | undefined {
+  if (job.lastDateToApply && job.lastDateToApply.trim() !== "") {
+    return job.lastDateToApply;
+  }
+
+  // Check structured important dates first
+  if (job.importantDatesStructured && job.importantDatesStructured.length > 0) {
+    const targets = [
+      "last date for apply online",
+      "last date to apply",
+      "last date for apply",
+      "last date online",
+      "last date to register",
+      "last date for registration",
+      "registration last date",
+      "apply online last date",
+      "last date",
+      "deadline",
+      "application end",
+      "online application end"
+    ];
+
+    for (const target of targets) {
+      const found = job.importantDatesStructured.find(d => 
+        d.label && d.label.toLowerCase().includes(target)
+      );
+      if (found && found.value && found.value.trim() !== "") {
+        return found.value;
+      }
+    }
+  }
+
+  // Fallback to unstructured importantDates string array
+  const importantDatesRaw = (job as any).importantDates as string[] | undefined;
+  if (importantDatesRaw && importantDatesRaw.length > 0) {
+    const targets = [
+      "last date for apply online",
+      "last date to apply",
+      "last date for apply",
+      "last date online",
+      "last date to register",
+      "last date for registration",
+      "registration last date",
+      "apply online last date",
+      "last date",
+      "deadline",
+      "application end",
+      "online application end"
+    ];
+
+    for (const target of targets) {
+      const found = importantDatesRaw.find(d => d.toLowerCase().includes(target));
+      if (found) {
+        const parts = found.split(':');
+        if (parts.length > 1) {
+          const val = parts.slice(1).join(':').trim();
+          if (val) return val;
+        }
+      }
+    }
+  }
+
+  // Fallback to eligibilityNotes
+  if (job.eligibilityNotes && job.eligibilityNotes.length > 0) {
+    const found = job.eligibilityNotes.find(n => 
+      n.includes('Date:') && n.toLowerCase().includes('last date')
+    );
+    if (found) {
+      const val = found.replace(/📅\s*Date:\s*/g, '').replace(/last date:\s*/gi, '').trim();
+      if (val) return val;
+    }
+  }
+
+  return undefined;
 }
 
 // ── Loading skeleton ──────────────────────────────────────────────────────────
@@ -471,12 +549,26 @@ const JobDetailsPage = ({ params }: JobDetailsPageProps) => {
     );
   }
 
-  const descParagraphs = (job.shortDescription && job.shortDescription.length > 0)
+  let descParagraphs = (job.shortDescription && job.shortDescription.length > 0)
     ? job.shortDescription.map(cleanJobDescription)
     : [cleanJobDescription((job as any).enrichedDescription ?? job.jobDescription)];
 
+  const joinedDesc = descParagraphs.join(" ").trim();
+  // Fallback to "Short Information" notes if description is empty or too brief/generic (under 120 chars)
+  if (joinedDesc.length < 120) {
+    const notes = [...(job.eligibilityNotes || []), ...((job as any).otherNotes || [])];
+    const shortInfoNote = notes.find((n: string) => n && (n.toLowerCase().includes('short information') || n.toLowerCase().includes('short info')));
+    if (shortInfoNote) {
+      const cleaned = shortInfoNote
+        .replace(/^(age\s+limit:\s*)?short\s+information:\s*/gi, '')
+        .replace(/^short\s+info:\s*/gi, '')
+        .trim();
+      descParagraphs = [cleanJobDescription(cleaned)];
+    }
+  }
+
   const isAdmitCard = job.type === 'admit_card';
-  
+
   let parsedRows: any[] = [];
   let qualificationsList: string[] = [];
 
@@ -495,7 +587,7 @@ const JobDetailsPage = ({ params }: JobDetailsPageProps) => {
   }
 
   const showTable = parsedRows.length > 0;
-  const hasVacancyDetails = !!(job.vacancyDetails && job.vacancyDetails.length > 0);
+  const hasVacancyDetails = !!((job.vacancyDetails && job.vacancyDetails.length > 0) || (job.categoryVacancyDetails && job.categoryVacancyDetails.length > 0));
 
   const detailsTitle = isAdmitCard ? 'Admit Card Details' : (job.type === 'job' ? 'Job Details' : 'Short Description');
   const descriptionTitle = isAdmitCard ? 'About the Exam' : (job.type === 'job' ? 'Job Description' : 'Short Description');
@@ -525,8 +617,31 @@ const JobDetailsPage = ({ params }: JobDetailsPageProps) => {
   const otherNotesRaw = (job as any).otherNotes;
   let otherNotes = (otherNotesRaw && otherNotesRaw.length > 0) ? otherNotesRaw : [];
   if (otherNotes.length === 0 && job.eligibilityNotes?.length > 0) {
-    otherNotes = job.eligibilityNotes.filter((n: string) => !n.includes('Date:') && !n.includes('Fee:') && !n.includes('Age Limit:') && !n.includes('Age:'));
+    otherNotes = job.eligibilityNotes;
   }
+
+  // Filter otherNotes to prevent duplication with Age Limit, Fee, Important Dates, or Short Description sections.
+  otherNotes = otherNotes.filter((n: string) => {
+    if (!n) return false;
+    const lower = n.toLowerCase();
+
+    // 1. Exclude age limits/relaxation rules (which belong in the Age Limit section)
+    if (lower.includes('age limit') || lower.includes('age:') || lower.includes('minimum age') || lower.includes('maximum age') || lower.includes('age relaxation')) return false;
+
+    // 2. Exclude application fee details (which belong in the Application Fee section)
+    if (lower.includes('fee:') || lower.includes('fee details') || lower.includes('application fee')) return false;
+
+    // 3. Exclude dates/deadlines (which belong in the Important Dates section)
+    if (lower.includes('date:') || lower.includes('important dates') || lower.includes('last date')) return false;
+
+    // 4. Exclude "Short Information" summaries
+    if (lower.includes('short information') || lower.includes('short info')) return false;
+
+    // 5. Exclude any item that is already in parsedAges
+    if (parsedAges.some((age: string) => age.trim() === n.trim())) return false;
+
+    return true;
+  });
 
   const applicationSteps = (job.howToApply && job.howToApply.length > 0)
     ? job.howToApply
@@ -534,37 +649,78 @@ const JobDetailsPage = ({ params }: JobDetailsPageProps) => {
 
   const renderVacancyTable = (details: Record<string, string>[]) => {
     if (!details || details.length === 0) return null;
-    const headers = Array.from(new Set(details.flatMap(row => Object.keys(row))));
+
+    // Partition rows into tables based on schema compatibility
+    const tables: Record<string, string>[][] = [];
+    let currentTable: Record<string, string>[] = [];
+    let currentKeys = new Set<string>();
+
+    for (const row of details) {
+      // Filter out col_0/col_1 metadata
+      if ('col_0' in row || 'col_1' in row || Object.keys(row).some(k => k.toLowerCase().startsWith('col_'))) {
+        continue;
+      }
+
+      const rowKeys = Object.keys(row);
+      if (rowKeys.length === 0) continue;
+
+      // Group rows if they share columns beyond "Post Name" and "Total Post"
+      const nonCommonKeys = rowKeys.filter(k => k !== 'Post Name' && k !== 'Total Post');
+      const hasOverlap = nonCommonKeys.some(k => currentKeys.has(k));
+
+      if (currentTable.length > 0 && !hasOverlap && rowKeys.some(k => k.toLowerCase().includes('eligibility') || k.toLowerCase().includes('gen') || k.toLowerCase().includes('obc') || k.toLowerCase().includes('total'))) {
+        tables.push(currentTable);
+        currentTable = [row];
+        currentKeys = new Set(rowKeys);
+      } else {
+        currentTable.push(row);
+        rowKeys.forEach(k => currentKeys.add(k));
+      }
+    }
+
+    if (currentTable.length > 0) {
+      tables.push(currentTable);
+    }
+
+    if (tables.length === 0) return null;
+
     return (
-      <div className="overflow-x-auto border border-gray-150/70 rounded-xl shadow-sm my-3">
-        <table className="min-w-full divide-y divide-gray-150 text-left">
-          <thead className="bg-gray-50/70">
-            <tr>
-              {headers.map((h, idx) => (
-                <th key={idx} className="px-4 py-3 text-[14px] font-medium font-bold text-gray-500 uppercase tracking-wider">
-                  {h}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100 bg-white">
-            {details.map((row, rIdx) => (
-              <tr key={rIdx} className="hover:bg-gray-50/40 transition">
-                {headers.map((h, cIdx) => {
-                  const val = row[h] || '—';
-                  const isTotal = h.toLowerCase().includes('total');
-                  return (
-                    <td key={cIdx} className={`px-4 py-3 text-[14px] align-top leading-relaxed ${
-                      isTotal ? 'font-bold text-[#0096c7]' : 'text-gray-700 font-medium'
-                    }`}>
-                      {sanitizeText(val)}
-                    </td>
-                  );
-                })}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="space-y-4 my-3">
+        {tables.map((tableData, tableIdx) => {
+          const headers = Array.from(new Set(tableData.flatMap(row => Object.keys(row))));
+          return (
+            <div key={tableIdx} className="overflow-x-auto border border-gray-150/70 rounded-xl shadow-sm">
+              <table className="min-w-full divide-y divide-gray-150 text-left">
+                <thead className="bg-gray-50/70">
+                  <tr>
+                    {headers.map((h, idx) => (
+                      <th key={idx} className="px-4 py-3 text-[14px] font-semibold text-gray-500 uppercase tracking-wider">
+                        {h}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100 bg-white">
+                  {tableData.map((row, rIdx) => (
+                    <tr key={rIdx} className="hover:bg-gray-50/40 transition">
+                      {headers.map((h, cIdx) => {
+                        const val = row[h] || '—';
+                        const isTotal = h.toLowerCase().includes('total');
+                        return (
+                          <td key={cIdx} className={`px-4 py-3 text-[14px] align-top leading-relaxed ${
+                            isTotal ? 'font-bold text-[#0096c7]' : 'text-gray-700 font-medium'
+                          }`}>
+                            {sanitizeText(val)}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          );
+        })}
       </div>
     );
   };
@@ -655,7 +811,7 @@ const JobDetailsPage = ({ params }: JobDetailsPageProps) => {
                     <InfoRow
                       icon={<Clock size={15} />}
                       label={isAdmitCard ? 'Exam Date' : 'Last Date to Apply'}
-                      value={formatDateHelper(job.lastDateToApply) || 'N/A'}
+                      value={formatDateHelper(extractDeadlineString(job) || '') || 'N/A'}
                     />
                     {!isAdmitCard && <InfoRow icon={<BadgeIndianRupee size={15} />} label="Compensation" value={job.compensation || 'As per norms'} />}
                   </div>
@@ -701,266 +857,267 @@ const JobDetailsPage = ({ params }: JobDetailsPageProps) => {
               {isAdmitCard ? (
                 <GuestAdmitCardContent
                   job={job}
-                  desc={desc}
+                  desc={joinedDesc}
                   parsedDates={parsedDates}
                   otherNotes={otherNotes}
                   jobId={jobId}
                 />
               ) : (
-              <div className="flex-1 min-w-0 space-y-3">
-                {/* Header */}
-                <div>
-                  <h2 className="text-3xl font-extrabold text-[#111827] tracking-tight">{detailsTitle}</h2>
-                  {job.referenceNumber && (
-                    <p className="text-base font-medium text-gray-500 mt-1">Ref: {job.referenceNumber}</p>
-                  )}
-                </div>
-
-                {/* Description */}
-                <Card title={descriptionTitle} icon={<FileText size={18} />}>
-                  {descParagraphs.length > 0 && descParagraphs[0] !== "" ? (
-                    descParagraphs.map((p, idx) => (
-                      <p key={idx} className="text-gray-700 font-medium text-[15px] leading-relaxed whitespace-pre-line mb-3 last:mb-0">{p}</p>
-                    ))
-                  ) : (
-                    <p className="text-gray-400 italic text-[14px] font-medium font-semibold">No description available.</p>
-                  )}
-                  <div className="mt-3 pt-3 border-t border-gray-50 flex flex-wrap gap-x-6 gap-y-2 text-base text-gray-600 font-bold">
-                    {job.sector && <span>Department: <span className="font-extrabold text-gray-800">{job.sector}</span></span>}
-                    {job.employmentType && <span>Employment: <span className="font-extrabold text-gray-800">{job.employmentType}</span></span>}
+                <div className="flex-1 min-w-0 space-y-3">
+                  {/* Header */}
+                  <div>
+                    <h2 className="text-3xl font-extrabold text-[#111827] tracking-tight">{detailsTitle}</h2>
+                    {job.referenceNumber && (
+                      <p className="text-base font-medium text-gray-500 mt-1">Ref: {job.referenceNumber}</p>
+                    )}
                   </div>
-                </Card>
 
-                {/* Important Dates */}
-                {parsedDates.length > 0 && (
-                  <Card title="Important Dates" icon={<CalendarDays size={18} className="text-[#00B4D8]" />}>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      {parsedDates.map((d, i) => {
-                        const parts = d.split(':');
-                        const label = parts[0];
-                        const val = parts.slice(1).join(':').trim();
-                        return (
-                          <div key={i} className="flex flex-col p-2.5 bg-cyan-50/40 border border-cyan-100/30 rounded-xl">
-                            <span className="text-[14px] font-medium font-semibold text-[#0096c7] uppercase tracking-wider">{label}</span>
-                            <span className="text-base font-bold text-gray-800 mt-1">{val || 'As per schedule'}</span>
-                          </div>
-                        );
-                      })}
+                  {/* Description */}
+                  <Card title={descriptionTitle} icon={<FileText size={18} />}>
+                    {descParagraphs.length > 0 && descParagraphs[0] !== "" ? (
+                      descParagraphs.map((p, idx) => (
+                        <p key={idx} className="text-gray-700 font-medium text-[15px] leading-relaxed whitespace-pre-line mb-3 last:mb-0">{p}</p>
+                      ))
+                    ) : (
+                      <p className="text-gray-400 italic text-[14px] font-medium font-semibold">No description available.</p>
+                    )}
+                    <div className="mt-3 pt-3 border-t border-gray-50 flex flex-wrap gap-x-6 gap-y-2 text-base text-gray-600 font-bold">
+                      {job.sector && <span>Department: <span className="font-extrabold text-gray-800">{job.sector}</span></span>}
+                      {job.employmentType && <span>Employment: <span className="font-extrabold text-gray-800">{job.employmentType}</span></span>}
                     </div>
                   </Card>
-                )}
 
-                {/* Application Fee */}
-                {parsedFees.length > 0 && (
-                  <Card title="Application Fee" icon={<BadgeIndianRupee size={18} className="text-green-500" />}>
-                    <div className="space-y-2.5">
-                      {parsedFees.map((f, i) => {
-                        const parts = f.split(':');
-                        const label = parts[0];
-                        const val = parts.slice(1).join(':').trim();
-                        if (val) {
+                  {/* Important Dates */}
+                  {parsedDates.length > 0 && (
+                    <Card title="Important Dates" icon={<CalendarDays size={18} className="text-[#00B4D8]" />}>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {parsedDates.map((d: string, i: number) => {
+                          const parts = d.split(':');
+                          const label = parts[0];
+                          const val = parts.slice(1).join(':').trim();
                           return (
-                            <div key={i} className="flex items-center justify-between border-b border-gray-100 pb-2 last:border-0 last:pb-0">
-                              <span className="text-base font-medium text-gray-600">{label}</span>
-                              <span className="text-base font-bold text-green-700 bg-green-50 px-2.5 py-0.5 rounded-full">{val}</span>
+                            <div key={i} className="flex flex-col p-2.5 bg-cyan-50/40 border border-cyan-100/30 rounded-xl">
+                              <span className="text-[14px] font-medium font-semibold text-[#0096c7] uppercase tracking-wider">{label}</span>
+                              <span className="text-base font-bold text-gray-800 mt-1">{val || 'As per schedule'}</span>
                             </div>
                           );
-                        }
-                        return (
-                          <div key={i} className="text-base font-semibold text-gray-700 bg-gray-50 p-2.5 rounded-lg border border-gray-100">
-                            {label}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </Card>
-                )}
+                        })}
+                      </div>
+                    </Card>
+                  )}
 
-                {/* Eligibility & Qualifications */}
-                <Card title="Eligibility & Qualifications" icon={<UserCheck size={18} />}>
-                  {hasVacancyDetails || job.qualifications?.length > 0 || parsedAges.length > 0 || otherNotes.length > 0 ? (
-                    <div className="space-y-4">
-                      {hasVacancyDetails ? (
-                        <div>
-                          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Vacancy & Eligibility Details</p>
-                          {renderVacancyTable(job.vacancyDetails!)}
-                        </div>
-                      ) : job.qualifications?.length > 0 ? (
-                        <div>
-                          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Qualifications</p>
-                          {showTable ? (
-                            <div className="overflow-x-auto border border-gray-150/70 rounded-xl shadow-sm">
-                              <table className="min-w-full divide-y divide-gray-150 text-left">
-                                <thead className="bg-gray-50/70">
-                                  <tr>
-                                    <th className="px-4 py-3 text-[14px] font-medium font-semibold text-gray-500 uppercase tracking-wider">Post Name</th>
-                                    <th className="px-4 py-3 text-[14px] font-medium font-semibold text-gray-500 uppercase tracking-wider">Total Post & Eligibility</th>
-                                  </tr>
-                                </thead>
-                                <tbody className="divide-y divide-gray-100 bg-white">
-                                  {parsedRows.map((row, i) => (
-                                    <tr key={i} className="hover:bg-bg-gray-50/40 transition">
-                                      <td className="px-4 py-3 text-base font-semibold text-gray-800 align-top leading-relaxed">{row.postName}</td>
-                                      <td className="px-4 py-3 text-base text-gray-600 align-top">
-                                        <div className="font-extrabold text-lg text-[#0096c7] mb-1 leading-none">{row.totalPost}</div>
-                                        {row.eligibility && (
-                                          <div className="text-base text-gray-500 font-medium leading-relaxed mt-1.5">{sanitizeText(row.eligibility)}</div>
-                                        )}
-                                      </td>
-                                    </tr>
-                                  ))}
-                                </tbody>
-                              </table>
+                  {/* Application Fee */}
+                  {parsedFees.length > 0 && (
+                    <Card title="Application Fee" icon={<BadgeIndianRupee size={18} className="text-green-500" />}>
+                      <div className="space-y-2.5">
+                        {parsedFees.map((f: string, i: number) => {
+                          const parts = f.split(':');
+                          const label = parts[0];
+                          const val = parts.slice(1).join(':').trim();
+                          if (val) {
+                            return (
+                              <div key={i} className="flex items-center justify-between border-b border-gray-100 pb-2 last:border-0 last:pb-0">
+                                <span className="text-base font-medium text-gray-600">{label}</span>
+                                <span className="text-base font-bold text-green-700 bg-green-50 px-2.5 py-0.5 rounded-full">{val}</span>
+                              </div>
+                            );
+                          }
+                          return (
+                            <div key={i} className="text-base font-semibold text-gray-700 bg-gray-50 p-2.5 rounded-lg border border-gray-100">
+                              {label}
                             </div>
-                          ) : (
+                          );
+                        })}
+                      </div>
+                    </Card>
+                  )}
+
+                  {/* Eligibility & Qualifications */}
+                  <Card title="Eligibility & Qualifications" icon={<UserCheck size={18} />}>
+                    {hasVacancyDetails || job.qualifications?.length > 0 || parsedAges.length > 0 || otherNotes.length > 0 ? (
+                      <div className="space-y-4">
+                        {hasVacancyDetails ? (
+                          <div className="space-y-4">
+                            {job.vacancyDetails && job.vacancyDetails.length > 0 && (
+                              <div>
+                                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Vacancy & Eligibility Details</p>
+                                {renderVacancyTable(job.vacancyDetails)}
+                              </div>
+                            )}
+                            {job.categoryVacancyDetails && job.categoryVacancyDetails.length > 0 && (
+                              <div>
+                                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Category Wise Vacancy Details</p>
+                                {renderVacancyTable(job.categoryVacancyDetails)}
+                              </div>
+                            )}
+                          </div>
+                        ) : job.qualifications?.length > 0 ? (
+                          <div>
+                            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Qualifications</p>
+                            {showTable ? (
+                              <div className="overflow-x-auto border border-gray-150/70 rounded-xl shadow-sm">
+                                <table className="min-w-full divide-y divide-gray-150 text-left">
+                                  <thead className="bg-gray-50/70">
+                                    <tr>
+                                      <th className="px-4 py-3 text-[14px] font-medium font-semibold text-gray-500 uppercase tracking-wider">Post Name</th>
+                                      <th className="px-4 py-3 text-[14px] font-medium font-semibold text-gray-500 uppercase tracking-wider">Total Post & Eligibility</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody className="divide-y divide-gray-100 bg-white">
+                                    {parsedRows.map((row, i) => (
+                                      <tr key={i} className="hover:bg-bg-gray-50/40 transition">
+                                        <td className="px-4 py-3 text-base font-semibold text-gray-800 align-top leading-relaxed">{row.postName}</td>
+                                        <td className="px-4 py-3 text-base text-gray-600 align-top">
+                                          <div className="font-extrabold text-lg text-[#0096c7] mb-1 leading-none">{row.totalPost}</div>
+                                          {row.eligibility && (
+                                            <div className="text-base text-gray-500 font-medium leading-relaxed mt-1.5">{sanitizeText(row.eligibility)}</div>
+                                          )}
+                                        </td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </div>
+                            ) : (
+                              <ul className="space-y-1">
+                                {qualificationsList.map((q: string, i: number) => (
+                                  <li key={i} className="flex items-start gap-2 text-[14px] font-medium text-gray-700">
+                                    <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-cyan-400 shrink-0" />
+                                    {sanitizeText(q)}
+                                  </li>
+                                ))}
+                              </ul>
+                            )}
+                          </div>
+                        ) : null}
+
+                        {parsedAges.length > 0 && (
+                          <div>
+                            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2 flex items-center gap-1">
+                              <Clock size={12} /> Age Limit
+                            </p>
                             <ul className="space-y-1">
-                              {qualificationsList.map((q: string, i: number) => (
+                              {parsedAges.map((age: string, i: number) => (
                                 <li key={i} className="flex items-start gap-2 text-[14px] font-medium text-gray-700">
-                                  <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-cyan-400 shrink-0" />
-                                  {sanitizeText(q)}
+                                  <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-orange-400 shrink-0" />
+                                  {sanitizeText(age)}
                                 </li>
                               ))}
                             </ul>
+                          </div>
+                        )}
+
+
+                      </div>
+                    ) : (
+                      <p className="text-gray-400 italic text-[14px] font-medium">No eligibility details available.</p>
+                    )}
+                  </Card>
+
+                  {/* Benefits */}
+                  {job.benefits?.length > 0 && (
+                    <Card title="Benefits" icon={<Gift size={18} />}>
+                      <ul className="space-y-2">
+                        {job.benefits.map((b, i) => (
+                          <li key={i} className="flex items-start gap-2 text-base font-medium text-gray-700">
+                            <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-green-400 shrink-0" />
+                            {sanitizeText(b)}
+                          </li>
+                        ))}
+                      </ul>
+                    </Card>
+                  )}
+
+                  {/* How to Apply */}
+                  <Card title="How to Apply" icon={<FileText size={18} />}>
+                    {applicationSteps?.length > 0 ? (
+                      <ol className="space-y-2">
+                        {applicationSteps.filter(isValidNote).map((step, i) => (
+                          <li key={i} className="flex items-start gap-3 text-[14px] font-medium text-gray-700">
+                            <span className="w-6 h-6 rounded-full bg-cyan-100 text-[#0096c7] font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">{i + 1}</span>
+                            <span className="break-words min-w-0">{sanitizeText(step)}</span>
+                          </li>
+                        ))}
+                      </ol>
+                    ) : (
+                      <p className="text-gray-400 italic text-[14px] font-medium">Visit the official website to know the application process.</p>
+                    )}
+                  </Card>
+
+                  {/* Important Links */}
+                  <Card title="Important Links" icon={<LucideLink size={18} />}>
+                    <div className="space-y-3">
+                      {job.importantLinks && job.importantLinks.length > 0 ? (
+                        job.importantLinks
+                          .filter(lnk => {
+                            if (!lnk.label) return false;
+                            const lower = lnk.label.toLowerCase();
+                            return !lower.includes('android') && !lower.includes('telegram') && !lower.includes('sarkari') && !lower.includes('youtube') && !lower.includes('facebook') && !lower.includes('instagram') && !lower.includes('whatsapp');
+                          })
+                          .map((lnk, i) => (
+                          <a
+                            key={i}
+                            href={ensureAbsoluteUrl(lnk.url)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={`flex items-center justify-between bg-gray-50 rounded-xl p-4 transition group ${lnk.type === 'pdf' ? 'hover:bg-red-50' : 'hover:bg-cyan-50'
+                              }`}
+                          >
+                            <div className="flex items-center gap-3">
+                              {lnk.type === 'pdf' ? (
+                                <FileArchive size={18} className="text-red-500" />
+                              ) : lnk.type === 'apply' ? (
+                                <Globe size={18} className="text-[#00B4D8]" />
+                              ) : (
+                                <LucideLink size={18} className="text-gray-400" />
+                              )}
+                              <span className={`text-[14px] font-medium text-gray-800 ${lnk.type === 'pdf' ? 'group-hover:text-red-700' : 'group-hover:text-cyan-700'
+                                }`}>
+                                {sanitizeText(lnk.label)}
+                              </span>
+                            </div>
+                            <LucideLink size={15} className={`text-gray-400 ${lnk.type === 'pdf' ? 'group-hover:text-red-500' : 'group-hover:text-[#00B4D8]'
+                              }`} />
+                          </a>
+                        ))
+                      ) : (
+                        <>
+                          {job.applyLink?.link && job.applyLink.link !== '#' && (
+                            <a
+                              href={ensureAbsoluteUrl(job.applyLink.link)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center justify-between bg-gray-50 hover:bg-cyan-50 rounded-xl p-4 transition group"
+                            >
+                              <div className="flex items-center gap-3">
+                                <Globe size={18} className="text-[#00B4D8]" />
+                                <span className="text-[14px] font-medium text-gray-800 group-hover:text-cyan-700">Apply Online / Official Website</span>
+                              </div>
+                              <LucideLink size={15} className="text-gray-400 group-hover:text-[#00B4D8]" />
+                            </a>
                           )}
-                        </div>
-                      ) : null}
-
-                      {parsedAges.length > 0 && (
-                        <div>
-                          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2 flex items-center gap-1">
-                            <Clock size={12} /> Age Limit
-                          </p>
-                          <ul className="space-y-1">
-                            {parsedAges.map((age, i) => (
-                              <li key={i} className="flex items-start gap-2 text-[14px] font-medium text-gray-700">
-                                <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-orange-400 shrink-0" />
-                                {sanitizeText(age)}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-
-                      {otherNotes.length > 0 && (
-                        <div>
-                          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">General Notes</p>
-                          <ul className="space-y-1">
-                            {otherNotes.map((n, i) => (
-                              <li key={i} className="flex items-start gap-2 text-[14px] font-medium text-gray-700">
-                                <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-gray-400 shrink-0" />
-                                {sanitizeText(n)}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
+                          {job.applyLink?.fileName && (
+                            <a
+                              href={ensureAbsoluteUrl(job.applyLink.fileName)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center justify-between bg-gray-50 hover:bg-red-50 rounded-xl p-4 transition group"
+                            >
+                              <div className="flex items-center gap-3">
+                                <FileArchive size={18} className="text-red-500" />
+                                <span className="text-[14px] font-medium text-gray-800 group-hover:text-red-700">Official Notification PDF</span>
+                              </div>
+                              <LucideLink size={15} className="text-gray-400 group-hover:text-red-500" />
+                            </a>
+                          )}
+                          {!job.applyLink?.link && !job.applyLink?.fileName && (
+                            <p className="text-gray-400 italic text-[14px] font-medium">No links available.</p>
+                          )}
+                        </>
                       )}
                     </div>
-                  ) : (
-                    <p className="text-gray-400 italic text-[14px] font-medium">No eligibility details available.</p>
-                  )}
-                </Card>
-
-                {/* Benefits */}
-                {job.benefits?.length > 0 && (
-                  <Card title="Benefits" icon={<Gift size={18} />}>
-                    <ul className="space-y-2">
-                      {job.benefits.map((b, i) => (
-                        <li key={i} className="flex items-start gap-2 text-base font-medium text-gray-700">
-                          <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-green-400 shrink-0" />
-                          {sanitizeText(b)}
-                        </li>
-                      ))}
-                    </ul>
                   </Card>
-                )}
-
-                {/* How to Apply */}
-                <Card title="How to Apply" icon={<FileText size={18} />}>
-                  {applicationSteps?.length > 0 ? (
-                    <ol className="space-y-2">
-                      {applicationSteps.filter(isValidNote).map((step, i) => (
-                        <li key={i} className="flex items-start gap-3 text-[14px] font-medium text-gray-700">
-                          <span className="w-6 h-6 rounded-full bg-cyan-100 text-[#0096c7] font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">{i + 1}</span>
-                          <span className="break-words min-w-0">{sanitizeText(step)}</span>
-                        </li>
-                      ))}
-                    </ol>
-                  ) : (
-                    <p className="text-gray-400 italic text-[14px] font-medium">Visit the official website to know the application process.</p>
-                  )}
-                </Card>
-
-                {/* Important Links */}
-                <Card title="Important Links" icon={<LucideLink size={18} />}>
-                  <div className="space-y-3">
-                    {job.importantLinks && job.importantLinks.length > 0 ? (
-                      job.importantLinks.map((lnk, i) => (
-                        <a
-                          key={i}
-                          href={ensureAbsoluteUrl(lnk.url)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className={`flex items-center justify-between bg-gray-50 rounded-xl p-4 transition group ${
-                            lnk.type === 'pdf' ? 'hover:bg-red-50' : 'hover:bg-cyan-50'
-                          }`}
-                        >
-                          <div className="flex items-center gap-3">
-                            {lnk.type === 'pdf' ? (
-                              <FileArchive size={18} className="text-red-500" />
-                            ) : lnk.type === 'apply' ? (
-                              <Globe size={18} className="text-[#00B4D8]" />
-                            ) : (
-                              <LucideLink size={18} className="text-gray-400" />
-                            )}
-                            <span className={`text-[14px] font-medium text-gray-800 ${
-                              lnk.type === 'pdf' ? 'group-hover:text-red-700' : 'group-hover:text-cyan-700'
-                            }`}>
-                              {sanitizeText(lnk.label)}
-                            </span>
-                          </div>
-                          <LucideLink size={15} className={`text-gray-400 ${
-                            lnk.type === 'pdf' ? 'group-hover:text-red-500' : 'group-hover:text-[#00B4D8]'
-                          }`} />
-                        </a>
-                      ))
-                    ) : (
-                      <>
-                        {job.applyLink?.link && job.applyLink.link !== '#' && (
-                          <a
-                            href={ensureAbsoluteUrl(job.applyLink.link)}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center justify-between bg-gray-50 hover:bg-cyan-50 rounded-xl p-4 transition group"
-                          >
-                            <div className="flex items-center gap-3">
-                              <Globe size={18} className="text-[#00B4D8]" />
-                              <span className="text-[14px] font-medium text-gray-800 group-hover:text-cyan-700">Apply Online / Official Website</span>
-                            </div>
-                            <LucideLink size={15} className="text-gray-400 group-hover:text-[#00B4D8]" />
-                          </a>
-                        )}
-                        {job.applyLink?.fileName && (
-                          <a
-                            href={ensureAbsoluteUrl(job.applyLink.fileName)}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center justify-between bg-gray-50 hover:bg-red-50 rounded-xl p-4 transition group"
-                          >
-                            <div className="flex items-center gap-3">
-                              <FileArchive size={18} className="text-red-500" />
-                              <span className="text-[14px] font-medium text-gray-800 group-hover:text-red-700">Official Notification PDF</span>
-                            </div>
-                            <LucideLink size={15} className="text-gray-400 group-hover:text-red-500" />
-                          </a>
-                        )}
-                        {!job.applyLink?.link && !job.applyLink?.fileName && (
-                          <p className="text-gray-400 italic text-[14px] font-medium">No links available.</p>
-                        )}
-                      </>
-                    )}
-                  </div>
-                </Card>
-              </div>
+                </div>
               )}
             </div>
           </div>
@@ -1019,7 +1176,7 @@ const JobDetailsPage = ({ params }: JobDetailsPageProps) => {
                 <div className="border-t border-gray-50 pt-3">
                   <InfoRow icon={<CalendarDays size={14} />} label={isAdmitCard ? 'Release Date' : 'Post Date'} value={formatDateHelper(job.dateOfIssue) || 'N/A'} />
                   <InfoRow icon={<Building2 size={14} />} label="Conducted By" value={cleanOrg(job.companyName || job.organizationName)} />
-                  <InfoRow icon={<Clock size={14} />} label={isAdmitCard ? 'Exam Date' : 'Last Date'} value={formatDateHelper(job.lastDateToApply) || 'N/A'} />
+                  <InfoRow icon={<Clock size={14} />} label={isAdmitCard ? 'Exam Date' : 'Last Date'} value={formatDateHelper(extractDeadlineString(job) || '') || 'N/A'} />
                   {!isAdmitCard && <InfoRow icon={<BadgeIndianRupee size={14} />} label="Compensation" value={job.compensation || 'As per norms'} />}
                 </div>
 
@@ -1102,252 +1259,266 @@ const JobDetailsPage = ({ params }: JobDetailsPageProps) => {
             {isAdmitCard ? (
               <LoggedInAdmitCardContent
                 job={job}
-                desc={desc}
+                desc={joinedDesc}
                 parsedDates={parsedDates}
                 otherNotes={otherNotes}
+                jobId={jobId}
               />
             ) : (
-            <div className="flex-1 min-w-0 space-y-3">
-              <div>
-                <h2 className="text-3xl font-extrabold text-[#111827] tracking-tight">{detailsTitle}</h2>
-                {job.referenceNumber && (
-                  <p className="text-[14px] font-medium text-gray-400 mt-0.5">Ref: {job.referenceNumber}</p>
-                )}
-              </div>
-
-              <Card title={descriptionTitle} icon={<FileText size={18} />}>
-                {descParagraphs.length > 0 && descParagraphs[0] !== "" ? (
-                  descParagraphs.map((p, idx) => (
-                    <p key={idx} className="text-gray-600 text-lg leading-relaxed whitespace-pre-line font-normal mb-3 last:mb-0">{p}</p>
-                  ))
-                ) : (
-                  <p className="text-gray-400 italic text-[14px] font-medium font-semibold">No description available.</p>
-                )}
-                <div className="mt-3 pt-3 border-t border-gray-50 flex flex-wrap gap-x-6 gap-y-2 text-base text-gray-500 font-semibold">
-                  {job.sector && <span>Department: <span className="font-bold text-gray-800">{job.sector}</span></span>}
-                  {job.employmentType && <span>Employment: <span className="font-bold text-gray-800">{job.employmentType}</span></span>}
+              <div className="flex-1 min-w-0 space-y-3">
+                <div>
+                  <h2 className="text-3xl font-extrabold text-[#111827] tracking-tight">{detailsTitle}</h2>
+                  {job.referenceNumber && (
+                    <p className="text-[14px] font-medium text-gray-400 mt-0.5">Ref: {job.referenceNumber}</p>
+                  )}
                 </div>
-              </Card>
 
-              {/* Important Dates */}
-              {parsedDates.length > 0 && (
-                <Card title="Important Dates" icon={<CalendarDays size={18} className="text-[#00B4D8]" />}>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {parsedDates.map((d, i) => {
-                      const parts = d.split(':');
-                      const label = parts[0];
-                      const val = parts.slice(1).join(':').trim();
-                      return (
-                        <div key={i} className="flex flex-col p-2.5 bg-cyan-50/40 border border-cyan-100/30 rounded-xl">
-                          <span className="text-[14px] font-medium font-semibold text-[#0096c7] uppercase tracking-wider">{sanitizeText(label)}</span>
-                          <span className="text-base font-bold text-gray-800 mt-1">{val ? sanitizeText(val) : 'As per schedule'}</span>
-                        </div>
-                      );
-                    })}
+                <Card title={descriptionTitle} icon={<FileText size={18} />}>
+                  {descParagraphs.length > 0 && descParagraphs[0] !== "" ? (
+                    descParagraphs.map((p, idx) => (
+                      <p key={idx} className="text-gray-600 text-lg leading-relaxed whitespace-pre-line font-normal mb-3 last:mb-0">{p}</p>
+                    ))
+                  ) : (
+                    <p className="text-gray-400 italic text-[14px] font-medium font-semibold">No description available.</p>
+                  )}
+                  <div className="mt-3 pt-3 border-t border-gray-50 flex flex-wrap gap-x-6 gap-y-2 text-base text-gray-500 font-semibold">
+                    {job.sector && <span>Department: <span className="font-bold text-gray-800">{job.sector}</span></span>}
+                    {job.employmentType && <span>Employment: <span className="font-bold text-gray-800">{job.employmentType}</span></span>}
                   </div>
                 </Card>
-              )}
 
-              {/* Application Fee */}
-              {parsedFees.length > 0 && (
-                <Card title="Application Fee" icon={<BadgeIndianRupee size={18} className="text-green-500" />}>
-                  <div className="space-y-2">
-                    {parsedFees.map((f, i) => {
-                      const parts = f.split(':');
-                      const label = parts[0];
-                      const val = parts.slice(1).join(':').trim();
-                      if (val) {
+                {/* Important Dates */}
+                {parsedDates.length > 0 && (
+                  <Card title="Important Dates" icon={<CalendarDays size={18} className="text-[#00B4D8]" />}>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {parsedDates.map((d: string, i: number) => {
+                        const parts = d.split(':');
+                        const label = parts[0];
+                        const val = parts.slice(1).join(':').trim();
                         return (
-                          <div key={i} className="flex items-center justify-between border-b border-gray-100 pb-1.5 last:border-0 last:pb-0">
-                            <span className="text-base font-medium text-gray-600">{sanitizeText(label)}</span>
-                            <span className="text-base font-bold text-green-700 bg-green-50 px-2.5 py-0.5 rounded-full">{sanitizeText(val)}</span>
+                          <div key={i} className="flex flex-col p-2.5 bg-cyan-50/40 border border-cyan-100/30 rounded-xl">
+                            <span className="text-[14px] font-medium font-semibold text-[#0096c7] uppercase tracking-wider">{sanitizeText(label)}</span>
+                            <span className="text-base font-bold text-gray-800 mt-1">{val ? sanitizeText(val) : 'As per schedule'}</span>
                           </div>
                         );
-                      }
-                      return (
-                        <div key={i} className="text-base font-medium text-gray-600 bg-gray-50 p-2 rounded-lg border border-gray-100">
-                          {sanitizeText(label)}
-                        </div>
-                      );
-                    })}
-                  </div>
-                </Card>
-              )}
+                      })}
+                    </div>
+                  </Card>
+                )}
 
-              {/* Eligibility & Qualifications */}
-              <Card title="Eligibility & Qualifications" icon={<UserCheck size={18} />}>
-                {hasVacancyDetails || job.qualifications?.length > 0 || parsedAges.length > 0 || otherNotes.length > 0 ? (
-                  <div className="space-y-3">
-                    {hasVacancyDetails ? (
-                      <div>
-                        <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2.5">Vacancy & Eligibility Details</p>
-                        {renderVacancyTable(job.vacancyDetails!)}
-                      </div>
-                    ) : job.qualifications?.length > 0 ? (
-                      <div>
-                        <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2.5">Qualifications</p>
-                        {showTable ? (
-                          <div className="overflow-x-auto border border-gray-150/70 rounded-xl shadow-sm">
-                            <table className="min-w-full divide-y divide-gray-150 text-left">
-                              <thead className="bg-gray-50/70">
-                                <tr>
-                                  <th className="px-4 py-3 text-[14px] font-medium font-semibold text-gray-500 uppercase tracking-wider">Post Name</th>
-                                  <th className="px-4 py-3 text-[14px] font-medium font-semibold text-gray-500 uppercase tracking-wider">Total Post & Eligibility</th>
-                                </tr>
-                              </thead>
-                              <tbody className="divide-y divide-gray-100 bg-white">
-                                {parsedRows.map((row, i) => (
-                                  <tr key={i} className="hover:bg-gray-50/40 transition">
-                                    <td className="px-4 py-3 text-base font-semibold text-gray-800 align-top leading-relaxed">{sanitizeText(row.postName)}</td>
-                                    <td className="px-4 py-3 text-base text-gray-600 align-top">
-                                      <div className="font-extrabold text-lg text-[#0096c7] mb-1 leading-none">{sanitizeText(row.totalPost)}</div>
-                                      {row.eligibility && (
-                                        <div className="text-base text-gray-500 font-medium leading-relaxed mt-1.5">{sanitizeText(row.eligibility)}</div>
-                                      )}
-                                    </td>
-                                  </tr>
-                                ))}
-                              </tbody>
-                            </table>
+                {/* Application Fee */}
+                {parsedFees.length > 0 && (
+                  <Card title="Application Fee" icon={<BadgeIndianRupee size={18} className="text-green-500" />}>
+                    <div className="space-y-2">
+                      {parsedFees.map((f: string, i: number) => {
+                        const parts = f.split(':');
+                        const label = parts[0];
+                        const val = parts.slice(1).join(':').trim();
+                        if (val) {
+                          return (
+                            <div key={i} className="flex items-center justify-between border-b border-gray-100 pb-1.5 last:border-0 last:pb-0">
+                              <span className="text-base font-medium text-gray-600">{sanitizeText(label)}</span>
+                              <span className="text-base font-bold text-green-700 bg-green-50 px-2.5 py-0.5 rounded-full">{sanitizeText(val)}</span>
+                            </div>
+                          );
+                        }
+                        return (
+                          <div key={i} className="text-base font-medium text-gray-600 bg-gray-50 p-2 rounded-lg border border-gray-100">
+                            {sanitizeText(label)}
                           </div>
-                            ) : (
-                              <ul className="space-y-1">
-                                {qualificationsList.map((q: string, i: number) => (
-                                  <li key={i} className="flex items-start gap-2 text-[14px] font-medium text-gray-700">
-                                <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-cyan-400 shrink-0" />
-                                {sanitizeText(q)}
+                        );
+                      })}
+                    </div>
+                  </Card>
+                )}
+
+                {/* Eligibility & Qualifications */}
+                <Card title="Eligibility & Qualifications" icon={<UserCheck size={18} />}>
+                  {hasVacancyDetails || job.qualifications?.length > 0 || parsedAges.length > 0 || otherNotes.length > 0 ? (
+                    <div className="space-y-3">
+                      {hasVacancyDetails ? (
+                        <div className="space-y-4">
+                          {job.vacancyDetails && job.vacancyDetails.length > 0 && (
+                            <div>
+                              <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2.5">Vacancy & Eligibility Details</p>
+                              {renderVacancyTable(job.vacancyDetails)}
+                            </div>
+                          )}
+                          {job.categoryVacancyDetails && job.categoryVacancyDetails.length > 0 && (
+                            <div>
+                              <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2.5">Category Wise Vacancy Details</p>
+                              {renderVacancyTable(job.categoryVacancyDetails)}
+                            </div>
+                          )}
+                        </div>
+                      ) : job.qualifications?.length > 0 ? (
+                        <div>
+                          <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2.5">Qualifications</p>
+                          {showTable ? (
+                            <div className="overflow-x-auto border border-gray-150/70 rounded-xl shadow-sm">
+                              <table className="min-w-full divide-y divide-gray-150 text-left">
+                                <thead className="bg-gray-50/70">
+                                  <tr>
+                                    <th className="px-4 py-3 text-[14px] font-medium font-semibold text-gray-500 uppercase tracking-wider">Post Name</th>
+                                    <th className="px-4 py-3 text-[14px] font-medium font-semibold text-gray-500 uppercase tracking-wider">Total Post & Eligibility</th>
+                                  </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-100 bg-white">
+                                  {parsedRows.map((row, i) => (
+                                    <tr key={i} className="hover:bg-gray-50/40 transition">
+                                      <td className="px-4 py-3 text-base font-semibold text-gray-800 align-top leading-relaxed">{sanitizeText(row.postName)}</td>
+                                      <td className="px-4 py-3 text-base text-gray-600 align-top">
+                                        <div className="font-extrabold text-lg text-[#0096c7] mb-1 leading-none">{sanitizeText(row.totalPost)}</div>
+                                        {row.eligibility && (
+                                          <div className="text-base text-gray-500 font-medium leading-relaxed mt-1.5">{sanitizeText(row.eligibility)}</div>
+                                        )}
+                                      </td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            </div>
+                          ) : (
+                            <ul className="space-y-1">
+                              {qualificationsList.map((q: string, i: number) => (
+                                <li key={i} className="flex items-start gap-2 text-[14px] font-medium text-gray-700">
+                                  <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-cyan-400 shrink-0" />
+                                  {sanitizeText(q)}
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                        </div>
+                      ) : null}
+
+                      {parsedAges.length > 0 && (
+                        <div>
+                          <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5 flex items-center gap-1">
+                            <Clock size={12} /> Age Limit
+                          </p>
+                          <ul className="space-y-1">
+                            {parsedAges.map((age: string, i: number) => (
+                              <li key={i} className="flex items-start gap-2 text-[14px] font-medium text-gray-700">
+                                <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-orange-400 shrink-0" />
+                                {age}
                               </li>
                             ))}
                           </ul>
+                        </div>
+                      )}
+
+                      {otherNotes.length > 0 && (
+                        <div>
+                          <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">General Notes</p>
+                          <ul className="space-y-1">
+                            {otherNotes.map((n: string, i: number) => (
+                              <li key={i} className="flex items-start gap-2 text-base text-gray-600 font-medium">
+                                <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-gray-400 shrink-0" />
+                                {n}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <p className="text-gray-400 italic text-[14px] font-medium font-semibold">No eligibility details available.</p>
+                  )}
+                </Card>
+
+                {job.benefits?.length > 0 && (
+                  <Card title="Benefits" icon={<Gift size={18} />}>
+                    <ul className="space-y-1">
+                      {job.benefits.map((b, i) => (
+                        <li key={i} className="flex items-start gap-2 text-[14px] font-medium text-gray-700">
+                          <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-green-400 shrink-0" />
+                          {b}
+                        </li>
+                      ))}
+                    </ul>
+                  </Card>
+                )}
+
+                <Card title="How to Apply" icon={<FileText size={18} />}>
+                  {applicationSteps?.length > 0 ? (
+                    <ol className="space-y-2">
+                      {applicationSteps.filter(isValidNote).map((step, i) => (
+                        <li key={i} className="flex items-start gap-3 text-[14px] font-medium text-gray-700">
+                          <span className="w-6 h-6 rounded-full bg-cyan-100 text-[#0096c7] font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">{i + 1}</span>
+                          <span className="break-words min-w-0">{sanitizeText(step)}</span>
+                        </li>
+                      ))}
+                    </ol>
+                  ) : (
+                    <p className="text-gray-400 italic text-[14px] font-medium">Visit the official website to know the application process.</p>
+                  )}
+                </Card>
+
+                <Card title="Important Links" icon={<LucideLink size={18} />}>
+                  <div className="space-y-3">
+                    {job.importantLinks && job.importantLinks.length > 0 ? (
+                      job.importantLinks
+                        .filter(lnk => {
+                          if (!lnk.label) return false;
+                          const lower = lnk.label.toLowerCase();
+                          return !lower.includes('android') && !lower.includes('telegram') && !lower.includes('sarkari') && !lower.includes('youtube') && !lower.includes('facebook') && !lower.includes('instagram') && !lower.includes('whatsapp');
+                        })
+                        .map((lnk, i) => (
+                        <a
+                          key={i}
+                          href={ensureAbsoluteUrl(lnk.url)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={`flex items-center justify-between bg-gray-50 rounded-xl p-4 transition group ${lnk.type === 'pdf' ? 'hover:bg-red-50' : 'hover:bg-cyan-50'
+                            }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            {lnk.type === 'pdf' ? (
+                              <FileArchive size={18} className="text-red-500" />
+                            ) : lnk.type === 'apply' ? (
+                              <Globe size={18} className="text-[#00B4D8]" />
+                            ) : (
+                              <LucideLink size={18} className="text-gray-400" />
+                            )}
+                            <span className={`text-[14px] font-medium text-gray-800 ${lnk.type === 'pdf' ? 'group-hover:text-red-700' : 'group-hover:text-cyan-700'
+                              }`}>
+                              {sanitizeText(lnk.label)}
+                            </span>
+                          </div>
+                          <LucideLink size={15} className={`text-gray-400 ${lnk.type === 'pdf' ? 'group-hover:text-red-500' : 'group-hover:text-[#00B4D8]'
+                            }`} />
+                        </a>
+                      ))
+                    ) : (
+                      <>
+                        {job.applyLink?.link && job.applyLink.link !== '#' && (
+                          <a href={ensureAbsoluteUrl(job.applyLink.link)} target="_blank" rel="noopener noreferrer"
+                            className="flex items-center justify-between bg-gray-50 hover:bg-cyan-50 rounded-xl p-4 transition group">
+                            <div className="flex items-center gap-3">
+                              <Globe size={18} className="text-[#00B4D8]" />
+                              <span className="text-[14px] font-medium text-gray-800 group-hover:text-cyan-700">Apply Online / Official Website</span>
+                            </div>
+                            <LucideLink size={15} className="text-gray-400" />
+                          </a>
                         )}
-                      </div>
-                    ) : null}
-
-                    {parsedAges.length > 0 && (
-                      <div>
-                        <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5 flex items-center gap-1">
-                          <Clock size={12} /> Age Limit
-                        </p>
-                        <ul className="space-y-1">
-                          {parsedAges.map((age, i) => (
-                            <li key={i} className="flex items-start gap-2 text-[14px] font-medium text-gray-700">
-                              <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-orange-400 shrink-0" />
-                              {age}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-
-                    {otherNotes.length > 0 && (
-                      <div>
-                        <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">General Notes</p>
-                        <ul className="space-y-1">
-                          {otherNotes.map((n, i) => (
-                            <li key={i} className="flex items-start gap-2 text-base text-gray-600 font-medium">
-                              <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-gray-400 shrink-0" />
-                              {n}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
+                        {job.applyLink?.fileName && (
+                          <a href={ensureAbsoluteUrl(job.applyLink.fileName)} target="_blank" rel="noopener noreferrer"
+                            className="flex items-center justify-between bg-gray-50 hover:bg-red-50 rounded-xl p-4 transition group">
+                            <div className="flex items-center gap-3">
+                              <FileArchive size={18} className="text-red-500" />
+                              <span className="text-[14px] font-medium text-gray-800 group-hover:text-red-700">Official Notification PDF</span>
+                            </div>
+                            <LucideLink size={15} className="text-gray-400" />
+                          </a>
+                        )}
+                        {!job.applyLink?.link && !job.applyLink?.fileName && (
+                          <p className="text-gray-400 italic text-[14px] font-medium">No links available.</p>
+                        )}
+                      </>
                     )}
                   </div>
-                ) : (
-                  <p className="text-gray-400 italic text-[14px] font-medium font-semibold">No eligibility details available.</p>
-                )}
-              </Card>
-
-              {job.benefits?.length > 0 && (
-                <Card title="Benefits" icon={<Gift size={18} />}>
-                  <ul className="space-y-1">
-                    {job.benefits.map((b, i) => (
-                      <li key={i} className="flex items-start gap-2 text-[14px] font-medium text-gray-700">
-                        <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-green-400 shrink-0" />
-                        {b}
-                      </li>
-                    ))}
-                  </ul>
                 </Card>
-              )}
-
-              <Card title="How to Apply" icon={<FileText size={18} />}>
-                {applicationSteps?.length > 0 ? (
-                  <ol className="space-y-2">
-                    {applicationSteps.filter(isValidNote).map((step, i) => (
-                      <li key={i} className="flex items-start gap-3 text-[14px] font-medium text-gray-700">
-                        <span className="w-6 h-6 rounded-full bg-cyan-100 text-[#0096c7] font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">{i + 1}</span>
-                        <span className="break-words min-w-0">{sanitizeText(step)}</span>
-                      </li>
-                    ))}
-                  </ol>
-                ) : (
-                  <p className="text-gray-400 italic text-[14px] font-medium">Visit the official website to know the application process.</p>
-                )}
-              </Card>
-
-              <Card title="Important Links" icon={<LucideLink size={18} />}>
-                <div className="space-y-3">
-                  {job.importantLinks && job.importantLinks.length > 0 ? (
-                    job.importantLinks.map((lnk, i) => (
-                      <a
-                        key={i}
-                        href={ensureAbsoluteUrl(lnk.url)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={`flex items-center justify-between bg-gray-50 rounded-xl p-4 transition group ${
-                          lnk.type === 'pdf' ? 'hover:bg-red-50' : 'hover:bg-cyan-50'
-                        }`}
-                      >
-                        <div className="flex items-center gap-3">
-                          {lnk.type === 'pdf' ? (
-                            <FileArchive size={18} className="text-red-500" />
-                          ) : lnk.type === 'apply' ? (
-                            <Globe size={18} className="text-[#00B4D8]" />
-                          ) : (
-                            <LucideLink size={18} className="text-gray-400" />
-                          )}
-                          <span className={`text-[14px] font-medium text-gray-800 ${
-                            lnk.type === 'pdf' ? 'group-hover:text-red-700' : 'group-hover:text-cyan-700'
-                          }`}>
-                            {sanitizeText(lnk.label)}
-                          </span>
-                        </div>
-                        <LucideLink size={15} className={`text-gray-400 ${
-                          lnk.type === 'pdf' ? 'group-hover:text-red-500' : 'group-hover:text-[#00B4D8]'
-                        }`} />
-                      </a>
-                    ))
-                  ) : (
-                    <>
-                      {job.applyLink?.link && job.applyLink.link !== '#' && (
-                        <a href={ensureAbsoluteUrl(job.applyLink.link)} target="_blank" rel="noopener noreferrer"
-                          className="flex items-center justify-between bg-gray-50 hover:bg-cyan-50 rounded-xl p-4 transition group">
-                          <div className="flex items-center gap-3">
-                            <Globe size={18} className="text-[#00B4D8]" />
-                            <span className="text-[14px] font-medium text-gray-800 group-hover:text-cyan-700">Apply Online / Official Website</span>
-                          </div>
-                          <LucideLink size={15} className="text-gray-400" />
-                        </a>
-                      )}
-                      {job.applyLink?.fileName && (
-                        <a href={ensureAbsoluteUrl(job.applyLink.fileName)} target="_blank" rel="noopener noreferrer"
-                          className="flex items-center justify-between bg-gray-50 hover:bg-red-50 rounded-xl p-4 transition group">
-                          <div className="flex items-center gap-3">
-                            <FileArchive size={18} className="text-red-500" />
-                            <span className="text-[14px] font-medium text-gray-800 group-hover:text-red-700">Official Notification PDF</span>
-                          </div>
-                          <LucideLink size={15} className="text-gray-400" />
-                        </a>
-                      )}
-                      {!job.applyLink?.link && !job.applyLink?.fileName && (
-                        <p className="text-gray-400 italic text-[14px] font-medium">No links available.</p>
-                      )}
-                    </>
-                  )}
-                </div>
-              </Card>
-            </div>
+              </div>
             )}
           </div>
         </div>

@@ -34,7 +34,9 @@ export interface Job {
   shortDescription?: string[];
   importantDatesStructured?: { label: string; value: string }[];
   applicationFee?: { category: string; amount: string }[];
+  ageLimits?: string[];
   vacancyDetails?: Record<string, string>[];
+  categoryVacancyDetails?: Record<string, string>[];
   howToApply?: string[];
   importantLinks?: { label: string; url: string; type: string }[];
   sourceUrl?: string;

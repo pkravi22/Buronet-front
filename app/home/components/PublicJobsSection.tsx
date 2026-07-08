@@ -5,7 +5,6 @@ import {
   Briefcase, CalendarDays, Award, BarChart3,
   Search, X, ChevronRight, MapPin, Clock, ChevronDown, ArrowRight, ChevronLeft
 } from 'lucide-react';
-
 interface Job {
   id?: string;
   jobTitle: string;
@@ -18,6 +17,9 @@ interface Job {
   source?: string;
   type?: string;
   applyLink?: { link: string; fileName: string };
+  importantDatesStructured?: { label: string; value: string }[];
+  importantDates?: string[];
+  eligibilityNotes?: string[];
 }
 interface PublicRes { page: number; pageSize: number; totalCount: number; totalPages: number; data: Job[] }
 
@@ -56,11 +58,103 @@ const AVATAR_GRADIENTS = [
 
 const API_BASE = process.env.NEXT_PUBLIC_JOBS_BACKEND_BASE ?? 'http://localhost/api';
 
+function parseDateString(raw?: string): Date | null {
+  if (!raw) return null;
+  let d = new Date(raw);
+  if (!isNaN(d.getTime())) return d;
+
+  const match = raw.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+  if (match) {
+    const day = parseInt(match[1], 10);
+    const month = parseInt(match[2], 10) - 1;
+    const year = parseInt(match[3], 10);
+    d = new Date(year, month, day);
+    if (!isNaN(d.getTime())) return d;
+  }
+  return null;
+}
+
 function daysLeft(s?: string) {
   if (!s) return null;
-  const d = new Date(s);
-  if (isNaN(d.getTime())) return null;
+  const d = parseDateString(s);
+  if (!d) return null;
   return Math.ceil((d.getTime() - Date.now()) / 86400000);
+}
+
+function extractDeadlineString(job: Job): string | undefined {
+  if (job.lastDateToApply && job.lastDateToApply.trim() !== "") {
+    return job.lastDateToApply;
+  }
+
+  // Check structured important dates first
+  if (job.importantDatesStructured && job.importantDatesStructured.length > 0) {
+    const targets = [
+      "last date for apply online",
+      "last date to apply",
+      "last date for apply",
+      "last date online",
+      "last date to register",
+      "last date for registration",
+      "registration last date",
+      "apply online last date",
+      "last date",
+      "deadline",
+      "application end",
+      "online application end"
+    ];
+
+    for (const target of targets) {
+      const found = job.importantDatesStructured.find(d => 
+        d.label && d.label.toLowerCase().includes(target)
+      );
+      if (found && found.value && found.value.trim() !== "") {
+        return found.value;
+      }
+    }
+  }
+
+  // Fallback to unstructured importantDates string array
+  const importantDatesRaw = (job as any).importantDates as string[] | undefined;
+  if (importantDatesRaw && importantDatesRaw.length > 0) {
+    const targets = [
+      "last date for apply online",
+      "last date to apply",
+      "last date for apply",
+      "last date online",
+      "last date to register",
+      "last date for registration",
+      "registration last date",
+      "apply online last date",
+      "last date",
+      "deadline",
+      "application end",
+      "online application end"
+    ];
+
+    for (const target of targets) {
+      const found = importantDatesRaw.find(d => d.toLowerCase().includes(target));
+      if (found) {
+        const parts = found.split(':');
+        if (parts.length > 1) {
+          const val = parts.slice(1).join(':').trim();
+          if (val) return val;
+        }
+      }
+    }
+  }
+
+  // Fallback to eligibilityNotes
+  if (job.eligibilityNotes && job.eligibilityNotes.length > 0) {
+    const found = job.eligibilityNotes.find(n => 
+      n.includes('Date:') && n.toLowerCase().includes('last date')
+    );
+    if (found) {
+      const val = found.replace(/📅\s*Date:\s*/g, '').replace(/last date:\s*/gi, '').trim();
+      if (val) return val;
+    }
+  }
+
+  return undefined;
 }
 
 const ORG_CLEAN: Record<string, string> = {
@@ -93,13 +187,14 @@ function OrgAvatar({ name }: { name: string }) {
 
 function JobCard({ job }: { job: Job }) {
   const org = cleanOrg(job.organizationName || job.companyName);
-  const days = daysLeft(job.lastDateToApply);
+  const rawDeadline = extractDeadlineString(job);
+  const days = daysLeft(rawDeadline);
   const deadlineLabel =
-    days === null ? null
+    days === null ? (rawDeadline ? rawDeadline.slice(0, 10) : null)
       : days < 0 ? 'Expired'
         : days === 0 ? 'Last day!'
           : days <= 7 ? `${days}d left`
-            : job.lastDateToApply!.slice(0, 10);
+            : rawDeadline ? (parseDateString(rawDeadline)?.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }) || rawDeadline.slice(0, 10)) : null;
   const urgent = days !== null && days >= 0 && days <= 7;
   const expired = days !== null && days < 0;
   const src = job.source && SOURCE_COLORS[job.source] ? SOURCE_COLORS[job.source] : null;

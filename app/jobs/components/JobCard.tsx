@@ -50,11 +50,28 @@ function cleanOrg(raw: string): string {
   return cleaned;
 }
 
+function parseDateString(raw: string): Date | null {
+  if (!raw) return null;
+  // Try standard parse first
+  let d = new Date(raw);
+  if (!isNaN(d.getTime())) return d;
+
+  // Try parsing DD/MM/YYYY or DD-MM-YYYY
+  const match = raw.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+  if (match) {
+    const day = parseInt(match[1], 10);
+    const month = parseInt(match[2], 10) - 1; // 0-indexed month
+    const year = parseInt(match[3], 10);
+    d = new Date(year, month, day);
+    if (!isNaN(d.getTime())) return d;
+  }
+  return null;
+}
+
 function formatDeadline(raw?: string): { label: string; urgent: boolean; expired: boolean } {
   if (!raw) return { label: 'No deadline', urgent: false, expired: false };
-  // Try parsing
-  const d = new Date(raw);
-  if (!isNaN(d.getTime())) {
+  const d = parseDateString(raw);
+  if (d) {
     const days = Math.ceil((d.getTime() - Date.now()) / 86400000);
     if (days < 0) return { label: 'Expired', urgent: false, expired: true };
     if (days === 0) return { label: 'Last day!', urgent: true, expired: false };
@@ -63,6 +80,82 @@ function formatDeadline(raw?: string): { label: string; urgent: boolean; expired
   }
   // Non-parseable string — return as-is truncated
   return { label: raw.slice(0, 28), urgent: false, expired: false };
+}
+
+function extractDeadlineString(job: Job): string | undefined {
+  if (job.lastDateToApply && job.lastDateToApply.trim() !== "") {
+    return job.lastDateToApply;
+  }
+
+  // Check structured important dates first
+  if (job.importantDatesStructured && job.importantDatesStructured.length > 0) {
+    const targets = [
+      "last date for apply online",
+      "last date to apply",
+      "last date for apply",
+      "last date online",
+      "last date to register",
+      "last date for registration",
+      "registration last date",
+      "apply online last date",
+      "last date",
+      "deadline",
+      "application end",
+      "online application end"
+    ];
+
+    for (const target of targets) {
+      const found = job.importantDatesStructured.find(d => 
+        d.label && d.label.toLowerCase().includes(target)
+      );
+      if (found && found.value && found.value.trim() !== "") {
+        return found.value;
+      }
+    }
+  }
+
+  // Fallback to unstructured importantDates string array
+  const importantDatesRaw = (job as any).importantDates as string[] | undefined;
+  if (importantDatesRaw && importantDatesRaw.length > 0) {
+    const targets = [
+      "last date for apply online",
+      "last date to apply",
+      "last date for apply",
+      "last date online",
+      "last date to register",
+      "last date for registration",
+      "registration last date",
+      "apply online last date",
+      "last date",
+      "deadline",
+      "application end",
+      "online application end"
+    ];
+
+    for (const target of targets) {
+      const found = importantDatesRaw.find(d => d.toLowerCase().includes(target));
+      if (found) {
+        const parts = found.split(':');
+        if (parts.length > 1) {
+          const val = parts.slice(1).join(':').trim();
+          if (val) return val;
+        }
+      }
+    }
+  }
+
+  // Fallback to eligibilityNotes
+  if (job.eligibilityNotes && job.eligibilityNotes.length > 0) {
+    const found = job.eligibilityNotes.find(n => 
+      n.includes('Date:') && n.toLowerCase().includes('last date')
+    );
+    if (found) {
+      const val = found.replace(/📅\s*Date:\s*/g, '').replace(/last date:\s*/gi, '').trim();
+      if (val) return val;
+    }
+  }
+
+  return undefined;
 }
 
 // Initials avatar when no logo
@@ -95,7 +188,8 @@ const JobCard = ({ job, isBookmarked, onToggleBookmark }: JobCardProps) => {
   const { user } = useAuth();
 
   const org = cleanOrg(job.organizationName || job.companyName || 'Government');
-  const deadline = formatDeadline(job.lastDateToApply);
+  const rawDeadline = extractDeadlineString(job);
+  const deadline = formatDeadline(rawDeadline);
   const source = (job as any).source as string | undefined;
   const sector = job.sector;
   const srcStyle = source ? (SOURCE_STYLES[source] ?? SOURCE_STYLES.Manual) : null;
