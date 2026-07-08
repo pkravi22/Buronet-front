@@ -41,8 +41,10 @@ const ORG_CLEAN: Record<string, string> = {
   'SarkariResult': '',
 };
 
-function cleanOrg(raw: string): string {
-  const cleaned = ORG_CLEAN[raw.trim()] ?? raw.trim();
+function cleanOrg(raw: any): string {
+  if (!raw) return '';
+  const c = String(raw).trim();
+  const cleaned = ORG_CLEAN[c] ?? c;
   // Case-insensitive catch-all for Sarkari Result
   if (cleaned.toLowerCase().includes('sarkari')) {
     return '';
@@ -83,8 +85,8 @@ function formatDeadline(raw?: string): { label: string; urgent: boolean; expired
 }
 
 function extractDeadlineString(job: Job): string | undefined {
-  if (job.lastDateToApply && job.lastDateToApply.trim() !== "") {
-    return job.lastDateToApply;
+  if (job.lastDateToApply && String(job.lastDateToApply).trim() !== "") {
+    return String(job.lastDateToApply);
   }
 
   // Check structured important dates first
@@ -106,16 +108,16 @@ function extractDeadlineString(job: Job): string | undefined {
 
     for (const target of targets) {
       const found = job.importantDatesStructured.find(d => 
-        d.label && d.label.toLowerCase().includes(target)
+        d.label && String(d.label).toLowerCase().includes(target)
       );
-      if (found && found.value && found.value.trim() !== "") {
-        return found.value;
+      if (found && found.value && String(found.value).trim() !== "") {
+        return String(found.value);
       }
     }
   }
 
   // Fallback to unstructured importantDates string array
-  const importantDatesRaw = (job as any).importantDates as string[] | undefined;
+  const importantDatesRaw = (job as any).importantDates as any[] | undefined;
   if (importantDatesRaw && importantDatesRaw.length > 0) {
     const targets = [
       "last date for apply online",
@@ -133,9 +135,9 @@ function extractDeadlineString(job: Job): string | undefined {
     ];
 
     for (const target of targets) {
-      const found = importantDatesRaw.find(d => d.toLowerCase().includes(target));
+      const found = importantDatesRaw.find(d => d && typeof d === 'string' && d.toLowerCase().includes(target));
       if (found) {
-        const parts = found.split(':');
+        const parts = String(found).split(':');
         if (parts.length > 1) {
           const val = parts.slice(1).join(':').trim();
           if (val) return val;
@@ -147,10 +149,10 @@ function extractDeadlineString(job: Job): string | undefined {
   // Fallback to eligibilityNotes
   if (job.eligibilityNotes && job.eligibilityNotes.length > 0) {
     const found = job.eligibilityNotes.find(n => 
-      n.includes('Date:') && n.toLowerCase().includes('last date')
+      n && typeof n === 'string' && n.includes('Date:') && n.toLowerCase().includes('last date')
     );
     if (found) {
-      const val = found.replace(/📅\s*Date:\s*/g, '').replace(/last date:\s*/gi, '').trim();
+      const val = String(found).replace(/📅\s*Date:\s*/g, '').replace(/last date:\s*/gi, '').trim();
       if (val) return val;
     }
   }
