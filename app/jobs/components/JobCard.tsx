@@ -1,6 +1,6 @@
 'use client';
 import Link from 'next/link';
-import { MouseEvent } from 'react';
+import { MouseEvent, useState, useEffect } from 'react';
 import { Job } from '@/lib/types/jobs/';
 import { useAuth } from '@/context/AuthContext';
 import { MapPin, Banknote, Clock, Bookmark, ExternalLink } from 'lucide-react';
@@ -185,6 +185,11 @@ function OrgAvatar({ name, sector }: { name: string; sector?: string }) {
 // ── Component ─────────────────────────────────────────────────────────────────
 
 const JobCard = ({ job, isBookmarked, onToggleBookmark }: JobCardProps) => {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const { user } = useAuth();
 
   const org = cleanOrg(job.organizationName || job.companyName || 'Government');
@@ -265,13 +270,20 @@ const JobCard = ({ job, isBookmarked, onToggleBookmark }: JobCardProps) => {
 
           {/* ── Footer: deadline + view link ────────────────────────── */}
           <div className="flex items-center justify-between pt-3 border-t border-gray-50 mt-auto">
-            <span className={`flex items-center gap-1.5 text-[14px] font-bold ${deadline.expired ? 'text-gray-400 line-through' :
-              deadline.urgent ? 'text-red-500' :
-                'text-gray-600'
-              }`}>
-              <Clock size={14} className="shrink-0" />
-              {deadline.expired ? 'Expired' : deadline.label}
-            </span>
+            {mounted ? (
+              <span className={`flex items-center gap-1.5 text-[14px] font-bold ${deadline.expired ? 'text-gray-400 line-through' :
+                deadline.urgent ? 'text-red-500' :
+                  'text-gray-600'
+                }`}>
+                <Clock size={14} className="shrink-0" />
+                {deadline.expired ? 'Expired' : deadline.label}
+              </span>
+            ) : (
+              <span className="flex items-center gap-1.5 text-[14px] font-bold text-gray-300">
+                <Clock size={14} className="shrink-0" />
+                Loading...
+              </span>
+            )}
 
             <span className="flex items-center gap-1 text-[14px] font-bold text-[#0096c7] group-hover:gap-2 transition-all">
               View <ExternalLink size={14} />

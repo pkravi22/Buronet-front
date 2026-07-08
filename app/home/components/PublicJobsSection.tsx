@@ -186,6 +186,11 @@ function OrgAvatar({ name }: { name: string }) {
 }
 
 function JobCard({ job }: { job: Job }) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const org = cleanOrg(job.organizationName || job.companyName);
   const rawDeadline = extractDeadlineString(job);
   const days = daysLeft(rawDeadline);
@@ -249,13 +254,15 @@ function JobCard({ job }: { job: Job }) {
 
         {/* footer */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '12px', borderTop: '1px solid #f3f4f6', marginTop: 'auto' }}>
-          {deadlineLabel ? (
+          {mounted && deadlineLabel ? (
             <span style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11px', fontWeight: 600, color: expired ? '#d1d5db' : urgent ? '#ef4444' : '#9ca3af', textDecoration: expired ? 'line-through' : 'none' }}>
               <Clock size={11} />
               {deadlineLabel}
             </span>
-          ) : (
+          ) : mounted ? (
             <span style={{ fontSize: '11px', color: '#d1d5db' }}>Open deadline</span>
+          ) : (
+            <span style={{ fontSize: '11px', color: '#e5e7eb' }}>Loading...</span>
           )}
 
           {isExternal ? (
