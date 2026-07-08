@@ -598,30 +598,30 @@ const JobDetailsPage = ({ params }: JobDetailsPageProps) => {
 
   const importantDatesRaw = (job as any).importantDates;
   const parsedDates = (job.importantDatesStructured && job.importantDatesStructured.length > 0)
-    ? job.importantDatesStructured.map(d => `${d.label}: ${d.value}`)
+    ? job.importantDatesStructured.map(d => `${String(d?.label || '')}: ${String(d?.value || '')}`)
     : (importantDatesRaw && importantDatesRaw.length > 0)
-      ? importantDatesRaw
-      : (job.eligibilityNotes?.filter((n: string) => n.includes('Date:')) || []).map((n: string) => n.replace(/📅\s*Date:\s*/g, '').trim());
+      ? importantDatesRaw.map((d: any) => String(d || ''))
+      : (job.eligibilityNotes?.filter((n: any) => n && typeof n === 'string' && n.includes('Date:')) || []).map((n: string) => n.replace(/📅\s*Date:\s*/g, '').trim());
 
   const feeDetailsRaw = (job as any).feeDetails;
   const parsedFees = (job.applicationFee && job.applicationFee.length > 0)
-    ? job.applicationFee.map(f => f.amount ? `${f.category}: ${f.amount}` : f.category)
+    ? job.applicationFee.map(f => f.amount ? `${String(f.category || '')}: ${String(f.amount || '')}` : String(f.category || ''))
     : (feeDetailsRaw && feeDetailsRaw.length > 0)
-      ? feeDetailsRaw
-      : (job.eligibilityNotes?.filter((n: string) => n.includes('Fee:')) || []).map((n: string) => n.replace(/💰\s*Fee:\s*/g, '').trim());
+      ? feeDetailsRaw.map((f: any) => String(f || ''))
+      : (job.eligibilityNotes?.filter((n: any) => n && typeof n === 'string' && n.includes('Fee:')) || []).map((n: string) => n.replace(/💰\s*Fee:\s*/g, '').trim());
 
   const ageLimitsRaw = (job as any).ageLimits;
   const parsedAges = (job.ageLimits && job.ageLimits.length > 0)
     ? job.ageLimits.filter(isValidAge)
     : ((ageLimitsRaw && ageLimitsRaw.length > 0)
-      ? ageLimitsRaw
-      : (job.eligibilityNotes?.filter((n: string) => n.includes('Age Limit:') || n.includes('Age:')) || []).map((n: string) => n.replace(/🧑\s*Age( Limit)?:\s*/g, '').trim())
+      ? ageLimitsRaw.map((a: any) => String(a || ''))
+      : (job.eligibilityNotes?.filter((n: any) => n && typeof n === 'string' && (n.includes('Age Limit:') || n.includes('Age:'))) || []).map((n: string) => n.replace(/🧑\s*Age( Limit)?:\s*/g, '').trim())
     ).filter(isValidAge);
 
   const otherNotesRaw = (job as any).otherNotes;
-  let otherNotes = (otherNotesRaw && otherNotesRaw.length > 0) ? otherNotesRaw : [];
+  let otherNotes = (otherNotesRaw && otherNotesRaw.length > 0) ? otherNotesRaw.map((n: any) => String(n || '')) : [];
   if (otherNotes.length === 0 && job.eligibilityNotes?.length > 0) {
-    otherNotes = job.eligibilityNotes;
+    otherNotes = job.eligibilityNotes.filter((n: any) => n && typeof n === 'string' && !isValidAge(n) && !n.includes('Date:') && !n.includes('Fee:'));
   }
 
   // Filter otherNotes to prevent duplication with Age Limit, Fee, Important Dates, or Short Description sections.
