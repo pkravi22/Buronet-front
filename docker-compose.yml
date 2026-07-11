@@ -148,18 +148,18 @@ services:
       context: ./buronet-frontend
       dockerfile: Dockerfile
       args:
-        - NEXT_PUBLIC_DOTNET_BACKEND_BASE=https://test.buronet.co.in/api
-        - NEXT_PUBLIC_JOBS_BACKEND_BASE=https://test.buronet.co.in/jobs/api
-        - NEXT_PUBLIC_BYTES_BACKEND_BASE=https://test.buronet.co.in/bytes/api
-        - NEXT_PUBLIC_MESSAGING_BACKEND_BASE=https://test.buronet.co.in/messaging/api
+        - NEXT_PUBLIC_DOTNET_BACKEND_BASE=https://buronet.co.in/api
+        - NEXT_PUBLIC_JOBS_BACKEND_BASE=https://buronet.co.in/jobs/api
+        - NEXT_PUBLIC_BYTES_BACKEND_BASE=https://buronet.co.in/bytes/api
+        - NEXT_PUBLIC_MESSAGING_BACKEND_BASE=https://buronet.co.in/messaging/api
     container_name: buronet-frontend
     ports:
       - "3000:3000"
     environment:
-      - NEXT_PUBLIC_DOTNET_BACKEND_BASE=https://test.buronet.co.in/api
-      - NEXT_PUBLIC_JOBS_BACKEND_BASE=https://test.buronet.co.in/jobs/api
-      - NEXT_PUBLIC_BYTES_BACKEND_BASE=https://test.buronet.co.in/bytes/api
-      - NEXT_PUBLIC_MESSAGING_BACKEND_BASE=https://test.buronet.co.in/messaging/api
+      - NEXT_PUBLIC_DOTNET_BACKEND_BASE=https://buronet.co.in/api
+      - NEXT_PUBLIC_JOBS_BACKEND_BASE=https://buronet.co.in/jobs/api
+      - NEXT_PUBLIC_BYTES_BACKEND_BASE=https://buronet.co.in/bytes/api
+      - NEXT_PUBLIC_MESSAGING_BACKEND_BASE=https://buronet.co.in/messaging/api
       - MONGO_URI=mongodb+srv://aegismailaegis_db_user:ZTfHyoVuStYx272j@cluster0.ttfpwjd.mongodb.net/
     depends_on:
       - main-api

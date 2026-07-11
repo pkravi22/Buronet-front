@@ -694,7 +694,7 @@ export default function Home() {
 
   // Fetch dynamic data
   useEffect(() => {
-    const JOBS_BASE = process.env.NEXT_PUBLIC_JOBS_BACKEND_BASE || 'https://test.buronet.co.in/jobs/api';
+    const JOBS_BASE = process.env.NEXT_PUBLIC_JOBS_BACKEND_BASE || 'https://buronet.co.in/jobs/api';
 
     // 1. Fetch new listings today count
     fetch(`${JOBS_BASE}/jobs/public?type=job&page=1&pageSize=1`)
