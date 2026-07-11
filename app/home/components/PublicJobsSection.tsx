@@ -455,7 +455,7 @@ export default function PublicJobsSection() {
         </div>
 
         {/* ── Cards grid ───────────────────────────────────────────────── */}
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] justify-center gap-3 sm:gap-6">
           {loading
             ? Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)
             : jobs.length > 0

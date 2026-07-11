@@ -227,11 +227,11 @@ const JobCard = ({ job, isBookmarked, onToggleBookmark }: JobCardProps) => {
             <OrgAvatar name={org} sector={sector} />
 
             <div className="flex-1 min-w-0 pr-8">
-              <h3 className="text-gray-900 font-bold text-[15px] leading-snug line-clamp-2 group-hover:text-[#0096c7] transition-colors">
+              <h3 className="text-gray-900 font-bold text-[17px] leading-snug line-clamp-2 group-hover:text-[#0096c7] transition-colors">
                 {job.jobTitle}
               </h3>
               {org && (
-                <p className="text-gray-500 text-[14px] mt-0.5 truncate font-medium">{org}</p>
+                <p className="text-gray-500 text-[15px] mt-0.5 truncate font-medium">{org}</p>
               )}
             </div>
 
@@ -259,7 +259,7 @@ const JobCard = ({ job, isBookmarked, onToggleBookmark }: JobCardProps) => {
           </div>
 
           {/* ── Meta: location + compensation ──────────────────────── */}
-          <div className="flex items-center gap-4 text-[14px] font-semibold text-gray-600">
+          <div className="flex items-center gap-4 text-[15px] font-semibold text-gray-600">
             <span className="flex items-center gap-1.5">
               <MapPin size={18} className="text-gray-400 shrink-0" />
               <span className="truncate">{job.location || 'India'}</span>
@@ -273,7 +273,7 @@ const JobCard = ({ job, isBookmarked, onToggleBookmark }: JobCardProps) => {
           {/* ── Footer: deadline + view link ────────────────────────── */}
           <div className="flex items-center justify-between pt-3 border-t border-gray-50 mt-auto">
             {mounted ? (
-              <span className={`flex items-center gap-1.5 text-[14px] font-bold ${deadline.expired ? 'text-gray-400 line-through' :
+              <span className={`flex items-center gap-1.5 text-[15px] font-bold ${deadline.expired ? 'text-gray-400 line-through' :
                 deadline.urgent ? 'text-red-500' :
                   'text-gray-600'
                 }`}>

@@ -190,7 +190,7 @@ const GoogleFonts = () => (
       padding-top: 72px;
       display: grid;
       grid-template-columns: 1fr 1fr;
-      align-items: center;
+      align-items: stretch;
       gap: 0;
       position: relative;
       overflow: hidden;
@@ -241,7 +241,7 @@ const GoogleFonts = () => (
       display: block; letter-spacing: -1px;
     }
     .hero-sub {
-      font-size: 1.15rem; color: var(--ink-muted); line-height: 1.7;
+      font-size: 1.25rem; color: var(--ink-muted); line-height: 1.7;
       margin-bottom: 2rem; max-width: 440px; font-weight: 400;
     }
     .hero-actions { display: flex; gap: 0.875rem; flex-wrap: wrap; margin-bottom: 3rem; }
@@ -275,13 +275,13 @@ const GoogleFonts = () => (
 
     /* Hero Image Side */
     .hero-right {
-      position: relative; height: 100vh;
-      display: flex; align-items: center; justify-content: center;
-      overflow: visible;
+      position: relative;
+      display: flex; align-items: stretch; justify-content: center;
+      overflow: hidden;
     }
     .hero-image-wrap {
       position: relative; width: 100%; height: 100%;
-      overflow: hidden;
+      overflow: hidden; min-height: 480px;
     }
     .hero-image-wrap img {
       width: 100%; height: 100%; object-fit: cover;
@@ -620,9 +620,14 @@ const GoogleFonts = () => (
     .reveal-delay-4 { transition-delay: 0.4s; }
 
     @media (max-width: 1024px) {
-      .hero-section { grid-template-columns: 1fr; }
-      .hero-right { display: none; }
-      .hero-left { padding: 4rem 2rem; }
+      .hero-section { grid-template-columns: 1fr; background: #0a111a; }
+      .hero-right { display: flex; position: absolute; inset: 0; z-index: 0; opacity: 0.25; }
+      .hero-left { padding: 4rem 2rem; position: relative; z-index: 2; }
+      .hero-title, .hero-sub { color: #ffffff; }
+      .hero-title-accent { color: #4dc2f0; }
+      .hero-badge { background: rgba(255,255,255,0.1); color: #fff; border-color: rgba(255,255,255,0.2); }
+      .badge-dot { background: #4dc2f0; }
+      .badge-dot::after { background: rgba(77,194,240,0.3); }
       .features-grid { grid-template-columns: 1fr 1fr; }
       .feat-card.featured { grid-column: span 2; }
       .jobs-grid { grid-template-columns: 1fr 1fr; }
