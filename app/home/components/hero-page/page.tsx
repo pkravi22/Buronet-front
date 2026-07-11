@@ -1061,9 +1061,9 @@ export default function Home() {
           <div>
             <div className="footer-col-title">Connect</div>
             <div className="social-links">
-              <button className="social-btn">𝕏</button>
-              <button className="social-btn">in</button>
-              <button className="social-btn">✉</button>
+              <a href="https://x.com/buronet" target="_blank" rel="noopener noreferrer" className="social-btn">𝕏</a>
+              <a href="https://linkedin.com/company/buronet" target="_blank" rel="noopener noreferrer" className="social-btn">in</a>
+              <a href="mailto:admin@buronet.co.in" className="social-btn">✉</a>
             </div>
           </div>
         </div>
