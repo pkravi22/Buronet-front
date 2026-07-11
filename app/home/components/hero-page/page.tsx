@@ -918,10 +918,10 @@ export default function Home() {
           <div ref={el => addRef(el as HTMLElement, 4)} className="feat-card featured reveal reveal-delay-4">
             <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
               <div>
-                <div className="feat-chip">Premium</div>
+                <div className="feat-chip" style={{ background: '#fff3cd', color: '#856404' }}>Coming Soon</div>
                 <div className="feat-title">Expert Mentorship</div>
-                <div className="feat-desc">Direct guidance from IAS/IPS officers and top educators who have been there and done it.</div>
-                <a href="#" className="feat-link" onClick={(e) => { e.preventDefault(); goLogin(); }}>Learn More →</a>
+                <div className="feat-desc">Direct guidance from top educators who have been there and done it.</div>
+                <a href="#" className="feat-link" style={{ color: '#6c757d', cursor: 'not-allowed' }} onClick={(e) => e.preventDefault()}>Coming Soon 🔒</a>
               </div>
               <div style={{ flexShrink: 0, width: 80, height: 80, borderRadius: 16, background: 'rgba(0,150,199,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.5rem' }}>🎓</div>
             </div>
@@ -1046,9 +1046,9 @@ export default function Home() {
           <div>
             <div className="footer-col-title">Navigation</div>
             <ul className="footer-links">
-              <li><a href="#hero" onClick={(e) => { e.preventDefault(); document.getElementById('hero')?.scrollIntoView({ behavior: 'smooth' }); }}>Home</a></li>
-              <li><a href="#jobs" onClick={(e) => { e.preventDefault(); document.getElementById('jobs')?.scrollIntoView({ behavior: 'smooth' }); }}>Job Board</a></li>
-              <li><a href="#community" onClick={(e) => { e.preventDefault(); document.getElementById('community')?.scrollIntoView({ behavior: 'smooth' }); }}>Community</a></li>
+              <li><a href="/home">Home</a></li>
+              <li><a href="/jobs">Job Board</a></li>
+              <li><a href="/home#community">Community</a></li>
             </ul>
           </div>
           <div>
@@ -1056,7 +1056,6 @@ export default function Home() {
             <ul className="footer-links">
               <li><a href="#">About Us</a></li>
               <li><a href="#">Contact</a></li>
-              <li><a href="#">Privacy Policy</a></li>
             </ul>
           </div>
           <div>

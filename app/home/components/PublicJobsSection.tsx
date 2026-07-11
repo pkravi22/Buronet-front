@@ -342,7 +342,27 @@ export default function PublicJobsSection() {
 
   return (
     <section style={{ background: 'linear-gradient(180deg, #f5f8fa 0%, #eef4f7 100%)', padding: '64px 0' }}>
-      <div className="max-w-[1400px] mx-auto px-5 sm:px-8 md:px-12">
+      <style>{`
+        .jobs-section-inner {
+          max-width: 1400px;
+          margin: 0 auto;
+          padding-left: 2rem;
+          padding-right: 2rem;
+        }
+        @media (min-width: 768px) {
+          .jobs-section-inner {
+            padding-left: 4rem;
+            padding-right: 4rem;
+          }
+        }
+        @media (min-width: 1280px) {
+          .jobs-section-inner {
+            padding-left: 5rem;
+            padding-right: 5rem;
+          }
+        }
+      `}</style>
+      <div className="jobs-section-inner">
 
         {/* ── Section header ────────────────────────────────────────────── */}
         <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-end', justifyContent: 'space-between', gap: '24px', marginBottom: '40px' }}>
