@@ -292,7 +292,7 @@ const GoogleFonts = () => (
       background: linear-gradient(105deg, rgba(0,150,199,0.15) 0%, transparent 60%);
     }
     .hero-floating-card {
-      position: absolute; bottom: 2.5rem; left: -2rem;
+      position: absolute; bottom: 2.5rem; right: 2rem;
       background: rgba(255,255,255,0.95);
       backdrop-filter: blur(12px);
       border-radius: 14px; padding: 1rem 1.25rem;
@@ -309,7 +309,7 @@ const GoogleFonts = () => (
     }
     .floating-card-sub { font-size: 0.88rem; color: var(--ink-soft); }
     .hero-floating-card-2 {
-      position: absolute; top: 8rem; left: -1.5rem;
+      position: absolute; top: 8rem; right: 1.5rem;
       background: rgba(255,255,255,0.95);
       backdrop-filter: blur(12px);
       border-radius: 14px; padding: 0.875rem 1.1rem;
@@ -622,6 +622,7 @@ const GoogleFonts = () => (
     @media (max-width: 1024px) {
       .hero-section { grid-template-columns: 1fr; background: #0a111a; }
       .hero-right { display: flex; position: absolute; inset: 0; z-index: 0; opacity: 0.25; }
+      .hero-floating-card, .hero-floating-card-2 { display: none; }
       .hero-left { padding: 4rem 2rem; position: relative; z-index: 2; }
       .hero-title, .hero-sub { color: #ffffff; }
       .hero-title-accent { color: #4dc2f0; }
@@ -714,7 +715,7 @@ export default function Home() {
         const items = (d.data ?? []).slice(0, 3).map((j: any) => {
           const date = j.lastDateToApply ? new Date(j.lastDateToApply) : null;
           const month = date ? date.toLocaleString('en-US', { month: 'short' }).toUpperCase() : '---';
-          const day   = date ? String(date.getDate()).padStart(2, '0') : '--';
+          const day = date ? String(date.getDate()).padStart(2, '0') : '--';
           return {
             month, day,
             name: j.jobTitle || j.organizationName || 'Upcoming Exam',
@@ -723,7 +724,7 @@ export default function Home() {
         });
         if (items.length > 0) setDeadlines(items);
       })
-      .catch(() => {});
+      .catch(() => { });
 
     // 3. Fetch latest news updates
     fetch('/next-api/updates?query=government+exam+india&limit=5')
@@ -738,7 +739,7 @@ export default function Home() {
         }));
         if (articles.length > 0) setLatestUpdates(articles);
       })
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   useEffect(() => {
@@ -872,7 +873,7 @@ export default function Home() {
             <div className="hero-image-overlay" />
           </div>
 
-          <div className="hero-floating-card animate-fade-up delay-5">
+          {/* <div className="hero-floating-card animate-fade-up delay-5">
             <div className="floating-card-label">New Listings Today</div>
             <div className="floating-card-value">
               {newListingsToday !== null ? newListingsToday.toLocaleString() : '—'}
@@ -885,7 +886,7 @@ export default function Home() {
               <span className="dot-success" />
               Live Updates Active
             </div>
-          </div>
+          </div> */}
         </div>
       </section>
 
