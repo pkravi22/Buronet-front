@@ -601,15 +601,15 @@ const GoogleFonts = () => (
       align-items: center; justify-content: space-between;
     }
     .footer-copy { font-size: 0.88rem; color: rgba(255,255,255,0.3); }
-    .social-links { display: flex; gap: 0.75rem; }
+    .social-links { display: flex; gap: 0.5rem; flex-wrap: wrap; }
     .social-btn {
-      width: 32px; height: 32px; border-radius: 8px;
+      width: 36px; height: 36px; border-radius: 8px;
       border: 1px solid rgba(255,255,255,0.12);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 0.9rem; color: rgba(255,255,255,0.5);
-      cursor: pointer; transition: all 0.2s;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 1rem; color: rgba(255,255,255,0.65);
+      cursor: pointer; transition: all 0.2s; text-decoration: none;
     }
-    .social-btn:hover { border-color: var(--brand); color: var(--brand); }
+    .social-btn:hover { border-color: var(--brand); color: var(--brand); background: rgba(0,150,199,0.1); }
 
     /* Scroll reveal */
     .reveal { opacity: 0; transform: translateY(28px); transition: all 0.7s cubic-bezier(.22,.68,0,1.2); }
@@ -1066,9 +1066,11 @@ export default function Home() {
           <div>
             <div className="footer-col-title">Connect</div>
             <div className="social-links">
-              <a href="https://x.com/buronet" target="_blank" rel="noopener noreferrer" className="social-btn">𝕏</a>
-              <a href="https://linkedin.com/company/buronet" target="_blank" rel="noopener noreferrer" className="social-btn">in</a>
-              <a href="mailto:admin@buronet.co.in" className="social-btn">✉</a>
+              <a href="https://www.instagram.com/buronet.co.in" target="_blank" rel="noopener noreferrer" className="social-btn" title="Instagram">📸</a>
+              <a href="https://linkedin.com/company/buronetcoin" target="_blank" rel="noopener noreferrer" className="social-btn" title="LinkedIn">in</a>
+              <a href="https://www.facebook.com/buronet.co.in" target="_blank" rel="noopener noreferrer" className="social-btn" title="Facebook">𝕗</a>
+              <a href="https://x.com/buronet_co_in" target="_blank" rel="noopener noreferrer" className="social-btn" title="X / Twitter">𝕏</a>
+              <a href="mailto:admin@buronet.co.in" className="social-btn" title="Email">✉</a>
             </div>
           </div>
         </div>
