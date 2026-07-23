@@ -8,6 +8,9 @@ import Providers from '../components/providers';
 export const metadata: Metadata = {
   title: 'Buronet - Professional Social Network',
   description: 'Connect with professionals, share knowledge, and grow your network',
+  verification: {
+    google: 'KoIFwBX7mVjsy-lSxDQjWHs78a78mvWSDjzV9ElfaWQ',
+  },
 };
 
 export default function RootLayout({
