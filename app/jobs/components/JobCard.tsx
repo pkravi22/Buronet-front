@@ -4,6 +4,7 @@ import { MouseEvent, useState, useEffect } from 'react';
 import { Job } from '@/lib/types/jobs/';
 import { useAuth } from '@/context/AuthContext';
 import { MapPin, Banknote, Clock, Bookmark, ExternalLink } from 'lucide-react';
+import { slugify } from '@/lib/helpers/slugify';
 
 interface JobCardProps {
   job: Job;
@@ -210,7 +211,7 @@ const JobCard = ({ job, isBookmarked, onToggleBookmark }: JobCardProps) => {
   };
 
   return (
-    <Link href={`/jobs/${job.id}`} className="block group focus:outline-none">
+    <Link href={`/jobs/${job.id}/${slugify(job.jobTitle)}`} className="block group focus:outline-none">
       <div className="
         relative bg-white rounded-2xl border border-gray-100
         shadow-sm hover:shadow-lg hover:-translate-y-0.5

@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import { slugify } from '@/lib/helpers/slugify';
 import {
   Briefcase, CalendarDays, Award, BarChart3,
   Search, X, ChevronRight, MapPin, Clock, ChevronDown, ArrowRight, ChevronLeft
@@ -206,14 +207,25 @@ function JobCard({ job }: { job: Job }) {
   const src = job.source && SOURCE_COLORS[job.source] ? SOURCE_COLORS[job.source] : null;
   const secCls = job.sector && SECTOR_COLORS[job.sector] ? SECTOR_COLORS[job.sector] : null;
 
-  const href = job.id ? `/jobs/${job.id}` : job.applyLink?.link ?? '#';
+  const href = job.id ? `/jobs/${job.id}/${slugify(job.jobTitle)}` : job.applyLink?.link ?? '#';
   const isExternal = !job.id && !!job.applyLink?.link;
 
-  return (
-    <div style={{ position: 'relative', background: '#fff', borderRadius: '16px', border: '1px solid #e5e7eb', boxShadow: '0 2px 12px rgba(0,0,0,0.07)', display: 'flex', flexDirection: 'column', overflow: 'hidden', transition: 'all 0.3s' }}
-      onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.boxShadow = '0 8px 32px rgba(0,0,0,0.13)'; (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-3px)'; }}
-      onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.boxShadow = '0 2px 12px rgba(0,0,0,0.07)'; (e.currentTarget as HTMLDivElement).style.transform = 'translateY(0)'; }}
-    >
+  const style = {
+    position: 'relative' as const,
+    background: '#fff',
+    borderRadius: '16px',
+    border: '1px solid #e5e7eb',
+    boxShadow: '0 2px 12px rgba(0,0,0,0.07)',
+    display: 'flex',
+    flexDirection: 'column' as const,
+    overflow: 'hidden',
+    transition: 'all 0.3s',
+    cursor: 'pointer',
+    textDecoration: 'none',
+  };
+
+  const CardContent = () => (
+    <>
       {/* top accent bar */}
       <div className="h-[3px] w-full bg-gradient-to-r from-[#0096c7] to-[#48cae4] opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
@@ -222,10 +234,10 @@ function JobCard({ job }: { job: Job }) {
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
           <OrgAvatar name={org} />
           <div style={{ minWidth: 0, flex: 1 }}>
-            <h3 style={{ fontWeight: 700, color: '#111827', fontSize: '13px', lineHeight: 1.45, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', margin: 0 }}>
+            <h3 style={{ fontWeight: 700, color: '#111827', fontSize: '17px', lineHeight: 1.45, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', margin: 0 }}>
               {job.jobTitle}
             </h3>
-            <p style={{ fontSize: '11px', color: '#9ca3af', marginTop: '3px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginBottom: 0 }}>{org}</p>
+            <p style={{ fontSize: '15px', color: '#9ca3af', marginTop: '3px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginBottom: 0, fontWeight: 500 }}>{org}</p>
           </div>
         </div>
 
@@ -233,7 +245,6 @@ function JobCard({ job }: { job: Job }) {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', margin: '8px 0' }}>
           {(src || secCls) && (
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-              {/* Source tag removed */}
               {secCls && (
                 <span style={{ fontSize: '10px', fontWeight: 600, padding: '3px 8px', borderRadius: '999px' }} className={secCls}>
                   {job.sector}
@@ -243,10 +254,10 @@ function JobCard({ job }: { job: Job }) {
           )}
 
           {/* meta */}
-          <div style={{ fontSize: '12px', color: '#6b7280', minWidth: 0 }}>
+          <div style={{ fontSize: '15px', color: '#6b7280', minWidth: 0, fontWeight: 600 }}>
             {job.location && (
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <MapPin size={12} style={{ color: '#d1d5db', flexShrink: 0 }} />
+                <MapPin size={16} style={{ color: '#d1d5db', flexShrink: 0 }} />
                 <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{job.location}</span>
               </div>
             )}
@@ -256,30 +267,48 @@ function JobCard({ job }: { job: Job }) {
         {/* footer */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '12px', borderTop: '1px solid #f3f4f6', marginTop: 'auto' }}>
           {mounted && deadlineLabel ? (
-            <span style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11px', fontWeight: 600, color: expired ? '#d1d5db' : urgent ? '#ef4444' : '#9ca3af', textDecoration: expired ? 'line-through' : 'none' }}>
-              <Clock size={11} />
+            <span style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '15px', fontWeight: 700, color: expired ? '#d1d5db' : urgent ? '#ef4444' : '#6b7280', textDecoration: expired ? 'line-through' : 'none' }}>
+              <Clock size={14} />
               {deadlineLabel}
             </span>
           ) : mounted ? (
-            <span style={{ fontSize: '11px', color: '#d1d5db' }}>Open deadline</span>
+            <span style={{ fontSize: '15px', color: '#d1d5db', fontWeight: 700 }}>Open deadline</span>
           ) : (
-            <span style={{ fontSize: '11px', color: '#e5e7eb' }}>Loading...</span>
+            <span style={{ fontSize: '15px', color: '#e5e7eb', fontWeight: 700 }}>Loading...</span>
           )}
 
-          {isExternal ? (
-            <a href={href} target="_blank" rel="noopener noreferrer"
-              style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', fontSize: '12px', fontWeight: 700, color: '#0096c7', textDecoration: 'none' }}>
-              Apply <ChevronRight size={13} />
-            </a>
-          ) : (
-            <Link href={href}
-              style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', fontSize: '12px', fontWeight: 700, color: '#0096c7', textDecoration: 'none' }}>
-              View <ChevronRight size={13} />
-            </Link>
-          )}
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', fontSize: '15px', fontWeight: 700, color: '#0096c7' }}>
+            {isExternal ? 'Apply' : 'View'} <ChevronRight size={14} />
+          </span>
         </div>
       </div>
-    </div>
+    </>
+  );
+
+  if (isExternal) {
+    return (
+      <a
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        style={style}
+        onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.boxShadow = '0 8px 32px rgba(0,0,0,0.13)'; (e.currentTarget as HTMLAnchorElement).style.transform = 'translateY(-3px)'; }}
+        onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.boxShadow = '0 2px 12px rgba(0,0,0,0.07)'; (e.currentTarget as HTMLAnchorElement).style.transform = 'translateY(0)'; }}
+      >
+        <CardContent />
+      </a>
+    );
+  }
+
+  return (
+    <Link
+      href={href}
+      style={style}
+      onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.boxShadow = '0 8px 32px rgba(0,0,0,0.13)'; (e.currentTarget as HTMLAnchorElement).style.transform = 'translateY(-3px)'; }}
+      onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.boxShadow = '0 2px 12px rgba(0,0,0,0.07)'; (e.currentTarget as HTMLAnchorElement).style.transform = 'translateY(0)'; }}
+    >
+      <CardContent />
+    </Link>
   );
 }
 

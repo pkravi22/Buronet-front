@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import React from 'react';
 
 interface Props {
-  params: { id: string };
+  params: { id: string; slug: string };
   children: React.ReactNode;
 }
 

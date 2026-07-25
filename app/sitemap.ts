@@ -1,4 +1,5 @@
 import { MetadataRoute } from 'next';
+import { slugify } from '@/lib/helpers/slugify';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 3600; // Cache for 1 hour
@@ -37,7 +38,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       const jobsData = await jobsRes.json();
       const jobs = jobsData.data || [];
       const jobRoutes = jobs.map((job: any) => ({
-        url: `${baseUrl}/jobs/${job.id}`,
+        url: `${baseUrl}/jobs/${job.id}/${slugify(job.jobTitle)}`,
         lastModified: new Date(job.updatedDate || job.createdDate || new Date()),
         changeFrequency: 'weekly' as const,
         priority: 0.6,
