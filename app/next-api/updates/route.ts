@@ -66,18 +66,25 @@ export async function GET(req: Request) {
       );
     }
 
-    const client = await clientPromise;
-    const db = client.db("job_postings_db");
+    let updates = [];
+    try {
+      const client = await clientPromise;
+      const db = client.db("job_postings_db");
 
-    const updates = await db
-      .collection("jobAndExamUpdates")
-      .find({
-        type,
-        status: "active",
-      })
-      .sort({ priority: 1, createdAt: -1 })
-      .limit(limit)
-      .toArray();
+      updates = await db
+        .collection("jobAndExamUpdates")
+        .find({
+          type,
+          status: "active",
+        })
+        .sort({ priority: 1, createdAt: -1 })
+        .limit(limit)
+        .toArray();
+    } catch (dbErr) {
+      console.error("Updates database connection failed:", dbErr);
+      // Default to empty array to prevent 500 crashing the frontend
+      updates = [];
+    }
 
     return NextResponse.json(updates);
   } catch (err) {
