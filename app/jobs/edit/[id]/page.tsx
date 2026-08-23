@@ -113,7 +113,9 @@ const JobEditPage = () => {
     const fetchJob = async () => {
       setIsLoading(true);
       try {
-        const response = await get<Job>(`/Jobs/${jobId}`);
+        const raw = await get<any>(`/Jobs/${jobId}`);
+        // Unwrap ApiResponse wrapper — API returns { success, data: Job }
+        const response: Job = raw?.data ?? raw;
         setJob(response);
         
         // Initialize JSON fields

@@ -237,7 +237,7 @@ function extractDeadlineString(job: Job): string | undefined {
     ];
 
     for (const target of targets) {
-      const found = job.importantDatesStructured.find(d => 
+      const found = job.importantDatesStructured.find(d =>
         d.label && String(d.label).toLowerCase().includes(target)
       );
       if (found && found.value && String(found.value).trim() !== "") {
@@ -278,7 +278,7 @@ function extractDeadlineString(job: Job): string | undefined {
 
   // Fallback to eligibilityNotes
   if (job.eligibilityNotes && job.eligibilityNotes.length > 0) {
-    const found = job.eligibilityNotes.find(n => 
+    const found = job.eligibilityNotes.find(n =>
       n.includes('Date:') && n.toLowerCase().includes('last date')
     );
     if (found) {
@@ -711,9 +711,8 @@ const JobDetailsPage = ({ params }: JobDetailsPageProps) => {
                         const val = row[h] || '—';
                         const isTotal = h.toLowerCase().includes('total');
                         return (
-                          <td key={cIdx} className={`px-4 py-3 text-[14px] align-top leading-relaxed ${
-                            isTotal ? 'font-bold text-[#0096c7]' : 'text-gray-700 font-medium'
-                          }`}>
+                          <td key={cIdx} className={`px-4 py-3 text-[14px] align-top leading-relaxed ${isTotal ? 'font-bold text-[#0096c7]' : 'text-gray-700 font-medium'
+                            }`}>
                             {sanitizeText(val)}
                           </td>
                         );
@@ -1059,31 +1058,31 @@ const JobDetailsPage = ({ params }: JobDetailsPageProps) => {
                             return !lower.includes('android') && !lower.includes('telegram') && !lower.includes('sarkari') && !lower.includes('youtube') && !lower.includes('facebook') && !lower.includes('instagram') && !lower.includes('whatsapp');
                           })
                           .map((lnk, i) => (
-                          <a
-                            key={i}
-                            href={ensureAbsoluteUrl(lnk.url)}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className={`flex items-center justify-between bg-gray-50 rounded-xl p-4 transition group ${lnk.type === 'pdf' ? 'hover:bg-red-50' : 'hover:bg-cyan-50'
-                              }`}
-                          >
-                            <div className="flex items-center gap-3">
-                              {lnk.type === 'pdf' ? (
-                                <FileArchive size={18} className="text-red-500" />
-                              ) : lnk.type === 'apply' ? (
-                                <Globe size={18} className="text-[#00B4D8]" />
-                              ) : (
-                                <LucideLink size={18} className="text-gray-400" />
-                              )}
-                              <span className={`text-[14px] font-medium text-gray-800 ${lnk.type === 'pdf' ? 'group-hover:text-red-700' : 'group-hover:text-cyan-700'
-                                }`}>
-                                {sanitizeText(lnk.label)}
-                              </span>
-                            </div>
-                            <LucideLink size={15} className={`text-gray-400 ${lnk.type === 'pdf' ? 'group-hover:text-red-500' : 'group-hover:text-[#00B4D8]'
-                              }`} />
-                          </a>
-                        ))
+                            <a
+                              key={i}
+                              href={ensureAbsoluteUrl(lnk.url)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className={`flex items-center justify-between bg-gray-50 rounded-xl p-4 transition group ${lnk.type === 'pdf' ? 'hover:bg-red-50' : 'hover:bg-cyan-50'
+                                }`}
+                            >
+                              <div className="flex items-center gap-3">
+                                {lnk.type === 'pdf' ? (
+                                  <FileArchive size={18} className="text-red-500" />
+                                ) : lnk.type === 'apply' ? (
+                                  <Globe size={18} className="text-[#00B4D8]" />
+                                ) : (
+                                  <LucideLink size={18} className="text-gray-400" />
+                                )}
+                                <span className={`text-[14px] font-medium text-gray-800 ${lnk.type === 'pdf' ? 'group-hover:text-red-700' : 'group-hover:text-cyan-700'
+                                  }`}>
+                                  {sanitizeText(lnk.label)}
+                                </span>
+                              </div>
+                              <LucideLink size={15} className={`text-gray-400 ${lnk.type === 'pdf' ? 'group-hover:text-red-500' : 'group-hover:text-[#00B4D8]'
+                                }`} />
+                            </a>
+                          ))
                       ) : (
                         <>
                           {job.applyLink?.link && job.applyLink.link !== '#' && (
@@ -1468,31 +1467,31 @@ const JobDetailsPage = ({ params }: JobDetailsPageProps) => {
                           return !lower.includes('android') && !lower.includes('telegram') && !lower.includes('sarkari') && !lower.includes('youtube') && !lower.includes('facebook') && !lower.includes('instagram') && !lower.includes('whatsapp');
                         })
                         .map((lnk, i) => (
-                        <a
-                          key={i}
-                          href={ensureAbsoluteUrl(lnk.url)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className={`flex items-center justify-between bg-gray-50 rounded-xl p-4 transition group ${lnk.type === 'pdf' ? 'hover:bg-red-50' : 'hover:bg-cyan-50'
-                            }`}
-                        >
-                          <div className="flex items-center gap-3">
-                            {lnk.type === 'pdf' ? (
-                              <FileArchive size={18} className="text-red-500" />
-                            ) : lnk.type === 'apply' ? (
-                              <Globe size={18} className="text-[#00B4D8]" />
-                            ) : (
-                              <LucideLink size={18} className="text-gray-400" />
-                            )}
-                            <span className={`text-[14px] font-medium text-gray-800 ${lnk.type === 'pdf' ? 'group-hover:text-red-700' : 'group-hover:text-cyan-700'
-                              }`}>
-                              {sanitizeText(lnk.label)}
-                            </span>
-                          </div>
-                          <LucideLink size={15} className={`text-gray-400 ${lnk.type === 'pdf' ? 'group-hover:text-red-500' : 'group-hover:text-[#00B4D8]'
-                            }`} />
-                        </a>
-                      ))
+                          <a
+                            key={i}
+                            href={ensureAbsoluteUrl(lnk.url)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={`flex items-center justify-between bg-gray-50 rounded-xl p-4 transition group ${lnk.type === 'pdf' ? 'hover:bg-red-50' : 'hover:bg-cyan-50'
+                              }`}
+                          >
+                            <div className="flex items-center gap-3">
+                              {lnk.type === 'pdf' ? (
+                                <FileArchive size={18} className="text-red-500" />
+                              ) : lnk.type === 'apply' ? (
+                                <Globe size={18} className="text-[#00B4D8]" />
+                              ) : (
+                                <LucideLink size={18} className="text-gray-400" />
+                              )}
+                              <span className={`text-[14px] font-medium text-gray-800 ${lnk.type === 'pdf' ? 'group-hover:text-red-700' : 'group-hover:text-cyan-700'
+                                }`}>
+                                {sanitizeText(lnk.label)}
+                              </span>
+                            </div>
+                            <LucideLink size={15} className={`text-gray-400 ${lnk.type === 'pdf' ? 'group-hover:text-red-500' : 'group-hover:text-[#00B4D8]'
+                              }`} />
+                          </a>
+                        ))
                     ) : (
                       <>
                         {job.applyLink?.link && job.applyLink.link !== '#' && (
