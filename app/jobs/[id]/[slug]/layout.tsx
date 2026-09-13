@@ -28,6 +28,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         return {
           title,
           description,
+          alternates: {
+            canonical: `https://buronet.co.in/jobs/${jobId}/${params.slug}`,
+          },
           openGraph: {
             title,
             description,

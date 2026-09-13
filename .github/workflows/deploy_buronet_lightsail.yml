@@ -27,11 +27,11 @@ jobs:
       # 3. Build the Application
       - name: Build Application
         env:
-          NEXT_PUBLIC_DOTNET_BACKEND_BASE: "/api"
-          NEXT_PUBLIC_JOBS_BACKEND_BASE: '/api'
-          NEXT_PUBLIC_BYTES_BACKEND_BASE: '/api'
-          NEXT_PUBLIC_MESSAGING_BACKEND_BASE: '/api'
-          NEXT_PUBLIC_MESSAGE_SERVICE_BASE_URL: ''
+          NEXT_PUBLIC_DOTNET_BACKEND_BASE: "https://buronet.co.in/api"
+          NEXT_PUBLIC_JOBS_BACKEND_BASE: 'https://buronet.co.in/jobs/api'
+          NEXT_PUBLIC_BYTES_BACKEND_BASE: 'https://buronet.co.in/bytes/api'
+          NEXT_PUBLIC_MESSAGING_BACKEND_BASE: 'https://buronet.co.in/messaging/api'
+          NEXT_PUBLIC_MESSAGE_SERVICE_BASE_URL: 'https://buronet.co.in/messaging'
           MONGO_URI: 'mongodb+srv://shobhit9887:0aX62ECWzZ4sOrzb@cluster0.uo5qhgj.mongodb.net/job_postings_db?retryWrites=true&w=majority&appName=Cluster0'
           NEXT_PUBLIC_CURRENT_AFFAIRS_API_KEY: 'pub_7ebcbabb30e44a098ef683a34a98453c'
         run: npm run build
@@ -49,7 +49,7 @@ jobs:
           username: ${{ secrets.LIGHTSAIL_USER }}
           key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
           source: "deploy.tar.gz"
-          target: "/var/www/buronet-app"
+          target: "/opt/buronet/buronet-frontend"
           
       # 6. Extract Files and Restart App via PM2
       - name: Extract Files and Restart App
@@ -59,7 +59,11 @@ jobs:
           username: ${{ secrets.LIGHTSAIL_USER }}
           key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
           script: |
-            cd /var/www/buronet-app
+            # Source nvm so node/npm/pm2 are available in non-interactive SSH
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            export PATH="$PATH:/usr/local/bin:/home/ubuntu/.local/bin"
+            cd /opt/buronet/buronet-frontend
             rm -rf .next node_modules
             tar -xzf deploy.tar.gz
             rm deploy.tar.gz

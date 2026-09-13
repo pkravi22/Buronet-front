@@ -105,7 +105,7 @@ function extractDeadlineString(job: Job): string | undefined {
     ];
 
     for (const target of targets) {
-      const found = job.importantDatesStructured.find(d => 
+      const found = job.importantDatesStructured.find(d =>
         d.label && String(d.label).toLowerCase().includes(target)
       );
       if (found && found.value && String(found.value).trim() !== "") {
@@ -146,7 +146,7 @@ function extractDeadlineString(job: Job): string | undefined {
 
   // Fallback to eligibilityNotes
   if (job.eligibilityNotes && job.eligibilityNotes.length > 0) {
-    const found = job.eligibilityNotes.find(n => 
+    const found = job.eligibilityNotes.find(n =>
       n && typeof n === 'string' && n.includes('Date:') && n.toLowerCase().includes('last date')
     );
     if (found) {
@@ -159,9 +159,9 @@ function extractDeadlineString(job: Job): string | undefined {
 }
 
 const ORG_CLEAN: Record<string, string> = {
-  'Post Name':  '',
-  'post name':  '',
-  'Post name':  '',
+  'Post Name': '',
+  'post name': '',
+  'Post name': '',
   'Click Here': '',
   'click here': '',
   'Sarkari Result': '',
@@ -314,7 +314,7 @@ function JobCard({ job }: { job: Job }) {
 
 function SkeletonCard() {
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 shadow-md p-6 animate-pulse">
+    <div className="bg-white rounded-2xl border border-gray-200 shadow-md p-8 animate-pulse">
       <div className="flex gap-3 mb-3">
         <div className="w-11 h-11 rounded-2xl bg-gray-200 shrink-0" />
         <div className="flex-1 space-y-2 pt-1">
@@ -484,7 +484,7 @@ export default function PublicJobsSection() {
         </div>
 
         {/* ── Cards grid ───────────────────────────────────────────────── */}
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] justify-center gap-3 sm:gap-6">
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] justify-center gap-3 sm:gap-6" style={{ marginBottom: '40px' }}>
           {loading
             ? Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)
             : jobs.length > 0
@@ -503,13 +503,13 @@ export default function PublicJobsSection() {
 
         {/* ── Pagination ─────────────────────────────────────────────── */}
         {!loading && totalPages > 1 && (
-          <div className="flex items-center justify-between mt-8 pt-6 border-t border-gray-200">
+          <div className="flex items-center justify-between border-t border-gray-200" style={{ marginTop: '48px', paddingTop: '32px' }}>
             <button
               disabled={page <= 1}
               onClick={() => fetchJobs(page - 1)}
-              className="flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-200 rounded-xl text-[12px] font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-sm cursor-pointer"
+              className="flex items-center justify-center shrink-0 gap-2 px-5 py-3.5 bg-white border border-gray-200 rounded-xl text-[15px] font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-sm cursor-pointer"
             >
-              <ChevronLeft size={16} /> Previous
+              <ChevronLeft size={20} /> Previous
             </button>
 
             {/* Page numbers */}
@@ -521,9 +521,8 @@ export default function PublicJobsSection() {
                   <button
                     key={n}
                     onClick={() => fetchJobs(n)}
-                    className={`w-9 h-9 rounded-lg text-[12px] font-semibold transition-colors cursor-pointer ${
-                      n === page ? 'bg-[#0096c7] text-white shadow' : 'text-gray-600 hover:bg-gray-100'
-                    }`}
+                    className={`w-9 h-9 rounded-lg text-[12px] font-semibold transition-colors cursor-pointer ${n === page ? 'bg-[#0096c7] text-white shadow' : 'text-gray-600 hover:bg-gray-100'
+                      }`}
                   >
                     {n}
                   </button>
@@ -537,9 +536,9 @@ export default function PublicJobsSection() {
             <button
               disabled={page >= totalPages}
               onClick={() => fetchJobs(page + 1)}
-              className="flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-200 rounded-xl text-[12px] font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-sm cursor-pointer"
+              className="flex items-center justify-center shrink-0 gap-2 px-5 py-3.5 bg-white border border-gray-200 rounded-xl text-[15px] font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-sm cursor-pointer"
             >
-              Next <ChevronRight size={16} />
+              Next <ChevronRight size={20} />
             </button>
           </div>
         )}

@@ -14,17 +14,13 @@ import { RiComputerFill } from 'react-icons/ri';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { getProfileImageUrl } from '@/lib/helpers/profileImage';
 
-const setItemLink = (results: SearchResultDto) => {
-  results.results.forEach((item) => {
-    if (item.type === "Job") {
-      item.linkUrl = `/jobs/${item.id}`
-    } else if (item.type === "User") {
-
-    } else if (item.type === "Post") {
-
-    }
-  })
-}
+// Compute the correct link for a search result item
+const getItemLink = (item: { type: string; id: string; linkUrl?: string }): string => {
+  if (item.type === 'Job')  return `/jobs/${item.id}`;
+  if (item.type === 'User') return `/profile/${item.id}`;
+  if (item.type === 'Post') return `/posts/${item.id}`;
+  return item.linkUrl || '#';
+};
 
 const TopBar = () => {
   const { user, logout, isLoading } = useAuth();
@@ -64,20 +60,13 @@ const TopBar = () => {
 
   // --- SEARCH LOGIC (Debounced Effect) ---
   useEffect(() => {
-    // Only search if the query is at least 2 characters long
     if (searchQuery.length > 1) {
-      // Open the results dropdown
       setShowSearchResults(true);
-
       const timer = setTimeout(() => {
         executeSearch(searchQuery);
-      }, 300); // Debounce time
-
-      setItemLink(results);
-
+      }, 300);
       return () => clearTimeout(timer);
     } else {
-      // Close the results dropdown if query is too short or empty
       setShowSearchResults(false);
     }
   }, [searchQuery, executeSearch]);
@@ -123,7 +112,7 @@ const TopBar = () => {
       )}
 
       {!loading && results.results.length === 0 && searchQuery.length > 1 && (
-        <div className="p-4 text-center text-[#6B7280]">No results found for "{searchQuery}"</div>
+        <div className="p-4 text-center text-[#6B7280]">No results found for &quot;{searchQuery}&quot;</div>
       )}
 
       {!loading && results.results.length > 0 && (
@@ -135,7 +124,7 @@ const TopBar = () => {
           {results.results.slice(0, 8).map((item) => (
             <Link
               key={item.id}
-              href={item.linkUrl}
+              href={getItemLink(item)}
               onClick={() => {
                 setShowSearchResults(false);
                 setIsMobileSearchOpen(false);
@@ -144,12 +133,13 @@ const TopBar = () => {
               className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors"
             >
               <div className="p-2 bg-gray-100 rounded-full flex-shrink-0">{getIcon(item.type)}</div>
-              <div className="flex-grow">
-                <p className="font-medium text-[#1F2937] leading-tight">{item.title}</p>
-                <p className="text-xs text-[#6B7280] mt-0.5 leading-tight">{item.subtitle}</p>
+              <div className="flex-grow min-w-0">
+                <p className="font-medium text-[#1F2937] leading-tight truncate">{item.title}</p>
+                <p className="text-xs text-[#6B7280] mt-0.5 leading-tight truncate">{item.subtitle}</p>
               </div>
-              <span className={`text-xs font-medium px-2 py-0.5 rounded-full flex-shrink-0 ${item.type === 'Job' ? 'bg-green-100 text-green-700' : 'bg-cyan-100 text-cyan-700'
-                }`}>
+              <span className={`text-xs font-medium px-2 py-0.5 rounded-full flex-shrink-0 ${
+                item.type === 'Job' ? 'bg-green-100 text-green-700' : 'bg-cyan-100 text-cyan-700'
+              }`}>
                 {item.type}
               </span>
             </Link>
@@ -157,7 +147,6 @@ const TopBar = () => {
         </div>
       )}
 
-      {/* View All Button (If more results exist) */}
       {results.results.length > 8 && (
         <div className="p-2 border-t border-[#E5E7EB]">
           <Link href={`/search?q=${searchQuery}`} className="block text-center text-[#0096c7] text-sm font-medium hover:text-[#0e7490]">
@@ -244,7 +233,7 @@ const TopBar = () => {
           {/* Search Bar (Tablet & Up) - With Dropdown Logic */}
           <div ref={searchContainerRef} className="hidden md:flex flex-1 justify-center items-center px-4 relative">
             <div className="relative w-full max-w-[448px]">
-              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9CA3AF]">
+              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#0096c7]">
                 <FiSearch size={14} />
               </div>
               <input
@@ -253,7 +242,7 @@ const TopBar = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onFocus={() => searchQuery.length > 1 && setShowSearchResults(true)}
-                className="w-full h-9 pl-12 pr-4 bg-[#F3F4F6] rounded-full text-[#6B7280] focus:outline-none focus:ring-1 focus:ring-[#0096c7]"
+                className="w-full h-9 pl-12 pr-4 bg-[#F3F4F6] border border-[#0096c7] rounded-full text-[#6B7280] focus:outline-none focus:ring-2 focus:ring-[#0096c7]/40 transition-all"
               />
 
               {/* Search Results Dropdown */}
@@ -336,7 +325,7 @@ const TopBar = () => {
             <div className="relative" ref={profileRef}>
               <button
                 onClick={() => setShowProfile(!showProfile)}
-                className="flex items-center bg-[#F3F4F6] rounded-full h-[31px] px-1 border border-[#E5E7EB] hover:bg-gray-100 cursor-pointer"
+                className="flex items-center bg-[#F3F4F6] rounded-full h-[31px] px-1 border border-[#0096c7] hover:bg-cyan-50 cursor-pointer transition-all"
               >
                 {userProfile?.profilePictureUrl ? (
                   <img
@@ -345,7 +334,7 @@ const TopBar = () => {
                     className="w-[25px] h-[25px] rounded-full object-cover"
                   />
                 ) : (
-                  <div className="w-[25px] h-[25px] bg-gray-300 rounded-full flex items-center justify-center text-xs text-gray-600 font-medium">
+                  <div className="w-[25px] h-[25px] bg-[#0096c7] rounded-full flex items-center justify-center text-xs text-white font-bold">
                     {getInitials(userProfile?.firstName, userProfile?.lastName)}
                   </div>
                 )}
@@ -368,7 +357,7 @@ const TopBar = () => {
                           className="w-10 h-10 rounded-full object-cover"
                         />
                       ) : (
-                        <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center text-sm text-gray-600 font-medium">
+                        <div className="w-10 h-10 bg-[#0096c7] rounded-full flex items-center justify-center text-sm text-white font-bold">
                           {getInitials(userProfile?.firstName, userProfile?.lastName)}
                         </div>
                       )}
@@ -430,7 +419,7 @@ const TopBar = () => {
               <FiChevronLeft size={24} />
             </button>
             <div className="relative flex-1">
-              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9CA3AF]">
+              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[#0096c7]">
                 <FiSearch size={16} />
               </div>
               <input
@@ -439,7 +428,7 @@ const TopBar = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onFocus={() => searchQuery.length > 1 && setShowSearchResults(true)}
-                className="w-full h-10 pl-10 pr-4 bg-[#F3F4F6] rounded-lg text-[#6B7280] focus:outline-none focus:ring-1 focus:ring-[#0096c7]"
+                className="w-full h-10 pl-10 pr-4 bg-[#F3F4F6] border border-[#0096c7] rounded-lg text-[#6B7280] focus:outline-none focus:ring-2 focus:ring-[#0096c7]/40 transition-all"
                 autoFocus
               />
 

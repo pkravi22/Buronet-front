@@ -90,21 +90,12 @@ export const AuthRedirectHandler: React.FC<{ children: React.ReactNode }> = ({ c
 
     // 3. Profile Enforcement (for authenticated users)
     if (user) {
-  // A profile is incomplete if the object is missing OR if the setup flag is false
-      const profileIncomplete = !userProfile || !isProfileSetup;
-      console.log('AuthRedirectHandler: User is authenticated. Checking profile status...', { userProfile, isProfileSetup });
-      console.log(`AuthRedirectHandler: User is authenticated. Profile incomplete: ${profileIncomplete}. Current path: ${pathname}`);
-      
-      // A. Profile Incomplete: Force redirect to /complete-profile (but allow them to stay there)
-      if (profileIncomplete && pathname !== '/complete-profile') {
-        console.log('AuthRedirectHandler: Profile missing or incomplete. Redirecting.');
-        router.replace('/complete-profile');
-        return;
-      }
-
-      // B. Profile Complete: Redirect away from /complete-profile to /home
-      if (!profileIncomplete && pathname === '/complete-profile') {
-        console.log('AuthRedirectHandler: Profile complete. Moving to /home.');
+      // Users are no longer force-redirected to /complete-profile on first login.
+      // They can fill in details anytime via Edit Profile.
+      // If someone navigates directly to /complete-profile with a complete profile, send them home.
+      const profileComplete = !!userProfile && !!isProfileSetup;
+      if (profileComplete && pathname === '/complete-profile') {
+        console.log('AuthRedirectHandler: Profile already complete. Redirecting from /complete-profile to /home.');
         router.replace('/home');
         return;
       }

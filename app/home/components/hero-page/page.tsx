@@ -230,7 +230,7 @@ const GoogleFonts = () => (
       animation: pulse-ring 1.5s ease-out infinite;
     }
     .hero-title {
-      font-size: clamp(2.5rem, 4.5vw, 3.6rem);
+      font-size: clamp(3rem, 4.5vw, 4rem);
       font-weight: 800; line-height: 1.1;
       color: var(--ink); letter-spacing: -1.5px; margin-bottom: 0.5rem;
     }
@@ -257,8 +257,8 @@ const GoogleFonts = () => (
     }
     .btn-hero-outline {
       padding: 0.8rem 1.75rem; border-radius: 10px; font-size: 1.05rem;
-      font-weight: 600; color: var(--ink); background: transparent;
-      border: 1.5px solid rgba(13,30,44,0.18); cursor: pointer;
+      font-weight: 600; color: var(--ink); background: #fff;
+      border: 1.5px solid rgba(33, 125, 218, 0.18); cursor: pointer;
       transition: all 0.25s; font-family: inherit;
     }
     .btn-hero-outline:hover { border-color: var(--brand); color: var(--brand); }
@@ -355,7 +355,7 @@ const GoogleFonts = () => (
     }
     .feat-card {
       background: var(--surface); border-radius: 16px;
-      border: 1px solid var(--border); padding: 1.75rem;
+      border: 2px solid var(--border); padding: 1.75rem;
       transition: all 0.3s cubic-bezier(.22,.68,0,1.2);
       cursor: pointer; position: relative; overflow: hidden;
     }
@@ -460,7 +460,7 @@ const GoogleFonts = () => (
     }
     .why-card {
       text-align: center; padding: 2rem 1.5rem;
-      border-radius: 16px; border: 1px solid var(--border);
+      border-radius: 16px; border: 2px solid var(--border);
       background: var(--surface);
       transition: all 0.3s;
     }
@@ -849,7 +849,7 @@ export default function Home() {
           <h1 className="hero-title animate-fade-up delay-1">
             Empowering India's
             <span className="hero-title-accent">Next Generation</span>
-            of Civil Servants
+            of Job Aspirants
           </h1>
 
           <p className="hero-sub animate-fade-up delay-2">
@@ -858,7 +858,7 @@ export default function Home() {
 
           <div className="hero-actions animate-fade-up delay-3">
             <button className="btn-hero-primary" onClick={goRegister}>Join Free →</button>
-            <button className="btn-hero-outline" onClick={goLogin}>Explore Jobs</button>
+            <button className="btn-hero-outline md:bg-blue" onClick={goLogin}>Explore Jobs</button>
           </div>
 
 

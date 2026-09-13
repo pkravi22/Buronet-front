@@ -66,7 +66,7 @@ export async function GET(req: Request) {
       );
     }
 
-    let updates = [];
+    let updates: any[] = [];
     try {
       const client = await clientPromise;
       const db = client.db("job_postings_db");

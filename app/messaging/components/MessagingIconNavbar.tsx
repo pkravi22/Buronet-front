@@ -89,8 +89,8 @@ export default function MessagingIconNavbar() {
             title="Logout"
             className="w-11 h-11 flex items-center justify-center rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-[#0096c7] hover:bg-gray-50 text-[#505965]"
           >
-            {user.profilePictureUrl ? (
-              <img src={user.profilePictureUrl} className="w-6 h-6 rounded-full object-cover" alt="Profile" />
+            {(user as any).profilePictureUrl ? (
+              <img src={(user as any).profilePictureUrl} className="w-6 h-6 rounded-full object-cover" alt="Profile" />
             ) : (
               <div className="w-6 h-6 rounded-full bg-gray-100 text-gray-500 flex items-center justify-center shrink-0 border border-gray-200">
                 <FiUser size={14} />
