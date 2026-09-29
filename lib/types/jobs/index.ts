@@ -38,8 +38,12 @@ export interface Job {
   vacancyDetails?: Record<string, string>[];
   categoryVacancyDetails?: Record<string, string>[];
   howToApply?: string[];
+  detailedJobDescription?: string;
+  selectionProcess?: string[];
+  documentsRequired?: string[];
   importantLinks?: { label: string; url: string; type: string }[];
   sourceUrl?: string;
+  totalVacancies?: string;
 }
 
 export interface ApiResponse<T> {

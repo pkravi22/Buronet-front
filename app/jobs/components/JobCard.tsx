@@ -249,15 +249,20 @@ const JobCard = ({ job, isBookmarked, onToggleBookmark }: JobCardProps) => {
             </button>
           </div>
 
-          {/* ── Tags: source + sector ───────────────────────────────── */}
-          <div className="flex flex-wrap gap-1.5">
-            {/* Source tag removed */}
+          {/* ── Tags: totalVacancies + sector ──────────────────────── */}
+          <div className="flex flex-wrap items-center gap-1.5">
+            {job.totalVacancies && (
+              <span className="text-[11px] font-extrabold px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200/80 flex items-center gap-1">
+                🔥 {job.totalVacancies.length > 25 ? `${job.totalVacancies.slice(0, 25)}...` : job.totalVacancies}
+              </span>
+            )}
             {secStyle && sector && sector !== 'Government' && (
-              <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-md ${secStyle}`}>
+              <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border border-current/20 ${secStyle}`}>
                 {sector}
               </span>
             )}
           </div>
+
 
           {/* ── Meta: location + compensation ──────────────────────── */}
           <div className="flex items-center gap-4 text-[15px] font-semibold text-gray-600">

@@ -6,6 +6,35 @@ interface PageProps {
   params: { id: string; slug: string };
 }
 
+function safeToISOString(dateStr?: string | null): string | undefined {
+  if (!dateStr || typeof dateStr !== 'string') return undefined;
+  const trimmed = dateStr.trim();
+  if (!trimmed) return undefined;
+
+  let timestamp = Date.parse(trimmed);
+
+  if (isNaN(timestamp)) {
+    const match = trimmed.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{4})/);
+    if (match) {
+      const day = parseInt(match[1], 10);
+      const month = parseInt(match[2], 10) - 1;
+      const year = parseInt(match[3], 10);
+      const d = new Date(year, month, day);
+      if (!isNaN(d.getTime())) {
+        timestamp = d.getTime();
+      }
+    }
+  }
+
+  if (isNaN(timestamp)) return undefined;
+
+  try {
+    return new Date(timestamp).toISOString();
+  } catch {
+    return undefined;
+  }
+}
+
 export default async function JobDetailsPage({ params }: PageProps) {
   const jobId = params.id;
   const jobsApiBase = process.env.NEXT_PUBLIC_JOBS_BACKEND_BASE || 'https://test.buronet.co.in/jobs/api';
@@ -36,8 +65,8 @@ export default async function JobDetailsPage({ params }: PageProps) {
       "name": job.companyName || job.organizationName || "Buronet",
       "value": job.referenceNumber || job.id
     },
-    "datePosted": job.createdDate || job.updatedDate || new Date().toISOString(),
-    "validThrough": job.lastDateToApply ? new Date(job.lastDateToApply).toISOString() : undefined,
+    "datePosted": safeToISOString(job.createdDate) || safeToISOString(job.updatedDate) || new Date().toISOString(),
+    "validThrough": safeToISOString(job.lastDateToApply),
     "employmentType": job.employmentType ? job.employmentType.toUpperCase().replace(' ', '_') : "FULL_TIME",
     "hiringOrganization": {
       "@type": "Organization",
